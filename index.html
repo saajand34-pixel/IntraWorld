@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IntraWorld Login</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
+body{
+background:#020817;
+overflow-y:auto;
+min-height:180vh;
+color:white;
+}
+
+/* Animated Background */
+body::before{
+content:'';
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:
+radial-gradient(circle,#ffffff66 1px,transparent 1px);
+background-size:40px 40px;
+animation:stars 60s linear infinite;
+z-index:-2;
+}
+
+body::after{
+content:'';
+position:fixed;
+width:100%;
+height:100%;
+background:
+linear-gradient(180deg,#000814,#061c3a,#000814);
+opacity:.95;
+z-index:-3;
+}
+
+@keyframes stars{
+from{ transform:translateY(0); }
+to{ transform:translateY(600px); }
+}
+
+.wrapper{
+display:flex;
+justify-content:center;
+align-items:center;
+padding:80px 20px;
+}
+
+.card{
+width:430px;
+padding:40px;
+background:rgba(255,255,255,.08);
+border:1px solid rgba(255,255,255,.15);
+border-radius:25px;
+backdrop-filter:blur(15px);
+box-shadow:0 20px 50px rgba(0,0,0,.6);
+}
+
+.logo{
+display:flex;
+justify-content:center;
+margin-bottom:20px;
+}
+
+.logo img{
+width:170px;
+filter:drop-shadow(0 0 15px #4ea3ff);
+}
+
+h1{
+text-align:center;
+margin-bottom:10px;
+font-size:40px;
+}
+
+p{
+text-align:center;
+color:#d7d7d7;
+margin-bottom:30px;
+}
+
+.input-box{
+margin-bottom:20px;
+}
+
+.input-box input{
+width:100%;
+padding:15px;
+border:none;
+outline:none;
+border-radius:12px;
+background:#ffffff14;
+border:1px solid rgba(255,255,255,.2);
+color:white;
+font-size:16px;
+}
+
+.input-box input::placeholder{
+color:#ccc;
+}
+
+.row{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:25px;
+font-size:14px;
+}
+
+a{
+text-decoration:none;
+color:#58a6ff;
+}
+
+button{
+width:100%;
+padding:15px;
+border:none;
+border-radius:12px;
+font-size:18px;
+font-weight:600;
+cursor:pointer;
+background:linear-gradient(135deg,#0066ff,#00bfff);
+color:white;
+transition:.3s;
+}
+
+button:hover{
+transform:scale(1.03);
+box-shadow:0 0 20px #2196f3;
+}
+
+.footer{
+margin-top:30px;
+text-align:center;
+color:#bbb;
+}
+
+.extra{
+margin-top:120px;
+padding:60px;
+text-align:center;
+}
+
+.extra h2{
+font-size:45px;
+margin-bottom:20px;
+}
+
+.extra p{
+max-width:900px;
+margin:auto;
+line-height:2;
+font-size:18px;
+}
+
+.feature{
+margin-top:80px;
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+gap:30px;
+}
+
+.box{
+background:#ffffff10;
+padding:30px;
+border-radius:20px;
+border:1px solid rgba(255,255,255,.1);
+}
+
+.box h3{
+margin-bottom:15px;
+}
+
+.box p{
+text-align:left;
+}
+
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+<div class="card">
+
+<div class="logo">
+<img src="logo.png" alt="IntraWorld Logo">
+</div>
+
+<h1>Welcome</h1>
+<p>Sign in to continue to IntraWorld</p>
+
+<form id="loginForm">
+<div class="input-box">
+<input type="email" id="loginEmail" placeholder="Email Address" required>
+</div>
+
+<div class="input-box">
+<input type="password" id="loginPassword" placeholder="Password" required>
+</div>
+
+<div class="row">
+<a href="#" id="forgotPassword">Forgot Password?</a>
+</div>
+
+<button type="submit">Login</button>
+</form>
+
+<div class="footer">
+<p>Don't have an account? <a href="register.html">Sign Up</a></p>
+</div>
+
+</div>
+</div>
+
+<section class="extra">
+<h2>Explore IntraWorld</h2>
+<p>
+Stay Connected. Stay Informed. Stay Ahead.
+IntraWorld is your all-in-one platform for communication, announcements, collaboration, event updates, student services, project management, and much more.
+Scroll further to explore the amazing features available inside your organization.
+</p>
+
+<div class="feature">
+<div class="box">
+<h3>📢 Announcements</h3>
+<p>Receive instant notifications and important updates from your institution.</p>
+</div>
+
+<div class="box">
+<h3>📅 Events</h3>
+<p>Never miss workshops, seminars, competitions, or college activities.</p>
+</div>
+
+<div class="box">
+<h3>💬 Community</h3>
+<p>Interact with students, faculty, clubs, and departments in one place.</p>
+</div>
+
+<div class="box">
+<h3>📁 Resources</h3>
+<p>Access notes, files, circulars, project documents, and learning materials.</p>
+</div>
+</div>
+
+<div style="margin-top: 30px; display: flex; justify-content: center;">
+    <div class="cf-turnstile" data-sitekey="YOUR_CLOUDFLARE_TURNSTILE_SITE_KEY"></div>
+</div>
+</section>
+
+<!-- Firebase Authentication Integration -->
+<script type="module">
+    import { auth } from "./firebase-config.js";
+    import { signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+    const loginForm = document.getElementById("loginForm");
+
+    loginForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const email = document.getElementById("loginEmail").value.trim();
+        const password = document.getElementById("loginPassword").value;
+
+        try {
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            alert("Login successful! Welcome to IntraWorld.");
+            // Redirect to dashboard or home page
+            window.location.href = "index.html";
+        } catch (error) {
+            console.error("Login Error:", error);
+            alert("Authentication failed: " + error.message);
+        }
+    });
+
+    document.getElementById("forgotPassword").addEventListener("click", async (e) => {
+        e.preventDefault();
+        const email = prompt("Please enter your registered email address for password reset:");
+        if (email) {
+            try {
+                await sendPasswordResetEmail(auth, email);
+                alert("Password reset email sent! Check your inbox.");
+            } catch (error) {
+                alert("Error sending reset email: " + error.message);
+            }
+        }
+    });
+</script>
+
+</body>
+</html>

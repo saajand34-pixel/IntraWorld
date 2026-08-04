@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IntraWorld - Secure Registration</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: #020817;
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.4) 1px, transparent 1px);
+            background-size: 35px 35px;
+            animation: stars 80s linear infinite;
+            z-index: -2;
+            opacity: 0.6;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, #071930 0%, #020817 80%);
+            z-index: -3;
+        }
+
+        @keyframes stars {
+            from { transform: translateY(0); }
+            to { transform: translateY(700px); }
+        }
+
+        .register-card {
+            width: 100%;
+            max-width: 700px;
+            padding: 40px;
+            background: rgba(10, 22, 40, 0.75);
+            border: 1px solid rgba(0, 140, 255, 0.25);
+            border-radius: 24px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 0 40px rgba(0, 102, 255, 0.15), 0 20px 50px rgba(0, 0, 0, 0.8);
+            position: relative;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .logo-container img {
+            width: 150px;
+            height: auto;
+            filter: drop-shadow(0 0 15px rgba(78, 163, 255, 0.8));
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: #ffffff;
+        }
+
+        .header p {
+            font-size: 13px;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+
+        .tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 30px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: transparent;
+            color: #94a3b8;
+            font-size: 13px;
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #0052d4, #4364f7);
+            color: #ffffff;
+            box-shadow: 0 0 12px rgba(0, 102, 255, 0.4);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .full-width {
+            grid-column: span 2;
+        }
+
+        .input-group {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .input-group label {
+            font-size: 12px;
+            font-weight: 500;
+            color: #cbd5e1;
+        }
+
+        .field-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .field-wrapper i.icon {
+            position: absolute;
+            left: 14px;
+            color: #64748b;
+            font-size: 15px;
+            transition: 0.3s;
+        }
+
+        .field-wrapper input, 
+        .field-wrapper select, 
+        .field-wrapper textarea {
+            width: 100%;
+            padding: 12px 14px 12px 42px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            color: #ffffff;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .field-wrapper textarea {
+            padding-left: 42px;
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .field-wrapper select option {
+            background-color: #0b172a;
+            color: #ffffff;
+        }
+
+        .field-wrapper input:focus, 
+        .field-wrapper select:focus, 
+        .field-wrapper textarea:focus {
+            border-color: #0088ff;
+            background: rgba(0, 136, 255, 0.08);
+            box-shadow: 0 0 10px rgba(0, 136, 255, 0.3);
+        }
+
+        .field-wrapper input:focus ~ i.icon,
+        .field-wrapper select:focus ~ i.icon {
+            color: #38bdf8;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 14px;
+            color: #64748b;
+            cursor: pointer;
+        }
+
+        .verification-box {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px dashed rgba(56, 189, 248, 0.3);
+            border-radius: 14px;
+            padding: 20px;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .mfa-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .btn-send-otp {
+            padding: 0 15px;
+            background: rgba(0, 136, 255, 0.2);
+            border: 1px solid #0088ff;
+            color: #38bdf8;
+            border-radius: 8px;
+            font-size: 12px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: 0.3s;
+        }
+
+        .btn-send-otp:hover {
+            background: #0088ff;
+            color: #ffffff;
+        }
+
+        .camera-container {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            background: #000000;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(0, 225, 255, 0.3);
+        }
+
+        #video-feed {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        .camera-overlay {
+            position: absolute;
+            width: 140px;
+            height: 140px;
+            border: 2px dashed #00e1ff;
+            border-radius: 50%;
+            box-shadow: 0 0 15px rgba(0, 225, 255, 0.2);
+            display: none;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.98); opacity: 0.8; }
+            50% { transform: scale(1.02); opacity: 1; }
+            100% { transform: scale(0.98); opacity: 0.8; }
+        }
+
+        .camera-placeholder {
+            text-align: center;
+            color: #64748b;
+        }
+
+        .camera-placeholder i {
+            font-size: 32px;
+            margin-bottom: 8px;
+            color: #38bdf8;
+        }
+
+        .btn-action-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 25px;
+            gap: 15px;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            background: linear-gradient(135deg, #0052d4, #4364f7, #6fb1fc);
+            color: #ffffff;
+            box-shadow: 0 0 15px rgba(0, 102, 255, 0.4);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px rgba(0, 102, 255, 0.7);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .footer-link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        .footer-link a {
+            color: #38bdf8;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .footer-link a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 600px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .full-width { grid-column: span 1; }
+            .register-card { padding: 25px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="register-card">
+        <div class="header">
+            <div class="logo-container">
+                <img src="logo.png" alt="IntraWorld Logo">
+            </div>
+            <h1>IntraWorld</h1>
+            <p>Create a verified secure account</p>
+        </div>
+
+        <div class="tabs">
+            <button type="button" class="tab-btn active" id="btn-tab-0">
+                <i class="fa-solid fa-user"></i> 1. Basic Details
+            </button>
+            <button type="button" class="tab-btn" id="btn-tab-1">
+                <i class="fa-solid fa-id-card"></i> 2. Profile Details
+            </button>
+            <button type="button" class="tab-btn" id="btn-tab-2">
+                <i class="fa-solid fa-shield-halved"></i> 3. Verification
+            </button>
+        </div>
+
+        <form id="registrationForm">
+
+            <!-- TAB 1: BASIC DETAILS -->
+            <div class="tab-content active" id="tab-0">
+                <div class="form-grid">
+                    <div class="input-group full-width">
+                        <label>Full Name</label>
+                        <div class="field-wrapper">
+                            <i class="fa-solid fa-user icon"></i>
+                            <input type="text" name="full_name" placeholder="John Doe" required>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Email Address</label>
+                        <div class="field-wrapper">
+                            <i class="fa-solid fa-envelope icon"></i>
+                            <input type="email" name="email" placeholder="name@company.com" required>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Mobile Number</label>
+                        <div class="field-wrapper">
+                            <i class="fa-solid fa-phone icon"></i>
+                            <input type="tel" name="mobile_number" id="mobile_number" placeholder="+1234567890" required>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Password</label>
+                        <div class="field-wrapper">
+                            <i class="fa-solid fa-lock icon"></i>
+                            <input type="password" id="password" name="password" placeholder="••••••••" required>
+                            <i class="fa-solid fa-eye toggle-password" data-target="password"></i>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Confirm Password</label>
+                        <div class="field-wrapper">
+                            <i class="fa-solid fa-lock icon"></i>
+                            <input type="password" id="confirm_password" name="confirm_password" placeholder="••••••••" required>
+                            <i class="fa-solid fa-eye toggle-password" data-target="confirm_password"></i>
+                        </div>
+                    </div>
+
+                    <div class="input-group full-width">
+                        <label>Profile Photo Upload</label>
+                        <div class="field-wrapper">
+                            <i class="fa-solid fa-image icon"></i>
+                            <input type="file" name="profile_photo" accept="image/*" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="btn-action-group">
+                    <button type="button" class="btn-submit" id="nav-to-1">
+                        Next: Profile Details <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- TAB 2: PROFILE DETAILS -->
+            <div class="tab-content" id="tab-1">
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label>Qualification</label>
+                        <div class="field-wrapper">
+                            <i class="fa-solid fa-graduation-cap icon"></i>
+                            <select name="qualification">
+                                <option value="">Select Qualification</option>
+                                <option value="bachelors">Bachelor's Degree</option>
+                                <option value="masters">Master's Degree</option>
+                                <option value="phd">Doctorate / Ph.D.</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Specialization</label>
+                        <div class="field-wrapper">
+                            <i class="fa-solid fa-award icon"></i>
+                            <input type="text" name="specialization" placeholder="Computer Science, Finance, etc.">
+                        </div>
+                    </div>
+
+                    <div class="input-group full-width">
+                        <label>College / University</label>
+                        <div class="field-wrapper">
+                            <i class="fa-solid fa-building-columns icon"></i>
+                            <input type="text" name="college_university" placeholder="University Name">
+                        </div>
+                    </div>
+
+                    <div class="input-group full-width">
+                        <label>Skills (Comma separated)</label>
+                        <div class="field-wrapper">
+                            <i class="fa-solid fa-code icon"></i>
+                            <input type="text" name="skills" placeholder="Java, SQL, Graphic Design, Analytics">
+                        </div>
+                    </div>
+
+                    <div class="input-group full-width">
+                        <label>Professional Interests</label>
+                        <div class="field-wrapper">
+                            <i class="fa-solid fa-lightbulb icon"></i>
+                            <textarea name="professional_interests" placeholder="Cybersecurity, AI development, Cloud Computing..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="btn-action-group">
+                    <button type="button" class="btn-submit btn-secondary" id="nav-to-0">
+                        <i class="fa-solid fa-arrow-left"></i> Back
+                    </button>
+                    <button type="button" class="btn-submit" id="nav-to-2">
+                        Next: Identity Security <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- TAB 3: MFA & LIVE CAMERA VERIFICATION -->
+            <div class="tab-content" id="tab-2">
+                <div class="verification-box">
+                    <h3 style="font-size:15px; color:#38bdf8; margin-bottom: 5px;"><i class="fa-solid fa-mobile-screen"></i> Multi-Factor Authentication (MFA)</h3>
+                    <p style="font-size:12px; color:#94a3b8;">Enter the 6-digit OTP code sent to your registered mobile number.</p>
+                    
+                    <div class="mfa-container">
+                        <div class="field-wrapper" style="flex:1;">
+                            <i class="fa-solid fa-key icon"></i>
+                            <input type="text" id="otp-code" maxlength="6" placeholder="Enter 6-digit OTP">
+                        </div>
+                        <button type="button" class="btn-send-otp" id="send-otp-btn">Send OTP</button>
+                    </div>
+                    <div id="recaptcha-container" style="margin-top: 10px;"></div>
+                </div>
+
+                <div class="verification-box" style="margin-top: 15px;">
+                    <h3 style="font-size:15px; color:#38bdf8; margin-bottom: 5px;"><i class="fa-solid fa-camera"></i> Live-Camera Liveness Verification</h3>
+                    <p style="font-size:12px; color:#94a3b8;">Ensure your face is centered inside the camera circle to confirm your identity.</p>
+
+                    <div class="camera-container" id="cam-box">
+                        <div class="camera-placeholder" id="cam-placeholder">
+                            <i class="fa-solid fa-video"></i>
+                            <p style="font-size: 12px;">Camera is currently inactive</p>
+                        </div>
+                        <video id="video-feed" autoplay playsinline></video>
+                        <div class="camera-overlay" id="cam-overlay"></div>
+                    </div>
+
+                    <button type="button" class="btn-send-otp" id="start-camera-btn" style="margin-top: 12px; width: 100%; padding: 10px;">
+                        <i class="fa-solid fa-circle-play"></i> Start Live Verification
+                    </button>
+                </div>
+
+                <div class="btn-action-group">
+                    <button type="button" class="btn-submit btn-secondary" id="nav-to-1-back">
+                        <i class="fa-solid fa-arrow-left"></i> Back
+                    </button>
+                    <button type="submit" class="btn-submit">
+                        <i class="fa-solid fa-check-double"></i> Complete Registration
+                    </button>
+                </div>
+            </div>
+
+        </form>
+
+        <div style="margin-top: 20px; display: flex; justify-content: center;">
+            <div class="cf-turnstile" data-sitekey="YOUR_CLOUDFLARE_TURNSTILE_SITE_KEY"></div>
+        </div>
+
+        <div class="footer-link">
+            Already have an account? <a href="index.html">Sign In</a>
+        </div>
+    </div>
+
+    <!-- Main Logic & Firebase ESM Integration -->
+    <script type="module">
+        import { auth, db, storage, RecaptchaVerifier, signInWithPhoneNumber, doc, setDoc, ref, uploadBytes, getDownloadURL } from "./firebase-config.js";
+        import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        let confirmationResult = null;
+        let isLivenessVerified = false;
+
+        // UI Tab Switcher
+        window.switchTab = function(tabIndex) {
+            document.querySelectorAll('.tab-btn').forEach((tab, index) => {
+                tab.classList.toggle('active', index === tabIndex);
+            });
+            document.querySelectorAll('.tab-content').forEach((content, index) => {
+                content.classList.toggle('active', index === tabIndex);
+            });
+        };
+
+        // Navigation Handlers
+        document.getElementById('btn-tab-0').addEventListener('click', () => switchTab(0));
+        document.getElementById('btn-tab-1').addEventListener('click', () => switchTab(1));
+        document.getElementById('btn-tab-2').addEventListener('click', () => switchTab(2));
+        document.getElementById('nav-to-0').addEventListener('click', () => switchTab(0));
+        document.getElementById('nav-to-1').addEventListener('click', () => switchTab(1));
+        document.getElementById('nav-to-1-back').addEventListener('click', () => switchTab(1));
+        document.getElementById('nav-to-2').addEventListener('click', () => switchTab(2));
+
+        // Password Visibility Toggle
+        document.querySelectorAll('.toggle-password').forEach(icon => {
+            icon.addEventListener('click', () => {
+                const targetId = icon.getAttribute('data-target');
+                const field = document.getElementById(targetId);
+                if (field.type === "password") {
+                    field.type = "text";
+                    icon.classList.replace("fa-eye", "fa-eye-slash");
+                } else {
+                    field.type = "password";
+                    icon.classList.replace("fa-eye-slash", "fa-eye");
+                }
+            });
+        });
+
+        // WebCam Liveness Flow Integration
+        document.getElementById('start-camera-btn').addEventListener('click', async () => {
+            const video = document.getElementById('video-feed');
+            const placeholder = document.getElementById('cam-placeholder');
+            const overlay = document.getElementById('cam-overlay');
+
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+                video.style.display = 'block';
+                placeholder.style.display = 'none';
+                overlay.style.display = 'block';
+                isLivenessVerified = true;
+                alert("Camera active. Face verified in frame.");
+            } catch (err) {
+                alert("Camera access denied or webcam not detected.");
+            }
+        });
+
+        // Setup invisible Recaptcha for Firebase Phone Auth
+        window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+            'size': 'invisible'
+        });
+
+        // OTP Request Handler
+        document.getElementById('send-otp-btn').addEventListener('click', async () => {
+            const phoneNumber = document.getElementById('mobile_number').value.trim();
+            if (!phoneNumber) {
+                alert("Please enter a valid phone number in Tab 1 (include country code, e.g. +1234567890).");
+                return;
+            }
+
+            try {
+                const appVerifier = window.recaptchaVerifier;
+                confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
+                alert("OTP sent successfully to " + phoneNumber);
+            } catch (error) {
+                console.error("SMS Error:", error);
+                alert("Failed to send OTP: " + error.message);
+            }
+        });
+
+        // Registration Submission
+        const regForm = document.getElementById("registrationForm");
+        regForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm_password').value;
+
+            if (password !== confirmPassword) {
+                alert("Passwords do not match!");
+                switchTab(0);
+                return;
+            }
+
+            // Verify OTP
+            const otpCode = document.getElementById('otp-code').value.trim();
+            if (confirmationResult && otpCode) {
+                try {
+                    await confirmationResult.confirm(otpCode);
+                } catch (error) {
+                    alert("Invalid OTP code. Please check and try again.");
+                    return;
+                }
+            }
+
+            const fullName = regForm.querySelector('input[name="full_name"]').value;
+            const email = regForm.querySelector('input[name="email"]').value;
+            const mobile = regForm.querySelector('input[name="mobile_number"]').value;
+            const photoFile = regForm.querySelector('input[name="profile_photo"]').files[0];
+
+            try {
+                // 1. Create Auth User
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // 2. Upload Profile Photo to Firebase Storage
+                let photoUrl = "";
+                if (photoFile) {
+                    const photoRef = ref(storage, `profile_photos/${user.uid}/${photoFile.name}`);
+                    const uploadResult = await uploadBytes(photoRef, photoFile);
+                    photoUrl = await getDownloadURL(uploadResult.ref);
+                }
+
+                // 3. Save User Profile in Firestore
+                await setDoc(doc(db, "users", user.uid), {
+                    fullName: fullName,
+                    email: email,
+                    mobileNumber: mobile,
+                    profilePhotoUrl: photoUrl,
+                    qualification: regForm.querySelector('select[name="qualification"]').value,
+                    specialization: regForm.querySelector('input[name="specialization"]').value,
+                    collegeUniversity: regForm.querySelector('input[name="college_university"]').value,
+                    skills: regForm.querySelector('input[name="skills"]').value.split(",").map(s => s.trim()),
+                    professionalInterests: regForm.querySelector('textarea[name="professional_interests"]').value,
+                    livenessVerified: isLivenessVerified,
+                    createdAt: new Date().toISOString()
+                });
+
+                alert("Account created and verified successfully!");
+                window.location.href = "index.html";
+
+            } catch (error) {
+                console.error("Registration Error:", error);
+                alert("Registration failed: " + error.message);
+            }
+        });
+    </script>
+</body>
+</html>
