@@ -36,11 +36,9 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.4) 1px, transparent 1px);
-            background-size: 35px 35px;
-            animation: stars 80s linear infinite;
+            background: radial-gradient(circle, #ffffff66 1px, transparent 1px);
+            background-size: 40px 40px;
             z-index: -2;
-            opacity: 0.6;
         }
 
         body::after {
@@ -50,13 +48,9 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: radial-gradient(ellipse at center, #071930 0%, #020817 80%);
+            background: linear-gradient(180deg, #000814, #061c3a, #000814);
+            opacity: .95;
             z-index: -3;
-        }
-
-        @keyframes stars {
-            from { transform: translateY(0); }
-            to { transform: translateY(700px); }
         }
 
         .register-card {
@@ -393,7 +387,7 @@
             </button>
         </div>
 
-        <form id="registrationForm">
+        <form id="registrationForm" novalidate>
 
             <!-- TAB 1: BASIC DETAILS -->
             <div class="tab-content active" id="tab-0">
@@ -571,14 +565,12 @@
         </div>
     </div>
 
-    <!-- Main Logic & Firebase ESM Integration -->
-    <script type="module">
-        import { auth, db, storage, RecaptchaVerifier, signInWithPhoneNumber, doc, setDoc, ref, uploadBytes, getDownloadURL } from "./firebase-config.js";
-        import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-
-        let confirmationResult = null;
-        let isLivenessVerified = false;
-
+    <!-- UI Logic: tab navigation, validation, password toggle, camera.
+         Kept as a PLAIN script (not type="module") so it still works even if
+         firebase-config.js is missing/broken or the page is opened via file://
+         (module imports get blocked in that case and would otherwise take
+         down every click handler on the page, including "Next"). -->
+    <script>
         // UI Tab Switcher
         window.switchTab = function(tabIndex) {
             document.querySelectorAll('.tab-btn').forEach((tab, index) => {
@@ -589,14 +581,30 @@
             });
         };
 
+        // Validates the required fields inside a given tab WHILE it is still visible.
+        // (Native form.submit()/checkValidity() silently fails on required fields
+        // that are hidden with display:none, which is what happens once you move
+        // past a tab in this wizard - that was the original bug blocking registration.)
+        function validateTab(tabId) {
+            const tab = document.getElementById(tabId);
+            const fields = tab.querySelectorAll('[required]');
+            for (const field of fields) {
+                if (!field.checkValidity()) {
+                    field.reportValidity();
+                    return false;
+                }
+            }
+            return true;
+        }
+
         // Navigation Handlers
         document.getElementById('btn-tab-0').addEventListener('click', () => switchTab(0));
-        document.getElementById('btn-tab-1').addEventListener('click', () => switchTab(1));
-        document.getElementById('btn-tab-2').addEventListener('click', () => switchTab(2));
+        document.getElementById('btn-tab-1').addEventListener('click', () => { if (validateTab('tab-0')) switchTab(1); });
+        document.getElementById('btn-tab-2').addEventListener('click', () => { if (validateTab('tab-0')) switchTab(2); });
         document.getElementById('nav-to-0').addEventListener('click', () => switchTab(0));
-        document.getElementById('nav-to-1').addEventListener('click', () => switchTab(1));
+        document.getElementById('nav-to-1').addEventListener('click', () => { if (validateTab('tab-0')) switchTab(1); });
         document.getElementById('nav-to-1-back').addEventListener('click', () => switchTab(1));
-        document.getElementById('nav-to-2').addEventListener('click', () => switchTab(2));
+        document.getElementById('nav-to-2').addEventListener('click', () => { if (validateTab('tab-0')) switchTab(2); });
 
         // Password Visibility Toggle
         document.querySelectorAll('.toggle-password').forEach(icon => {
@@ -625,17 +633,30 @@
                 video.style.display = 'block';
                 placeholder.style.display = 'none';
                 overlay.style.display = 'block';
-                isLivenessVerified = true;
+                window.isLivenessVerified = true;
                 alert("Camera active. Face verified in frame.");
             } catch (err) {
                 alert("Camera access denied or webcam not detected.");
             }
         });
+    </script>
+
+    <!-- Firebase-dependent logic: OTP, liveness flag hookup, and final registration submit.
+         This is the only part that needs the Firebase module and firebase-config.js. -->
+    <script type="module">
+        import { auth, db, storage, RecaptchaVerifier, signInWithPhoneNumber, doc, setDoc, ref, uploadBytes, getDownloadURL } from "./firebase-config.js";
+        import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        let confirmationResult = null;
 
         // Setup invisible Recaptcha for Firebase Phone Auth
-        window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-            'size': 'invisible'
-        });
+        try {
+            window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+                'size': 'invisible'
+            });
+        } catch (error) {
+            console.error("Recaptcha init failed:", error);
+        }
 
         // OTP Request Handler
         document.getElementById('send-otp-btn').addEventListener('click', async () => {
@@ -659,6 +680,11 @@
         const regForm = document.getElementById("registrationForm");
         regForm.addEventListener("submit", async (e) => {
             e.preventDefault();
+
+            if (!validateTab('tab-0')) {
+                switchTab(0);
+                return;
+            }
 
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirm_password').value;
@@ -709,7 +735,7 @@
                     collegeUniversity: regForm.querySelector('input[name="college_university"]').value,
                     skills: regForm.querySelector('input[name="skills"]').value.split(",").map(s => s.trim()),
                     professionalInterests: regForm.querySelector('textarea[name="professional_interests"]').value,
-                    livenessVerified: isLivenessVerified,
+                    livenessVerified: !!window.isLivenessVerified,
                     createdAt: new Date().toISOString()
                 });
 
