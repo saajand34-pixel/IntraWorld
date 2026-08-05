@@ -258,40 +258,133 @@ Designed to significantly reduce fake and fraudulent profiles through layered ve
 
 <!-- Firebase Authentication Integration -->
 <script type="module">
-    import { auth } from "./firebase-config.js";
-    import { signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-    const loginForm = document.getElementById("loginForm");
+import { auth } from "./firebase-config.js";
 
-    loginForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const email = document.getElementById("loginEmail").value.trim();
-        const password = document.getElementById("loginPassword").value;
+import {
+    signInWithEmailAndPassword,
+    sendPasswordResetEmail,
+    onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-        try {
-            const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            alert("Login successful! Welcome to IntraWorld.");
-            // Redirect to dashboard or home page
-            window.location.href = "index.html";
-        } catch (error) {
-            console.error("Login Error:", error);
-            alert("Authentication failed: " + error.message);
+const loginForm = document.getElementById("loginForm");
+const loginBtn = loginForm.querySelector("button");
+
+function setLoading(isLoading){
+    loginBtn.disabled = isLoading;
+
+    if(isLoading){
+        loginBtn.innerHTML="Signing In...";
+    }else{
+        loginBtn.innerHTML="Login";
+    }
+}
+
+loginForm.addEventListener("submit",async(e)=>{
+
+    e.preventDefault();
+
+    const email=document.getElementById("loginEmail").value.trim();
+
+    const password=document.getElementById("loginPassword").value;
+
+    if(email==="" || password===""){
+        alert("Please enter Email and Password.");
+        return;
+    }
+
+    setLoading(true);
+
+    try{
+
+        const credential=await signInWithEmailAndPassword(
+            auth,
+            email,
+            password
+        );
+
+        const user=credential.user;
+
+        if(user.email==="admin@intraworld.com"){
+
+            window.location.href="admin.html";
+
+        }else{
+
+            window.location.href="dashboard.html";
+
         }
-    });
 
-    document.getElementById("forgotPassword").addEventListener("click", async (e) => {
-        e.preventDefault();
-        const email = prompt("Please enter your registered email address for password reset:");
-        if (email) {
-            try {
-                await sendPasswordResetEmail(auth, email);
-                alert("Password reset email sent! Check your inbox.");
-            } catch (error) {
-                alert("Error sending reset email: " + error.message);
-            }
+    }catch(error){
+
+        switch(error.code){
+
+            case "auth/user-not-found":
+                alert("Account not found.");
+                break;
+
+            case "auth/wrong-password":
+                alert("Incorrect password.");
+                break;
+
+            case "auth/invalid-email":
+                alert("Invalid email address.");
+                break;
+
+            case "auth/invalid-credential":
+                alert("Invalid email or password.");
+                break;
+
+            default:
+                alert(error.message);
         }
-    });
+
+    }
+
+    setLoading(false);
+
+});
+
+document
+.getElementById("forgotPassword")
+.addEventListener("click",async(e)=>{
+
+    e.preventDefault();
+
+    const email=prompt("Enter your registered email");
+
+    if(!email) return;
+
+    try{
+
+        await sendPasswordResetEmail(auth,email);
+
+        alert("Password reset email sent.");
+
+    }catch(error){
+
+        alert(error.message);
+
+    }
+
+});
+
+onAuthStateChanged(auth,(user)=>{
+
+    if(!user) return;
+
+    if(user.email==="admin@intraworld.com"){
+
+        window.location.href="admin.html";
+
+    }else{
+
+        window.location.href="dashboard.html";
+
+    }
+
+});
+
 </script>
-
 </body>
 </html>
