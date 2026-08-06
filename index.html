@@ -210,7 +210,7 @@ text-align:left;
 </div>
 
 <div class="row">
-<a href="#" id="forgotPassword">Forgot Password?</a>
+<a href="forgotpassword.html" id="forgotPassword">Forgot Password?</a>
 </div>
 
 <button type="submit">Login</button>
@@ -263,7 +263,6 @@ import { auth } from "./firebase-config.js";
 
 import {
     signInWithEmailAndPassword,
-    sendPasswordResetEmail,
     onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
@@ -285,7 +284,6 @@ loginForm.addEventListener("submit",async(e)=>{
     e.preventDefault();
 
     const email=document.getElementById("loginEmail").value.trim();
-
     const password=document.getElementById("loginPassword").value;
 
     if(email==="" || password===""){
@@ -306,13 +304,9 @@ loginForm.addEventListener("submit",async(e)=>{
         const user=credential.user;
 
         if(user.email==="admin@intraworld.com"){
-
             window.location.href="admin.html";
-
         }else{
-
             window.location.href="dashboard.html";
-
         }
 
     }catch(error){
@@ -345,42 +339,14 @@ loginForm.addEventListener("submit",async(e)=>{
 
 });
 
-<!-- Replace <a href="#" id="forgotPassword">Forgot Password?</a> with: -->
-<div class="row">
-    <a href="forgotpassword.html" id="forgotPassword">Forgot Password?</a>
-</div>
-    e.preventDefault();
-
-    const email=prompt("Enter your registered email");
-
-    if(!email) return;
-
-    try{
-
-        await sendPasswordResetEmail(auth,email);
-
-        alert("Password reset email sent.");
-
-    }catch(error){
-
-        alert(error.message);
-
-    }
-
-});
-
 onAuthStateChanged(auth,(user)=>{
 
     if(!user) return;
 
     if(user.email==="admin@intraworld.com"){
-
         window.location.href="admin.html";
-
     }else{
-
         window.location.href="dashboard.html";
-
     }
 
 });
