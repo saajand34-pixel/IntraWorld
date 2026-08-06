@@ -345,10 +345,10 @@ loginForm.addEventListener("submit",async(e)=>{
 
 });
 
-document
-.getElementById("forgotPassword")
-.addEventListener("click",async(e)=>{
-
+<!-- Replace <a href="#" id="forgotPassword">Forgot Password?</a> with: -->
+<div class="row">
+    <a href="forgotpassword.html" id="forgotPassword">Forgot Password?</a>
+</div>
     e.preventDefault();
 
     const email=prompt("Enter your registered email");

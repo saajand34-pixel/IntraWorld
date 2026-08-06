@@ -508,6 +508,21 @@
                         Next: Identity Security <i class="fa-solid fa-arrow-right"></i>
                     </button>
                 </div>
+                <div class="input-group">
+    <label>Favourite Sport</label>
+    <div class="field-wrapper">
+        <i class="fa-solid fa-futbol icon"></i>
+        <input type="text" name="favourite_sport" id="favourite_sport" placeholder="e.g. Football, Cricket" required>
+    </div>
+</div>
+
+<div class="input-group">
+    <label>Primary Ambition</label>
+    <div class="field-wrapper">
+        <i class="fa-solid fa-bullseye icon"></i>
+        <input type="text" name="ambition" id="ambition" placeholder="e.g. Software Engineer, Entrepreneur" required>
+    </div>
+</div>
             </div>
 
             <!-- TAB 3: MFA & LIVE CAMERA VERIFICATION -->
@@ -724,20 +739,24 @@
                     photoUrl = await getDownloadURL(uploadResult.ref);
                 }
 
-                // 3. Save User Profile in Firestore
-                await setDoc(doc(db, "users", user.uid), {
-                    fullName: fullName,
-                    email: email,
-                    mobileNumber: mobile,
-                    profilePhotoUrl: photoUrl,
-                    qualification: regForm.querySelector('select[name="qualification"]').value,
-                    specialization: regForm.querySelector('input[name="specialization"]').value,
-                    collegeUniversity: regForm.querySelector('input[name="college_university"]').value,
-                    skills: regForm.querySelector('input[name="skills"]').value.split(",").map(s => s.trim()),
-                    professionalInterests: regForm.querySelector('textarea[name="professional_interests"]').value,
-                    livenessVerified: !!window.isLivenessVerified,
-                    createdAt: new Date().toISOString()
-                });
+                const favSport = regForm.querySelector('input[name="favourite_sport"]').value.trim().toLowerCase();
+const ambition = regForm.querySelector('input[name="ambition"]').value.trim().toLowerCase();
+
+await setDoc(doc(db, "users", user.uid), {
+    fullName: fullName,
+    email: email.toLowerCase(),
+    mobileNumber: mobile,
+    favouriteSport: favSport,
+    ambition: ambition,
+    profilePhotoUrl: photoUrl,
+    qualification: regForm.querySelector('select[name="qualification"]').value,
+    specialization: regForm.querySelector('input[name="specialization"]').value,
+    collegeUniversity: regForm.querySelector('input[name="college_university"]').value,
+    skills: regForm.querySelector('input[name="skills"]').value.split(",").map(s => s.trim()),
+    professionalInterests: regForm.querySelector('textarea[name="professional_interests"]').value,
+    livenessVerified: !!window.isLivenessVerified,
+    createdAt: new Date().toISOString()
+});
 
                 alert("Account created and verified successfully!");
                 window.location.href = "index.html";
