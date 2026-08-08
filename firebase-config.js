@@ -1,30 +1,113 @@
-// firebase-config.js
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc, collection, getDocs, deleteDoc} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
+/**
+ * Firebase Configuration
+ * Initialize Firebase app and export services for use throughout the application
+ */
 
-// Your web app's Firebase configuration
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getStorage } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+import { getFunctions, connectFunctionsEmulator } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-functions.js";
+
+// ====================================
+// FIREBASE PROJECT CONFIGURATION
+// ====================================
+// Replace these with your Firebase project credentials
+// Get from Firebase Console > Project Settings > General
 const firebaseConfig = {
-  apiKey: "AIzaSyCwsGATl97HlF1Y880Wb7zNF5Dr88nYBns",
-  authDomain: "intel-guard-1.firebaseapp.com",
-  databaseURL: "https://intel-guard-1-default-rtdb.firebaseio.com",
-  projectId: "intel-guard-1",
-  storageBucket: "intel-guard-1.firebasestorage.app",
-  messagingSenderId: "575867762296",
-  appId: "1:575867762296:web:34b74072f99881206adf8d",
-  measurementId: "G-XVR56Y035W"
+    apiKey: "YOUR_API_KEY",
+    authDomain: "your-project.firebaseapp.com",
+    projectId: "your-project-id",
+    storageBucket: "your-project.appspot.com",
+    messagingSenderId: "your-messaging-sender-id",
+    appId: "your-app-id",
+    measurementId: "your-measurement-id" // Optional
 };
 
-// Initialize Firebase App
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize Firebase Services
+// Initialize services
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
-export const analytics = getAnalytics(app);
+export const functions = getFunctions(app, 'asia-south1'); // Or your region
 
-// Export Auth & Firestore Helper Functions
-export { RecaptchaVerifier, signInWithPhoneNumber, doc, setDoc, getDoc, ref, uploadBytes, getDownloadURL };
+// ====================================
+// DEVELOPMENT: EMULATOR CONFIGURATION
+// ====================================
+// Uncomment to use Firebase Emulator Suite for local testing
+// This requires: `firebase emulators:start` in your firebase project directory
+
+// const isLocal = location.hostname === 'localhost';
+// if (isLocal) {
+//     connectAuthEmulator(auth, "http://localhost:9099", { disableWarnings: true });
+//     connectFirestoreEmulator(db, 'localhost', 8080);
+//     connectStorageEmulator(storage, 'localhost', 9199);
+//     connectFunctionsEmulator(functions, 'localhost', 5001);
+//     console.log("✓ Connected to Firebase Emulator Suite");
+// }
+
+// ====================================
+// FIRESTORE SECURITY RULES
+// ====================================
+/*
+Deploy to Firestore with:
+firebase deploy --only firestore:rules
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // User profiles - readable/writable by owner only
+    match /users/{userId} {
+      allow read, write: if request.auth.uid == userId;
+    }
+    
+    // KYC Sessions - readable/writable by owner only
+    // Contains sensitive identity verification data
+    match /kyc_sessions/{userId} {
+      allow read, write: if request.auth.uid == userId;
+    }
+    
+    // Default: deny all access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
+*/
+
+// ====================================
+// FIREBASE STORAGE SECURITY RULES
+// ====================================
+/*
+Deploy to Storage with:
+firebase deploy --only storage
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Profile photos - only readable by owner, uploadable during registration
+    match /profile_photos/{userId}/{allPaths=**} {
+      allow read: if request.auth.uid == userId;
+      allow write: if request.auth.uid == userId && 
+                      request.resource.size < 5 * 1024 * 1024 && // 5MB max
+                      request.resource.contentType.matches('image/.*');
+    }
+    
+    // Default: deny all access
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
+*/
+
+// ====================================
+// ERROR LOGGING (Optional: Firebase Analytics)
+// ====================================
+// import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
+// export const analytics = getAnalytics(app);
+
+console.log("✓ Firebase initialized for project:", firebaseConfig.projectId);
