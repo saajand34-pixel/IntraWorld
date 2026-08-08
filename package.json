@@ -1,0 +1,14 @@
+{
+  "name": "intraworld-kyc-functions",
+  "description": "DigiLocker OAuth + server-side face-match verification for IntraWorld registration",
+  "engines": { "node": "18" },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-admin": "^12.1.0",
+    "firebase-functions": "^5.0.0",
+    "axios": "^1.7.2",
+    "canvas": "^2.11.2",
+    "face-api.js": "^0.22.2"
+  },
+  "private": true
+}
