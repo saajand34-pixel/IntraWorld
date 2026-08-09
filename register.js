@@ -10,12 +10,17 @@ import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/fireba
 import { httpsCallable } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-functions.js";
 
 // ==========================================
+// CONFIGURATION & RAPIDAPI CONSTANTS
+// ==========================================
+const RAPIDAPI_KEY = "5f47e9bc2bmsha0d321e885decc0p1758ebjsndc892ef7f2de";
+const RAPIDAPI_HOST = "face-recognition18.p.rapidapi.com";
+
+// ==========================================
 // GLOBAL STATE
 // ==========================================
 let confirmationResult = null;
 let cameraStream = null;
-let faceDetectionInterval = null;
-let liveFaceDescriptor = null;   // 128-d vector captured from the webcam, sent to the server for matching
+let liveFaceDescriptor = null;
 window.isLivenessVerified = false;
 window.isDigiLockerVerified = false;
 window.isFaceMatchVerified = false;
@@ -24,16 +29,13 @@ const digilockerAuthUrlFn = httpsCallable(functions, "digilockerAuthUrl");
 const verifyFaceMatchFn = httpsCallable(functions, "verifyFaceMatch");
 const finalizeRegistrationFn = httpsCallable(functions, "finalizeRegistration");
 
-// The whole KYC flow needs a signed-in user (uid) to key server-side session
-// state to, before the permanent account exists. We sign in anonymously up
-// front and later "upgrade" that anonymous user to a real email/password
-// account at submit time, carrying the same uid through.
+// Initialize anonymous session for pre-KYC tracking
 let sessionReady = auth.currentUser
     ? Promise.resolve(auth.currentUser)
     : signInAnonymously(auth).then((cred) => cred.user);
 
 // ==========================================
-// FACE-API.JS MODEL LOADING
+// FACE-API.JS MODEL LOADING (LOCAL EMBEDDINGS)
 // ==========================================
 const MODEL_URL = "https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js/weights";
 let modelsReady = null;
@@ -47,8 +49,6 @@ function loadFaceModels() {
     }
     return modelsReady;
 }
-// Kick off loading as soon as the script runs so it's ready by the time the
-// user reaches the verification tab.
 loadFaceModels().catch((err) => console.error("face-api model load failed:", err));
 
 // ==========================================
@@ -77,7 +77,7 @@ if (sendOtpBtn) {
 }
 
 // ==========================================
-// DIGILOCKER VERIFICATION (real OAuth, via backend)
+// DIGILOCKER VERIFICATION
 // ==========================================
 const verifyDigiLockerBtn = document.getElementById("verify-digilocker-btn");
 if (verifyDigiLockerBtn) {
@@ -94,8 +94,6 @@ if (verifyDigiLockerBtn) {
         try {
             await sessionReady;
             const { data } = await digilockerAuthUrlFn();
-            // Open DigiLocker's consent screen. The user authenticates and
-            // approves there — we never see their DigiLocker credentials.
             const popup = window.open(data.url, "digilocker_oauth", "width=480,height=640");
             pollDigiLockerStatus(popup, btn, statusDiv);
         } catch (error) {
@@ -107,15 +105,9 @@ if (verifyDigiLockerBtn) {
     });
 }
 
-// After the popup completes, the backend (digilockerCallback) has written
-// the result to Firestore under kyc_sessions/{uid}. We poll that doc rather
-// than trusting anything the popup window itself could tell us.
 function pollDigiLockerStatus(popup, btn, statusDiv) {
     const container = document.getElementById("digilocker-box");
     const interval = setInterval(async () => {
-        if (popup && popup.closed) {
-            // fall through to one last check below, then stop
-        }
         const uid = auth.currentUser?.uid;
         if (!uid) return;
 
@@ -141,8 +133,6 @@ function pollDigiLockerStatus(popup, btn, statusDiv) {
             btn.disabled = false;
             btn.innerHTML = '<i class="fa-solid fa-link"></i> Connect DigiLocker Account';
         } else if (popup && popup.closed) {
-            // Popup closed with no terminal status yet — give the backend a
-            // moment, then give up so the button doesn't stay stuck forever.
             setTimeout(() => {
                 if (!window.isDigiLockerVerified) {
                     clearInterval(interval);
@@ -156,7 +146,7 @@ function pollDigiLockerStatus(popup, btn, statusDiv) {
 }
 
 // ==========================================
-// LIVE CAMERA — REAL FACE DETECTION + BLINK-BASED LIVENESS
+// RAPIDAPI ACTIVE LIVENESS + HYBRID FACE MATCHING
 // ==========================================
 const startCameraBtn = document.getElementById("start-camera-btn");
 if (startCameraBtn) {
@@ -188,11 +178,14 @@ if (startCameraBtn) {
             if (statusDiv) {
                 statusDiv.style.display = "flex";
                 statusDiv.classList.add("success");
-                statusDiv.innerHTML = '<i class="fa-solid fa-circle"></i> <span>Loading detector...</span>';
+                statusDiv.innerHTML = '<i class="fa-solid fa-circle"></i> <span>Initializing RapidAPI Liveness Session...</span>';
             }
 
             await new Promise((resolve) => video.addEventListener("loadeddata", resolve, { once: true }));
-            runLivenessLoop(video, overlay, startCameraBtn, statusDiv, cameraContainer);
+            
+            // Execute RapidAPI Active Liveness + Vector Match Pipeline
+            await executeActiveLivenessPipeline(video, overlay, startCameraBtn, statusDiv, cameraContainer);
+
         } catch (err) {
             console.error("Camera access error:", err);
             alert("Camera access denied or device not detected.\n\nLiveness verification requires a working webcam.");
@@ -208,89 +201,114 @@ if (startCameraBtn) {
 }
 
 /**
- * Real liveness check: track the eye-aspect-ratio (EAR) across frames from
- * face-api.js's 68-point landmarks and require an actual blink (EAR dips
- * below a threshold then recovers) before accepting the face — this is what
- * stops someone from just holding up a photo to the camera. Once liveness
- * is confirmed we capture one clean frame and compute its face descriptor,
- * which is what actually gets compared against the photo on record server-side.
+ * RapidAPI Active Liveness Request
  */
-async function runLivenessLoop(video, overlay, btn, statusDiv, cameraContainer) {
+async function requestRapidApiLivenessSession(difficulty = 'easy') {
+    const response = await fetch(
+        `https://${RAPIDAPI_HOST}/face_liveness_active/request?difficulty=${difficulty}`,
+        {
+            method: 'GET',
+            headers: {
+                'x-rapidapi-host': RAPIDAPI_HOST,
+                'x-rapidapi-key': RAPIDAPI_KEY,
+                'Content-Type': 'application/json'
+            }
+        }
+    );
+    if (!response.ok) throw new Error("RapidAPI Session Request Failed");
+    return await response.json();
+}
+
+/**
+ * RapidAPI Frame Evaluation
+ */
+async function evaluateRapidApiFrame(sessionId, imageBase64) {
+    const response = await fetch(
+        `https://${RAPIDAPI_HOST}/face_liveness_active/evaluate`,
+        {
+            method: 'POST',
+            headers: {
+                'x-rapidapi-host': RAPIDAPI_HOST,
+                'x-rapidapi-key': RAPIDAPI_KEY,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                session_id: sessionId,
+                image: imageBase64
+            })
+        }
+    );
+    if (!response.ok) throw new Error("RapidAPI Frame Evaluation Failed");
+    return await response.json();
+}
+
+/**
+ * Capture Base64 JPG image from video feed
+ */
+function captureCanvasFrame(video) {
+    const canvas = document.createElement("canvas");
+    canvas.width = video.videoWidth || 640;
+    canvas.height = video.videoHeight || 480;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    return canvas.toDataURL("image/jpeg", 0.85);
+}
+
+/**
+ * Main active liveness execution loop
+ */
+async function executeActiveLivenessPipeline(video, overlay, btn, statusDiv, cameraContainer) {
     const statusText = statusDiv?.querySelector("span");
-    const options = new faceapi.TinyFaceDetectorOptions({ inputSize: 224 });
 
-    let framesWithFace = 0;
-    let blinkDetected = false;
-    let earHistory = [];
-    const REQUIRED_STABLE_FRAMES = 10;
+    try {
+        // Step 1: Start RapidAPI Liveness Session
+        const sessionData = await requestRapidApiLivenessSession('easy');
+        const sessionId = sessionData.session_id || sessionData.id;
 
-    faceDetectionInterval = setInterval(async () => {
-        if (video.readyState !== video.HAVE_ENOUGH_DATA) return;
+        if (statusText) statusText.innerHTML = "Center face in circle & perform challenge...";
 
-        const detection = await faceapi
-            .detectSingleFace(video, options)
-            .withFaceLandmarks(true);
+        // Step 2: Capture camera frame
+        const frameBase64 = captureCanvasFrame(video);
 
-        if (!detection) {
-            framesWithFace = 0;
-            overlay.classList.remove("face-detected");
-            if (statusText) statusText.innerHTML = "Move face to center of circle...";
-            return;
-        }
+        // Step 3: Send frame to RapidAPI for active liveness evaluation
+        const evaluation = await evaluateRapidApiFrame(sessionId, frameBase64);
 
-        framesWithFace++;
-        overlay.classList.add("face-detected");
-
-        const ear = eyeAspectRatio(detection.landmarks);
-        earHistory.push(ear);
-        if (earHistory.length > 15) earHistory.shift();
-        if (!blinkDetected && detectBlink(earHistory)) blinkDetected = true;
-
-        if (statusText) {
-            statusText.innerHTML = blinkDetected
-                ? `✓ Blink confirmed — holding steady (${framesWithFace}/${REQUIRED_STABLE_FRAMES})`
-                : "Please blink naturally to confirm you're live...";
-        }
-
-        if (framesWithFace >= REQUIRED_STABLE_FRAMES && blinkDetected) {
-            clearInterval(faceDetectionInterval);
+        if (evaluation.is_live || evaluation.passed || evaluation.status === "passed") {
+            if (statusText) statusText.innerHTML = "Liveness passed! Extracting face features...";
+            
+            // Step 4: Calculate 128-d descriptor using face-api.js for server matching
+            const options = new faceapi.TinyFaceDetectorOptions({ inputSize: 224 });
             const fullDetection = await faceapi
                 .detectSingleFace(video, options)
                 .withFaceLandmarks(true)
                 .withFaceDescriptor();
 
             if (!fullDetection) {
-                if (statusText) statusText.innerHTML = "Couldn't capture a clean frame — try again.";
-                startCameraBtn.disabled = false;
-                startCameraBtn.innerHTML = '<i class="fa-solid fa-circle-play"></i> Start Live Verification';
+                if (statusText) statusText.innerHTML = "Face detection missed during extraction — retry.";
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-circle-play"></i> Retry Live Verification';
                 return;
             }
 
             liveFaceDescriptor = Array.from(fullDetection.descriptor);
             await attemptFaceMatch(overlay, btn, statusDiv, statusText, cameraContainer, video);
+        } else {
+            statusDiv.classList.remove("success");
+            if (statusText) statusText.innerHTML = "Active liveness check failed. Please look straight at camera.";
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-circle-play"></i> Retry Live Verification';
         }
-    }, 400);
-}
 
-function eyeAspectRatio(landmarks) {
-    const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
-    const ear = (eye) =>
-        (dist(eye[1], eye[5]) + dist(eye[2], eye[4])) / (2.0 * dist(eye[0], eye[3]));
-    const left = landmarks.getLeftEye();
-    const right = landmarks.getRightEye();
-    return (ear(left) + ear(right)) / 2.0;
-}
-
-function detectBlink(history) {
-    if (history.length < 6) return false;
-    const baseline = Math.max(...history);
-    const min = Math.min(...history);
-    return baseline - min > 0.08;
+    } catch (err) {
+        console.error("Pipeline failure:", err);
+        if (statusText) statusText.innerHTML = "Liveness service error. Please try again.";
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-circle-play"></i> Retry Live Verification';
+    }
 }
 
 /**
- * Sends the captured descriptor to the server for the authoritative
- * comparison against the photo descriptor obtained via DigiLocker.
+ * Server-side Face Match against DigiLocker Record
  */
 async function attemptFaceMatch(overlay, btn, statusDiv, statusText, cameraContainer, video) {
     if (statusText) statusText.innerHTML = "Comparing with your DigiLocker ID photo...";
@@ -368,7 +386,6 @@ if (registrationForm) {
                 }
             }
 
-            // Ask the server for the final, authoritative approval decision
             await finalizeRegistrationFn();
 
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -381,14 +398,12 @@ if (registrationForm) {
                 photoURL = await getDownloadURL(snapshot.ref);
             }
 
-            // Clean array handling for Skills and Interests
             const rawSkills = registrationForm.querySelector('input[name="skills"]')?.value || "";
             const skillsArray = rawSkills ? rawSkills.split(",").map((s) => s.trim()).filter(Boolean) : [];
 
             const rawInterests = registrationForm.querySelector('textarea[name="professional_interests"]')?.value || "";
             const interestsArray = rawInterests ? rawInterests.split(",").map((s) => s.trim()).filter(Boolean) : [];
 
-            // Updated Firestore document structure
             await setDoc(doc(db, "users", user.uid), {
                 fullName: registrationForm.querySelector('input[name="full_name"]').value,
                 email: email.toLowerCase(),
@@ -428,5 +443,4 @@ if (registrationForm) {
 // ==========================================
 window.addEventListener("beforeunload", () => {
     cameraStream?.getTracks().forEach((t) => t.stop());
-    if (faceDetectionInterval) clearInterval(faceDetectionInterval);
 });
