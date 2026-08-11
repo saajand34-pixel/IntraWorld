@@ -6,7 +6,7 @@ import { getStorage } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-s
 import { getFunctions } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-functions.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyATrNL8GcNhpLN9uSDQmmd0qNXh40JO4rA",
+  apiKey: "AIzaSyBJZcxM-mftBOV7eKJZnwEKx208Tly4Yq8",
   authDomain: "intraworld.firebaseapp.com",
   projectId: "intraworld",
   storageBucket: "intraworld.firebasestorage.app",
