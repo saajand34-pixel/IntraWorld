@@ -3,56 +3,69 @@ import {
     RecaptchaVerifier,
     signInWithPhoneNumber,
     createUserWithEmailAndPassword,
-    signInAnonymously,
+    signInAnonymously
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { doc, setDoc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { 
+    doc, 
+    setDoc, 
+    getDocs, 
+    query, 
+    collection, 
+    where, 
+    serverTimestamp 
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 import { httpsCallable } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-functions.js";
 
 // ==========================================
-// CONFIGURATION & RAPIDAPI CONSTANTS
+// CONSTANTS & DISPOSABLE BLOCKLIST
 // ==========================================
-const RAPIDAPI_KEY = "5f47e9bc2bmsha0d321e885decc0p1758ebjsndc892ef7f2de";
-const RAPIDAPI_HOST = "face-recognition18.p.rapidapi.com";
+const DISPOSABLE_EMAIL_DOMAINS = new Set([
+    "mailinator.com",
+    "10minutemail.com",
+    "tempmail.com",
+    "guerrillamail.com",
+    "trashmail.com",
+    "yopmail.com",
+    "getnada.com",
+    "dispostable.com",
+    "temp-mail.org",
+    "sharklasers.com"
+]);
 
-// ==========================================
-// GLOBAL STATE
-// ==========================================
 let confirmationResult = null;
-let cameraStream = null;
-let liveFaceDescriptor = null;
-window.isLivenessVerified = false;
-window.isDigiLockerVerified = false;
-window.isFaceMatchVerified = false;
+let mfaVerified = false;
 
-const digilockerAuthUrlFn = httpsCallable(functions, "digilockerAuthUrl");
-const verifyFaceMatchFn = httpsCallable(functions, "verifyFaceMatch");
-const finalizeRegistrationFn = httpsCallable(functions, "finalizeRegistration");
-
-// Initialize anonymous session for pre-KYC tracking
+// Initialize session state for pre-auth tracking
 let sessionReady = auth.currentUser
     ? Promise.resolve(auth.currentUser)
     : signInAnonymously(auth).then((cred) => cred.user);
 
-// ==========================================
-// FACE-API.JS MODEL LOADING (LOCAL EMBEDDINGS)
-// ==========================================
-const MODEL_URL = "https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js/weights";
-let modelsReady = null;
-function loadFaceModels() {
-    if (!modelsReady) {
-        modelsReady = Promise.all([
-            faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
-            faceapi.nets.faceLandmark68TinyNet.loadFromUri(MODEL_URL),
-            faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
-        ]);
-    }
-    return modelsReady;
-}
-loadFaceModels().catch((err) => console.error("face-api model load failed:", err));
+// Initialize Cloud Functions
+const checkCarrierVoipFn = httpsCallable(functions, "verifyCarrierVoip");
 
 // ==========================================
-// OTP PHONE AUTHENTICATION
+// DATA SANITIZATION & FORMATTING HELPERS
+// ==========================================
+function sanitizeEmail(email) {
+    return email.trim().toLowerCase();
+}
+
+function formatE164Phone(phone) {
+    let cleaned = phone.replace(/[^\d+]/g, '');
+    if (!cleaned.startsWith('+')) {
+        return null;
+    }
+    return cleaned;
+}
+
+function isDisposableEmail(email) {
+    const domain = email.split('@')[1];
+    return DISPOSABLE_EMAIL_DOMAINS.has(domain);
+}
+
+// ==========================================
+// OTP / MFA PHONE AUTHENTICATION PROTOCOL
 // ==========================================
 try {
     window.recaptchaVerifier = new RecaptchaVerifier(auth, "recaptcha-container", { size: "invisible" });
@@ -63,339 +76,137 @@ try {
 const sendOtpBtn = document.getElementById("send-otp-btn");
 if (sendOtpBtn) {
     sendOtpBtn.addEventListener("click", async () => {
-        const phoneNumber = document.querySelector('input[name="mobile_number"]')?.value;
-        if (!phoneNumber) return alert("Please enter a valid phone number (include country code).");
+        const rawPhone = document.querySelector('input[name="mobile_number"]')?.value?.trim() || "";
+        const formattedPhone = formatE164Phone(rawPhone);
+
+        if (!formattedPhone) {
+            return alert("Invalid Phone Format. Please use standard international format starting with '+' (e.g. +15551234567).");
+        }
+
+        const rawEmail = document.querySelector('input[name="email"]')?.value || "";
+        const cleanEmail = sanitizeEmail(rawEmail);
+
+        if (isDisposableEmail(cleanEmail)) {
+            alert("Registration Blocked: Disposable and temporary email addresses are strictly prohibited.");
+            return;
+        }
+
+        sendOtpBtn.disabled = true;
+        sendOtpBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Checking SIM...';
 
         try {
-            confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, window.recaptchaVerifier);
-            alert("OTP sent successfully to " + phoneNumber);
-        } catch (error) {
-            console.error("SMS Error:", error);
-            alert("Failed to send OTP: " + error.message);
-        }
-    });
-}
-
-// ==========================================
-// DIGILOCKER VERIFICATION
-// ==========================================
-const verifyDigiLockerBtn = document.getElementById("verify-digilocker-btn");
-if (verifyDigiLockerBtn) {
-    verifyDigiLockerBtn.addEventListener("click", async (e) => {
-        e.preventDefault();
-        const btn = e.target.closest(".btn-send-otp");
-        const statusDiv = document.getElementById("digilocker-status");
-        if (!btn || !statusDiv) return;
-
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Connecting...';
-        statusDiv.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Requesting DigiLocker authorization URL...</span>';
-
-        try {
-            await sessionReady;
-            const { data } = await digilockerAuthUrlFn();
-            const popup = window.open(data.url, "digilocker_oauth", "width=480,height=640");
-            pollDigiLockerStatus(popup, btn, statusDiv);
-        } catch (error) {
-            console.error("DigiLocker init failed:", error);
-            statusDiv.innerHTML = '<i class="fa-solid fa-exclamation-triangle"></i> <span>Could not start DigiLocker verification.</span>';
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fa-solid fa-link"></i> Connect DigiLocker Account';
-        }
-    });
-}
-
-function pollDigiLockerStatus(popup, btn, statusDiv) {
-    const container = document.getElementById("digilocker-box");
-    const interval = setInterval(async () => {
-        const uid = auth.currentUser?.uid;
-        if (!uid) return;
-
-        const snap = await getDoc(doc(db, "kyc_sessions", uid));
-        const session = snap.data();
-
-        if (session?.status === "digilocker_verified") {
-            clearInterval(interval);
-            window.isDigiLockerVerified = true;
-            statusDiv.classList.remove("pending");
-            statusDiv.classList.add("verified");
-            statusDiv.innerHTML = `
-                <div class="success-checkmark">✓</div>
-                <span>DigiLocker verified successfully!</span>
-                <span class="status-badge">VERIFIED</span>
-            `;
-            btn.classList.add("success");
-            btn.innerHTML = '<i class="fa-solid fa-check"></i> DigiLocker Verified';
-            container?.classList.add("verified");
-        } else if (session?.status === "digilocker_failed") {
-            clearInterval(interval);
-            statusDiv.innerHTML = '<i class="fa-solid fa-exclamation-triangle"></i> <span>DigiLocker verification failed. Please try again.</span>';
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fa-solid fa-link"></i> Connect DigiLocker Account';
-        } else if (popup && popup.closed) {
-            setTimeout(() => {
-                if (!window.isDigiLockerVerified) {
-                    clearInterval(interval);
-                    statusDiv.innerHTML = '<i class="fa-solid fa-exclamation-triangle"></i> <span>Verification window closed before completing.</span>';
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="fa-solid fa-link"></i> Connect DigiLocker Account';
-                }
-            }, 3000);
-        }
-    }, 1500);
-}
-
-// ==========================================
-// RAPIDAPI ACTIVE LIVENESS + HYBRID FACE MATCHING
-// ==========================================
-const startCameraBtn = document.getElementById("start-camera-btn");
-if (startCameraBtn) {
-    startCameraBtn.addEventListener("click", async () => {
-        const video = document.getElementById("video-feed");
-        const placeholder = document.getElementById("cam-placeholder");
-        const overlay = document.getElementById("cam-overlay");
-        const statusDiv = document.getElementById("camera-status");
-        const cameraContainer = document.getElementById("cam-box");
-        if (!video || !placeholder || !overlay) return;
-
-        try {
-            await loadFaceModels();
-
-            const stream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } },
-                audio: false,
-            });
-
-            cameraStream = stream;
-            video.srcObject = stream;
-            video.style.display = "block";
-            placeholder.style.display = "none";
-            overlay.style.display = "block";
-
-            startCameraBtn.innerHTML = '<i class="fa-solid fa-circle-stop"></i> Verifying...';
-            startCameraBtn.disabled = true;
-
-            if (statusDiv) {
-                statusDiv.style.display = "flex";
-                statusDiv.classList.add("success");
-                statusDiv.innerHTML = '<i class="fa-solid fa-circle"></i> <span>Initializing RapidAPI Liveness Session...</span>';
-            }
-
-            await new Promise((resolve) => video.addEventListener("loadeddata", resolve, { once: true }));
-            
-            // Execute RapidAPI Active Liveness + Vector Match Pipeline
-            await executeActiveLivenessPipeline(video, overlay, startCameraBtn, statusDiv, cameraContainer);
-
-        } catch (err) {
-            console.error("Camera access error:", err);
-            alert("Camera access denied or device not detected.\n\nLiveness verification requires a working webcam.");
-            if (statusDiv) {
-                statusDiv.style.display = "flex";
-                statusDiv.classList.remove("success");
-                statusDiv.innerHTML = '<i class="fa-solid fa-exclamation-triangle"></i> <span>Camera access denied</span>';
-            }
-            startCameraBtn.innerHTML = '<i class="fa-solid fa-circle-play"></i> Start Live Verification';
-            startCameraBtn.disabled = false;
-        }
-    });
-}
-
-/**
- * RapidAPI Active Liveness Request
- */
-async function requestRapidApiLivenessSession(difficulty = 'easy') {
-    const response = await fetch(
-        `https://${RAPIDAPI_HOST}/face_liveness_active/request?difficulty=${difficulty}`,
-        {
-            method: 'GET',
-            headers: {
-                'x-rapidapi-host': RAPIDAPI_HOST,
-                'x-rapidapi-key': RAPIDAPI_KEY,
-                'Content-Type': 'application/json'
-            }
-        }
-    );
-    if (!response.ok) throw new Error("RapidAPI Session Request Failed");
-    return await response.json();
-}
-
-/**
- * RapidAPI Frame Evaluation
- */
-async function evaluateRapidApiFrame(sessionId, imageBase64) {
-    const response = await fetch(
-        `https://${RAPIDAPI_HOST}/face_liveness_active/evaluate`,
-        {
-            method: 'POST',
-            headers: {
-                'x-rapidapi-host': RAPIDAPI_HOST,
-                'x-rapidapi-key': RAPIDAPI_KEY,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                session_id: sessionId,
-                image: imageBase64
-            })
-        }
-    );
-    if (!response.ok) throw new Error("RapidAPI Frame Evaluation Failed");
-    return await response.json();
-}
-
-/**
- * Capture Base64 JPG image from video feed
- */
-function captureCanvasFrame(video) {
-    const canvas = document.createElement("canvas");
-    canvas.width = video.videoWidth || 640;
-    canvas.height = video.videoHeight || 480;
-    const ctx = canvas.getContext("2d");
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    return canvas.toDataURL("image/jpeg", 0.85);
-}
-
-/**
- * Main active liveness execution loop
- */
-async function executeActiveLivenessPipeline(video, overlay, btn, statusDiv, cameraContainer) {
-    const statusText = statusDiv?.querySelector("span");
-
-    try {
-        // Step 1: Start RapidAPI Liveness Session
-        const sessionData = await requestRapidApiLivenessSession('easy');
-        const sessionId = sessionData.session_id || sessionData.id;
-
-        if (statusText) statusText.innerHTML = "Center face in circle & perform challenge...";
-
-        // Step 2: Capture camera frame
-        const frameBase64 = captureCanvasFrame(video);
-
-        // Step 3: Send frame to RapidAPI for active liveness evaluation
-        const evaluation = await evaluateRapidApiFrame(sessionId, frameBase64);
-
-        if (evaluation.is_live || evaluation.passed || evaluation.status === "passed") {
-            if (statusText) statusText.innerHTML = "Liveness passed! Extracting face features...";
-            
-            // Step 4: Calculate 128-d descriptor using face-api.js for server matching
-            const options = new faceapi.TinyFaceDetectorOptions({ inputSize: 224 });
-            const fullDetection = await faceapi
-                .detectSingleFace(video, options)
-                .withFaceLandmarks(true)
-                .withFaceDescriptor();
-
-            if (!fullDetection) {
-                if (statusText) statusText.innerHTML = "Face detection missed during extraction — retry.";
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-circle-play"></i> Retry Live Verification';
+            // Backend Carrier Inspection for VoIP & Virtual Routing
+            const carrierCheck = await checkCarrierVoipFn({ phoneNumber: formattedPhone });
+            if (carrierCheck.data?.isVoip) {
+                alert("Authentication Rejected: Virtual phone routing, VoIP, and online SMS numbers are forbidden. An active SIM mobile network operator is required.");
+                sendOtpBtn.disabled = false;
+                sendOtpBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Send OTP';
                 return;
             }
 
-            liveFaceDescriptor = Array.from(fullDetection.descriptor);
-            await attemptFaceMatch(overlay, btn, statusDiv, statusText, cameraContainer, video);
-        } else {
-            statusDiv.classList.remove("success");
-            if (statusText) statusText.innerHTML = "Active liveness check failed. Please look straight at camera.";
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fa-solid fa-circle-play"></i> Retry Live Verification';
+            // Trigger SMS OTP
+            confirmationResult = await signInWithPhoneNumber(auth, formattedPhone, window.recaptchaVerifier);
+            alert("OTP dispatched successfully to " + formattedPhone);
+            sendOtpBtn.classList.add("success");
+            sendOtpBtn.innerHTML = '<i class="fa-solid fa-check"></i> OTP Dispatched';
+        } catch (error) {
+            console.error("SMS / Carrier Verification Error:", error);
+            alert("MFA Dispatch Error: " + (error.message || "Failed to transmit verification code."));
+            sendOtpBtn.disabled = false;
+            sendOtpBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Send OTP';
         }
-
-    } catch (err) {
-        console.error("Pipeline failure:", err);
-        if (statusText) statusText.innerHTML = "Liveness service error. Please try again.";
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fa-solid fa-circle-play"></i> Retry Live Verification';
-    }
-}
-
-/**
- * Server-side Face Match against DigiLocker Record
- */
-async function attemptFaceMatch(overlay, btn, statusDiv, statusText, cameraContainer, video) {
-    if (statusText) statusText.innerHTML = "Comparing with your DigiLocker ID photo...";
-
-    try {
-        const { data } = await verifyFaceMatchFn({ descriptor: liveFaceDescriptor });
-
-        if (data.isMatch) {
-            window.isLivenessVerified = true;
-            window.isFaceMatchVerified = true;
-
-            overlay.classList.add("success");
-            cameraContainer?.classList.add("success");
-            statusDiv.classList.add("success");
-            statusDiv.innerHTML = `
-                <div class="success-checkmark">✓</div>
-                <span>Face matches your ID photo on record!</span>
-                <span class="status-badge">VERIFIED</span>
-            `;
-            btn.classList.add("success");
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-check"></i> Live Verification Complete';
-
-            setTimeout(() => {
-                cameraStream?.getTracks().forEach((t) => t.stop());
-                video.style.display = "none";
-            }, 2000);
-        } else {
-            statusDiv.classList.remove("success");
-            statusDiv.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> <span>Face did not match your ID photo (distance ${data.distance.toFixed(2)}). Please try again in good lighting.</span>`;
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fa-solid fa-circle-play"></i> Retry Live Verification';
-        }
-    } catch (error) {
-        console.error("Face match request failed:", error);
-        const msg = error.code === "functions/failed-precondition"
-            ? "Please complete DigiLocker verification before the camera check."
-            : "Could not verify your face right now. Please try again.";
-        statusDiv.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> <span>${msg}</span>`;
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fa-solid fa-circle-play"></i> Retry Live Verification';
-    }
+    });
 }
 
 // ==========================================
-// REGISTRATION FORM SUBMISSION
+// REGISTRATION FORM ADJUDICATION SUBMISSION
 // ==========================================
 const registrationForm = document.getElementById("registrationForm");
 if (registrationForm) {
     registrationForm.addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        if (!window.isDigiLockerVerified) return alert("Please verify your identity using DigiLocker.");
-        if (!window.isLivenessVerified || !window.isFaceMatchVerified) {
-            return alert("Please complete live camera verification — your face must match your ID photo.");
-        }
-
-        const email = registrationForm.querySelector('input[name="email"]').value.trim();
+        const submitBtn = document.getElementById("btn-final-submit");
+        const rawEmail = registrationForm.querySelector('input[name="email"]').value;
+        const cleanEmail = sanitizeEmail(rawEmail);
+        const rawPhone = document.getElementById("mobile_number").value;
+        const formattedPhone = formatE164Phone(rawPhone);
         const password = document.getElementById("password").value;
         const confirmPassword = document.getElementById("confirm_password").value;
-        const otpCode = document.getElementById("otp-code")?.value || "";
+        const otpCode = document.getElementById("otp-code")?.value?.trim() || "";
+        
         const photoFile = registrationForm.querySelector('input[name="profile_photo"]')?.files[0];
+        const documentFile = registrationForm.querySelector('input[name="academic_document"]')?.files[0];
+
         const favSport = (registrationForm.querySelector('input[name="favourite_sport"]')?.value || "").trim();
         const ambition = (registrationForm.querySelector('input[name="ambition"]')?.value || "").trim();
+        const fullName = registrationForm.querySelector('input[name="full_name"]').value.trim();
+        const collegeName = registrationForm.querySelector('input[name="college_university"]').value.trim();
 
-        if (!favSport || !ambition) return alert("Please provide answers for all security questions.");
-        if (password !== confirmPassword) return alert("Passwords do not match!");
+        // Protocol Enforcement Checks
+        if (isDisposableEmail(cleanEmail)) {
+            return alert("Registration Terminated: Disposable email addresses are prohibited.");
+        }
+
+        if (!formattedPhone) {
+            return alert("Invalid Phone Entry: Use standard international format (+[countrycode][number]).");
+        }
+
+        if (password !== confirmPassword) {
+            return alert("Security Failure: Passwords do not match.");
+        }
+
+        if (!confirmationResult || !otpCode) {
+            return alert("MFA Required: You must request and input the 6-digit SMS OTP code.");
+        }
+
+        if (!documentFile) {
+            return alert("Adjudication Document Required: Please upload your physical Student ID, Enrollment Form, or Fee Receipt.");
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verifying System Balance...';
 
         try {
-            if (confirmationResult && otpCode) {
-                try {
-                    await confirmationResult.confirm(otpCode);
-                } catch (error) {
-                    return alert("Invalid OTP. Please check and try again.");
-                }
+            // System Balance Check: Database Lookup for Existing Duplicate Profile Records
+            const emailQuery = query(collection(db, "users"), where("email", "==", cleanEmail));
+            const phoneQuery = query(collection(db, "users"), where("mobileNumber", "==", formattedPhone));
+
+            const [emailSnap, phoneSnap] = await Promise.all([getDocs(emailQuery), getDocs(phoneQuery)]);
+
+            if (!emailSnap.empty || !phoneSnap.empty) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fa-solid fa-user-shield"></i> Submit Identity for Enrolment';
+                return alert("Duplicate Profile Detected: An account matching this Email Address or Mobile SIM Number already exists on the platform.");
             }
 
-            await finalizeRegistrationFn();
+            // Confirm MFA Code
+            try {
+                await confirmationResult.confirm(otpCode);
+                mfaVerified = true;
+            } catch (otpErr) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fa-solid fa-user-shield"></i> Submit Identity for Enrolment';
+                return alert("MFA Failure: Invalid or expired OTP verification code.");
+            }
 
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            // User Identity Account Creation
+            const userCredential = await createUserWithEmailAndPassword(auth, cleanEmail, password);
             const user = userCredential.user;
 
+            // Media Storage Transfers
             let photoURL = "";
             if (photoFile) {
-                const storageRef = ref(storage, `profile_photos/${user.uid}/${photoFile.name}`);
-                const snapshot = await uploadBytes(storageRef, photoFile);
-                photoURL = await getDownloadURL(snapshot.ref);
+                const photoRef = ref(storage, `profile_photos/${user.uid}/${photoFile.name}`);
+                const photoSnap = await uploadBytes(photoRef, photoFile);
+                photoURL = await getDownloadURL(photoSnap.ref);
+            }
+
+            let documentURL = "";
+            if (documentFile) {
+                const docRef = ref(storage, `adjudication_documents/${user.uid}/${documentFile.name}`);
+                const docSnap = await uploadBytes(docRef, documentFile);
+                documentURL = await getDownloadURL(docSnap.ref);
             }
 
             const rawSkills = registrationForm.querySelector('input[name="skills"]')?.value || "";
@@ -404,43 +215,43 @@ if (registrationForm) {
             const rawInterests = registrationForm.querySelector('textarea[name="professional_interests"]')?.value || "";
             const interestsArray = rawInterests ? rawInterests.split(",").map((s) => s.trim()).filter(Boolean) : [];
 
+            // Protocol 4: Adjudication Status Marking
+            // Generic email providers default to "pending_review" until physical document visual adjudication is passed
+            const accountStatus = "pending_review";
+
             await setDoc(doc(db, "users", user.uid), {
-                fullName: registrationForm.querySelector('input[name="full_name"]').value,
-                email: email.toLowerCase(),
-                mobileNumber: registrationForm.querySelector('input[name="mobile_number"]').value,
+                fullName: fullName,
+                email: cleanEmail,
+                mobileNumber: formattedPhone,
                 securityQuestions: {
                     favouriteSport: favSport,
                     primaryAmbition: ambition
                 },
                 profilePhotoUrl: photoURL,
+                adjudicationDocumentUrl: documentURL,
                 qualification: registrationForm.querySelector('select[name="qualification"]')?.value || "",
                 specialization: registrationForm.querySelector('input[name="specialization"]')?.value || "",
-                collegeOrUniversity: registrationForm.querySelector('input[name="college_university"]')?.value || "",
+                collegeOrUniversity: collegeName,
                 skills: skillsArray,
                 professionalInterests: interestsArray,
                 verifications: {
-                    digiLockerVerified: window.isDigiLockerVerified,
-                    livenessVerified: window.isLivenessVerified,
-                    faceMatchVerified: window.isFaceMatchVerified,
-                    mfaVerified: !!confirmationResult
+                    mfaVerified: mfaVerified,
+                    simVerified: true,
+                    documentUploaded: true
                 },
-                createdAt: serverTimestamp(),
+                status: accountStatus,
                 registrationCompleted: true,
-                status: "approved"
+                createdAt: serverTimestamp()
             }, { merge: true });
 
-            alert("Registration successful! Identity verified — your account is approved.");
-            window.location.href = "index.html";
+            alert("Registration Submitted: Your account status is marked as 'pending_review'. Access to the main timeline and dashboard will remain restricted until manual document adjudication verifies your profile details against your physical upload.");
+            window.location.href = "pending.html";
+
         } catch (error) {
-            console.error("Registration failed:", error);
-            alert("Registration Error: " + (error.message || error));
+            console.error("Registration Adjudication Error:", error);
+            alert("Registration Error: " + (error.message || "An unexpected system error occurred."));
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fa-solid fa-user-shield"></i> Submit Identity for Enrolment';
         }
     });
 }
-
-// ==========================================
-// CLEANUP
-// ==========================================
-window.addEventListener("beforeunload", () => {
-    cameraStream?.getTracks().forEach((t) => t.stop());
-});

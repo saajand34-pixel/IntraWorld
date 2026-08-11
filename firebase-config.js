@@ -15,13 +15,13 @@ import { getFunctions, connectFunctionsEmulator } from "https://www.gstatic.com/
 // Replace these with your Firebase project credentials
 // Get from Firebase Console > Project Settings > General
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "your-project.firebaseapp.com",
-    projectId: "your-project-id",
-    storageBucket: "your-project.appspot.com",
-    messagingSenderId: "your-messaging-sender-id",
-    appId: "your-app-id",
-    measurementId: "your-measurement-id" // Optional
+    apiKey: "AIzaSyAtRNL8GcNhpLN9uSDQmmd0qNXh40JO4rA",
+    authDomain: "://firebaseapp.com",
+    projectId: "intraworld",
+    storageBucket: "intraworld.firebasestorage.app",
+    messagingSenderId: "547389253115",
+    appId: "1:547389253115:web:35bfdddadea59e298d175e",
+    measurementId: "G-LQ7MKELRT3" // Optional
 };
 
 // Initialize Firebase
@@ -60,9 +60,9 @@ service cloud.firestore {
   match /databases/{database}/documents {
     
     // User profiles - readable/writable by owner only
-    match /users/{userId} {
-      allow read, write: if request.auth.uid == userId;
-    }
+    match /User_profile/{userId} {
+  allow read, write: if request.auth.uid == userId;
+}
     
     // KYC Sessions - readable/writable by owner only
     // Contains sensitive identity verification data
