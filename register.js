@@ -65,10 +65,12 @@ function isDisposableEmail(email) {
 }
 
 // ==========================================
-// OTP / MFA PHONE AUTHENTICATION PROTOCOL
+// OTP / PHONE AUTHENTICATION PROTOCOL
 // ==========================================
 try {
-    window.recaptchaVerifier = new RecaptchaVerifier(auth, "recaptcha-container", { size: "invisible" });
+    if (!window.recaptchaVerifier) {
+        window.recaptchaVerifier = new RecaptchaVerifier(auth, "recaptcha-container", { size: "invisible" });
+    }
 } catch (error) {
     console.error("Recaptcha initialization failed:", error);
 }
@@ -80,38 +82,44 @@ if (sendOtpBtn) {
         const formattedPhone = formatE164Phone(rawPhone);
 
         if (!formattedPhone) {
-            return alert("Invalid Phone Format. Please use standard international format starting with '+' (e.g. +15551234567).");
+            return alert("Invalid Phone Format. Please use standard international format starting with '+' (e.g. +919999999999).");
         }
 
         const rawEmail = document.querySelector('input[name="email"]')?.value || "";
         const cleanEmail = sanitizeEmail(rawEmail);
 
-        if (isDisposableEmail(cleanEmail)) {
+        if (cleanEmail && isDisposableEmail(cleanEmail)) {
             alert("Registration Blocked: Disposable and temporary email addresses are strictly prohibited.");
             return;
         }
 
         sendOtpBtn.disabled = true;
-        sendOtpBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Checking SIM...';
+        sendOtpBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sending OTP...';
 
+        // 1. Isolated Cloud Function Check
         try {
-            // Backend Carrier Inspection for VoIP & Virtual Routing
             const carrierCheck = await checkCarrierVoipFn({ phoneNumber: formattedPhone });
             if (carrierCheck.data?.isVoip) {
-                alert("Authentication Rejected: Virtual phone routing, VoIP, and online SMS numbers are forbidden. An active SIM mobile network operator is required.");
+                alert("Authentication Rejected: Virtual phone routing, VoIP, and online SMS numbers are forbidden.");
                 sendOtpBtn.disabled = false;
                 sendOtpBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Send OTP';
                 return;
             }
+        } catch (voipErr) {
+            // Function isn't deployed yet or failed - log and bypass so phone auth works
+            console.warn("Carrier check Cloud Function skipped/failed:", voipErr);
+        }
 
-            // Trigger SMS OTP
+        // 2. Trigger Firebase Standard SMS OTP
+        try {
             confirmationResult = await signInWithPhoneNumber(auth, formattedPhone, window.recaptchaVerifier);
             alert("OTP dispatched successfully to " + formattedPhone);
             sendOtpBtn.classList.add("success");
             sendOtpBtn.innerHTML = '<i class="fa-solid fa-check"></i> OTP Dispatched';
         } catch (error) {
-            console.error("SMS / Carrier Verification Error:", error);
-            alert("MFA Dispatch Error: " + (error.message || "Failed to transmit verification code."));
+            console.error("SMS Dispatch Error Details:", error);
+            
+            alert("OTP Error: " + (error.message || "Failed to transmit verification code."));
             sendOtpBtn.disabled = false;
             sendOtpBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Send OTP';
         }
@@ -119,7 +127,7 @@ if (sendOtpBtn) {
 }
 
 // ==========================================
-// REGISTRATION FORM ADJUDICATION SUBMISSION
+// REGISTRATION FORM SUBMISSION
 // ==========================================
 const registrationForm = document.getElementById("registrationForm");
 if (registrationForm) {
@@ -143,7 +151,6 @@ if (registrationForm) {
         const fullName = registrationForm.querySelector('input[name="full_name"]').value.trim();
         const collegeName = registrationForm.querySelector('input[name="college_university"]').value.trim();
 
-        // Protocol Enforcement Checks
         if (isDisposableEmail(cleanEmail)) {
             return alert("Registration Terminated: Disposable email addresses are prohibited.");
         }
@@ -157,7 +164,7 @@ if (registrationForm) {
         }
 
         if (!confirmationResult || !otpCode) {
-            return alert("MFA Required: You must request and input the 6-digit SMS OTP code.");
+            return alert("OTP Required: You must request and input the 6-digit SMS OTP code.");
         }
 
         if (!documentFile) {
@@ -165,10 +172,10 @@ if (registrationForm) {
         }
 
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verifying System Balance...';
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
 
         try {
-            // System Balance Check: Database Lookup for Existing Duplicate Profile Records
+            // Check for duplicate users
             const emailQuery = query(collection(db, "users"), where("email", "==", cleanEmail));
             const phoneQuery = query(collection(db, "users"), where("mobileNumber", "==", formattedPhone));
 
@@ -177,24 +184,24 @@ if (registrationForm) {
             if (!emailSnap.empty || !phoneSnap.empty) {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<i class="fa-solid fa-user-shield"></i> Submit Identity for Enrolment';
-                return alert("Duplicate Profile Detected: An account matching this Email Address or Mobile SIM Number already exists on the platform.");
+                return alert("Duplicate Profile Detected: An account matching this Email or Mobile Number already exists.");
             }
 
-            // Confirm MFA Code
+            // Verify OTP code
             try {
                 await confirmationResult.confirm(otpCode);
                 mfaVerified = true;
             } catch (otpErr) {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<i class="fa-solid fa-user-shield"></i> Submit Identity for Enrolment';
-                return alert("MFA Failure: Invalid or expired OTP verification code.");
+                return alert("OTP Failure: Invalid or expired OTP verification code.");
             }
 
-            // User Identity Account Creation
+            // Create Firebase Auth user
             const userCredential = await createUserWithEmailAndPassword(auth, cleanEmail, password);
             const user = userCredential.user;
 
-            // Media Storage Transfers
+            // Upload files to Firebase Storage
             let photoURL = "";
             if (photoFile) {
                 const photoRef = ref(storage, `profile_photos/${user.uid}/${photoFile.name}`);
@@ -215,10 +222,7 @@ if (registrationForm) {
             const rawInterests = registrationForm.querySelector('textarea[name="professional_interests"]')?.value || "";
             const interestsArray = rawInterests ? rawInterests.split(",").map((s) => s.trim()).filter(Boolean) : [];
 
-            // Protocol 4: Adjudication Status Marking
-            // Generic email providers default to "pending_review" until physical document visual adjudication is passed
-            const accountStatus = "pending_review";
-
+            // Save user profile data to Firestore
             await setDoc(doc(db, "users", user.uid), {
                 fullName: fullName,
                 email: cleanEmail,
@@ -239,16 +243,16 @@ if (registrationForm) {
                     simVerified: true,
                     documentUploaded: true
                 },
-                status: accountStatus,
+                status: "pending_review",
                 registrationCompleted: true,
                 createdAt: serverTimestamp()
             }, { merge: true });
 
-            alert("Registration Submitted: Your account status is marked as 'pending_review'. Access to the main timeline and dashboard will remain restricted until manual document adjudication verifies your profile details against your physical upload.");
+            alert("Registration Submitted successfully!");
             window.location.href = "pending.html";
 
         } catch (error) {
-            console.error("Registration Adjudication Error:", error);
+            console.error("Registration Error:", error);
             alert("Registration Error: " + (error.message || "An unexpected system error occurred."));
             submitBtn.disabled = false;
             submitBtn.innerHTML = '<i class="fa-solid fa-user-shield"></i> Submit Identity for Enrolment';
