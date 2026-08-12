@@ -1,22 +1,22 @@
 let generatedOTP = null;
 let isGmailOtpVerified = false;
 
-// Initialize EmailJS (Free Email Service)
+// Initialize EmailJS
 (function() {
-    // Replace with your EmailJS Public Key if you set up a custom account
     if (window.emailjs) {
-        emailjs.init("YOUR_EMAILJS_PUBLIC_KEY");
+        emailjs.init("c8S12LllbA-9-1xYx"); 
     }
 })();
 
-// Function to generate and send OTP to Gmail
-function sendGmailOTP() {
+// Function to generate and send real OTP email to Gmail
+async function sendGmailOTP() {
     const emailInput = document.getElementById("email");
     const userEmail = emailInput ? emailInput.value.trim() : "";
     const otpStatus = document.getElementById("otp-status");
+    const sendBtn = document.getElementById("send-otp-btn");
 
     if (!userEmail) {
-        alert("Please go back to Tab 1 and enter a valid Gmail address.");
+        alert("Please enter a valid Gmail address in Tab 1 first.");
         return;
     }
 
@@ -26,16 +26,34 @@ function sendGmailOTP() {
     if (otpStatus) {
         otpStatus.style.display = "block";
         otpStatus.style.color = "#38bdf8";
-        otpStatus.innerText = `Sending OTP to ${userEmail}...`;
+        otpStatus.innerText = `Sending OTP email to ${userEmail}...`;
     }
 
-    // Standard client side dispatch / simulation fallback
-    setTimeout(() => {
+    if (sendBtn) sendBtn.disabled = true;
+
+    try {
+        // Sends email using your connected Gmail Service & Template ID
+        await emailjs.send("service_cuo0zfo", "template_f5n21dq", {
+            to_email: userEmail,
+            otp_code: generatedOTP,
+            user_name: document.querySelector('input[name="full_name"]')?.value || "Student"
+        });
+
         if (otpStatus) {
-            otpStatus.innerText = `OTP sent to ${userEmail}. Check your inbox!`;
+            otpStatus.style.color = "#4ade80";
+            otpStatus.innerText = `OTP email successfully sent to ${userEmail}! Check your inbox or spam folder.`;
         }
-        alert(`OTP generated for testing: ${generatedOTP}\n\n(Sent to ${userEmail})`);
-    }, 1000);
+        alert(`An email containing your 6-digit OTP has been sent directly to ${userEmail}`);
+    } catch (error) {
+        console.error("EmailJS Error:", error);
+        if (otpStatus) {
+            otpStatus.style.color = "#ef4444";
+            otpStatus.innerText = "Failed to send email. Check console for details.";
+        }
+        alert("Failed to send OTP email. Please try again.");
+    } finally {
+        if (sendBtn) sendBtn.disabled = false;
+    }
 }
 
 // Function to verify entered OTP
@@ -44,7 +62,7 @@ function verifyGmailOTP() {
     const otpStatus = document.getElementById("otp-status");
 
     if (!generatedOTP) {
-        alert("Please click 'Send OTP' first.");
+        alert("Please click 'Send OTP' first to deliver the code to your Gmail.");
         return;
     }
 
@@ -57,7 +75,7 @@ function verifyGmailOTP() {
         }
         alert("Gmail OTP verified successfully!");
     } else {
-        alert("Invalid OTP code. Please check your email and try again.");
+        alert("Invalid OTP code. Please check your Gmail inbox and try again.");
     }
 }
 
