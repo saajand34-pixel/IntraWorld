@@ -1,6 +1,20 @@
 let generatedOTP = null;
 let isGmailOtpVerified = false;
 
+// Credentials Configuration
+const PUBLIC_KEY = "AgRvlQp55hsz50XuH";
+const SERVICE_ID = "service_cuo0zfo";
+const TEMPLATE_ID = "template_f5n21dq";
+
+// Initialize EmailJS immediately
+(function() {
+    if (window.emailjs) {
+        emailjs.init(PUBLIC_KEY);
+    } else {
+        console.error("EmailJS SDK script tag missing from HTML head!");
+    }
+})();
+
 // Function to generate and send OTP directly to Gmail
 async function sendGmailOTP() {
     const emailInput = document.getElementById("email");
@@ -24,7 +38,7 @@ async function sendGmailOTP() {
 
     if (sendBtn) sendBtn.disabled = true;
 
-    // EmailJS template parameters matching your setup
+    // Payload parameters matching EmailJS template expectations
     const templateParams = {
         to_email: userEmail,
         email: userEmail,
@@ -33,25 +47,21 @@ async function sendGmailOTP() {
         message: `Your IntraWorld verification passcode is: ${generatedOTP}`
     };
 
-    const PUBLIC_KEY = "AgRvlQp55hsz50XuH"; 
-    const SERVICE_ID = "service_cuo0zfo";
-    const TEMPLATE_ID = "template_f5n21dq";
-
     try {
-        // Send email using your exact credentials
+        // Send email using EmailJS SDK
         const response = await emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams, PUBLIC_KEY);
         console.log("SUCCESS!", response.status, response.text);
 
         if (otpStatus) {
             otpStatus.style.color = "#4ade80";
-            otpStatus.innerText = `OTP sent to ${userEmail}! Check your Gmail inbox or spam folder.`;
+            otpStatus.innerText = `OTP sent to ${userEmail}! Check your Gmail inbox/spam.`;
         }
         alert(`An email containing your 6-digit OTP has been sent directly to ${userEmail}`);
     } catch (error) {
         console.error("EmailJS Error:", error);
         if (otpStatus) {
             otpStatus.style.color = "#ef4444";
-            otpStatus.innerText = `Error (${error.status}): ${error.text || "Failed to deliver email"}`;
+            otpStatus.innerText = `Error: ${error.text || "Failed to deliver email"}`;
         }
         alert(`Failed to send OTP email: ${error.text || "Check console for details"}`);
     } finally {
