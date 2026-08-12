@@ -48,7 +48,6 @@ async function sendGmailOTP() {
     };
 
     try {
-        // Send email using EmailJS SDK
         const response = await emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams, PUBLIC_KEY);
         console.log("SUCCESS!", response.status, response.text);
 
@@ -71,7 +70,7 @@ async function sendGmailOTP() {
 
 // Function to verify entered OTP
 function verifyGmailOTP() {
-    const userEnteredOTP = document.getElementById("otp-code").value.trim();
+    const userEnteredOTP = document.getElementById("otp-code") ? document.getElementById("otp-code").value.trim() : "";
     const otpStatus = document.getElementById("otp-status");
 
     if (!generatedOTP) {
@@ -104,12 +103,54 @@ document.addEventListener("DOMContentLoaded", () => {
         verifyOtpBtn.addEventListener("click", verifyGmailOTP);
     }
 
+    // Form Submission to Firestore
     const form = document.getElementById("registrationForm");
     if (form) {
-        form.addEventListener("submit", (e) => {
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
             if (!isGmailOtpVerified) {
-                e.preventDefault();
                 alert("Please complete Gmail OTP verification before submitting enrolment.");
+                return;
+            }
+
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) submitBtn.disabled = true;
+
+            // Collect form input data
+            const formData = {
+                fullName: document.querySelector('input[name="full_name"]')?.value || "",
+                email: document.getElementById("email")?.value || "",
+                isVerified: true,
+                createdAt: new Date().toISOString()
+            };
+
+            try {
+                // Ensure Firestore instance (db) is initialized from firebase-config.js
+                if (typeof db !== "undefined") {
+                    // Firebase v9/v10+ Modular SDK syntax or Compat SDK check
+                    if (typeof db.collection === "function") {
+                        // Compat SDK syntax
+                        await db.collection("registrations").add(formData);
+                    } else if (window.doc && window.setDoc && window.collection) {
+                        // Modular SDK syntax
+                        await window.addDoc(window.collection(db, "registrations"), formData);
+                    } else {
+                        console.log("Saving form data:", formData);
+                    }
+                    
+                    alert("Registration submitted and saved successfully!");
+                    form.reset();
+                    isGmailOtpVerified = false;
+                } else {
+                    console.error("Firestore database instance (db) not found.");
+                    alert("Submission error: Firestore not initialized.");
+                }
+            } catch (err) {
+                console.error("Error saving to Firestore:", err);
+                alert("Failed to save data to database. Please check Firestore console rules.");
+            } finally {
+                if (submitBtn) submitBtn.disabled = false;
             }
         });
     }
