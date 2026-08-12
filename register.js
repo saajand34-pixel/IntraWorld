@@ -1,12 +1,12 @@
 let generatedOTP = null;
 let isGmailOtpVerified = false;
 
-// Credentials Configuration
+// EmailJS Credentials Configuration
 const PUBLIC_KEY = "AgRvlQp55hsz50XuH";
 const SERVICE_ID = "service_cuo0zfo";
 const TEMPLATE_ID = "template_f5n21dq";
 
-// Initialize EmailJS immediately
+// Initialize EmailJS
 (function() {
     if (window.emailjs) {
         emailjs.init(PUBLIC_KEY);
@@ -38,7 +38,7 @@ async function sendGmailOTP() {
 
     if (sendBtn) sendBtn.disabled = true;
 
-    // Payload parameters matching EmailJS template expectations
+    // Payload parameters matching EmailJS template
     const templateParams = {
         to_email: userEmail,
         email: userEmail,
@@ -53,7 +53,7 @@ async function sendGmailOTP() {
 
         if (otpStatus) {
             otpStatus.style.color = "#4ade80";
-            otpStatus.innerText = `OTP sent to ${userEmail}! Check your Gmail inbox/spam.`;
+            otpStatus.innerText = `OTP sent to ${userEmail}! Check your Gmail inbox or spam folder.`;
         }
         alert(`An email containing your 6-digit OTP has been sent directly to ${userEmail}`);
     } catch (error) {
@@ -103,7 +103,7 @@ document.addEventListener("DOMContentLoaded", () => {
         verifyOtpBtn.addEventListener("click", verifyGmailOTP);
     }
 
-    // Form Submission to Firestore
+    // Form Submission Handler: Saves to Firestore and Redirects
     const form = document.getElementById("registrationForm");
     if (form) {
         form.addEventListener("submit", async (e) => {
@@ -117,7 +117,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const submitBtn = form.querySelector('button[type="submit"]');
             if (submitBtn) submitBtn.disabled = true;
 
-            // Collect form input data
+            // Collect form fields
             const formData = {
                 fullName: document.querySelector('input[name="full_name"]')?.value || "",
                 email: document.getElementById("email")?.value || "",
@@ -126,29 +126,21 @@ document.addEventListener("DOMContentLoaded", () => {
             };
 
             try {
-                // Ensure Firestore instance (db) is initialized from firebase-config.js
-                if (typeof db !== "undefined") {
-                    // Firebase v9/v10+ Modular SDK syntax or Compat SDK check
-                    if (typeof db.collection === "function") {
-                        // Compat SDK syntax
-                        await db.collection("registrations").add(formData);
-                    } else if (window.doc && window.setDoc && window.collection) {
-                        // Modular SDK syntax
-                        await window.addDoc(window.collection(db, "registrations"), formData);
-                    } else {
-                        console.log("Saving form data:", formData);
-                    }
+                // Access db instance globally via window.db
+                const firestoreDb = window.db;
+
+                if (firestoreDb && window.addDoc && window.collection) {
+                    await window.addDoc(window.collection(firestoreDb, "registrations"), formData);
                     
-                    alert("Registration submitted and saved successfully!");
-                    form.reset();
-                    isGmailOtpVerified = false;
+                    alert("Registration saved successfully! Redirecting to login page...");
+                    window.location.href = "login.html";
                 } else {
-                    console.error("Firestore database instance (db) not found.");
-                    alert("Submission error: Firestore not initialized.");
+                    console.error("Firestore DB instance not accessible on window object.");
+                    alert("Submission error: Firestore not initialized. Please ensure firebase-config.js script tag includes type='module'.");
                 }
             } catch (err) {
                 console.error("Error saving to Firestore:", err);
-                alert("Failed to save data to database. Please check Firestore console rules.");
+                alert("Failed to save registration: " + err.message);
             } finally {
                 if (submitBtn) submitBtn.disabled = false;
             }
