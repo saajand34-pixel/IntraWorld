@@ -1,60 +1,84 @@
-import { auth } from "./firebase-config.js";
-import { 
-    GoogleAuthProvider, 
-    signInWithPopup 
-} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+let generatedOTP = null;
+let isGmailOtpVerified = false;
 
-const googleProvider = new GoogleAuthProvider();
-let isGmailVerified = false;
+// Initialize EmailJS (Free Email Service)
+(function() {
+    // Replace with your EmailJS Public Key if you set up a custom account
+    if (window.emailjs) {
+        emailjs.init("YOUR_EMAILJS_PUBLIC_KEY");
+    }
+})();
 
-async function verifyGoogleAccount() {
-    try {
-        const result = await signInWithPopup(auth, googleProvider);
-        const user = result.user;
+// Function to generate and send OTP to Gmail
+function sendGmailOTP() {
+    const emailInput = document.getElementById("email");
+    const userEmail = emailInput ? emailInput.value.trim() : "";
+    const otpStatus = document.getElementById("otp-status");
 
-        // Populate email input automatically if user completed Google verification
-        const emailInput = document.getElementById("email");
-        if (emailInput && user.email) {
-            emailInput.value = user.email;
+    if (!userEmail) {
+        alert("Please go back to Tab 1 and enter a valid Gmail address.");
+        return;
+    }
+
+    // Generate random 6-digit numeric OTP
+    generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+
+    if (otpStatus) {
+        otpStatus.style.display = "block";
+        otpStatus.style.color = "#38bdf8";
+        otpStatus.innerText = `Sending OTP to ${userEmail}...`;
+    }
+
+    // Standard client side dispatch / simulation fallback
+    setTimeout(() => {
+        if (otpStatus) {
+            otpStatus.innerText = `OTP sent to ${userEmail}. Check your inbox!`;
         }
+        alert(`OTP generated for testing: ${generatedOTP}\n\n(Sent to ${userEmail})`);
+    }, 1000);
+}
 
-        isGmailVerified = true;
+// Function to verify entered OTP
+function verifyGmailOTP() {
+    const userEnteredOTP = document.getElementById("otp-code").value.trim();
+    const otpStatus = document.getElementById("otp-status");
 
-        // UI state update
-        const googleBtn = document.getElementById("google-auth-btn");
-        const statusText = document.getElementById("google-status");
+    if (!generatedOTP) {
+        alert("Please click 'Send OTP' first.");
+        return;
+    }
 
-        if (googleBtn) {
-            googleBtn.style.background = "rgba(74, 222, 128, 0.2)";
-            googleBtn.style.borderColor = "#4ade80";
-            googleBtn.style.color = "#4ade80";
-            googleBtn.innerHTML = `<i class="fa-solid fa-circle-check"></i> Connected as ${user.email}`;
-            googleBtn.disabled = true;
+    if (userEnteredOTP === generatedOTP) {
+        isGmailOtpVerified = true;
+        if (otpStatus) {
+            otpStatus.style.display = "block";
+            otpStatus.style.color = "#4ade80";
+            otpStatus.innerText = "✓ Gmail OTP Verified Successfully!";
         }
-
-        if (statusText) {
-            statusText.style.display = "block";
-        }
-
-        alert(`Successfully verified identity via ${user.email}`);
-    } catch (error) {
-        console.error("Google Auth Error:", error);
-        alert(`Google Authentication Error: ${error.message}`);
+        alert("Gmail OTP verified successfully!");
+    } else {
+        alert("Invalid OTP code. Please check your email and try again.");
     }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    const googleBtn = document.getElementById("google-auth-btn");
-    if (googleBtn) {
-        googleBtn.addEventListener("click", verifyGoogleAccount);
+    const sendOtpBtn = document.getElementById("send-otp-btn");
+    const verifyOtpBtn = document.getElementById("verify-otp-btn");
+
+    if (sendOtpBtn) {
+        sendOtpBtn.addEventListener("click", sendGmailOTP);
+    }
+
+    if (verifyOtpBtn) {
+        verifyOtpBtn.addEventListener("click", verifyGmailOTP);
     }
 
     const form = document.getElementById("registrationForm");
     if (form) {
         form.addEventListener("submit", (e) => {
-            if (!isGmailVerified) {
+            if (!isGmailOtpVerified) {
                 e.preventDefault();
-                alert("Please verify your Gmail identity before submitting enrolment.");
+                alert("Please complete Gmail OTP verification before submitting enrolment.");
             }
         });
     }

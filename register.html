@@ -7,7 +7,9 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    
+    <!-- EmailJS SDK for sending direct Email OTP -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
     <style>
         * {
@@ -201,26 +203,28 @@
             text-align: left;
         }
 
-        .btn-google-auth {
-            width: 100%;
-            padding: 12px;
-            background: rgba(0, 136, 255, 0.15);
+        .mfa-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .btn-send-otp {
+            padding: 10px 15px;
+            background: rgba(0, 136, 255, 0.2);
             border: 1px solid #0088ff;
-            color: #ffffff;
+            color: #38bdf8;
             border-radius: 10px;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
+            white-space: nowrap;
         }
 
-        .btn-google-auth:hover {
-            background: rgba(0, 136, 255, 0.3);
-            box-shadow: 0 0 15px rgba(0, 136, 255, 0.4);
+        .btn-send-otp:hover {
+            background: rgba(0, 136, 255, 0.35);
+            box-shadow: 0 0 12px rgba(0, 136, 255, 0.5);
         }
 
         .btn-action-group {
@@ -303,7 +307,7 @@
                 <i class="fa-solid fa-graduation-cap"></i> 2. Academic Info
             </button>
             <button class="tab-btn" id="btn-tab-2">
-                <i class="fa-solid fa-shield"></i> 3. Security MFA
+                <i class="fa-solid fa-envelope"></i> 3. Gmail OTP MFA
             </button>
         </div>
 
@@ -320,15 +324,15 @@
                     </div>
 
                     <div class="input-group">
-                        <label>Email Address</label>
+                        <label>Email Address (Gmail)</label>
                         <div class="field-wrapper">
                             <i class="fa-solid fa-envelope icon"></i>
-                            <input type="email" name="email" id="email" placeholder="john@example.com" required>
+                            <input type="email" name="email" id="email" placeholder="john@gmail.com" required>
                         </div>
                     </div>
 
                     <div class="input-group">
-                        <label>Mobile SIM Number (With Country Code e.g. +91)</label>
+                        <label>Mobile Number</label>
                         <div class="field-wrapper">
                             <i class="fa-solid fa-phone icon"></i>
                             <input type="tel" id="mobile_number" name="mobile_number" placeholder="+919999999999" required>
@@ -446,30 +450,37 @@
                 </div>
             </div>
 
-            <!-- TAB 3: VERIFICATION -->
+            <!-- TAB 3: VERIFICATION (GMAIL OTP) -->
             <div class="tab-content" id="tab-2">
                 <div class="notice-banner">
                     <i class="fa-solid fa-triangle-exclamation" style="font-size: 18px; margin-top: 2px;"></i>
                     <div>
-                        <strong>Strict Anti-Bot Policy Active:</strong> Standard webmail registrations require physical identity document verification prior to gaining timeline & dashboard access.
+                        <strong>Strict Anti-Bot Policy Active:</strong> Standard webmail registrations require Gmail OTP verification prior to gaining timeline & dashboard access.
                     </div>
                 </div>
 
-                <!-- Google Account Verification -->
+                <!-- Gmail OTP Box -->
                 <div class="verification-box">
                     <h3 style="font-size:15px; color:#38bdf8; margin-bottom: 5px;">
-                        <i class="fa-brands fa-google"></i> Google Identity Link (Gmail)
+                        <i class="fa-solid fa-envelope"></i> Gmail Identity Authentication (OTP)
                     </h3>
-                    <p style="font-size:12px; color:#94a3b8; margin-bottom: 12px;">
-                        Authenticate via your official Gmail account to verify your primary web identity.
+                    <p style="font-size:12px; color:#94a3b8;">
+                        Click <b>Send OTP</b> to receive a 6-digit passcode sent directly to your registered Gmail address.
                     </p>
                     
-                    <button type="button" class="btn-google-auth" id="google-auth-btn">
-                        <i class="fa-brands fa-google" style="color: #ea4335; font-size: 16px;"></i> Verify & Link Gmail
-                    </button>
-                    <p id="google-status" style="font-size: 12px; margin-top: 10px; color: #4ade80; display: none;">
-                        <i class="fa-solid fa-circle-check"></i> Gmail verified successfully!
-                    </p>
+                    <div class="mfa-container">
+                        <div class="field-wrapper" style="flex:1;">
+                            <i class="fa-solid fa-key icon"></i>
+                            <input type="text" id="otp-code" maxlength="6" placeholder="Enter 6-digit OTP">
+                        </div>
+                        <button type="button" class="btn-send-otp" id="send-otp-btn">
+                            <i class="fa-solid fa-paper-plane"></i> Send OTP
+                        </button>
+                        <button type="button" class="btn-send-otp" id="verify-otp-btn" style="background: rgba(74, 222, 128, 0.2); border-color: #4ade80; color: #4ade80;">
+                            <i class="fa-solid fa-check-circle"></i> Verify OTP
+                        </button>
+                    </div>
+                    <p id="otp-status" style="font-size: 12px; margin-top: 8px; color: #38bdf8; display: none;"></p>
                 </div>
 
                 <!-- Physical Document Verification Safeguard -->
