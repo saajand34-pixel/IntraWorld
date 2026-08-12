@@ -201,11 +201,6 @@
             text-align: left;
         }
 
-        .verification-box.success {
-            background: rgba(34, 197, 94, 0.1);
-            border: 1px dashed rgba(34, 197, 94, 0.5);
-        }
-
         .mfa-container {
             display: flex;
             gap: 10px;
@@ -228,12 +223,6 @@
         .btn-send-otp:hover {
             background: rgba(0, 136, 255, 0.35);
             box-shadow: 0 0 12px rgba(0, 136, 255, 0.5);
-        }
-
-        .btn-send-otp.success {
-            background: rgba(34, 197, 94, 0.2);
-            border-color: #22c55e;
-            color: #22c55e;
         }
 
         .btn-action-group {
@@ -341,10 +330,10 @@
                     </div>
 
                     <div class="input-group">
-                        <label>Mobile SIM Number</label>
+                        <label>Mobile SIM Number (With Country Code e.g. +91)</label>
                         <div class="field-wrapper">
                             <i class="fa-solid fa-phone icon"></i>
-                            <input type="tel" id="mobile_number" name="mobile_number" placeholder="+15551234567" required>
+                            <input type="tel" id="mobile_number" name="mobile_number" placeholder="+919999999999" required>
                         </div>
                     </div>
 
@@ -459,7 +448,7 @@
                 </div>
             </div>
 
-            <!-- TAB 3: VERIFICATION (MFA & PHYSICAL DOCUMENT ADJUDICATION BARRIER) -->
+            <!-- TAB 3: VERIFICATION -->
             <div class="tab-content" id="tab-2">
                 <div class="notice-banner">
                     <i class="fa-solid fa-triangle-exclamation" style="font-size: 18px; margin-top: 2px;"></i>
@@ -520,7 +509,6 @@
     </div>
 
     <script>
-        // UI TAB SWITCHER & VALIDATION
         window.switchTab = function(tabIndex) {
             document.querySelectorAll('.tab-btn').forEach((tab, index) => {
                 tab.classList.toggle('active', index === tabIndex);
@@ -542,7 +530,6 @@
             return true;
         }
 
-        // Tab Navigation Handlers
         document.getElementById('btn-tab-0').addEventListener('click', () => switchTab(0));
         document.getElementById('btn-tab-1').addEventListener('click', () => { if (validateTab('tab-0')) switchTab(1); });
         document.getElementById('btn-tab-2').addEventListener('click', () => { if (validateTab('tab-0') && validateTab('tab-1')) switchTab(2); });
@@ -551,7 +538,6 @@
         document.getElementById('nav-to-1-back').addEventListener('click', () => switchTab(1));
         document.getElementById('nav-to-2').addEventListener('click', () => { if (validateTab('tab-0') && validateTab('tab-1')) switchTab(2); });
 
-        // PASSWORD VISIBILITY TOGGLE
         document.querySelectorAll('.toggle-password').forEach(icon => {
             icon.addEventListener('click', () => {
                 const targetId = icon.getAttribute('data-target');
@@ -569,7 +555,5 @@
 
     <script type="module" src="./firebase-config.js"></script>
     <script type="module" src="./register.js"></script>
-    <!-- Add this near your phone number form or Send OTP button -->
-<div id="recaptcha-container"></div>
 </body>
 </html>

@@ -4,30 +4,56 @@ import {
     signInWithPhoneNumber 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-// 1. Initialize the RecaptchaVerifier on page load
-window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-  'size': 'invisible', // or 'normal'
-  'callback': (response) => {
-    // reCAPTCHA solved - allow sendOTP
-    console.log("reCAPTCHA verified");
-  },
-  'expired-callback': () => {
-    // Response expired. Ask user to solve reCAPTCHA again.
-    console.log("reCAPTCHA expired");
-  }
-});
+// Helper to initialize RecaptchaVerifier safely
+function setupRecaptcha() {
+    if (!window.recaptchaVerifier) {
+        window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+            'size': 'invisible',
+            'callback': (response) => {
+                console.log("reCAPTCHA verified");
+            },
+            'expired-callback': () => {
+                console.log("reCAPTCHA expired");
+            }
+        });
+    }
+}
 
-// 2. Function called when clicking "Send OTP"
+// Function to handle OTP delivery
 async function sendOTP() {
-    const phoneNumber = "+919999999999"; // Your test or user phone number
-    const appVerifier = window.recaptchaVerifier;
+    const phoneInput = document.getElementById("mobile_number");
+    const phoneNumber = phoneInput ? phoneInput.value.trim() : "";
+
+    if (!phoneNumber) {
+        alert("Please enter a valid mobile number with country code (e.g. +919999999999)");
+        return;
+    }
 
     try {
+        setupRecaptcha();
+        const appVerifier = window.recaptchaVerifier;
+
         const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
         window.confirmationResult = confirmationResult;
-        alert("OTP sent successfully!");
+        
+        alert("OTP sent successfully to " + phoneNumber);
     } catch (error) {
         console.error("OTP Error:", error);
         alert("OTP Error: " + error.message);
+        
+        // Reset reCAPTCHA if it fails so user can retry
+        if (window.recaptchaVerifier) {
+            window.recaptchaVerifier.render().then(widgetId => {
+                grecaptcha.reset(widgetId);
+            });
+        }
     }
 }
+
+// Bind event listener to the Send OTP button
+document.addEventListener("DOMContentLoaded", () => {
+    const sendOtpBtn = document.getElementById("send-otp-btn");
+    if (sendOtpBtn) {
+        sendOtpBtn.addEventListener("click", sendOTP);
+    }
+});
