@@ -1,14 +1,7 @@
 let generatedOTP = null;
 let isGmailOtpVerified = false;
 
-// Initialize EmailJS
-(function() {
-    if (window.emailjs) {
-        emailjs.init("c8S12LllbA-9-1xYx"); 
-    }
-})();
-
-// Function to generate and send real OTP email to Gmail
+// Function to generate and send OTP directly to Gmail
 async function sendGmailOTP() {
     const emailInput = document.getElementById("email");
     const userEmail = emailInput ? emailInput.value.trim() : "";
@@ -31,26 +24,36 @@ async function sendGmailOTP() {
 
     if (sendBtn) sendBtn.disabled = true;
 
+    // EmailJS template parameters matching your setup
+    const templateParams = {
+        to_email: userEmail,
+        email: userEmail,
+        otp_code: generatedOTP,
+        name: document.querySelector('input[name="full_name"]')?.value || "Student",
+        message: `Your IntraWorld verification passcode is: ${generatedOTP}`
+    };
+
+    const PUBLIC_KEY = "AgRvlQp55hsz50XuH"; 
+    const SERVICE_ID = "service_cuo0zfo";
+    const TEMPLATE_ID = "template_f5n21dq";
+
     try {
-        // Sends email using your connected Gmail Service & Template ID
-        await emailjs.send("service_cuo0zfo", "template_f5n21dq", {
-            to_email: userEmail,
-            otp_code: generatedOTP,
-            user_name: document.querySelector('input[name="full_name"]')?.value || "Student"
-        });
+        // Send email using your exact credentials
+        const response = await emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams, PUBLIC_KEY);
+        console.log("SUCCESS!", response.status, response.text);
 
         if (otpStatus) {
             otpStatus.style.color = "#4ade80";
-            otpStatus.innerText = `OTP email successfully sent to ${userEmail}! Check your inbox or spam folder.`;
+            otpStatus.innerText = `OTP sent to ${userEmail}! Check your Gmail inbox or spam folder.`;
         }
         alert(`An email containing your 6-digit OTP has been sent directly to ${userEmail}`);
     } catch (error) {
         console.error("EmailJS Error:", error);
         if (otpStatus) {
             otpStatus.style.color = "#ef4444";
-            otpStatus.innerText = "Failed to send email. Check console for details.";
+            otpStatus.innerText = `Error (${error.status}): ${error.text || "Failed to deliver email"}`;
         }
-        alert("Failed to send OTP email. Please try again.");
+        alert(`Failed to send OTP email: ${error.text || "Check console for details"}`);
     } finally {
         if (sendBtn) sendBtn.disabled = false;
     }
