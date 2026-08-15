@@ -3,544 +3,1103 @@
 
 <head>
 
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>Intra World Dashboard</title>
+    <title>Intra World Dashboard</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Google Font -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
 
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+        rel="stylesheet"
+    >
 
-<style>
+    <style>
 
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Poppins,sans-serif;
-}
+        /* =========================
+           GLOBAL
+        ========================= */
 
-body{
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Poppins, sans-serif;
+        }
 
-background:#061524;
+        html,
+        body {
+            width: 100%;
+            min-height: 100%;
+        }
 
-color:#fff;
+        body {
+            background: #061524;
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
 
-display:flex;
 
-min-height:100vh;
+        /* =========================
+           MAIN
+        ========================= */
 
-}
+        .main {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
 
-/* Sidebar */
 
-.sidebar{
+        /* =========================
+           TOP BAR
+        ========================= */
 
-width:260px;
+        .topbar {
+            height: 78px;
 
-background:#04101d;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
 
-display:flex;
+            padding: 0 38px;
 
-flex-direction:column;
+            background: #081b2e;
 
-padding:25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 
-border-right:1px solid rgba(255,255,255,.08);
+            position: sticky;
+            top: 0;
 
-}
+            z-index: 100;
+        }
 
-.logo{
 
-display:flex;
+        /* =========================
+           HAMBURGER BUTTON
+        ========================= */
 
-align-items:center;
+        .menu-btn {
+            width: 45px;
+            height: 45px;
 
-gap:12px;
+            border: none;
+            border-radius: 12px;
 
-margin-bottom:40px;
+            background: #102b45;
 
-}
+            color: #ffffff;
 
-.logo img{
+            font-size: 20px;
 
-width:55px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
 
-}
+            cursor: pointer;
 
-.logo h2{
+            transition: all 0.3s ease;
+        }
 
-font-size:22px;
+        .menu-btn:hover {
+            background: #0066ff;
 
-}
+            transform: translateY(-1px);
 
-.logo span{
+            box-shadow:
+                0 8px 20px rgba(0, 102, 255, 0.25);
+        }
 
-display:block;
 
-font-size:11px;
+        /* =========================
+           SEARCH
+        ========================= */
 
-color:#7db7ff;
+        .search {
+            width: 420px;
 
-}
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
 
-.menu{
+        .search input {
+            width: 100%;
 
-display:flex;
+            padding: 14px 18px;
 
-flex-direction:column;
+            background: #102b45;
 
-gap:12px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
 
-}
+            border-radius: 12px;
 
-.menu a{
+            color: #ffffff;
 
-text-decoration:none;
+            outline: none;
 
-color:#d9d9d9;
+            font-size: 13px;
 
-padding:14px 18px;
+            transition: all 0.3s ease;
+        }
 
-border-radius:12px;
+        .search input::placeholder {
+            color: #8fa8bf;
+        }
 
-transition:.3s;
+        .search input:focus {
+            border-color: #1684ff;
 
-display:flex;
+            box-shadow:
+                0 0 0 3px rgba(0, 102, 255, 0.12);
+        }
 
-align-items:center;
 
-gap:15px;
+        /* =========================
+           USER
+        ========================= */
 
-}
+        .user {
+            margin-left: auto;
 
-.menu a:hover{
+            display: flex;
+            align-items: center;
 
-background:#0f3f8c;
+            gap: 14px;
+        }
 
-}
+        .user span {
+            color: #e4edf6;
 
-.menu a.active{
+            font-size: 14px;
 
-background:#0066ff;
+            font-weight: 500;
+        }
 
-color:white;
+        .user img {
+            width: 45px;
+            height: 45px;
 
-}
+            border-radius: 50%;
 
-.bottom{
+            object-fit: cover;
 
-margin-top:auto;
+            border: 2px solid #0066ff;
 
-}
+            background: #102b45;
+        }
 
-.logout{
 
-background:#d63031;
+        /* =========================
+           SIDEBAR / DRAWER
+        ========================= */
 
-}
+        .sidebar {
+            position: fixed;
 
-/* Main */
+            top: 0;
+            left: 0;
 
-.main{
+            width: 280px;
+            height: 100vh;
 
-flex:1;
+            background: #04101d;
 
-display:flex;
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
 
-flex-direction:column;
+            padding: 20px;
 
-}
+            z-index: 300;
 
-/* Top Bar */
+            transform: translateX(-100%);
 
-.topbar{
+            transition: transform 0.35s ease;
 
-height:80px;
+            box-shadow:
+                15px 0 40px rgba(0, 0, 0, 0.35);
 
-display:flex;
+            display: flex;
+            flex-direction: column;
+        }
 
-justify-content:space-between;
+        .sidebar.open {
+            transform: translateX(0);
+        }
 
-align-items:center;
 
-padding:0 35px;
+        /* =========================
+           SIDEBAR HEADER (STACKED LOGO + TOP-RIGHT CLOSE)
+        ========================= */
 
-background:#081b2e;
+        .sidebar-header {
+            position: relative;
 
-border-bottom:1px solid rgba(255,255,255,.08);
+            display: flex;
+            flex-direction: column;
 
-}
+            align-items: center;
 
-.search{
+            padding-top: 10px;
 
-width:420px;
+            padding-bottom: 20px;
 
-}
+            margin-bottom: 15px;
 
-.search input{
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
 
-width:100%;
 
-padding:14px;
+        /* =========================
+           LOGO CONTAINER (CENTERED VERTICALLY)
+        ========================= */
 
-background:#102b45;
+        .logo {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
 
-border:none;
+        .logo img {
+            width: 75px;
+            height: 75px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
 
-border-radius:12px;
+        .logo h2 {
+            font-size: 18px;
 
-color:white;
+            line-height: 1.2;
 
-}
+            font-weight: 700;
 
-.user{
+            letter-spacing: 1px;
 
-display:flex;
+            white-space: nowrap;
+        }
 
-align-items:center;
 
-gap:15px;
+        /* =========================
+           CLOSE BUTTON (POSITIONED RIGHT EDGE)
+        ========================= */
 
-}
+        .close-btn {
+            position: absolute;
 
-.user img{
+            top: 0;
+            right: 0;
 
-width:45px;
+            width: 36px;
+            height: 36px;
 
-height:45px;
+            border: none;
 
-border-radius:50%;
+            border-radius: 10px;
 
-object-fit:cover;
+            background: #102b45;
 
-}
+            color: #b9c9d8;
 
-/* Content */
+            cursor: pointer;
 
-.content{
+            transition: all 0.3s ease;
 
-padding:35px;
+            display: flex;
 
-}
+            align-items: center;
 
-/* Welcome */
+            justify-content: center;
+        }
 
-.banner{
+        .close-btn:hover {
+            background: #ff4757;
 
-background:linear-gradient(120deg,#005bea,#00c6fb);
+            color: #ffffff;
+        }
 
-padding:30px;
 
-border-radius:20px;
+        /* =========================
+           NAVIGATION CONTAINER
+        ========================= */
 
-margin-bottom:30px;
+        .menu-container {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            margin-bottom: 20px;
+            padding-right: 6px;
+        }
 
-}
+        /* Scrollbar styling */
+        .menu-container::-webkit-scrollbar {
+            width: 5px;
+        }
 
-.banner h1{
+        .menu-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
 
-font-size:34px;
+        .menu-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
 
-margin-bottom:10px;
+        .menu-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
 
-}
 
-.banner p{
+        /* =========================
+           NAVIGATION
+        ========================= */
 
-font-size:16px;
+        .menu {
+            display: flex;
 
-}
+            flex-direction: column;
 
-/* Cards */
+            gap: 7px;
+        }
 
-.cards{
+        .menu a {
+            text-decoration: none;
 
-display:grid;
+            color: #c8d4df;
 
-grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+            padding: 13px 15px;
 
-gap:25px;
+            border-radius: 11px;
 
-}
+            display: flex;
 
-.card{
+            align-items: center;
 
-background:#0b2137;
+            gap: 14px;
 
-padding:25px;
+            font-size: 14px;
 
-border-radius:18px;
+            font-weight: 500;
 
-box-shadow:0 15px 25px rgba(0,0,0,.35);
+            transition: all 0.25s ease;
 
-}
+            white-space: nowrap;
+        }
 
-.card h3{
+        .menu a i {
+            width: 20px;
 
-color:#8cbcff;
+            text-align: center;
 
-margin-bottom:15px;
+            font-size: 16px;
 
-}
+            flex-shrink: 0;
+        }
 
-.card h2{
+        .menu a:hover {
+            background: #0e2e52;
 
-font-size:40px;
+            color: #ffffff;
 
-margin-bottom:10px;
+            transform: translateX(3px);
+        }
 
-}
+        .menu a.active {
+            background: linear-gradient(
+                135deg,
+                #0066ff,
+                #1684ff
+            );
 
-.card p{
+            color: #ffffff;
 
-color:#ccc;
+            box-shadow:
+                0 8px 20px rgba(0, 102, 255, 0.25);
+        }
 
-font-size:14px;
 
-}
+        /* =========================
+           LOGOUT
+        ========================= */
 
-/* Responsive */
+        .bottom {
+            margin-top: auto;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.07);
+            flex-shrink: 0;
+        }
 
-@media(max-width:900px){
+        .menu .logout {
+            color: #ff7b86;
 
-.sidebar{
+            background: rgba(255, 71, 87, 0.06);
+        }
 
-display:none;
+        .menu .logout:hover {
+            background: rgba(255, 71, 87, 0.15);
 
-}
+            color: #ff525f;
 
-.search{
+            transform: translateX(3px);
+        }
 
-display:none;
 
-}
+        /* =========================
+           OVERLAY
+        ========================= */
 
-.topbar{
+        .overlay {
+            position: fixed;
 
-padding:20px;
+            inset: 0;
 
-}
+            background: rgba(0, 0, 0, 0.55);
 
-}
+            backdrop-filter: blur(3px);
 
-</style>
+            opacity: 0;
+
+            visibility: hidden;
+
+            z-index: 200;
+
+            transition: opacity 0.35s ease,
+                visibility 0.35s ease;
+        }
+
+        .overlay.show {
+            opacity: 1;
+
+            visibility: visible;
+        }
+
+
+        /* =========================
+           CONTENT
+        ========================= */
+
+        .content {
+            flex: 1;
+
+            padding: 40px;
+
+            overflow-y: auto;
+        }
+
+
+        /* =========================
+           BANNER
+        ========================= */
+
+        .banner {
+            margin-bottom: 45px;
+        }
+
+        .banner h1 {
+            font-size: 32px;
+
+            font-weight: 700;
+
+            margin-bottom: 8px;
+
+            text-transform: uppercase;
+
+            letter-spacing: 1px;
+        }
+
+        .banner p {
+            font-size: 14px;
+
+            color: #8fa8bf;
+
+            font-weight: 500;
+
+            letter-spacing: 0.5px;
+        }
+
+
+        /* =========================
+           CARDS
+        ========================= */
+
+        .cards {
+            display: grid;
+
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+
+            gap: 20px;
+        }
+
+        .card {
+            background: linear-gradient(
+                135deg,
+                rgba(6, 21, 36, 0.8),
+                rgba(16, 43, 69, 0.6)
+            );
+
+            border: 1px solid rgba(255, 255, 255, 0.08);
+
+            border-radius: 14px;
+
+            padding: 28px;
+
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: rgba(0, 102, 255, 0.3);
+
+            box-shadow: 0 12px 30px rgba(0, 102, 255, 0.15);
+
+            transform: translateY(-2px);
+        }
+
+        .card h3 {
+            font-size: 12px;
+
+            color: #8fa8bf;
+
+            text-transform: uppercase;
+
+            letter-spacing: 1px;
+
+            font-weight: 600;
+
+            margin-bottom: 12px;
+        }
+
+        .card h2 {
+            font-size: 28px;
+
+            font-weight: 700;
+
+            margin-bottom: 8px;
+        }
+
+        .card p {
+            font-size: 13px;
+
+            color: #7a8a99;
+
+            line-height: 1.6;
+        }
+
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 768px) {
+
+            .topbar {
+                padding: 0 20px;
+            }
+
+            .search {
+                width: 200px;
+
+                font-size: 12px;
+            }
+
+            .user span {
+                display: none;
+            }
+
+            .sidebar {
+                width: 260px;
+            }
+
+            .logo img {
+                width: 55px;
+                height: 55px;
+            }
+
+            .logo h2 {
+                font-size: 16px;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .banner h1 {
+                font-size: 24px;
+            }
+
+            .cards {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+    </style>
 
 </head>
 
 <body>
 
-<div class="sidebar">
 
-<div class="logo">
+    <!-- =================================
+         SIDEBAR / NAVIGATION
+    ================================== -->
 
-<img src="logo.png">
+    <aside
+        class="sidebar"
+        id="sidebar"
+        role="navigation"
+        aria-label="Main navigation"
+    >
 
-<div>
 
-<h2>INTRA WORLD</h2>
+        <div class="sidebar-header">
 
-<span>Stay Connected • Stay Informed • Stay Ahead</span>
+            <!-- Close Button at Top Right Edge -->
+            <button
+                class="close-btn"
+                id="closeMenu"
+                aria-label="Close navigation"
+            >
+                <i class="fa-solid fa-xmark"></i>
+            </button>
 
-</div>
+            <!-- Centered Stacked Logo -->
+            <div class="logo">
 
-</div>
+                <img
+                    src="logo.png"
+                    alt="Intra World Logo"
+                >
 
-<div class="menu">
+                <h2>INTRA WORLD</h2>
 
-<a class="active" href="dashboard.html">
+            </div>
 
-<i class="fa-solid fa-house"></i>
+        </div>
 
-Home
 
-</a>
+        <!-- Navigation - Scrollable -->
 
-<a href="connect.html">
+        <div class="menu-container">
 
-<i class="fa-solid fa-user-group"></i>
+            <nav class="menu">
 
-Student Connect
 
-</a>
+                <a
+                    class="active"
+                    href="dashboard.html"
+                >
 
-<a href="posts.html">
+                    <i class="fa-solid fa-house"></i>
 
-<i class="fa-solid fa-newspaper"></i>
+                    <span>
+                        Home
+                    </span>
 
-Academic Posts
+                </a>
 
-</a>
 
-<a href="#">
+                <a href="connect.html">
 
-<i class="fa-solid fa-flask"></i>
+                    <i class="fa-solid fa-user-group"></i>
 
-Research
+                    <span>
+                        Student Connect
+                    </span>
 
-</a>
+                </a>
 
-<a href="opportunities.html">
 
-<i class="fa-solid fa-briefcase"></i>
+                <a href="posts.html">
 
-Internships
+                    <i class="fa-solid fa-newspaper"></i>
 
-</a>
+                    <span>
+                        Academic Posts
+                    </span>
 
-<a href="messages.html">
+                </a>
 
-<i class="fa-solid fa-comments"></i>
 
-Messages
+                <a href="#">
 
-</a>
+                    <i class="fa-solid fa-flask"></i>
 
-<a href="profile.html">
+                    <span>
+                        Research
+                    </span>
 
-<i class="fa-solid fa-user"></i>
+                </a>
 
-Profile
 
-</a>
+                <a href="opportunities.html">
 
-<a href="settings.html">
+                    <i class="fa-solid fa-briefcase"></i>
 
-<i class="fa-solid fa-gear"></i>
+                    <span>
+                        Internships
+                    </span>
 
-Settings
+                </a>
 
-</a>
 
-</div>
+                <a href="messages.html">
 
-<div class="bottom">
+                    <i class="fa-solid fa-comments"></i>
 
-<a class="menu logout" href="index.html">
+                    <span>
+                        Messages
+                    </span>
 
-<i class="fa-solid fa-right-from-bracket"></i>
+                </a>
 
-Logout
 
-</a>
+                <a href="profile.html">
 
-</div>
+                    <i class="fa-solid fa-user"></i>
 
-</div>
+                    <span>
+                        Profile
+                    </span>
 
-<div class="main">
+                </a>
 
-<div class="topbar">
 
-<div class="search">
+                <a href="settings.html">
 
-<input
-type="text"
-placeholder="Search Students, Research, Communities...">
+                    <i class="fa-solid fa-gear"></i>
 
-</div>
+                    <span>
+                        Settings
+                    </span>
 
-<div class="user">
+                </a>
 
-<span id="welcomeName">
 
-Loading...
+            </nav>
 
-</span>
+        </div>
 
-<img
-id="profileImage"
-src="https://via.placeholder.com/45">
 
-</div>
+        <!-- Logout -->
 
-</div>
+        <div class="bottom">
 
-<div class="content">
+            <nav class="menu">
 
-<div class="banner">
+                <a
+                    class="logout"
+                    href="index.html"
+                >
 
-<h1>
+                    <i class="fa-solid fa-right-from-bracket"></i>
 
-Welcome to INTRA WORLD
+                    <span>
+                        Logout
+                    </span>
 
-</h1>
+                </a>
 
-<p>
+            </nav>
 
-Academic • Professional • Student Networking Platform
+        </div>
 
-</p>
 
-</div>
+    </aside>
 
-<div class="cards">
 
-<div class="card">
+    <!-- Overlay -->
 
-<h3>Student Connections</h3>
+    <div
+        class="overlay"
+        id="overlay"
+    >
+    </div>
 
-<h2 id="connections">
 
-0
+    <!-- =================================
+         MAIN
+    ================================== -->
 
-</h2>
+    <main class="main">
 
-<p>Trusted academic connections.</p>
 
-</div>
+        <!-- =================================
+             TOP BAR
+        ================================== -->
 
-<div class="card">
+        <header class="topbar">
 
-<h3>Projects</h3>
 
-<h2 id="projects">
+            <!-- Hamburger -->
 
-0
+            <button
+                class="menu-btn"
+                id="openMenu"
+                aria-label="Open navigation"
+            >
 
-</h2>
+                <i class="fa-solid fa-bars"></i>
 
-<p>Project collaborations.</p>
+            </button>
 
-</div>
 
-<div class="card">
+            <!-- Search -->
 
-<h3>Research</h3>
+            <div class="search">
 
-<h2 id="research">
+                <input
+                    type="text"
+                    placeholder="Search Students, Research, Communities..."
+                >
 
-0
+            </div>
 
-</h2>
 
-<p>Research opportunities.</p>
+            <!-- User -->
 
-</div>
+            <div class="user">
 
-<div class="card">
+                <span id="welcomeName">
+                    Loading...
+                </span>
 
-<h3>Notifications</h3>
+                <img
+                    id="profileImage"
+                    src="https://via.placeholder.com/45"
+                    alt="Profile"
+                >
 
-<h2 id="notifications">
+            </div>
 
-0
 
-</h2>
+        </header>
 
-<p>Unread notifications.</p>
 
-</div>
+        <!-- =================================
+             DASHBOARD CONTENT
+        ================================== -->
 
-</div>
+        <section class="content">
 
-<!-- More sections will be added in Part 2 -->
 
-</div>
+            <!-- Welcome -->
 
-</div>
+            <div class="banner">
+
+                <h1>
+                    Welcome to INTRA WORLD
+                </h1>
+
+                <p>
+                    Academic • Professional • Student Networking Platform
+                </p>
+
+            </div>
+
+
+            <!-- Dashboard Cards -->
+
+            <div class="cards">
+
+
+                <!-- Connections -->
+
+                <div class="card">
+
+                    <h3>
+                        Student Connections
+                    </h3>
+
+                    <h2 id="connections">
+                        0
+                    </h2>
+
+                    <p>
+                        Trusted academic connections.
+                    </p>
+
+                </div>
+
+
+                <!-- Projects -->
+
+                <div class="card">
+
+                    <h3>
+                        Projects
+                    </h3>
+
+                    <h2 id="projects">
+                        0
+                    </h2>
+
+                    <p>
+                        Project collaborations.
+                    </p>
+
+                </div>
+
+
+                <!-- Research -->
+
+                <div class="card">
+
+                    <h3>
+                        Research
+                    </h3>
+
+                    <h2 id="research">
+                        0
+                    </h2>
+
+                    <p>
+                        Research opportunities.
+                    </p>
+
+                </div>
+
+
+                <!-- Notifications -->
+
+                <div class="card">
+
+                    <h3>
+                        Notifications
+                    </h3>
+
+                    <h2 id="notifications">
+                        0
+                    </h2>
+
+                    <p>
+                        Unread notifications.
+                    </p>
+
+                </div>
+
+
+            </div>
+
+
+        </section>
+
+
+    </main>
+
+
+    <!-- =================================
+         JAVASCRIPT
+    ================================== -->
+
+    <script>
+
+        const sidebar =
+            document.getElementById("sidebar");
+
+        const overlay =
+            document.getElementById("overlay");
+
+        const openMenu =
+            document.getElementById("openMenu");
+
+        const closeMenu =
+            document.getElementById("closeMenu");
+
+
+        /* Open Sidebar */
+
+        function openSidebar() {
+
+            sidebar.classList.add("open");
+
+            overlay.classList.add("show");
+
+            document.body.style.overflow = "hidden";
+
+        }
+
+
+        /* Close Sidebar */
+
+        function closeSidebar() {
+
+            sidebar.classList.remove("open");
+
+            overlay.classList.remove("show");
+
+            document.body.style.overflow = "";
+
+        }
+
+
+        /* Hamburger */
+
+        openMenu.addEventListener(
+            "click",
+            openSidebar
+        );
+
+
+        /* Close Button */
+
+        closeMenu.addEventListener(
+            "click",
+            closeSidebar
+        );
+
+
+        /* Click Outside */
+
+        overlay.addEventListener(
+            "click",
+            closeSidebar
+        );
+
+
+        /* Navigation Links */
+
+        document
+            .querySelectorAll(".menu a")
+            .forEach(link => {
+
+                link.addEventListener(
+                    "click",
+                    () => {
+
+                        closeSidebar();
+
+                    }
+                );
+
+            });
+
+
+        /* ESC Key */
+
+        document.addEventListener(
+            "keydown",
+            event => {
+
+                if (event.key === "Escape") {
+
+                    closeSidebar();
+
+                }
+
+            }
+        );
+
+    </script>
+
 
 </body>
 
