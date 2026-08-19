@@ -1,0 +1,21 @@
+/* ==========================================================
+   INTRA WORLD — Shared Theme Base
+   Global reset + signature dotted dark background.
+   Used by: index.html, login.html, register.html,
+            forgotpassword.html, admin.html
+   ========================================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Poppins, sans-serif;
+}
+
+body {
+    background-color: #051424;
+    background-image: radial-gradient(#273647 1px, transparent 1px);
+    background-size: 24px 24px;
+    background-attachment: fixed;
+    color: #ffffff;
+}

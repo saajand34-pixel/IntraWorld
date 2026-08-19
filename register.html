@@ -11,29 +11,12 @@
    <!-- Put this in the <head> of register.html -->
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
+    <!-- Shared reset + dotted background theme -->
+    <link rel="stylesheet" href="css/theme-base.css">
+    <!-- Shared auth card/form components -->
+    <link rel="stylesheet" href="css/auth-card.css">
+
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        body {
-            background-color: #051424;
-            background-image: radial-gradient(#273647 1px, transparent 1px);
-            background-size: 24px 24px;
-            background-attachment: fixed;
-            color: #ffffff;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 40px 20px;
-            position: relative;
-            overflow-x: hidden;
-        }
-
         .register-card {
             width: 100%;
             max-width: 700px;
@@ -65,16 +48,7 @@
         }
 
         .header h1 {
-            font-size: 28px;
-            font-weight: 700;
             letter-spacing: 0.5px;
-            color: #ffffff;
-        }
-
-        .header p {
-            font-size: 13px;
-            color: #94a3b8;
-            margin-top: 4px;
         }
 
         .tabs {
@@ -129,62 +103,6 @@
 
         .input-group {
             position: relative;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .input-group label {
-            font-size: 12px;
-            font-weight: 500;
-            color: #cbd5e1;
-        }
-
-        .field-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
-        .field-wrapper i.icon {
-            position: absolute;
-            left: 14px;
-            color: #64748b;
-            font-size: 15px;
-            transition: 0.3s;
-        }
-
-        .field-wrapper input, 
-        .field-wrapper select, 
-        .field-wrapper textarea {
-            width: 100%;
-            padding: 12px 14px 12px 42px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 10px;
-            color: #ffffff;
-            font-size: 14px;
-            outline: none;
-            transition: all 0.3s;
-        }
-
-        .field-wrapper textarea {
-            padding-left: 42px;
-            resize: vertical;
-            min-height: 80px;
-        }
-
-        .field-wrapper select option {
-            background-color: #0b172a;
-            color: #ffffff;
-        }
-
-        .field-wrapper input:focus, 
-        .field-wrapper select:focus, 
-        .field-wrapper textarea:focus {
-            border-color: #0088ff;
-            background: rgba(0, 136, 255, 0.08);
-            box-shadow: 0 0 10px rgba(0, 136, 255, 0.3);
         }
 
         .toggle-password {
@@ -236,24 +154,17 @@
         .btn-submit {
             flex: 1;
             padding: 12px 20px;
-            border: none;
-            border-radius: 10px;
             font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
             background: linear-gradient(135deg, #0052d4, #4364f7);
-            color: #ffffff;
             box-shadow: 0 0 20px rgba(0, 102, 255, 0.3);
         }
 
         .btn-submit:hover {
             box-shadow: 0 0 30px rgba(0, 102, 255, 0.5);
-            transform: translateY(-2px);
         }
 
         .btn-submit.btn-secondary {
@@ -262,16 +173,7 @@
             color: #cbd5e1;
         }
 
-        .footer-link {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 13px;
-            color: #94a3b8;
-        }
-
         .footer-link a {
-            color: #38bdf8;
-            text-decoration: none;
             font-weight: 600;
         }
 
