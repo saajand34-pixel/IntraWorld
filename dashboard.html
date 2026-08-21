@@ -28,11 +28,10 @@
 
         <div class="menu-container">
             <nav class="menu">
-                <a href="dashboard.html"><i class="fa-solid fa-house"></i><span>Home</span></a>
+                <a href="dashboard.html" class="active"><i class="fa-solid fa-house"></i><span>Home</span></a>
                 <a href="connect.html"><i class="fa-solid fa-user-group"></i><span>Student Connect</span></a>
                 <a href="posts.html"><i class="fa-solid fa-newspaper"></i><span>Posts</span></a>
                 <a href="messages.html"><i class="fa-solid fa-comments"></i><span>Messages</span></a>
-                <a href="profile.html"><i class="fa-solid fa-user"></i><span>Profile</span></a>
                 <a href="settings.html"><i class="fa-solid fa-gear"></i><span>Settings</span></a>
             </nav>
         </div>
@@ -57,19 +56,39 @@
             <div class="search">
                 <input type="text" placeholder="Search dashboard...">
             </div>
-            <div class="user">
+            <div class="user" id="nav-profile">
                 <span id="welcomeName">Loading...</span>
-                <img id="profileImage" src="https://via.placeholder.com/45" alt="Profile">
+                <img id="profileImage" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2338bdf8'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-3.8-.85-5.05-2.2.03-1.68 3.37-2.6 5.05-2.6s5.02.92 5.05 2.6C15.8 19.15 14.03 20 12 20z'/></svg>" alt="Profile">
             </div>
         </header>
 
         <section class="content">
             <h1>Welcome to Intra World</h1>
             <p>Select an option from the sidebar to start connecting.</p>
+
+            <!-- Dashboard Profile Photo Upload Section -->
+            <div class="settings-card">
+                <h2><i class="fa-solid fa-gear"></i> Profile Settings</h2>
+                <div class="setting-item">
+                    <h3>Profile Photo</h3>
+                    <div class="profile-upload-container">
+                        <img id="dashboard-avatar-preview" class="dashboard-avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2338bdf8'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-3.8-.85-5.05-2.2.03-1.68 3.37-2.6 5.05-2.6s5.02.92 5.05 2.6C15.8 19.15 14.03 20 12 20z'/></svg>" alt="Profile Preview">
+                        <div class="upload-controls">
+                            <label for="profilePhotoInput" class="upload-btn">
+                                <i class="fa-solid fa-camera"></i> Upload Photo
+                            </label>
+                            <input type="file" id="profilePhotoInput" accept="image/*" hidden>
+                            <button id="savePhotoBtn" class="save-btn" style="display: none;">
+                                <i class="fa-solid fa-check"></i> Save Photo
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </section>
     </main>
 
     <script type="module" src="firebase-config.js"></script>
-    <script type="module" src="app-shell.js"></script>
+    <script type="module" src="dashboard.js"></script>
 </body>
 </html>

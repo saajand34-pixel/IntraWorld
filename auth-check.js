@@ -3,15 +3,30 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/fi
 
 // Session Guard
 onAuthStateChanged(auth, (user) => {
-    const isLoginPage = window.location.pathname.endsWith("index.html") || 
-                        window.location.pathname.endsWith("login.html") || 
-                        window.location.pathname === "/";
+    // Clean up current pathname (normalize slashes & lowercase)
+    const rawPath = window.location.pathname.toLowerCase();
+    const currentPath = rawPath.endsWith("/") && rawPath.length > 1 
+        ? rawPath.slice(0, -1) 
+        : rawPath;
 
-    if (!user && !isLoginPage) {
-        // Redirect to login if unauthenticated on a protected route
-        window.location.href = "index.html";
-    } else if (user && isLoginPage) {
-        // Redirect to dashboard if already authenticated
-        window.location.href = "dashboard.html";
+    // Identify all variations of login/landing pages
+    const isLoginPage = 
+        currentPath === "" || 
+        currentPath === "/" || 
+        currentPath.endsWith("/index.html") || 
+        currentPath.endsWith("/index") ||
+        currentPath.endsWith("/login.html") ||
+        currentPath.endsWith("/login");
+
+    if (!user) {
+        // If unauthenticated and on a protected page, send to login/index
+        if (!isLoginPage) {
+            window.location.replace("index.html");
+        }
+    } else {
+        // If authenticated and on a login/landing page, send to dashboard
+        if (isLoginPage) {
+            window.location.replace("dashboard.html");
+        }
     }
 });
