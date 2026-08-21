@@ -4,18 +4,27 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/fi
 // Check local session immediately
 const localUser = localStorage.getItem("currentUser");
 
-if (!localUser) {
-    // If no session exists at all, redirect to login
-    alert("Please login first.");
-    window.location.href = "login.html";
-} else {
-    // Session exists -> Wait for Firebase Auth state to sync without blocking UI
+// IMPORTANT: Don't redirect here - let individual pages handle auth
+// This just initializes Firebase auth and syncs with localStorage
+
+if (localUser) {
+    // Session exists in localStorage - sync with Firebase
     onAuthStateChanged(auth, (user) => {
         if (user) {
             // Keep localStorage synced with active Firebase user
-            const currentData = JSON.parse(localUser);
-            currentData.uid = user.uid;
-            localStorage.setItem("currentUser", JSON.stringify(currentData));
+            try {
+                const currentData = JSON.parse(localStorage.getItem("currentUser") || "{}");
+                currentData.uid = user.uid;
+                localStorage.setItem("currentUser", JSON.stringify(currentData));
+            } catch (err) {
+                console.error("Error syncing user data:", err);
+            }
         }
+        
+        // Mark auth check as complete - pages can now proceed
+        document.documentElement.setAttribute("data-auth-ready", "true");
     });
+} else {
+    // No local session - mark ready so pages can redirect if needed
+    document.documentElement.setAttribute("data-auth-ready", "true");
 }

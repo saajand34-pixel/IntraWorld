@@ -24,6 +24,9 @@
     <!-- Shared app-shell styles (topbar, sidebar, overlay, layout) -->
     <link rel="stylesheet" href="css/app-shell.css">
 
+    <!-- Load auth check FIRST before any other scripts -->
+    <script type="module" src="auth-check.js"></script>
+
     <style>
 
         /* =========================
@@ -519,15 +522,45 @@
     <script>
 
         /* =================================
-           AUTHENTICATION & USER SESSION CHECK
+           WAIT FOR AUTH CHECK TO COMPLETE
         ================================== */
 
-        document.addEventListener("DOMContentLoaded", () => {
-            // Verify session existence in localStorage
+        function waitForAuthReady() {
+            return new Promise((resolve) => {
+                // Check if auth is already ready
+                if (document.documentElement.getAttribute("data-auth-ready") === "true") {
+                    resolve();
+                    return;
+                }
+
+                // Listen for auth-ready attribute
+                const observer = new MutationObserver((mutations) => {
+                    if (document.documentElement.getAttribute("data-auth-ready") === "true") {
+                        observer.disconnect();
+                        resolve();
+                    }
+                });
+
+                observer.observe(document.documentElement, { attributes: true });
+
+                // Timeout after 5 seconds to prevent infinite wait
+                setTimeout(() => {
+                    observer.disconnect();
+                    resolve();
+                }, 5000);
+            });
+        }
+
+        /* =================================
+           INITIALIZATION
+        ================================== */
+
+        waitForAuthReady().then(() => {
+            // Check if user has a localStorage session
             const currentUserRaw = localStorage.getItem("currentUser");
 
+            // If no session, redirect to login
             if (!currentUserRaw) {
-                // If user session does not exist, redirect to login page
                 window.location.href = "login.html";
                 return;
             }
@@ -568,14 +601,16 @@
         });
 
         /* Logout Action: Removes user session only when Logout button is explicitly clicked */
-        const logoutBtn = document.getElementById("logoutBtn");
-        if (logoutBtn) {
-            logoutBtn.addEventListener("click", (e) => {
-                e.preventDefault();
-                localStorage.removeItem("currentUser");
-                window.location.href = "login.html";
-            });
-        }
+        document.addEventListener("DOMContentLoaded", () => {
+            const logoutBtn = document.getElementById("logoutBtn");
+            if (logoutBtn) {
+                logoutBtn.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    localStorage.removeItem("currentUser");
+                    window.location.href = "login.html";
+                });
+            }
+        });
 
 
         /* =================================

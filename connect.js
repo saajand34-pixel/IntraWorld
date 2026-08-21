@@ -10,21 +10,39 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/fi
 let currentUser = null;
 let userConnections = new Set();
 
-// Wait for Firebase to finish initializing auth state
-onAuthStateChanged(auth, async (user) => {
-    if (user) {
-        currentUser = user;
+// Check localStorage FIRST - this is our source of truth
+const localUser = localStorage.getItem("currentUser");
+if (!localUser) {
+    alert("Please log in first.");
+    window.location.href = "login.html";
+} else {
+    // If localStorage has user, proceed - Firebase will sync in background
+    const storedUserData = JSON.parse(localUser);
+    
+    // Wait for Firebase auth to sync
+    onAuthStateChanged(auth, async (firebaseUser) => {
+        if (firebaseUser) {
+            // Firebase authenticated user
+            currentUser = firebaseUser;
+        } else {
+            // Firebase not authenticated, but we have localStorage session
+            // Create a fake user object from localStorage for Firebase operations
+            currentUser = {
+                uid: storedUserData.uid || "localStorage-user",
+                email: storedUserData.email,
+                displayName: storedUserData.fullName
+            };
+        }
+
+        // NOW load data
         await loadUserConnections();
         await loadAllStudents();
-    } else {
-        alert("Please log in first.");
-        window.location.href = "login.html";
-    }
-});
+    });
+}
 
 // Load existing connected user IDs for current user
 async function loadUserConnections() {
-    if (!currentUser) return;
+    if (!currentUser || !currentUser.uid) return;
     try {
         const connSnap = await getDocs(collection(db, "users", currentUser.uid, "connections"));
         userConnections.clear();
@@ -33,6 +51,7 @@ async function loadUserConnections() {
         });
     } catch (err) {
         console.error("Error loading connections:", err);
+        // Don't redirect on error - user can still use app with localStorage
     }
 }
 
@@ -62,8 +81,12 @@ async function loadAllStudents(phoneFilter = "") {
             const studentEmail = student.email || "";
 
             // Hide logged-in user from self-listing
-            if (currentUser && studentEmail.toLowerCase() === currentUser.email?.toLowerCase()) {
-                return;
+            const localUserData = localStorage.getItem("currentUser");
+            if (localUserData) {
+                const parsedLocalUser = JSON.parse(localUserData);
+                if (studentEmail.toLowerCase() === parsedLocalUser.email?.toLowerCase()) {
+                    return;
+                }
             }
 
             // Filter by phone number if a search term is provided
@@ -109,7 +132,7 @@ async function loadAllStudents(phoneFilter = "") {
 
 // Save connection into Firestore
 async function connectWithStudent(targetUserId, targetUserName, buttonElement) {
-    if (!currentUser) return;
+    if (!currentUser || !currentUser.uid) return;
 
     try {
         buttonElement.disabled = true;

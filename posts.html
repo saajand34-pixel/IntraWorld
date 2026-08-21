@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
     
-    <!-- Unified Authentication Session Guard -->
+    <!-- Load auth check FIRST -->
     <script type="module" src="auth-check.js"></script>
 
     <!-- Shared app-shell styles (topbar, sidebar, overlay, layout) -->
@@ -328,7 +328,30 @@
     <script type="module" src="firebase-config.js"></script>
     <script type="module" src="posts.js"></script>
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
+        function waitForAuthReady() {
+            return new Promise((resolve) => {
+                if (document.documentElement.getAttribute("data-auth-ready") === "true") {
+                    resolve();
+                    return;
+                }
+
+                const observer = new MutationObserver((mutations) => {
+                    if (document.documentElement.getAttribute("data-auth-ready") === "true") {
+                        observer.disconnect();
+                        resolve();
+                    }
+                });
+
+                observer.observe(document.documentElement, { attributes: true });
+
+                setTimeout(() => {
+                    observer.disconnect();
+                    resolve();
+                }, 5000);
+            });
+        }
+
+        waitForAuthReady().then(() => {
             const currentUserRaw = localStorage.getItem("currentUser");
             if (currentUserRaw) {
                 const currentUser = JSON.parse(currentUserRaw);
@@ -339,39 +362,41 @@
             }
         });
 
-        const sidebar = document.getElementById("sidebar");
-        const overlay = document.getElementById("overlay");
-        const openMenu = document.getElementById("openMenu");
-        const closeMenu = document.getElementById("closeMenu");
+        document.addEventListener("DOMContentLoaded", () => {
+            const sidebar = document.getElementById("sidebar");
+            const overlay = document.getElementById("overlay");
+            const openMenu = document.getElementById("openMenu");
+            const closeMenu = document.getElementById("closeMenu");
 
-        function openSidebar() {
-            sidebar.classList.add("open");
-            overlay.classList.add("show");
-            document.body.style.overflow = "hidden";
-        }
+            function openSidebar() {
+                sidebar.classList.add("open");
+                overlay.classList.add("show");
+                document.body.style.overflow = "hidden";
+            }
 
-        function closeSidebar() {
-            sidebar.classList.remove("open");
-            overlay.classList.remove("show");
-            document.body.style.overflow = "";
-        }
+            function closeSidebar() {
+                sidebar.classList.remove("open");
+                overlay.classList.remove("show");
+                document.body.style.overflow = "";
+            }
 
-        openMenu.addEventListener("click", openSidebar);
-        closeMenu.addEventListener("click", closeSidebar);
-        overlay.addEventListener("click", closeSidebar);
+            openMenu.addEventListener("click", openSidebar);
+            closeMenu.addEventListener("click", closeSidebar);
+            overlay.addEventListener("click", closeSidebar);
 
-        document.querySelectorAll(".menu a").forEach(link => {
-            link.addEventListener("click", () => closeSidebar());
-        });
+            document.querySelectorAll(".menu a").forEach(link => {
+                link.addEventListener("click", () => closeSidebar());
+            });
 
-        document.addEventListener("keydown", event => {
-            if (event.key === "Escape") closeSidebar();
-        });
+            document.addEventListener("keydown", event => {
+                if (event.key === "Escape") closeSidebar();
+            });
 
-        document.getElementById("logoutBtn")?.addEventListener("click", (e) => {
-            e.preventDefault();
-            localStorage.removeItem("currentUser");
-            window.location.href = "index.html";
+            document.getElementById("logoutBtn")?.addEventListener("click", (e) => {
+                e.preventDefault();
+                localStorage.removeItem("currentUser");
+                window.location.href = "index.html";
+            });
         });
     </script>
 </body>

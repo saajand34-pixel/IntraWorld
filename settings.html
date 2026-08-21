@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
 
-    <!-- Unified Authentication Session Guard -->
+    <!-- Load auth check FIRST -->
     <script type="module" src="auth-check.js"></script>
 
     <!-- Shared app-shell styles (topbar, sidebar, overlay, layout) -->
@@ -356,7 +356,30 @@
     </main>
 
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
+        function waitForAuthReady() {
+            return new Promise((resolve) => {
+                if (document.documentElement.getAttribute("data-auth-ready") === "true") {
+                    resolve();
+                    return;
+                }
+
+                const observer = new MutationObserver((mutations) => {
+                    if (document.documentElement.getAttribute("data-auth-ready") === "true") {
+                        observer.disconnect();
+                        resolve();
+                    }
+                });
+
+                observer.observe(document.documentElement, { attributes: true });
+
+                setTimeout(() => {
+                    observer.disconnect();
+                    resolve();
+                }, 5000);
+            });
+        }
+
+        waitForAuthReady().then(() => {
             const currentUserRaw = localStorage.getItem("currentUser");
             const currentUser = currentUserRaw ? JSON.parse(currentUserRaw) : {
                 fullName: "Student User",
@@ -375,63 +398,66 @@
             if (settingsEmail && currentUser.email) settingsEmail.value = currentUser.email;
         });
 
-        const settingsForm = document.getElementById("settingsForm");
-        if (settingsForm) {
-            settingsForm.addEventListener("submit", (e) => {
-                e.preventDefault();
+        document.addEventListener("DOMContentLoaded", () => {
+            const settingsForm = document.getElementById("settingsForm");
+            if (settingsForm) {
+                settingsForm.addEventListener("submit", (e) => {
+                    e.preventDefault();
 
-                const currentUserRaw = localStorage.getItem("currentUser");
-                const currentUser = currentUserRaw ? JSON.parse(currentUserRaw) : {
-                    fullName: "Student User",
-                    email: "user@intraworld.com",
-                    avatar: "https://via.placeholder.com/45"
-                };
+                    const currentUserRaw = localStorage.getItem("currentUser");
+                    const currentUser = currentUserRaw ? JSON.parse(currentUserRaw) : {
+                        fullName: "Student User",
+                        email: "user@intraworld.com",
+                        avatar: "https://via.placeholder.com/45"
+                    };
 
-                currentUser.fullName = document.getElementById("settingsFullName").value.trim();
-                localStorage.setItem("currentUser", JSON.stringify(currentUser));
+                    currentUser.fullName = document.getElementById("settingsFullName").value.trim();
+                    localStorage.setItem("currentUser", JSON.stringify(currentUser));
 
-                document.getElementById("welcomeName").textContent = currentUser.fullName;
-                alert("Settings updated successfully!");
+                    document.getElementById("welcomeName").textContent = currentUser.fullName;
+                    alert("Settings updated successfully!");
+                });
+            }
+
+            const logoutBtn = document.getElementById("logoutBtn");
+            if (logoutBtn) {
+                logoutBtn.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    localStorage.removeItem("currentUser");
+                    window.location.href = "index.html";
+                });
+            }
+
+            const sidebar = document.getElementById("sidebar");
+            const overlay = document.getElementById("overlay");
+            const openMenu = document.getElementById("openMenu");
+            const closeMenu = document.getElementById("closeMenu");
+
+            function openSidebar() {
+                sidebar.classList.add("open");
+                overlay.classList.add("show");
+                document.body.style.overflow = "hidden";
+            }
+
+            function closeSidebar() {
+                sidebar.classList.remove("open");
+                overlay.classList.remove("show");
+                document.body.style.overflow = "";
+            }
+
+            openMenu.addEventListener("click", openSidebar);
+            closeMenu.addEventListener("click", closeSidebar);
+            overlay.addEventListener("click", closeSidebar);
+
+            document.querySelectorAll(".menu a:not(#logoutBtn)").forEach(link => {
+                link.addEventListener("click", closeSidebar);
             });
-        }
 
-        const logoutBtn = document.getElementById("logoutBtn");
-        if (logoutBtn) {
-            logoutBtn.addEventListener("click", (e) => {
-                e.preventDefault();
-                localStorage.removeItem("currentUser");
-                window.location.href = "index.html";
+            document.addEventListener("keydown", (event) => {
+                if (event.key === "Escape") closeSidebar();
             });
-        }
-
-        const sidebar = document.getElementById("sidebar");
-        const overlay = document.getElementById("overlay");
-        const openMenu = document.getElementById("openMenu");
-        const closeMenu = document.getElementById("closeMenu");
-
-        function openSidebar() {
-            sidebar.classList.add("open");
-            overlay.classList.add("show");
-            document.body.style.overflow = "hidden";
-        }
-
-        function closeSidebar() {
-            sidebar.classList.remove("open");
-            overlay.classList.remove("show");
-            document.body.style.overflow = "";
-        }
-
-        openMenu.addEventListener("click", openSidebar);
-        closeMenu.addEventListener("click", closeSidebar);
-        overlay.addEventListener("click", closeSidebar);
-
-        document.querySelectorAll(".menu a").forEach(link => {
-            link.addEventListener("click", closeSidebar);
-        });
-
-        document.addEventListener("keydown", (event) => {
-            if (event.key === "Escape") closeSidebar();
         });
     </script>
 </body>
+
 </html>

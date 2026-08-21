@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
 
-    <!-- Unified Authentication Session Guard -->
+    <!-- Load auth check FIRST -->
     <script type="module" src="auth-check.js"></script>
 
     <!-- App Shell Styles -->
@@ -201,7 +201,30 @@
 
     <!-- SCRIPT LOGIC -->
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
+        function waitForAuthReady() {
+            return new Promise((resolve) => {
+                if (document.documentElement.getAttribute("data-auth-ready") === "true") {
+                    resolve();
+                    return;
+                }
+
+                const observer = new MutationObserver((mutations) => {
+                    if (document.documentElement.getAttribute("data-auth-ready") === "true") {
+                        observer.disconnect();
+                        resolve();
+                    }
+                });
+
+                observer.observe(document.documentElement, { attributes: true });
+
+                setTimeout(() => {
+                    observer.disconnect();
+                    resolve();
+                }, 5000);
+            });
+        }
+
+        waitForAuthReady().then(() => {
             const defaultAvatar = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2338bdf8'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-3.8-.85-5.05-2.2.03-1.68 3.37-2.6 5.05-2.6s5.02.92 5.05 2.6C15.8 19.15 14.03 20 12 20z'/></svg>";
 
             const storedUser = localStorage.getItem("currentUser");
@@ -234,29 +257,35 @@
             };
         });
 
-        const sidebar = document.getElementById("sidebar");
-        const overlay = document.getElementById("overlay");
-        const openMenu = document.getElementById("openMenu");
-        const closeMenu = document.getElementById("closeMenu");
+        document.addEventListener("DOMContentLoaded", () => {
+            const sidebar = document.getElementById("sidebar");
+            const overlay = document.getElementById("overlay");
+            const openMenu = document.getElementById("openMenu");
+            const closeMenu = document.getElementById("closeMenu");
 
-        function openSidebar() {
-            sidebar.classList.add("open");
-            overlay.classList.add("show");
-        }
+            function openSidebar() {
+                sidebar.classList.add("open");
+                overlay.classList.add("show");
+            }
 
-        function closeSidebar() {
-            sidebar.classList.remove("open");
-            overlay.classList.remove("show");
-        }
+            function closeSidebar() {
+                sidebar.classList.remove("open");
+                overlay.classList.remove("show");
+            }
 
-        openMenu.addEventListener("click", openSidebar);
-        closeMenu.addEventListener("click", closeSidebar);
-        overlay.addEventListener("click", closeSidebar);
+            openMenu.addEventListener("click", openSidebar);
+            closeMenu.addEventListener("click", closeSidebar);
+            overlay.addEventListener("click", closeSidebar);
 
-        document.getElementById("logoutBtn")?.addEventListener("click", (e) => {
-            e.preventDefault();
-            localStorage.removeItem("currentUser");
-            window.location.href = "index.html";
+            document.querySelectorAll(".menu a:not(#logoutBtn)").forEach(link => {
+                link.addEventListener("click", closeSidebar);
+            });
+
+            document.getElementById("logoutBtn")?.addEventListener("click", (e) => {
+                e.preventDefault();
+                localStorage.removeItem("currentUser");
+                window.location.href = "index.html";
+            });
         });
     </script>
 </body>
