@@ -16,201 +16,213 @@
     <!-- Shared auth card/form components -->
     <link rel="stylesheet" href="css/auth-card.css">
 
- <style>
-    .register-card {
-    width: 100%;
-    max-width: 700px;
-    padding: 20px 40px 40px; /* Reduced top padding from 40px to 20px */
-    background: rgba(10, 22, 40, 0.75);
-    border: 1px solid rgba(0, 140, 255, 0.25);
-    border-radius: 24px;
-    backdrop-filter: blur(20px);
-    box-shadow: 0 0 40px rgba(0, 102, 255, 0.15), 0 20px 50px rgba(0, 0, 0, 0.8);
-    position: relative;
-}
+    <style>
+        .register-card {
+            width: 100%;
+            max-width: 700px;
+            padding: 10px 40px 40px;
+            background: rgba(10, 22, 40, 0.75);
+            border: 1px solid rgba(0, 140, 255, 0.25);
+            border-radius: 24px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 0 40px rgba(0, 102, 255, 0.15), 0 20px 50px rgba(0, 0, 0, 0.8);
+            position: relative;
+        }
 
-.header {
-    margin-bottom: 30px !important; /* Overrides default margin in auth-card.css */
-}
+        .header {
+            margin-bottom: 0 !important;
+            text-align: center;
+        }
 
-.logo-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: -15px;      /* Shifts logo upward */
-    margin-bottom: -30px;   /* Pulls text up closer to logo */
-}
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: -10px;
+            margin-bottom: -30px;
+        }
 
-.brand-logo {
-    width: 220px;
-    height: 220px;
-    object-fit: contain;
-    filter: drop-shadow(0 0 25px rgba(0, 140, 255, 0.5));
-    transition: transform 0.3s ease;
-}
-
-.header h1 {
-    letter-spacing: 1px;
-    font-size: 26px;
-    font-weight: 700;
-    margin-top: 0;
-    margin-bottom: 4px;     /* Reduces gap above tagline */
-}
-
-    .tabs {
-        display: flex;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 12px;
-        padding: 4px;
-        margin-bottom: 30px;
-    }
-
-    .tab-btn {
-        flex: 1;
-        padding: 10px;
-        border: none;
-        background: transparent;
-        color: #94a3b8;
-        font-size: 13px;
-        font-weight: 500;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-    }
-
-    .tab-btn.active {
-        background: linear-gradient(135deg, #0052d4, #4364f7);
-        color: #ffffff;
-        box-shadow: 0 0 12px rgba(0, 102, 255, 0.4);
-    }
-
-    .tab-content {
-        display: none;
-    }
-
-    .tab-content.active {
-        display: block;
-    }
-
-    .form-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 16px;
-    }
-
-    .full-width {
-        grid-column: span 2;
-    }
-
-    .toggle-password {
-        position: absolute;
-        right: 14px;
-        color: #64748b;
-        cursor: pointer;
-    }
-
-    .verification-box {
-        background: rgba(0, 0, 0, 0.3);
-        border: 1px dashed rgba(56, 189, 248, 0.3);
-        border-radius: 14px;
-        padding: 20px;
-        margin-top: 15px;
-        text-align: left;
-    }
-
-    .mfa-container {
-        display: flex;
-        gap: 10px;
-        margin-top: 10px;
-    }
-
-    .btn-send-otp {
-        padding: 10px 15px;
-        background: rgba(0, 136, 255, 0.2);
-        border: 1px solid #0088ff;
-        color: #38bdf8;
-        border-radius: 10px;
-        font-size: 13px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.3s;
-        white-space: nowrap;
-    }
-
-    .btn-send-otp:hover {
-        background: rgba(0, 136, 255, 0.35);
-        box-shadow: 0 0 12px rgba(0, 136, 255, 0.5);
-    }
-
-    .btn-action-group {
-        display: flex;
-        gap: 12px;
-        margin-top: 24px;
-    }
-
-    .btn-submit {
-        flex: 1;
-        padding: 12px 20px;
-        font-size: 14px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        background: linear-gradient(135deg, #0052d4, #4364f7);
-        box-shadow: 0 0 20px rgba(0, 102, 255, 0.3);
-    }
-
-    .btn-submit:hover {
-        box-shadow: 0 0 30px rgba(0, 102, 255, 0.5);
-    }
-
-    .btn-submit.btn-secondary {
-        background: rgba(255, 255, 255, 0.08);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        color: #cbd5e1;
-    }
-
-    .footer-link a {
-        font-weight: 600;
-    }
-
-    .notice-banner {
-        background: rgba(234, 179, 8, 0.1);
-        border: 1px solid rgba(234, 179, 8, 0.3);
-        border-radius: 10px;
-        padding: 12px;
-        margin-bottom: 15px;
-        font-size: 12px;
-        color: #fde047;
-        display: flex;
-        align-items: flex-start;
-        gap: 10px;
-    }
-
-    @media (max-width: 600px) {
         .brand-logo {
-            width: 150px;
-            height: 150px;
+            width: 220px;
+            height: 220px;
+            object-fit: contain;
+            filter: drop-shadow(0 0 25px rgba(0, 140, 255, 0.5));
+            transition: transform 0.3s ease;
         }
-        .form-grid {
-            grid-template-columns: 1fr;
+
+        .brand-logo:hover {
+            transform: scale(1.05);
         }
-        .full-width {
-            grid-column: span 1;
+
+        .header h1 {
+            letter-spacing: 1px;
+            font-size: 26px;
+            font-weight: 700;
+            margin-top: 0;
+            margin-bottom: 4px;
         }
+
+        .header p {
+            font-size: 13px;
+            color: #94a3b8;
+            margin-bottom: 35px;
+        }
+
         .tabs {
-            flex-direction: column;
+            display: flex;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 4px;
+            margin-top: 10px;
+            margin-bottom: 30px;
         }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: transparent;
+            color: #94a3b8;
+            font-size: 13px;
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #0052d4, #4364f7);
+            color: #ffffff;
+            box-shadow: 0 0 12px rgba(0, 102, 255, 0.4);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .full-width {
+            grid-column: span 2;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 14px;
+            color: #64748b;
+            cursor: pointer;
+        }
+
+        .verification-box {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px dashed rgba(56, 189, 248, 0.3);
+            border-radius: 14px;
+            padding: 20px;
+            margin-top: 15px;
+            text-align: left;
+        }
+
         .mfa-container {
-            flex-direction: column;
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
         }
-    }
-</style>
+
+        .btn-send-otp {
+            padding: 10px 15px;
+            background: rgba(0, 136, 255, 0.2);
+            border: 1px solid #0088ff;
+            color: #38bdf8;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .btn-send-otp:hover {
+            background: rgba(0, 136, 255, 0.35);
+            box-shadow: 0 0 12px rgba(0, 136, 255, 0.5);
+        }
+
+        .btn-action-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .btn-submit {
+            flex: 1;
+            padding: 12px 20px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #0052d4, #4364f7);
+            box-shadow: 0 0 20px rgba(0, 102, 255, 0.3);
+        }
+
+        .btn-submit:hover {
+            box-shadow: 0 0 30px rgba(0, 102, 255, 0.5);
+        }
+
+        .btn-submit.btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #cbd5e1;
+        }
+
+        .footer-link a {
+            font-weight: 600;
+        }
+
+        .notice-banner {
+            background: rgba(234, 179, 8, 0.1);
+            border: 1px solid rgba(234, 179, 8, 0.3);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 15px;
+            font-size: 12px;
+            color: #fde047;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        @media (max-width: 600px) {
+            .brand-logo {
+                width: 150px;
+                height: 150px;
+            }
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .full-width {
+                grid-column: span 1;
+            }
+            .tabs {
+                flex-direction: column;
+            }
+            .mfa-container {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="register-card">
@@ -223,13 +235,13 @@
         </div>
 
         <div class="tabs">
-            <button class="tab-btn active" id="btn-tab-0">
+            <button class="tab-btn active" id="btn-tab-0" type="button">
                 <i class="fa-solid fa-user"></i> 1. Basic Details
             </button>
-            <button class="tab-btn" id="btn-tab-1">
+            <button class="tab-btn" id="btn-tab-1" type="button">
                 <i class="fa-solid fa-graduation-cap"></i> 2. Academic Info
             </button>
-            <button class="tab-btn" id="btn-tab-2">
+            <button class="tab-btn" id="btn-tab-2" type="button">
                 <i class="fa-solid fa-envelope"></i> 3. Gmail OTP MFA
             </button>
         </div>
@@ -437,14 +449,14 @@
     </div>
 
     <script>
-        window.switchTab = function(tabIndex) {
+        function switchTab(tabIndex) {
             document.querySelectorAll('.tab-btn').forEach((tab, index) => {
                 tab.classList.toggle('active', index === tabIndex);
             });
             document.querySelectorAll('.tab-content').forEach((content, index) => {
                 content.classList.toggle('active', index === tabIndex);
             });
-        };
+        }
 
         function validateTab(tabId) {
             const tab = document.getElementById(tabId);
@@ -482,6 +494,6 @@
     </script>
 
     <script type="module" src="./firebase-config.js"></script>
-    <script type="module" src="./register.js"></script>
+    <script src="./register.js"></script>
 </body>
 </html>
