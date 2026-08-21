@@ -3,21 +3,19 @@ import {
     collection, 
     getDocs, 
     doc, 
-    setDoc, 
-    query, 
-    where 
+    setDoc 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 let currentUser = null;
 let userConnections = new Set();
 
-// Authenticate user
+// Wait for Firebase to finish initializing auth state
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         currentUser = user;
         await loadUserConnections();
-        loadAllStudents();
+        await loadAllStudents();
     } else {
         alert("Please log in first.");
         window.location.href = "login.html";
@@ -26,8 +24,10 @@ onAuthStateChanged(auth, async (user) => {
 
 // Load existing connected user IDs for current user
 async function loadUserConnections() {
+    if (!currentUser) return;
     try {
         const connSnap = await getDocs(collection(db, "users", currentUser.uid, "connections"));
+        userConnections.clear();
         connSnap.forEach((docSnap) => {
             userConnections.add(docSnap.id);
         });
@@ -39,6 +39,8 @@ async function loadUserConnections() {
 // Load all registered profiles
 async function loadAllStudents(phoneFilter = "") {
     const grid = document.getElementById("studentGrid");
+    if (!grid) return;
+
     grid.innerHTML = `<div style="color: #7db7ff;">Searching directory...</div>`;
 
     try {
@@ -59,13 +61,13 @@ async function loadAllStudents(phoneFilter = "") {
             const studentName = student.fullName || "Student User";
             const studentEmail = student.email || "";
 
-            // Hide self
+            // Hide logged-in user from self-listing
             if (currentUser && studentEmail.toLowerCase() === currentUser.email?.toLowerCase()) {
                 return;
             }
 
-            // Filter by phone number if provided
-            if (phoneFilter && !studentPhone.includes(phoneFilter)) {
+            // Filter by phone number if a search term is provided
+            if (phoneFilter && !studentPhone.toLowerCase().includes(phoneFilter.toLowerCase())) {
                 return;
             }
 
@@ -87,7 +89,7 @@ async function loadAllStudents(phoneFilter = "") {
 
             const btn = card.querySelector(`#btn-${studentId}`);
             btn.addEventListener("click", () => {
-                if (!isAlreadyConnected) {
+                if (!userConnections.has(studentId)) {
                     connectWithStudent(studentId, studentName, btn);
                 }
             });
@@ -107,7 +109,10 @@ async function loadAllStudents(phoneFilter = "") {
 
 // Save connection into Firestore
 async function connectWithStudent(targetUserId, targetUserName, buttonElement) {
+    if (!currentUser) return;
+
     try {
+        buttonElement.disabled = true;
         await setDoc(doc(db, "users", currentUser.uid, "connections", targetUserId), {
             connectedAt: new Date().toISOString(),
             name: targetUserName
@@ -120,11 +125,25 @@ async function connectWithStudent(targetUserId, targetUserName, buttonElement) {
     } catch (err) {
         console.error("Error connecting with student:", err);
         alert("Failed to save connection: " + err.message);
+    } finally {
+        buttonElement.disabled = false;
     }
 }
 
-// Search by Phone Contact
-document.getElementById("searchPhoneBtn")?.addEventListener("click", () => {
-    const filterValue = document.getElementById("phoneSearchInput").value.trim();
-    loadAllStudents(filterValue);
+// Event Listeners for Searching
+document.addEventListener("DOMContentLoaded", () => {
+    const searchBtn = document.getElementById("searchPhoneBtn");
+    const searchInput = document.getElementById("phoneSearchInput");
+
+    searchBtn?.addEventListener("click", () => {
+        const filterValue = searchInput ? searchInput.value.trim() : "";
+        loadAllStudents(filterValue);
+    });
+
+    // Auto refresh when input is cleared
+    searchInput?.addEventListener("input", (e) => {
+        if (e.target.value.trim() === "") {
+            loadAllStudents();
+        }
+    });
 });
