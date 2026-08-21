@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- EmailJS SDK -->
+    <!-- EmailJS SDK Browser Bundle -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
     <!-- Shared reset + dotted background theme -->
@@ -175,6 +175,11 @@
             gap: 8px;
             background: linear-gradient(135deg, #0052d4, #4364f7);
             box-shadow: 0 0 20px rgba(0, 102, 255, 0.3);
+            border-radius: 10px;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
         }
 
         .btn-submit:hover {
@@ -187,8 +192,17 @@
             color: #cbd5e1;
         }
 
+        .footer-link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #94a3b8;
+        }
+
         .footer-link a {
+            color: #38bdf8;
             font-weight: 600;
+            text-decoration: none;
         }
 
         .notice-banner {
@@ -485,7 +499,8 @@
         });
     </script>
 
+    <!-- JavaScript module imports -->
     <script type="module" src="./firebase-config.js"></script>
-    <script src="./register.js"></script>
+    <script type="module" src="./register.js"></script>
 </body>
 </html>
