@@ -4,141 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Connect - Intra World</title>
+
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-    
-    <!-- Load auth check FIRST -->
-    <script type="module" src="auth-check.js"></script>
-
-    <!-- Shared app-shell styles (topbar, sidebar, overlay, layout) -->
     <link rel="stylesheet" href="css/app-shell.css">
 
-    <style>
-        .header-title {
-            font-size: 28px;
-            margin-bottom: 10px;
-        }
-
-        .header-desc {
-            color: #7db7ff;
-            margin-bottom: 30px;
-        }
-
-        .contact-box {
-            background: #081b2e;
-            padding: 25px;
-            border-radius: 18px;
-            border: 1px solid rgba(255,255,255,0.08);
-            margin-bottom: 30px;
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
-
-        .contact-box input {
-            flex: 1;
-            padding: 14px 18px;
-            background: #102b45;
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 12px;
-            color: white;
-            font-size: 14px;
-            outline: none;
-        }
-
-        .contact-box button {
-            padding: 14px 25px;
-            background: #0066ff;
-            color: white;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: 0.2s;
-        }
-
-        .contact-box button:hover {
-            background: #0f3f8c;
-        }
-
-        .student-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-        }
-
-        .student-card {
-            background: #0b2137;
-            padding: 25px;
-            border-radius: 18px;
-            border: 1px solid rgba(255,255,255,0.08);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-        }
-
-        .student-avatar {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            background: #0066ff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 26px;
-            font-weight: bold;
-            color: white;
-            margin-bottom: 15px;
-        }
-
-        .student-card h3 {
-            font-size: 18px;
-            margin-bottom: 5px;
-        }
-
-        .student-card p {
-            color: #7db7ff;
-            font-size: 13px;
-            margin-bottom: 15px;
-        }
-
-        .connect-btn {
-            width: 100%;
-            padding: 10px;
-            background: #0066ff;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .connect-btn:hover {
-            background: #0f3f8c;
-        }
-
-        .connect-btn.connected {
-            background: #2e7d32;
-            cursor: default;
-        }
-
-        @media (max-width: 768px) {
-            .header-title {
-                font-size: 24px;
-            }
-        }
-    </style>
+    <!-- Auth Guard -->
+    <script type="module" src="auth-check.js"></script>
 </head>
 <body>
 
-    <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
+    <aside class="sidebar" id="sidebar" role="navigation">
         <div class="sidebar-header">
             <button class="close-btn" id="closeMenu" aria-label="Close navigation">
                 <i class="fa-solid fa-xmark"></i>
@@ -152,7 +28,7 @@
         <div class="menu-container">
             <nav class="menu">
                 <a href="dashboard.html"><i class="fa-solid fa-house"></i><span>Home</span></a>
-                <a href="connect.html" class="active"><i class="fa-solid fa-user-group"></i><span>Student Connect</span></a>
+                <a href="connect.html"><i class="fa-solid fa-user-group"></i><span>Student Connect</span></a>
                 <a href="posts.html"><i class="fa-solid fa-newspaper"></i><span>Posts</span></a>
                 <a href="messages.html"><i class="fa-solid fa-comments"></i><span>Messages</span></a>
                 <a href="profile.html"><i class="fa-solid fa-user"></i><span>Profile</span></a>
@@ -162,7 +38,7 @@
 
         <div class="bottom">
             <nav class="menu">
-                <a class="logout" id="logoutBtn" href="index.html">
+                <a class="logout" id="logoutBtn" href="#">
                     <i class="fa-solid fa-right-from-bracket"></i>
                     <span>Logout</span>
                 </a>
@@ -170,20 +46,17 @@
         </div>
     </aside>
 
-    <!-- Overlay -->
     <div class="overlay" id="overlay"></div>
 
-    <!-- Main Content -->
     <main class="main">
         <header class="topbar">
             <button class="menu-btn" id="openMenu" aria-label="Open navigation">
                 <i class="fa-solid fa-bars"></i>
             </button>
-
             <div class="search">
-                <input type="text" placeholder="Search Students, Research, Communities...">
+                <input type="text" id="phoneSearchInput" placeholder="Enter contact phone number...">
+                <button id="searchPhoneBtn"><i class="fa-solid fa-magnifying-glass"></i></button>
             </div>
-
             <div class="user">
                 <span id="welcomeName">Loading...</span>
                 <img id="profileImage" src="https://via.placeholder.com/45" alt="Profile">
@@ -191,94 +64,13 @@
         </header>
 
         <section class="content">
-            <h1 class="header-title">Student Connect</h1>
-            <p class="header-desc">Find and connect with classmates using saved phone numbers or profile names.</p>
-
-            <div class="contact-box">
-                <i class="fa-solid fa-phone" style="color: #7db7ff; font-size: 18px;"></i>
-                <input type="text" id="phoneSearchInput" placeholder="Enter contact phone number (e.g., +919876543210 or 9876543210)...">
-                <button id="searchPhoneBtn"><i class="fa-solid fa-magnifying-glass"></i> Find Contact</button>
-            </div>
-
-            <div class="student-grid" id="studentGrid">
-                <div style="color: #7db7ff;">Loading registered students...</div>
-            </div>
+            <h2>Student Connect</h2>
+            <div id="studentGrid" class="student-grid"></div>
         </section>
     </main>
 
     <script type="module" src="firebase-config.js"></script>
+    <script type="module" src="app-shell.js"></script>
     <script type="module" src="connect.js"></script>
-    <script>
-        function waitForAuthReady() {
-            return new Promise((resolve) => {
-                if (document.documentElement.getAttribute("data-auth-ready") === "true") {
-                    resolve();
-                    return;
-                }
-
-                const observer = new MutationObserver((mutations) => {
-                    if (document.documentElement.getAttribute("data-auth-ready") === "true") {
-                        observer.disconnect();
-                        resolve();
-                    }
-                });
-
-                observer.observe(document.documentElement, { attributes: true });
-
-                setTimeout(() => {
-                    observer.disconnect();
-                    resolve();
-                }, 5000);
-            });
-        }
-
-        waitForAuthReady().then(() => {
-            const currentUserRaw = localStorage.getItem("currentUser");
-            if (currentUserRaw) {
-                const currentUser = JSON.parse(currentUserRaw);
-                const welcomeName = document.getElementById("welcomeName");
-                const profileImage = document.getElementById("profileImage");
-                if (welcomeName) welcomeName.textContent = currentUser.fullName || "Student User";
-                if (profileImage && currentUser.avatar) profileImage.src = currentUser.avatar;
-            }
-        });
-
-        document.addEventListener("DOMContentLoaded", () => {
-            const sidebar = document.getElementById("sidebar");
-            const overlay = document.getElementById("overlay");
-            const openMenu = document.getElementById("openMenu");
-            const closeMenu = document.getElementById("closeMenu");
-
-            function openSidebar() {
-                sidebar.classList.add("open");
-                overlay.classList.add("show");
-                document.body.style.overflow = "hidden";
-            }
-
-            function closeSidebar() {
-                sidebar.classList.remove("open");
-                overlay.classList.remove("show");
-                document.body.style.overflow = "";
-            }
-
-            openMenu.addEventListener("click", openSidebar);
-            closeMenu.addEventListener("click", closeSidebar);
-            overlay.addEventListener("click", closeSidebar);
-
-            document.querySelectorAll(".menu a").forEach(link => {
-                link.addEventListener("click", () => closeSidebar());
-            });
-
-            document.addEventListener("keydown", event => {
-                if (event.key === "Escape") closeSidebar();
-            });
-
-            document.getElementById("logoutBtn")?.addEventListener("click", (e) => {
-                e.preventDefault();
-                localStorage.removeItem("currentUser");
-                window.location.href = "index.html";
-            });
-        });
-    </script>
 </body>
 </html>

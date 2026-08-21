@@ -1,727 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Intra World</title>
 
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <title>Intra World Dashboard</title>
-
-    <!-- Google Font -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet"
-    >
-
-    <!-- Font Awesome -->
-    <link
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-        rel="stylesheet"
-    >
-
-    <!-- Shared app-shell styles (topbar, sidebar, overlay, layout) -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/app-shell.css">
 
-    <!-- Load auth check FIRST before any other scripts -->
+    <!-- Auth Guard -->
     <script type="module" src="auth-check.js"></script>
-
-    <style>
-
-        /* =========================
-           PAGE-SPECIFIC: CONTENT
-        ========================= */
-
-        .content {
-            overflow-y: auto;
-        }
-
-
-        /* =========================
-           BANNER
-        ========================= */
-
-        .banner {
-            margin-bottom: 45px;
-        }
-
-        .banner h1 {
-            font-size: 32px;
-
-            font-weight: 700;
-
-            margin-bottom: 8px;
-
-            text-transform: uppercase;
-
-            letter-spacing: 1px;
-        }
-
-        .banner p {
-            font-size: 14px;
-
-            color: #8fa8bf;
-
-            font-weight: 500;
-
-            letter-spacing: 0.5px;
-        }
-
-
-        /* =========================
-           CARDS
-        ========================= */
-
-        .cards {
-            display: grid;
-
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-
-            gap: 20px;
-        }
-
-        .card {
-            background: linear-gradient(
-                135deg,
-                rgba(6, 21, 36, 0.8),
-                rgba(16, 43, 69, 0.6)
-            );
-
-            border: 1px solid rgba(255, 255, 255, 0.08);
-
-            border-radius: 14px;
-
-            padding: 28px;
-
-            transition: all 0.3s ease;
-        }
-
-        .card:hover {
-            border-color: rgba(0, 102, 255, 0.3);
-
-            box-shadow: 0 12px 30px rgba(0, 102, 255, 0.15);
-
-            transform: translateY(-2px);
-        }
-
-        .card h3 {
-            font-size: 12px;
-
-            color: #8fa8bf;
-
-            text-transform: uppercase;
-
-            letter-spacing: 1px;
-
-            font-weight: 600;
-
-            margin-bottom: 12px;
-        }
-
-        .card h2 {
-            font-size: 28px;
-
-            font-weight: 700;
-
-            margin-bottom: 8px;
-        }
-
-        .card p {
-            font-size: 13px;
-
-            color: #7a8a99;
-
-            line-height: 1.6;
-        }
-
-        /* Profile link click styling */
-        .user {
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .user img {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #0088ff;
-        }
-
-
-        /* =========================
-           RESPONSIVE (page-specific)
-        ========================= */
-
-        @media (max-width: 768px) {
-
-            .sidebar {
-                width: 260px;
-            }
-
-            .logo img {
-                width: 55px;
-                height: 55px;
-            }
-
-            .logo h2 {
-                font-size: 16px;
-            }
-
-            .banner h1 {
-                font-size: 24px;
-            }
-
-            .cards {
-                grid-template-columns: 1fr;
-            }
-
-        }
-
-    </style>
-
 </head>
-
 <body>
 
-
-    <!-- =================================
-         SIDEBAR / NAVIGATION
-    ================================== -->
-
-    <aside
-        class="sidebar"
-        id="sidebar"
-        role="navigation"
-        aria-label="Main navigation"
-    >
-
-
+    <!-- Navigation Sidebar -->
+    <aside class="sidebar" id="sidebar" role="navigation">
         <div class="sidebar-header">
-
-            <!-- Close Button at Top Right Edge -->
-            <button
-                class="close-btn"
-                id="closeMenu"
-                aria-label="Close navigation"
-            >
+            <button class="close-btn" id="closeMenu" aria-label="Close navigation">
                 <i class="fa-solid fa-xmark"></i>
             </button>
-
-            <!-- Centered Stacked Logo -->
             <div class="logo">
-
-                <img
-                    src="logo.png"
-                    alt="Intra World Logo"
-                >
-
+                <img src="logo.png" alt="Intra World Logo">
                 <h2>INTRA WORLD</h2>
-
             </div>
-
         </div>
-
-
-        <!-- Navigation - Scrollable -->
 
         <div class="menu-container">
-
             <nav class="menu">
-
-
-                <a
-                    class="active"
-                    href="dashboard.html"
-                >
-
-                    <i class="fa-solid fa-house"></i>
-
-                    <span>
-                        Home
-                    </span>
-
-                </a>
-
-
-                <a href="connect.html">
-
-                    <i class="fa-solid fa-user-group"></i>
-
-                    <span>
-                        Student Connect
-                    </span>
-
-                </a>
-
-
-                <a href="posts.html">
-
-                    <i class="fa-solid fa-newspaper"></i>
-
-                    <span>
-                        Posts
-                    </span>
-
-                </a>
-
-
-                <a href="messages.html">
-
-                    <i class="fa-solid fa-comments"></i>
-
-                    <span>
-                        Messages
-                    </span>
-
-                </a>
-
-
-                <a href="profile.html">
-
-                    <i class="fa-solid fa-user"></i>
-
-                    <span>
-                        Profile
-                    </span>
-
-                </a>
-
-
-                <a href="settings.html">
-
-                    <i class="fa-solid fa-gear"></i>
-
-                    <span>
-                        Settings
-                    </span>
-
-                </a>
-
-
+                <a href="dashboard.html"><i class="fa-solid fa-house"></i><span>Home</span></a>
+                <a href="connect.html"><i class="fa-solid fa-user-group"></i><span>Student Connect</span></a>
+                <a href="posts.html"><i class="fa-solid fa-newspaper"></i><span>Posts</span></a>
+                <a href="messages.html"><i class="fa-solid fa-comments"></i><span>Messages</span></a>
+                <a href="profile.html"><i class="fa-solid fa-user"></i><span>Profile</span></a>
+                <a href="settings.html"><i class="fa-solid fa-gear"></i><span>Settings</span></a>
             </nav>
-
         </div>
-
-
-        <!-- Logout -->
 
         <div class="bottom">
-
             <nav class="menu">
-
-                <a
-                    class="logout"
-                    id="logoutBtn"
-                    href="login.html"
-                >
-
+                <a class="logout" id="logoutBtn" href="#">
                     <i class="fa-solid fa-right-from-bracket"></i>
-
-                    <span>
-                        Logout
-                    </span>
-
+                    <span>Logout</span>
                 </a>
-
             </nav>
-
         </div>
-
-
     </aside>
 
-
-    <!-- Overlay -->
-
-    <div
-        class="overlay"
-        id="overlay"
-    >
-    </div>
-
-
-    <!-- =================================
-         MAIN
-    ================================== -->
+    <div class="overlay" id="overlay"></div>
 
     <main class="main">
-
-
-        <!-- =================================
-             TOP BAR
-        ================================== -->
-
         <header class="topbar">
-
-
-            <!-- Hamburger -->
-
-            <button
-                class="menu-btn"
-                id="openMenu"
-                aria-label="Open navigation"
-            >
-
+            <button class="menu-btn" id="openMenu" aria-label="Open navigation">
                 <i class="fa-solid fa-bars"></i>
-
             </button>
-
-
-            <!-- Search -->
-
             <div class="search">
-
-                <input
-                    type="text"
-                    placeholder="Search Students, Research, Communities..."
-                >
-
+                <input type="text" placeholder="Search dashboard...">
             </div>
-
-
-            <!-- User Profile (Navigates to profile.html on click) -->
-
-            <div class="user" id="topbarUserProfile">
-
-                <span id="welcomeName">
-                    Loading...
-                </span>
-
-                <img
-                    id="profileImage"
-                    src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2338bdf8'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-3.8-.85-5.05-2.2.03-1.68 3.37-2.6 5.05-2.6s5.02.92 5.05 2.6C15.8 19.15 14.03 20 12 20z'/></svg>"
-                    alt="Profile"
-                >
-
+            <div class="user">
+                <span id="welcomeName">Loading...</span>
+                <img id="profileImage" src="https://via.placeholder.com/45" alt="Profile">
             </div>
-
-
         </header>
 
-
-        <!-- =================================
-             DASHBOARD CONTENT
-        ================================== -->
-
         <section class="content">
-
-
-            <!-- Welcome -->
-
-            <div class="banner">
-
-                <h1 id="bannerHeading">
-                    WELCOME TO INTRA WORLD
-                </h1>
-
-                <p>
-                    Academic • Professional • Student Networking Platform
-                </p>
-
-            </div>
-
-
-            <!-- Dashboard Cards -->
-
-            <div class="cards">
-
-
-                <!-- Connections -->
-
-                <div class="card">
-
-                    <h3>
-                        Student Connections
-                    </h3>
-
-                    <h2 id="connections">
-                        0
-                    </h2>
-
-                    <p>
-                        Trusted academic connections.
-                    </p>
-
-                </div>
-
-
-                <!-- Projects -->
-
-                <div class="card">
-
-                    <h3>
-                        Projects
-                    </h3>
-
-                    <h2 id="projects">
-                        0
-                    </h2>
-
-                    <p>
-                        Project collaborations.
-                    </p>
-
-                </div>
-
-
-                <!-- Research -->
-
-                <div class="card">
-
-                    <h3>
-                        Research
-                    </h3>
-
-                    <h2 id="research">
-                        0
-                    </h2>
-
-                    <p>
-                        Research opportunities.
-                    </p>
-
-                </div>
-
-
-                <!-- Notifications -->
-
-                <div class="card">
-
-                    <h3>
-                        Notifications
-                    </h3>
-
-                    <h2 id="notifications">
-                        0
-                    </h2>
-
-                    <p>
-                        Unread notifications.
-                    </p>
-
-                </div>
-
-
-            </div>
-
-
+            <h1>Welcome to Intra World</h1>
+            <p>Select an option from the sidebar to start connecting.</p>
         </section>
-
-
     </main>
 
-
-    <!-- =================================
-         JAVASCRIPT
-    ================================== -->
-
-    <script>
-
-        /* =================================
-           WAIT FOR AUTH CHECK TO COMPLETE
-        ================================== */
-
-        function waitForAuthReady() {
-            return new Promise((resolve) => {
-                // Check if auth is already ready
-                if (document.documentElement.getAttribute("data-auth-ready") === "true") {
-                    resolve();
-                    return;
-                }
-
-                // Listen for auth-ready attribute
-                const observer = new MutationObserver((mutations) => {
-                    if (document.documentElement.getAttribute("data-auth-ready") === "true") {
-                        observer.disconnect();
-                        resolve();
-                    }
-                });
-
-                observer.observe(document.documentElement, { attributes: true });
-
-                // Timeout after 5 seconds to prevent infinite wait
-                setTimeout(() => {
-                    observer.disconnect();
-                    resolve();
-                }, 5000);
-            });
-        }
-
-        /* =================================
-           INITIALIZATION
-        ================================== */
-
-        waitForAuthReady().then(() => {
-            // Check if user has a localStorage session
-            const currentUserRaw = localStorage.getItem("currentUser");
-
-            // If no session, redirect to login
-            if (!currentUserRaw) {
-                window.location.href = "login.html";
-                return;
-            }
-
-            const currentUser = JSON.parse(currentUserRaw);
-            const defaultAvatar = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2338bdf8'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-3.8-.85-5.05-2.2.03-1.68 3.37-2.6 5.05-2.6s5.02.92 5.05 2.6C15.8 19.15 14.03 20 12 20z'/></svg>";
-
-            // Populate User Topbar & Banner
-            const welcomeName = document.getElementById("welcomeName");
-            const bannerHeading = document.getElementById("bannerHeading");
-            const profileImage = document.getElementById("profileImage");
-
-            if (welcomeName && currentUser.fullName) {
-                welcomeName.textContent = currentUser.fullName;
-            }
-
-            if (bannerHeading && currentUser.fullName) {
-                bannerHeading.textContent = `WELCOME, ${currentUser.fullName.toUpperCase()}`;
-            }
-
-            if (profileImage) {
-                profileImage.src = (currentUser.avatar && !currentUser.avatar.includes("via.placeholder.com"))
-                    ? currentUser.avatar
-                    : defaultAvatar;
-
-                profileImage.onerror = () => {
-                    profileImage.src = defaultAvatar;
-                };
-            }
-
-            // Click Handler for Top Right Profile Redirect
-            const userProfileNav = document.getElementById("topbarUserProfile");
-            if (userProfileNav) {
-                userProfileNav.addEventListener("click", () => {
-                    window.location.href = "profile.html";
-                });
-            }
-        });
-
-        /* Logout Action: Removes user session only when Logout button is explicitly clicked */
-        document.addEventListener("DOMContentLoaded", () => {
-            const logoutBtn = document.getElementById("logoutBtn");
-            if (logoutBtn) {
-                logoutBtn.addEventListener("click", (e) => {
-                    e.preventDefault();
-                    localStorage.removeItem("currentUser");
-                    window.location.href = "login.html";
-                });
-            }
-        });
-
-
-        /* =================================
-           UI & NAVIGATION
-        ================================== */
-
-        const sidebar =
-            document.getElementById("sidebar");
-
-        const overlay =
-            document.getElementById("overlay");
-
-        const openMenu =
-            document.getElementById("openMenu");
-
-        const closeMenu =
-            document.getElementById("closeMenu");
-
-
-        /* Open Sidebar */
-
-        function openSidebar() {
-
-            sidebar.classList.add("open");
-
-            overlay.classList.add("show");
-
-            document.body.style.overflow = "hidden";
-
-        }
-
-
-        /* Close Sidebar */
-
-        function closeSidebar() {
-
-            sidebar.classList.remove("open");
-
-            overlay.classList.remove("show");
-
-            document.body.style.overflow = "";
-
-        }
-
-
-        /* Hamburger */
-
-        if (openMenu) {
-            openMenu.addEventListener(
-                "click",
-                openSidebar
-            );
-        }
-
-
-        /* Close Button */
-
-        if (closeMenu) {
-            closeMenu.addEventListener(
-                "click",
-                closeSidebar
-            );
-        }
-
-
-        /* Click Outside */
-
-        if (overlay) {
-            overlay.addEventListener(
-                "click",
-                closeSidebar
-            );
-        }
-
-
-        /* Navigation Links: Close sidebar without interfering with hyperlink redirects */
-
-        document
-            .querySelectorAll(".menu a:not(#logoutBtn)")
-            .forEach(link => {
-
-                link.addEventListener(
-                    "click",
-                    () => {
-
-                        closeSidebar();
-
-                    }
-                );
-
-            });
-
-
-        /* ESC Key */
-
-        document.addEventListener(
-            "keydown",
-            event => {
-
-                if (event.key === "Escape") {
-
-                    closeSidebar();
-
-                }
-
-            }
-        );
-
-    </script>
-
-
+    <script type="module" src="firebase-config.js"></script>
+    <script type="module" src="app-shell.js"></script>
 </body>
-
 </html>
