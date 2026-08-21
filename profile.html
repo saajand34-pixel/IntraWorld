@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Intra World - Profile</title>
+
+    <!-- Google Font & Font Awesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+
+    <!-- App Shell Styles -->
+    <link rel="stylesheet" href="css/app-shell.css">
+
+    <style>
+        .profile-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .profile-card {
+            background: linear-gradient(135deg, rgba(6, 21, 36, 0.85), rgba(16, 43, 69, 0.75));
+            border: 1px solid rgba(0, 140, 255, 0.25);
+            border-radius: 20px;
+            padding: 35px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(15px);
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 25px;
+            margin-bottom: 25px;
+        }
+
+        .profile-avatar {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #0088ff;
+            box-shadow: 0 0 20px rgba(0, 136, 255, 0.4);
+        }
+
+        .profile-info h1 {
+            font-size: 26px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 5px;
+        }
+
+        .profile-info p {
+            font-size: 14px;
+            color: #38bdf8;
+            font-weight: 500;
+        }
+
+        .badge-verified {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(74, 222, 128, 0.15);
+            color: #4ade80;
+            border: 1px solid rgba(74, 222, 128, 0.3);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-top: 8px;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .detail-item {
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .detail-item label {
+            display: block;
+            font-size: 12px;
+            color: #8fa8bf;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 6px;
+        }
+
+        .detail-item span {
+            font-size: 15px;
+            color: #ffffff;
+            font-weight: 500;
+        }
+
+        @media (max-width: 600px) {
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- SIDEBAR / NAVIGATION -->
+    <aside class="sidebar" id="sidebar" role="navigation">
+        <div class="sidebar-header">
+            <button class="close-btn" id="closeMenu" aria-label="Close navigation">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="logo">
+                <img src="logo.png" alt="Intra World Logo">
+                <h2>INTRA WORLD</h2>
+            </div>
+        </div>
+
+        <div class="menu-container">
+            <nav class="menu">
+                <a href="dashboard.html"><i class="fa-solid fa-house"></i> <span>Home</span></a>
+                <a href="connect.html"><i class="fa-solid fa-user-group"></i> <span>Student Connect</span></a>
+                <a href="posts.html"><i class="fa-solid fa-newspaper"></i> <span>Posts</span></a>
+                <a href="messages.html"><i class="fa-solid fa-comments"></i> <span>Messages</span></a>
+                <a class="active" href="profile.html"><i class="fa-solid fa-user"></i> <span>Profile</span></a>
+                <a href="settings.html"><i class="fa-solid fa-gear"></i> <span>Settings</span></a>
+            </nav>
+        </div>
+
+        <div class="bottom">
+            <nav class="menu">
+                <a class="logout" id="logoutBtn" href="index.html">
+                    <i class="fa-solid fa-right-from-bracket"></i> <span>Logout</span>
+                </a>
+            </nav>
+        </div>
+    </aside>
+
+    <div class="overlay" id="overlay"></div>
+
+    <!-- MAIN CONTENT -->
+    <main class="main">
+        <header class="topbar">
+            <button class="menu-btn" id="openMenu" aria-label="Open navigation">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            <div class="search">
+                <input type="text" placeholder="Search Students, Research, Communities...">
+            </div>
+            <div class="user">
+                <span id="navName">Student User</span>
+                <img id="navAvatar" src="" alt="Profile">
+            </div>
+        </header>
+
+        <section class="content">
+            <div class="profile-container">
+                <div class="profile-card">
+                    <div class="profile-header">
+                        <img id="profilePhoto" class="profile-avatar" src="" alt="User Avatar">
+                        <div class="profile-info">
+                            <h1 id="profileFullName">Student User</h1>
+                            <p id="profileEmail">user@intraworld.com</p>
+                            <div class="badge-verified">
+                                <i class="fa-solid fa-circle-check"></i> Verified Identity
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="details-grid">
+                        <div class="detail-item">
+                            <label><i class="fa-solid fa-envelope"></i> Email Address</label>
+                            <span id="detailEmail">--</span>
+                        </div>
+                        <div class="detail-item">
+                            <label><i class="fa-solid fa-shield-halved"></i> Account Status</label>
+                            <span>Active / Student Gatekeeper</span>
+                        </div>
+                        <div class="detail-item">
+                            <label><i class="fa-solid fa-calendar"></i> Member Since</label>
+                            <span id="detailJoined">Today</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- SCRIPT LOGIC -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const defaultAvatar = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2338bdf8'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-3.8-.85-5.05-2.2.03-1.68 3.37-2.6 5.05-2.6s5.02.92 5.05 2.6C15.8 19.15 14.03 20 12 20z'/></svg>";
+
+            const storedUser = localStorage.getItem("currentUser");
+            const user = storedUser ? JSON.parse(storedUser) : {
+                fullName: "Student User",
+                email: "user@intraworld.com",
+                avatar: defaultAvatar,
+                createdAt: new Date().toISOString()
+            };
+
+            // Populate Page Elements
+            const userAvatar = user.avatar && !user.avatar.includes("via.placeholder.com") ? user.avatar : defaultAvatar;
+
+            document.getElementById("navName").textContent = user.fullName || "Student User";
+            document.getElementById("navAvatar").src = userAvatar;
+            document.getElementById("profilePhoto").src = userAvatar;
+            document.getElementById("profileFullName").textContent = user.fullName || "Student User";
+            document.getElementById("profileEmail").textContent = user.email || "user@intraworld.com";
+            document.getElementById("detailEmail").textContent = user.email || "user@intraworld.com";
+
+            if (user.createdAt) {
+                const date = new Date(user.createdAt);
+                document.getElementById("detailJoined").textContent = date.toLocaleDateString();
+            }
+
+            // Image load fallback
+            document.getElementById("profilePhoto").onerror = () => {
+                document.getElementById("profilePhoto").src = defaultAvatar;
+            };
+            document.getElementById("navAvatar").onerror = () => {
+                document.getElementById("navAvatar").src = defaultAvatar;
+            };
+        });
+
+        // Sidebar Navigation Handling
+        const sidebar = document.getElementById("sidebar");
+        const overlay = document.getElementById("overlay");
+        const openMenu = document.getElementById("openMenu");
+        const closeMenu = document.getElementById("closeMenu");
+
+        function openSidebar() {
+            sidebar.classList.add("open");
+            overlay.classList.add("show");
+        }
+
+        function closeSidebar() {
+            sidebar.classList.remove("open");
+            overlay.classList.remove("show");
+        }
+
+        openMenu.addEventListener("click", openSidebar);
+        closeMenu.addEventListener("click", closeSidebar);
+        overlay.addEventListener("click", closeSidebar);
+
+        document.getElementById("logoutBtn")?.addEventListener("click", (e) => {
+            e.preventDefault();
+            localStorage.removeItem("currentUser");
+            window.location.href = "index.html";
+        });
+    </script>
+</body>
+
+</html>

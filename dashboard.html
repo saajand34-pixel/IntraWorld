@@ -132,6 +132,22 @@
             line-height: 1.6;
         }
 
+        /* Profile link click styling */
+        .user {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user img {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #0088ff;
+        }
+
 
         /* =========================
            RESPONSIVE (page-specific)
@@ -364,9 +380,9 @@
             </div>
 
 
-            <!-- User -->
+            <!-- User Profile (Navigates to profile.html on click) -->
 
-            <div class="user">
+            <div class="user" id="topbarUserProfile">
 
                 <span id="welcomeName">
                     Loading...
@@ -374,7 +390,7 @@
 
                 <img
                     id="profileImage"
-                    src="https://via.placeholder.com/45"
+                    src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2338bdf8'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-3.8-.85-5.05-2.2.03-1.68 3.37-2.6 5.05-2.6s5.02.92 5.05 2.6C15.8 19.15 14.03 20 12 20z'/></svg>"
                     alt="Profile"
                 >
 
@@ -508,12 +524,12 @@
 
         document.addEventListener("DOMContentLoaded", () => {
             const currentUserRaw = localStorage.getItem("currentUser");
+            const defaultAvatar = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2338bdf8'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-3.8-.85-5.05-2.2.03-1.68 3.37-2.6 5.05-2.6s5.02.92 5.05 2.6C15.8 19.15 14.03 20 12 20z'/></svg>";
 
-            // Fallback default user if no active session is stored in localStorage
             const currentUser = currentUserRaw ? JSON.parse(currentUserRaw) : {
                 fullName: "Student User",
                 email: "user@intraworld.com",
-                avatar: "https://via.placeholder.com/45"
+                avatar: defaultAvatar
             };
 
             // Populate User Topbar & Banner
@@ -529,8 +545,22 @@
                 bannerHeading.textContent = `WELCOME, ${currentUser.fullName.toUpperCase()}`;
             }
 
-            if (profileImage && currentUser.avatar) {
-                profileImage.src = currentUser.avatar;
+            if (profileImage) {
+                profileImage.src = (currentUser.avatar && !currentUser.avatar.includes("via.placeholder.com"))
+                    ? currentUser.avatar
+                    : defaultAvatar;
+
+                profileImage.onerror = () => {
+                    profileImage.src = defaultAvatar;
+                };
+            }
+
+            // Click Handler for Profile Redirect
+            const userProfileNav = document.getElementById("topbarUserProfile");
+            if (userProfileNav) {
+                userProfileNav.addEventListener("click", () => {
+                    window.location.href = "profile.html";
+                });
             }
         });
 

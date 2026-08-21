@@ -15,6 +15,16 @@ const TEMPLATE_ID = "template_f5n21dq";
     }
 })();
 
+// Helper function to convert uploaded File object to Base64 String
+function getBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+    });
+}
+
 // Function to generate and send OTP directly to Gmail
 async function sendGmailOTP() {
     const emailInput = document.getElementById("email");
@@ -27,7 +37,6 @@ async function sendGmailOTP() {
         return;
     }
 
-    // Generate random 6-digit numeric OTP
     generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
 
     if (otpStatus) {
@@ -38,7 +47,6 @@ async function sendGmailOTP() {
 
     if (sendBtn) sendBtn.disabled = true;
 
-    // Payload parameters matching EmailJS template
     const templateParams = {
         to_email: userEmail,
         email: userEmail,
@@ -95,15 +103,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const sendOtpBtn = document.getElementById("send-otp-btn");
     const verifyOtpBtn = document.getElementById("verify-otp-btn");
 
-    if (sendOtpBtn) {
-        sendOtpBtn.addEventListener("click", sendGmailOTP);
-    }
+    if (sendOtpBtn) sendOtpBtn.addEventListener("click", sendGmailOTP);
+    if (verifyOtpBtn) verifyOtpBtn.addEventListener("click", verifyGmailOTP);
 
-    if (verifyOtpBtn) {
-        verifyOtpBtn.addEventListener("click", verifyGmailOTP);
-    }
-
-    // Form Submission Handler: Saves to Local Storage & Firestore, then redirects to Dashboard
     const form = document.getElementById("registrationForm");
     if (form) {
         form.addEventListener("submit", async (e) => {
@@ -120,33 +122,38 @@ document.addEventListener("DOMContentLoaded", () => {
             const fullNameVal = document.querySelector('input[name="full_name"]')?.value || "Student User";
             const emailVal = document.getElementById("email")?.value || "";
 
-            // User Session Object
+            // Read uploaded profile photo
+            const photoInput = document.querySelector('input[name="profile_photo"]');
+            let avatarDataUrl = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2338bdf8'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-3.8-.85-5.05-2.2.03-1.68 3.37-2.6 5.05-2.6s5.02.92 5.05 2.6C15.8 19.15 14.03 20 12 20z'/></svg>";
+
+            if (photoInput && photoInput.files && photoInput.files[0]) {
+                try {
+                    avatarDataUrl = await getBase64(photoInput.files[0]);
+                } catch (err) {
+                    console.error("Error reading profile photo file:", err);
+                }
+            }
+
+            // Save user session object
             const userData = {
                 fullName: fullNameVal,
                 email: emailVal,
-                avatar: "https://via.placeholder.com/45",
+                avatar: avatarDataUrl,
                 isVerified: true,
                 createdAt: new Date().toISOString()
             };
 
-            // Save session to localStorage so dashboard can render dynamic user details
             localStorage.setItem("currentUser", JSON.stringify(userData));
 
             try {
-                // Access db instance globally via window.db
                 const firestoreDb = window.db;
-
                 if (firestoreDb && window.addDoc && window.collection) {
                     await window.addDoc(window.collection(firestoreDb, "registrations"), userData);
-                } else {
-                    console.warn("Firestore instance not found, proceeding with local session redirect.");
                 }
-
                 alert("Registration successful! Redirecting to your dashboard...");
                 window.location.href = "dashboard.html";
             } catch (err) {
                 console.error("Error saving registration:", err);
-                // Fallback redirect if Firestore operations fail
                 alert("Account created! Redirecting to dashboard...");
                 window.location.href = "dashboard.html";
             } finally {
