@@ -1,264 +1,159 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IntraWorld Login</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IntraWorld Login</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
-<!-- Shared reset + dotted background theme -->
-<link rel="stylesheet" href="css/theme-base.css">
+    <!-- Shared reset + dotted background theme -->
+    <link rel="stylesheet" href="css/theme-base.css">
 
-<style>
+    <style>
+        body {
+            overflow-y: auto;
+            min-height: 180vh;
+        }
 
-body{
-overflow-y:auto;
-min-height:180vh;
-}
+        .wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 80px 20px;
+        }
 
-.wrapper{
-display:flex;
-justify-content:center;
-align-items:center;
-padding:80px 20px;
-}
+        .card {
+            width: 430px;
+            padding: 40px;
+            background: rgba(255, 255, 255, .08);
+            border: 1px solid rgba(255, 255, 255, .15);
+            border-radius: 25px;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, .6);
+        }
 
-.card{
-width:430px;
-padding:40px;
-background:rgba(255,255,255,.08);
-border:1px solid rgba(255,255,255,.15);
-border-radius:25px;
-backdrop-filter:blur(15px);
-box-shadow:0 20px 50px rgba(0,0,0,.6);
-}
+        .logo {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
 
-.logo{
-display:flex;
-justify-content:center;
-margin-bottom:20px;
-}
+        .logo img {
+            width: 170px;
+            filter: drop-shadow(0 0 15px #4ea3ff);
+        }
 
-.logo img{
-width:170px;
-filter:drop-shadow(0 0 15px #4ea3ff);
-}
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 40px;
+        }
 
-h1{
-text-align:center;
-margin-bottom:10px;
-font-size:40px;
-}
+        p {
+            text-align: center;
+            color: #d7d7d7;
+            margin-bottom: 30px;
+        }
 
-p{
-text-align:center;
-color:#d7d7d7;
-margin-bottom:30px;
-}
+        .input-box {
+            margin-bottom: 20px;
+        }
 
-.input-box{
-margin-bottom:20px;
-}
+        .input-box input {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            outline: none;
+            border-radius: 12px;
+            background: #ffffff14;
+            border: 1px solid rgba(255, 255, 255, .2);
+            color: white;
+            font-size: 16px;
+        }
 
-.input-box input{
-width:100%;
-padding:15px;
-border:none;
-outline:none;
-border-radius:12px;
-background:#ffffff14;
-border:1px solid rgba(255,255,255,.2);
-color:white;
-font-size:16px;
-}
+        .input-box input::placeholder {
+            color: #ccc;
+        }
 
-.input-box input::placeholder{
-color:#ccc;
-}
+        .row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
 
-.row{
-display:flex;
-justify-content:space-between;
-align-items:center;
-margin-bottom:25px;
-font-size:14px;
-}
+        a {
+            text-decoration: none;
+            color: #58a6ff;
+        }
 
-a{
-text-decoration:none;
-color:#58a6ff;
-}
+        button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            background: linear-gradient(135deg, #0066ff, #00bfff);
+            color: white;
+            transition: .3s;
+        }
 
-button{
-width:100%;
-padding:15px;
-border:none;
-border-radius:12px;
-font-size:18px;
-font-weight:600;
-cursor:pointer;
-background:linear-gradient(135deg,#0066ff,#00bfff);
-color:white;
-transition:.3s;
-}
+        button:hover {
+            transform: scale(1.03);
+            box-shadow: 0 0 20px #2196f3;
+        }
 
-button:hover{
-transform:scale(1.03);
-box-shadow:0 0 20px #2196f3;
-}
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            color: #bbb;
+        }
+    </style>
 
-.footer{
-margin-top:30px;
-text-align:center;
-color:#bbb;
-}
-
-</style>
+    <!-- Global auth check guard -->
+    <script type="module" src="auth-check.js"></script>
 </head>
 <body>
 
-<div class="wrapper">
-<div class="card">
+    <div class="wrapper">
+        <div class="card">
 
-<div class="logo">
-<img src="logo.png" alt="IntraWorld Logo">
-</div>
+            <div class="logo">
+                <img src="logo.png" alt="IntraWorld Logo">
+            </div>
 
-<h1>Welcome</h1>
-<p>Sign in to continue to IntraWorld</p>
+            <h1>Welcome</h1>
+            <p>Sign in to continue to IntraWorld</p>
 
-<form id="loginForm">
-<div class="input-box">
-<input type="email" id="loginEmail" placeholder="Email Address" required>
-</div>
+            <form id="loginForm">
+                <div class="input-box">
+                    <input type="email" id="loginEmail" placeholder="Email Address" required>
+                </div>
 
-<div class="input-box">
-<input type="password" id="loginPassword" placeholder="Password" required>
-</div>
+                <div class="input-box">
+                    <input type="password" id="loginPassword" placeholder="Password" required>
+                </div>
 
-<div class="row">
-<a href="forgotpassword.html" id="forgotPassword">Forgot Password?</a>
-</div>
+                <div class="row">
+                    <a href="forgotpassword.html" id="forgotPassword">Forgot Password?</a>
+                </div>
 
-<button type="submit">Login</button>
-</form>
+                <button type="submit">Login</button>
+            </form>
 
-<div class="footer">
-<p>Don't have an account? <a href="register.html">Sign Up</a></p>
-</div>
+            <div class="footer">
+                <p>Don't have an account? <a href="register.html">Sign Up</a></p>
+            </div>
 
-</div>
-</div>
+        </div>
+    </div>
 
-<!-- Firebase Authentication & Database Verification Integration -->
-<script type="module">
-
-import { auth, db } from "./firebase-config.js";
-
-import {
-    signInWithEmailAndPassword
-} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-
-import {
-    collection,
-    query,
-    where,
-    getDocs
-} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-const loginForm = document.getElementById("loginForm");
-const loginBtn = loginForm.querySelector("button");
-
-function setLoading(isLoading){
-    loginBtn.disabled = isLoading;
-    if(isLoading){
-        loginBtn.innerHTML = "Verifying Database...";
-    } else {
-        loginBtn.innerHTML = "Login";
-    }
-}
-
-loginForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const email = document.getElementById("loginEmail").value.trim();
-    const password = document.getElementById("loginPassword").value;
-
-    if (email === "" || password === "") {
-        alert("Please enter Email and Password.");
-        return;
-    }
-
-    setLoading(true);
-
-    try {
-        // 1. Authenticate with Firebase Auth
-        let firebaseUser = null;
-        try {
-            const credential = await signInWithEmailAndPassword(auth, email, password);
-            firebaseUser = credential.user;
-        } catch (authError) {
-            console.warn("Firebase Auth bypassed or failed, checking registration database...", authError);
-        }
-
-        // Default SVG Fallback Avatar
-        const defaultAvatar = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2338bdf8'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-3.8-.85-5.05-2.2.03-1.68 3.37-2.6 5.05-2.6s5.02.92 5.05 2.6C15.8 19.15 14.03 20 12 20z'/></svg>";
-
-        // 2. Query Firestore 'registrations' database for matching user details
-        let registeredUser = null;
-        if (db) {
-            try {
-                const q = query(collection(db, "registrations"), where("email", "==", email));
-                const querySnapshot = await getDocs(q);
-
-                if (!querySnapshot.empty) {
-                    registeredUser = querySnapshot.docs[0].data();
-                }
-            } catch (dbErr) {
-                console.error("Firestore database query error:", dbErr);
-            }
-        }
-
-        // 3. Check fallback in localStorage if Firestore record isn't retrieved
-        if (!registeredUser) {
-            const localSession = localStorage.getItem("currentUser");
-            if (localSession) {
-                const parsedLocal = JSON.parse(localSession);
-                if (parsedLocal.email === email) {
-                    registeredUser = parsedLocal;
-                }
-            }
-        }
-
-        // 4. Construct user profile session
-        const sessionData = {
-            fullName: registeredUser?.fullName || (firebaseUser?.displayName || "Student User"),
-            email: email,
-            avatar: registeredUser?.avatar || defaultAvatar,
-            isVerified: true,
-            loginTime: new Date().toISOString()
-        };
-
-        // Save active session to localStorage for dashboard rendering
-        localStorage.setItem("currentUser", JSON.stringify(sessionData));
-
-        // 5. Route user based on role
-        if (email === "admin@intraworld.com") {
-            window.location.href = "admin.html";
-        } else {
-            window.location.href = "dashboard.html";
-        }
-
-    } catch (error) {
-        console.error("Login verification error:", error);
-        alert("Failed to verify account. Please check your credentials.");
-    } finally {
-        setLoading(false);
-    }
-});
-
-</script>
+    <!-- External Module Script -->
+    <script type="module" src="login.js"></script>
 </body>
 </html>
