@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Account Settings - Intra World</title>
+
+    <!-- Google Font -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <!-- Font Awesome -->
+    <link
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+        rel="stylesheet"
+    >
+
+    <!-- Shared app-shell styles (topbar, sidebar, overlay, layout) -->
+    <link rel="stylesheet" href="css/app-shell.css">
+
+    <style>
+
+        /* =========================
+           PAGE-SPECIFIC: SETTINGS
+        ========================= */
+
+        .content {
+            overflow-y: auto;
+            max-width: 1000px;
+        }
+
+        .settings-header {
+            margin-bottom: 30px;
+        }
+
+        .settings-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        .settings-header p {
+            font-size: 14px;
+            color: #8fa8bf;
+        }
+
+        /* Settings Card Grid */
+        .settings-section {
+            background: linear-gradient(
+                135deg,
+                rgba(6, 21, 36, 0.8),
+                rgba(16, 43, 69, 0.6)
+            );
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 25px;
+            backdrop-filter: blur(10px);
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #38bdf8;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 12px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            font-size: 13px;
+            color: #c8d4df;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            background: #081b2e;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: #ffffff;
+            font-size: 13px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: #0066ff;
+            box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.15);
+        }
+
+        .form-group input[disabled] {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Toggle Option Row */
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .toggle-row:last-child {
+            border-bottom: none;
+        }
+
+        .toggle-info h4 {
+            font-size: 14px;
+            font-weight: 500;
+            color: #ffffff;
+        }
+
+        .toggle-info p {
+            font-size: 12px;
+            color: #8fa8bf;
+        }
+
+        /* Switch Toggle */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 46px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background-color: #102b45;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: 0.3s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 3px;
+            bottom: 3px;
+            background-color: #ffffff;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #0066ff;
+            border-color: #0066ff;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(22px);
+        }
+
+        /* Buttons */
+        .btn-container {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .btn-save {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #0066ff, #1684ff);
+            border: none;
+            border-radius: 10px;
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 102, 255, 0.25);
+        }
+
+        .btn-save:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(0, 102, 255, 0.35);
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 260px;
+            }
+            .logo img {
+                width: 55px;
+                height: 55px;
+            }
+            .logo h2 {
+                font-size: 16px;
+            }
+            .content {
+                padding: 20px;
+            }
+            .settings-header h1 {
+                font-size: 22px;
+            }
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+
+    <!-- =================================
+         SIDEBAR / NAVIGATION
+    ================================== -->
+
+    <aside
+        class="sidebar"
+        id="sidebar"
+        role="navigation"
+        aria-label="Main navigation"
+    >
+
+        <div class="sidebar-header">
+
+            <button
+                class="close-btn"
+                id="closeMenu"
+                aria-label="Close navigation"
+            >
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="logo">
+                <img src="logo.png" alt="Intra World Logo">
+                <h2>INTRA WORLD</h2>
+            </div>
+
+        </div>
+
+        <!-- Navigation Container -->
+        <div class="menu-container">
+
+            <nav class="menu">
+
+                <a href="dashboard.html">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Home</span>
+                </a>
+
+                <a href="connect.html">
+                    <i class="fa-solid fa-user-group"></i>
+                    <span>Student Connect</span>
+                </a>
+
+                <a href="posts.html">
+                    <i class="fa-solid fa-newspaper"></i>
+                    <span>Posts</span>
+                </a>
+
+                <a href="messages.html">
+                    <i class="fa-solid fa-comments"></i>
+                    <span>Messages</span>
+                </a>
+
+                <a href="profile.html">
+                    <i class="fa-solid fa-user"></i>
+                    <span>Profile</span>
+                </a>
+
+                <!-- Active Link -->
+                <a class="active" href="settings.html">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Settings</span>
+                </a>
+
+            </nav>
+
+        </div>
+
+        <!-- Logout -->
+        <div class="bottom">
+            <nav class="menu">
+                <a class="logout" id="logoutBtn" href="index.html">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Logout</span>
+                </a>
+            </nav>
+        </div>
+
+    </aside>
+
+    <!-- Overlay -->
+    <div class="overlay" id="overlay"></div>
+
+
+    <!-- =================================
+         MAIN CONTENT
+    ================================== -->
+
+    <main class="main">
+
+        <!-- Topbar -->
+        <header class="topbar">
+
+            <button class="menu-btn" id="openMenu" aria-label="Open navigation">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+
+            <div class="search">
+                <input type="text" placeholder="Search Settings, Preferences...">
+            </div>
+
+            <div class="user">
+                <span id="welcomeName">Loading...</span>
+                <img id="profileImage" src="https://via.placeholder.com/45" alt="Profile">
+            </div>
+
+        </header>
+
+        <!-- Settings Page Body -->
+        <section class="content">
+
+            <div class="settings-header">
+                <h1>ACCOUNT SETTINGS</h1>
+                <p>Manage your account parameters, security controls, and system preferences.</p>
+            </div>
+
+            <form id="settingsForm">
+
+                <!-- Profile & Account Info -->
+                <div class="settings-section">
+                    <div class="section-title">
+                        <i class="fa-solid fa-user-gear"></i> Account Details
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" id="settingsFullName" placeholder="John Doe" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <input type="email" id="settingsEmail" placeholder="john@gmail.com" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>Academic Status</label>
+                            <select id="settingsStatus">
+                                <option value="Undergraduate">Undergraduate Student</option>
+                                <option value="Postgraduate">Postgraduate Student</option>
+                                <option value="Researcher">Academic Researcher</option>
+                                <option value="Alumni">Alumni</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notifications & Privacy Controls -->
+                <div class="settings-section">
+                    <div class="section-title">
+                        <i class="fa-solid fa-shield-halved"></i> Privacy & Notifications
+                    </div>
+
+                    <div class="toggle-row">
+                        <div class="toggle-info">
+                            <h4>Public Profile Visibility</h4>
+                            <p>Allow registered students to discover your academic profile.</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="toggleVisibility" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="toggle-row">
+                        <div class="toggle-info">
+                            <h4>Email Notifications</h4>
+                            <p>Receive updates regarding direct messages, mentions, and posts.</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="toggleEmailNotif" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="toggle-row">
+                        <div class="toggle-info">
+                            <h4>Show Online Availability</h4>
+                            <p>Display your active status badge to student connections.</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="toggleStatus" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Action Button -->
+                <div class="btn-container">
+                    <button type="submit" class="btn-save">
+                        <i class="fa-solid fa-floppy-disk"></i> Save Preferences
+                    </button>
+                </div>
+
+            </form>
+
+        </section>
+
+    </main>
+
+
+    <!-- =================================
+         JAVASCRIPT
+    ================================== -->
+
+    <script>
+
+        /* =================================
+           AUTHENTICATION & USER SESSION
+        ================================== */
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const currentUserRaw = localStorage.getItem("currentUser");
+
+            // Fallback default user if no active session is stored in localStorage
+            const currentUser = currentUserRaw ? JSON.parse(currentUserRaw) : {
+                fullName: "Student User",
+                email: "user@intraworld.com",
+                avatar: "https://via.placeholder.com/45"
+            };
+
+            // Update UI elements with session data
+            const welcomeName = document.getElementById("welcomeName");
+            const profileImage = document.getElementById("profileImage");
+            const settingsFullName = document.getElementById("settingsFullName");
+            const settingsEmail = document.getElementById("settingsEmail");
+
+            if (welcomeName && currentUser.fullName) {
+                welcomeName.textContent = currentUser.fullName;
+            }
+
+            if (profileImage && currentUser.avatar) {
+                profileImage.src = currentUser.avatar;
+            }
+
+            if (settingsFullName && currentUser.fullName) {
+                settingsFullName.value = currentUser.fullName;
+            }
+
+            if (settingsEmail && currentUser.email) {
+                settingsEmail.value = currentUser.email;
+            }
+        });
+
+        /* Handle Form Submission & Session Storage Sync */
+        const settingsForm = document.getElementById("settingsForm");
+        if (settingsForm) {
+            settingsForm.addEventListener("submit", (e) => {
+                e.preventDefault();
+
+                const currentUserRaw = localStorage.getItem("currentUser");
+                const currentUser = currentUserRaw ? JSON.parse(currentUserRaw) : {
+                    fullName: "Student User",
+                    email: "user@intraworld.com",
+                    avatar: "https://via.placeholder.com/45"
+                };
+
+                currentUser.fullName = document.getElementById("settingsFullName").value.trim();
+                
+                // Persist updated settings to localStorage
+                localStorage.setItem("currentUser", JSON.stringify(currentUser));
+
+                // Reflect updated name instantly on topbar
+                document.getElementById("welcomeName").textContent = currentUser.fullName;
+
+                alert("Settings updated successfully!");
+            });
+        }
+
+        /* Logout Action */
+        const logoutBtn = document.getElementById("logoutBtn");
+        if (logoutBtn) {
+            logoutBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                localStorage.removeItem("currentUser");
+                window.location.href = "index.html";
+            });
+        }
+
+
+        /* =================================
+           UI & NAVIGATION DRAWER
+        ================================== */
+
+        const sidebar = document.getElementById("sidebar");
+        const overlay = document.getElementById("overlay");
+        const openMenu = document.getElementById("openMenu");
+        const closeMenu = document.getElementById("closeMenu");
+
+        function openSidebar() {
+            sidebar.classList.add("open");
+            overlay.classList.add("show");
+            document.body.style.overflow = "hidden";
+        }
+
+        function closeSidebar() {
+            sidebar.classList.remove("open");
+            overlay.classList.remove("show");
+            document.body.style.overflow = "";
+        }
+
+        openMenu.addEventListener("click", openSidebar);
+        closeMenu.addEventListener("click", closeSidebar);
+        overlay.addEventListener("click", closeSidebar);
+
+        document.querySelectorAll(".menu a").forEach(link => {
+            link.addEventListener("click", closeSidebar);
+        });
+
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape") closeSidebar();
+        });
+
+    </script>
+
+</body>
+
+</html>

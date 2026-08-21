@@ -296,6 +296,7 @@
 
                 <a
                     class="logout"
+                    id="logoutBtn"
                     href="index.html"
                 >
 
@@ -394,8 +395,8 @@
 
             <div class="banner">
 
-                <h1>
-                    Welcome to INTRA WORLD
+                <h1 id="bannerHeading">
+                    WELCOME TO INTRA WORLD
                 </h1>
 
                 <p>
@@ -500,6 +501,53 @@
     ================================== -->
 
     <script>
+
+        /* =================================
+           AUTHENTICATION & USER SESSION
+        ================================== */
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const currentUserRaw = localStorage.getItem("currentUser");
+
+            // Fallback default user if no active session is stored in localStorage
+            const currentUser = currentUserRaw ? JSON.parse(currentUserRaw) : {
+                fullName: "Student User",
+                email: "user@intraworld.com",
+                avatar: "https://via.placeholder.com/45"
+            };
+
+            // Populate User Topbar & Banner
+            const welcomeName = document.getElementById("welcomeName");
+            const bannerHeading = document.getElementById("bannerHeading");
+            const profileImage = document.getElementById("profileImage");
+
+            if (welcomeName && currentUser.fullName) {
+                welcomeName.textContent = currentUser.fullName;
+            }
+
+            if (bannerHeading && currentUser.fullName) {
+                bannerHeading.textContent = `WELCOME, ${currentUser.fullName.toUpperCase()}`;
+            }
+
+            if (profileImage && currentUser.avatar) {
+                profileImage.src = currentUser.avatar;
+            }
+        });
+
+        /* Logout Action */
+        const logoutBtn = document.getElementById("logoutBtn");
+        if (logoutBtn) {
+            logoutBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                localStorage.removeItem("currentUser");
+                window.location.href = "index.html";
+            });
+        }
+
+
+        /* =================================
+           UI & NAVIGATION
+        ================================== */
 
         const sidebar =
             document.getElementById("sidebar");

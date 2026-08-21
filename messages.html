@@ -1,34 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <title>Messages - Intra World</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-    
+
+    <!-- Google Font -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <!-- Font Awesome -->
+    <link
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+        rel="stylesheet"
+    >
+
     <!-- Shared app-shell styles (topbar, sidebar, overlay, layout) -->
     <link rel="stylesheet" href="css/app-shell.css">
 
     <style>
-        /* Chat Container */
+
+        /* =========================
+           PAGE-SPECIFIC: MESSAGES
+        ========================= */
+
+        main.main {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
         .chat-container {
             flex: 1;
             display: flex;
             background: #061524;
+            overflow: hidden;
         }
 
         .user-list-pane {
             width: 320px;
             background: #081b2e;
-            border-right: 1px solid rgba(255,255,255,0.08);
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
             display: flex;
             flex-direction: column;
         }
 
         .pane-header {
             padding: 20px;
-            border-bottom: 1px solid rgba(255,255,255,0.08);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             font-size: 18px;
             font-weight: 600;
         }
@@ -43,12 +69,13 @@
             align-items: center;
             gap: 12px;
             padding: 15px 20px;
-            border-bottom: 1px solid rgba(255,255,255,0.04);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
             cursor: pointer;
-            transition: background 0.2s;
+            transition: background 0.2s ease;
         }
 
-        .user-item:hover, .user-item.active {
+        .user-item:hover,
+        .user-item.active {
             background: #102b45;
         }
 
@@ -61,7 +88,7 @@
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            color: #fff;
+            color: #ffffff;
             flex-shrink: 0;
         }
 
@@ -85,7 +112,7 @@
         .chat-header {
             padding: 18px 25px;
             background: #081b2e;
-            border-bottom: 1px solid rgba(255,255,255,0.08);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             display: flex;
             align-items: center;
             gap: 12px;
@@ -112,7 +139,7 @@
         .message.sent {
             align-self: flex-end;
             background: #0066ff;
-            color: #fff;
+            color: #ffffff;
             border-bottom-right-radius: 4px;
         }
 
@@ -126,7 +153,7 @@
         .chat-input-area {
             padding: 20px;
             background: #081b2e;
-            border-top: 1px solid rgba(255,255,255,0.08);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
             display: flex;
             gap: 12px;
         }
@@ -135,21 +162,21 @@
             flex: 1;
             padding: 14px 18px;
             background: #102b45;
-            border: 1px solid rgba(255,255,255,0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 12px;
-            color: white;
+            color: #ffffff;
             outline: none;
         }
 
         .chat-input-area button {
             padding: 0 25px;
             background: #0066ff;
-            color: white;
+            color: #ffffff;
             border: none;
             border-radius: 12px;
             cursor: pointer;
             font-weight: 500;
-            transition: 0.2s;
+            transition: background 0.2s ease;
         }
 
         .chat-input-area button:hover {
@@ -165,82 +192,284 @@
             font-size: 16px;
         }
 
+
+        /* =========================
+           RESPONSIVE (page-specific)
+        ========================= */
+
         @media (max-width: 768px) {
+
+            .sidebar {
+                width: 260px;
+            }
+
+            .logo img {
+                width: 55px;
+                height: 55px;
+            }
+
+            .logo h2 {
+                font-size: 16px;
+            }
+
             .user-list-pane {
                 width: 240px;
             }
+
         }
+
     </style>
+
 </head>
+
 <body>
 
-    <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
+
+    <!-- =================================
+         SIDEBAR / NAVIGATION
+    ================================== -->
+
+    <aside
+        class="sidebar"
+        id="sidebar"
+        role="navigation"
+        aria-label="Main navigation"
+    >
+
+
         <div class="sidebar-header">
-            <button class="close-btn" id="closeMenu" aria-label="Close navigation">
+
+            <!-- Close Button at Top Right Edge -->
+            <button
+                class="close-btn"
+                id="closeMenu"
+                aria-label="Close navigation"
+            >
                 <i class="fa-solid fa-xmark"></i>
             </button>
+
+            <!-- Centered Stacked Logo -->
             <div class="logo">
-                <img src="logo.png" alt="Intra World Logo">
+
+                <img
+                    src="logo.png"
+                    alt="Intra World Logo"
+                >
+
                 <h2>INTRA WORLD</h2>
+
             </div>
+
         </div>
+
+
+        <!-- Navigation - Scrollable -->
 
         <div class="menu-container">
+
             <nav class="menu">
-                <a href="dashboard.html"><i class="fa-solid fa-house"></i><span>Home</span></a>
-                <a href="connect.html"><i class="fa-solid fa-user-group"></i><span>Student Connect</span></a>
-                <a href="posts.html"><i class="fa-solid fa-newspaper"></i><span>Posts</span></a>
-                <a href="messages.html" class="active"><i class="fa-solid fa-comments"></i><span>Messages</span></a>
-                <a href="profile.html"><i class="fa-solid fa-user"></i><span>Profile</span></a>
-                <a href="settings.html"><i class="fa-solid fa-gear"></i><span>Settings</span></a>
+
+
+                <a href="dashboard.html">
+
+                    <i class="fa-solid fa-house"></i>
+
+                    <span>
+                        Home
+                    </span>
+
+                </a>
+
+
+                <a href="connect.html">
+
+                    <i class="fa-solid fa-user-group"></i>
+
+                    <span>
+                        Student Connect
+                    </span>
+
+                </a>
+
+
+                <a href="posts.html">
+
+                    <i class="fa-solid fa-newspaper"></i>
+
+                    <span>
+                        Posts
+                    </span>
+
+                </a>
+
+
+                <a
+                    class="active"
+                    href="messages.html"
+                >
+
+                    <i class="fa-solid fa-comments"></i>
+
+                    <span>
+                        Messages
+                    </span>
+
+                </a>
+
+
+                <a href="profile.html">
+
+                    <i class="fa-solid fa-user"></i>
+
+                    <span>
+                        Profile
+                    </span>
+
+                </a>
+
+
+                <a href="settings.html">
+
+                    <i class="fa-solid fa-gear"></i>
+
+                    <span>
+                        Settings
+                    </span>
+
+                </a>
+
+
             </nav>
+
         </div>
+
+
+        <!-- Logout -->
 
         <div class="bottom">
+
             <nav class="menu">
-                <a class="logout" href="index.html">
+
+                <a
+                    class="logout"
+                    id="logoutBtn"
+                    href="index.html"
+                >
+
                     <i class="fa-solid fa-right-from-bracket"></i>
-                    <span>Logout</span>
+
+                    <span>
+                        Logout
+                    </span>
+
                 </a>
+
             </nav>
+
         </div>
+
+
     </aside>
 
-    <!-- Overlay -->
-    <div class="overlay" id="overlay"></div>
 
-    <!-- Main Content -->
+    <!-- Overlay -->
+
+    <div
+        class="overlay"
+        id="overlay"
+    >
+    </div>
+
+
+    <!-- =================================
+         MAIN
+    ================================== -->
+
     <main class="main">
+
+
+        <!-- =================================
+             TOP BAR
+        ================================== -->
+
         <header class="topbar">
-            <button class="menu-btn" id="openMenu" aria-label="Open navigation">
+
+
+            <!-- Hamburger -->
+
+            <button
+                class="menu-btn"
+                id="openMenu"
+                aria-label="Open navigation"
+            >
+
                 <i class="fa-solid fa-bars"></i>
+
             </button>
 
+
+            <!-- Search -->
+
             <div class="search">
-                <input type="text" placeholder="Search Users, Messages...">
+
+                <input
+                    type="text"
+                    placeholder="Search Users, Messages..."
+                >
+
             </div>
+
+
+            <!-- User -->
 
             <div class="user">
-                <span id="welcomeName">Loading...</span>
-                <img id="profileImage" src="https://via.placeholder.com/45" alt="Profile">
+
+                <span id="welcomeName">
+                    Loading...
+                </span>
+
+                <img
+                    id="profileImage"
+                    src="https://via.placeholder.com/45"
+                    alt="Profile"
+                >
+
             </div>
+
+
         </header>
 
+
+        <!-- =================================
+             CHAT CONTAINER CONTENT
+        ================================== -->
+
         <div class="chat-container">
+
+            <!-- Registered Users Side Pane -->
             <div class="user-list-pane">
-                <div class="pane-header">Registered Users</div>
-                <div class="user-list" id="userList">
-                    <div style="padding: 20px; color: #7db7ff;">Loading registered profiles...</div>
+
+                <div class="pane-header">
+                    Registered Users
                 </div>
+
+                <div class="user-list" id="userList">
+                    <div style="padding: 20px; color: #7db7ff;">
+                        Loading registered profiles...
+                    </div>
+                </div>
+
             </div>
 
+            <!-- Active Conversation Area -->
             <div class="chat-pane" id="chatPane">
+
                 <div class="no-chat-selected" id="noChatPlaceholder">
                     Select a user profile from the left to start chatting
                 </div>
 
                 <div id="activeChatContent" style="display: none; height: 100%; flex-direction: column;">
+
                     <div class="chat-header">
                         <div class="user-avatar" id="activeUserAvatar">U</div>
                         <div>
@@ -253,44 +482,171 @@
 
                     <form class="chat-input-area" id="chatForm">
                         <input type="text" id="messageInput" placeholder="Type a message..." required autocomplete="off">
-                        <button type="submit"><i class="fa-solid fa-paper-plane"></i> Send</button>
+                        <button type="submit">
+                            <i class="fa-solid fa-paper-plane"></i> Send
+                        </button>
                     </form>
+
                 </div>
+
             </div>
+
         </div>
+
+
     </main>
+
+
+    <!-- =================================
+         JAVASCRIPT
+    ================================== -->
 
     <script type="module" src="firebase-config.js"></script>
     <script type="module" src="messages.js"></script>
+
     <script>
-        const sidebar = document.getElementById("sidebar");
-        const overlay = document.getElementById("overlay");
-        const openMenu = document.getElementById("openMenu");
-        const closeMenu = document.getElementById("closeMenu");
+
+        /* =================================
+           AUTHENTICATION & USER SESSION
+        ================================== */
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const currentUserRaw = localStorage.getItem("currentUser");
+
+            // Fallback default user if no active session is stored in localStorage
+            const currentUser = currentUserRaw ? JSON.parse(currentUserRaw) : {
+                fullName: "Student User",
+                email: "user@intraworld.com",
+                avatar: "https://via.placeholder.com/45"
+            };
+
+            // Populate User Topbar Info
+            const welcomeName = document.getElementById("welcomeName");
+            const profileImage = document.getElementById("profileImage");
+
+            if (welcomeName && currentUser.fullName) {
+                welcomeName.textContent = currentUser.fullName;
+            }
+
+            if (profileImage && currentUser.avatar) {
+                profileImage.src = currentUser.avatar;
+            }
+        });
+
+        /* Logout Action */
+        const logoutBtn = document.getElementById("logoutBtn");
+        if (logoutBtn) {
+            logoutBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                localStorage.removeItem("currentUser");
+                window.location.href = "index.html";
+            });
+        }
+
+
+        /* =================================
+           UI & NAVIGATION
+        ================================== */
+
+        const sidebar =
+            document.getElementById("sidebar");
+
+        const overlay =
+            document.getElementById("overlay");
+
+        const openMenu =
+            document.getElementById("openMenu");
+
+        const closeMenu =
+            document.getElementById("closeMenu");
+
+
+        /* Open Sidebar */
 
         function openSidebar() {
+
             sidebar.classList.add("open");
+
             overlay.classList.add("show");
+
             document.body.style.overflow = "hidden";
+
         }
+
+
+        /* Close Sidebar */
 
         function closeSidebar() {
+
             sidebar.classList.remove("open");
+
             overlay.classList.remove("show");
+
             document.body.style.overflow = "";
+
         }
 
-        openMenu.addEventListener("click", openSidebar);
-        closeMenu.addEventListener("click", closeSidebar);
-        overlay.addEventListener("click", closeSidebar);
 
-        document.querySelectorAll(".menu a").forEach(link => {
-            link.addEventListener("click", () => closeSidebar());
-        });
+        /* Hamburger */
 
-        document.addEventListener("keydown", event => {
-            if (event.key === "Escape") closeSidebar();
-        });
+        openMenu.addEventListener(
+            "click",
+            openSidebar
+        );
+
+
+        /* Close Button */
+
+        closeMenu.addEventListener(
+            "click",
+            closeSidebar
+        );
+
+
+        /* Click Outside */
+
+        overlay.addEventListener(
+            "click",
+            closeSidebar
+        );
+
+
+        /* Navigation Links */
+
+        document
+            .querySelectorAll(".menu a")
+            .forEach(link => {
+
+                link.addEventListener(
+                    "click",
+                    () => {
+
+                        closeSidebar();
+
+                    }
+                );
+
+            });
+
+
+        /* ESC Key */
+
+        document.addEventListener(
+            "keydown",
+            event => {
+
+                if (event.key === "Escape") {
+
+                    closeSidebar();
+
+                }
+
+            }
+        );
+
     </script>
+
+
 </body>
+
 </html>

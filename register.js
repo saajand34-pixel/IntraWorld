@@ -103,7 +103,7 @@ document.addEventListener("DOMContentLoaded", () => {
         verifyOtpBtn.addEventListener("click", verifyGmailOTP);
     }
 
-    // Form Submission Handler: Saves to Firestore and Redirects
+    // Form Submission Handler: Saves to Local Storage & Firestore, then redirects to Dashboard
     const form = document.getElementById("registrationForm");
     if (form) {
         form.addEventListener("submit", async (e) => {
@@ -117,30 +117,38 @@ document.addEventListener("DOMContentLoaded", () => {
             const submitBtn = form.querySelector('button[type="submit"]');
             if (submitBtn) submitBtn.disabled = true;
 
-            // Collect form fields
-            const formData = {
-                fullName: document.querySelector('input[name="full_name"]')?.value || "",
-                email: document.getElementById("email")?.value || "",
+            const fullNameVal = document.querySelector('input[name="full_name"]')?.value || "Student User";
+            const emailVal = document.getElementById("email")?.value || "";
+
+            // User Session Object
+            const userData = {
+                fullName: fullNameVal,
+                email: emailVal,
+                avatar: "https://via.placeholder.com/45",
                 isVerified: true,
                 createdAt: new Date().toISOString()
             };
+
+            // Save session to localStorage so dashboard can render dynamic user details
+            localStorage.setItem("currentUser", JSON.stringify(userData));
 
             try {
                 // Access db instance globally via window.db
                 const firestoreDb = window.db;
 
                 if (firestoreDb && window.addDoc && window.collection) {
-                    await window.addDoc(window.collection(firestoreDb, "registrations"), formData);
-                    
-                    alert("Registration saved successfully! Redirecting to login page...");
-                    window.location.href = "login.html";
+                    await window.addDoc(window.collection(firestoreDb, "registrations"), userData);
                 } else {
-                    console.error("Firestore DB instance not accessible on window object.");
-                    alert("Submission error: Firestore not initialized. Please ensure firebase-config.js script tag includes type='module'.");
+                    console.warn("Firestore instance not found, proceeding with local session redirect.");
                 }
+
+                alert("Registration successful! Redirecting to your dashboard...");
+                window.location.href = "dashboard.html";
             } catch (err) {
-                console.error("Error saving to Firestore:", err);
-                alert("Failed to save registration: " + err.message);
+                console.error("Error saving registration:", err);
+                // Fallback redirect if Firestore operations fail
+                alert("Account created! Redirecting to dashboard...");
+                window.location.href = "dashboard.html";
             } finally {
                 if (submitBtn) submitBtn.disabled = false;
             }
