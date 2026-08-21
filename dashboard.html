@@ -313,7 +313,7 @@
                 <a
                     class="logout"
                     id="logoutBtn"
-                    href="index.html"
+                    href="login.html"
                 >
 
                     <i class="fa-solid fa-right-from-bracket"></i>
@@ -519,18 +519,21 @@
     <script>
 
         /* =================================
-           AUTHENTICATION & USER SESSION
+           AUTHENTICATION & USER SESSION CHECK
         ================================== */
 
         document.addEventListener("DOMContentLoaded", () => {
+            // Verify session existence in localStorage
             const currentUserRaw = localStorage.getItem("currentUser");
-            const defaultAvatar = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2338bdf8'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-3.8-.85-5.05-2.2.03-1.68 3.37-2.6 5.05-2.6s5.02.92 5.05 2.6C15.8 19.15 14.03 20 12 20z'/></svg>";
 
-            const currentUser = currentUserRaw ? JSON.parse(currentUserRaw) : {
-                fullName: "Student User",
-                email: "user@intraworld.com",
-                avatar: defaultAvatar
-            };
+            if (!currentUserRaw) {
+                // If user session does not exist, redirect to login page
+                window.location.href = "login.html";
+                return;
+            }
+
+            const currentUser = JSON.parse(currentUserRaw);
+            const defaultAvatar = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2338bdf8'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-3.8-.85-5.05-2.2.03-1.68 3.37-2.6 5.05-2.6s5.02.92 5.05 2.6C15.8 19.15 14.03 20 12 20z'/></svg>";
 
             // Populate User Topbar & Banner
             const welcomeName = document.getElementById("welcomeName");
@@ -555,7 +558,7 @@
                 };
             }
 
-            // Click Handler for Profile Redirect
+            // Click Handler for Top Right Profile Redirect
             const userProfileNav = document.getElementById("topbarUserProfile");
             if (userProfileNav) {
                 userProfileNav.addEventListener("click", () => {
@@ -564,13 +567,13 @@
             }
         });
 
-        /* Logout Action */
+        /* Logout Action: Removes user session only when Logout button is explicitly clicked */
         const logoutBtn = document.getElementById("logoutBtn");
         if (logoutBtn) {
             logoutBtn.addEventListener("click", (e) => {
                 e.preventDefault();
                 localStorage.removeItem("currentUser");
-                window.location.href = "index.html";
+                window.location.href = "login.html";
             });
         }
 
@@ -620,32 +623,38 @@
 
         /* Hamburger */
 
-        openMenu.addEventListener(
-            "click",
-            openSidebar
-        );
+        if (openMenu) {
+            openMenu.addEventListener(
+                "click",
+                openSidebar
+            );
+        }
 
 
         /* Close Button */
 
-        closeMenu.addEventListener(
-            "click",
-            closeSidebar
-        );
+        if (closeMenu) {
+            closeMenu.addEventListener(
+                "click",
+                closeSidebar
+            );
+        }
 
 
         /* Click Outside */
 
-        overlay.addEventListener(
-            "click",
-            closeSidebar
-        );
+        if (overlay) {
+            overlay.addEventListener(
+                "click",
+                closeSidebar
+            );
+        }
 
 
-        /* Navigation Links */
+        /* Navigation Links: Close sidebar without interfering with hyperlink redirects */
 
         document
-            .querySelectorAll(".menu a")
+            .querySelectorAll(".menu a:not(#logoutBtn)")
             .forEach(link => {
 
                 link.addEventListener(
