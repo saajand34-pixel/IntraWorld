@@ -1,7 +1,14 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // Read session from localStorage
+    // Read session from localStorage - this is our source of truth
     const storedUser = localStorage.getItem("currentUser");
-    const user = storedUser ? JSON.parse(storedUser) : null;
+    
+    // If no localStorage user, redirect to login
+    if (!storedUser) {
+        window.location.href = "login.html";
+        return;
+    }
+
+    const user = JSON.parse(storedUser);
 
     // Default SVG fallback avatar
     const defaultAvatar = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2338bdf8'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-3.8-.85-5.05-2.2.03-1.68 3.37-2.6 5.05-2.6s5.02.92 5.05 2.6C15.8 19.15 14.03 20 12 20z'/></svg>";
@@ -22,9 +29,14 @@ document.addEventListener("DOMContentLoaded", () => {
             welcomeHeader.textContent = `WELCOME, ${(user.fullName || "STUDENT").toUpperCase()}`;
         }
 
-        // Render uploaded Base64 profile photo
+        // Render uploaded Base64 profile photo or default
         if (navUserAvatar) {
-            navUserAvatar.src = user.avatar || defaultAvatar;
+            if (user.avatar && !user.avatar.includes("via.placeholder.com")) {
+                navUserAvatar.src = user.avatar;
+            } else {
+                navUserAvatar.src = defaultAvatar;
+            }
+            
             navUserAvatar.onerror = () => {
                 navUserAvatar.src = defaultAvatar;
             };
