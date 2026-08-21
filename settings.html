@@ -2,34 +2,21 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
     <title>Account Settings - Intra World</title>
 
-    <!-- Google Font -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet"
-    >
+    <!-- Google Font & Font Awesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
 
-    <!-- Font Awesome -->
-    <link
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-        rel="stylesheet"
-    >
+    <!-- Unified Authentication Session Guard -->
+    <script type="module" src="auth-check.js"></script>
 
     <!-- Shared app-shell styles (topbar, sidebar, overlay, layout) -->
     <link rel="stylesheet" href="css/app-shell.css">
 
     <style>
-
-        /* =========================
-           PAGE-SPECIFIC: SETTINGS
-        ========================= */
-
         .content {
             overflow-y: auto;
             max-width: 1000px;
@@ -51,7 +38,6 @@
             color: #8fa8bf;
         }
 
-        /* Settings Card Grid */
         .settings-section {
             background: linear-gradient(
                 135deg,
@@ -123,7 +109,6 @@
             cursor: not-allowed;
         }
 
-        /* Toggle Option Row */
         .toggle-row {
             display: flex;
             align-items: center;
@@ -147,7 +132,6 @@
             color: #8fa8bf;
         }
 
-        /* Switch Toggle */
         .switch {
             position: relative;
             display: inline-block;
@@ -192,7 +176,6 @@
             transform: translateX(22px);
         }
 
-        /* Buttons */
         .btn-container {
             display: flex;
             justify-content: flex-end;
@@ -218,7 +201,6 @@
             box-shadow: 0 6px 20px rgba(0, 102, 255, 0.35);
         }
 
-        /* RESPONSIVE */
         @media (max-width: 768px) {
             .sidebar {
                 width: 260px;
@@ -237,83 +219,33 @@
                 font-size: 22px;
             }
         }
-
     </style>
-
 </head>
 
 <body>
-
-
-    <!-- =================================
-         SIDEBAR / NAVIGATION
-    ================================== -->
-
-    <aside
-        class="sidebar"
-        id="sidebar"
-        role="navigation"
-        aria-label="Main navigation"
-    >
-
+    <!-- SIDEBAR / NAVIGATION -->
+    <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
         <div class="sidebar-header">
-
-            <button
-                class="close-btn"
-                id="closeMenu"
-                aria-label="Close navigation"
-            >
+            <button class="close-btn" id="closeMenu" aria-label="Close navigation">
                 <i class="fa-solid fa-xmark"></i>
             </button>
-
             <div class="logo">
                 <img src="logo.png" alt="Intra World Logo">
                 <h2>INTRA WORLD</h2>
             </div>
-
         </div>
 
-        <!-- Navigation Container -->
         <div class="menu-container">
-
             <nav class="menu">
-
-                <a href="dashboard.html">
-                    <i class="fa-solid fa-house"></i>
-                    <span>Home</span>
-                </a>
-
-                <a href="connect.html">
-                    <i class="fa-solid fa-user-group"></i>
-                    <span>Student Connect</span>
-                </a>
-
-                <a href="posts.html">
-                    <i class="fa-solid fa-newspaper"></i>
-                    <span>Posts</span>
-                </a>
-
-                <a href="messages.html">
-                    <i class="fa-solid fa-comments"></i>
-                    <span>Messages</span>
-                </a>
-
-                <a href="profile.html">
-                    <i class="fa-solid fa-user"></i>
-                    <span>Profile</span>
-                </a>
-
-                <!-- Active Link -->
-                <a class="active" href="settings.html">
-                    <i class="fa-solid fa-gear"></i>
-                    <span>Settings</span>
-                </a>
-
+                <a href="dashboard.html"><i class="fa-solid fa-house"></i><span>Home</span></a>
+                <a href="connect.html"><i class="fa-solid fa-user-group"></i><span>Student Connect</span></a>
+                <a href="posts.html"><i class="fa-solid fa-newspaper"></i><span>Posts</span></a>
+                <a href="messages.html"><i class="fa-solid fa-comments"></i><span>Messages</span></a>
+                <a href="profile.html"><i class="fa-solid fa-user"></i><span>Profile</span></a>
+                <a class="active" href="settings.html"><i class="fa-solid fa-gear"></i><span>Settings</span></a>
             </nav>
-
         </div>
 
-        <!-- Logout -->
         <div class="bottom">
             <nav class="menu">
                 <a class="logout" id="logoutBtn" href="index.html">
@@ -322,22 +254,13 @@
                 </a>
             </nav>
         </div>
-
     </aside>
 
-    <!-- Overlay -->
     <div class="overlay" id="overlay"></div>
 
-
-    <!-- =================================
-         MAIN CONTENT
-    ================================== -->
-
+    <!-- MAIN CONTENT -->
     <main class="main">
-
-        <!-- Topbar -->
         <header class="topbar">
-
             <button class="menu-btn" id="openMenu" aria-label="Open navigation">
                 <i class="fa-solid fa-bars"></i>
             </button>
@@ -350,20 +273,15 @@
                 <span id="welcomeName">Loading...</span>
                 <img id="profileImage" src="https://via.placeholder.com/45" alt="Profile">
             </div>
-
         </header>
 
-        <!-- Settings Page Body -->
         <section class="content">
-
             <div class="settings-header">
                 <h1>ACCOUNT SETTINGS</h1>
                 <p>Manage your account parameters, security controls, and system preferences.</p>
             </div>
 
             <form id="settingsForm">
-
-                <!-- Profile & Account Info -->
                 <div class="settings-section">
                     <div class="section-title">
                         <i class="fa-solid fa-user-gear"></i> Account Details
@@ -389,7 +307,6 @@
                     </div>
                 </div>
 
-                <!-- Notifications & Privacy Controls -->
                 <div class="settings-section">
                     <div class="section-title">
                         <i class="fa-solid fa-shield-halved"></i> Privacy & Notifications
@@ -429,64 +346,35 @@
                     </div>
                 </div>
 
-                <!-- Action Button -->
                 <div class="btn-container">
                     <button type="submit" class="btn-save">
                         <i class="fa-solid fa-floppy-disk"></i> Save Preferences
                     </button>
                 </div>
-
             </form>
-
         </section>
-
     </main>
 
-
-    <!-- =================================
-         JAVASCRIPT
-    ================================== -->
-
     <script>
-
-        /* =================================
-           AUTHENTICATION & USER SESSION
-        ================================== */
-
         document.addEventListener("DOMContentLoaded", () => {
             const currentUserRaw = localStorage.getItem("currentUser");
-
-            // Fallback default user if no active session is stored in localStorage
             const currentUser = currentUserRaw ? JSON.parse(currentUserRaw) : {
                 fullName: "Student User",
                 email: "user@intraworld.com",
                 avatar: "https://via.placeholder.com/45"
             };
 
-            // Update UI elements with session data
             const welcomeName = document.getElementById("welcomeName");
             const profileImage = document.getElementById("profileImage");
             const settingsFullName = document.getElementById("settingsFullName");
             const settingsEmail = document.getElementById("settingsEmail");
 
-            if (welcomeName && currentUser.fullName) {
-                welcomeName.textContent = currentUser.fullName;
-            }
-
-            if (profileImage && currentUser.avatar) {
-                profileImage.src = currentUser.avatar;
-            }
-
-            if (settingsFullName && currentUser.fullName) {
-                settingsFullName.value = currentUser.fullName;
-            }
-
-            if (settingsEmail && currentUser.email) {
-                settingsEmail.value = currentUser.email;
-            }
+            if (welcomeName && currentUser.fullName) welcomeName.textContent = currentUser.fullName;
+            if (profileImage && currentUser.avatar) profileImage.src = currentUser.avatar;
+            if (settingsFullName && currentUser.fullName) settingsFullName.value = currentUser.fullName;
+            if (settingsEmail && currentUser.email) settingsEmail.value = currentUser.email;
         });
 
-        /* Handle Form Submission & Session Storage Sync */
         const settingsForm = document.getElementById("settingsForm");
         if (settingsForm) {
             settingsForm.addEventListener("submit", (e) => {
@@ -500,18 +388,13 @@
                 };
 
                 currentUser.fullName = document.getElementById("settingsFullName").value.trim();
-                
-                // Persist updated settings to localStorage
                 localStorage.setItem("currentUser", JSON.stringify(currentUser));
 
-                // Reflect updated name instantly on topbar
                 document.getElementById("welcomeName").textContent = currentUser.fullName;
-
                 alert("Settings updated successfully!");
             });
         }
 
-        /* Logout Action */
         const logoutBtn = document.getElementById("logoutBtn");
         if (logoutBtn) {
             logoutBtn.addEventListener("click", (e) => {
@@ -520,11 +403,6 @@
                 window.location.href = "index.html";
             });
         }
-
-
-        /* =================================
-           UI & NAVIGATION DRAWER
-        ================================== */
 
         const sidebar = document.getElementById("sidebar");
         const overlay = document.getElementById("overlay");
@@ -554,9 +432,6 @@
         document.addEventListener("keydown", (event) => {
             if (event.key === "Escape") closeSidebar();
         });
-
     </script>
-
 </body>
-
 </html>

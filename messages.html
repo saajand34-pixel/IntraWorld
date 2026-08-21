@@ -2,34 +2,21 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
     <title>Messages - Intra World</title>
 
-    <!-- Google Font -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet"
-    >
+    <!-- Google Font & Font Awesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
 
-    <!-- Font Awesome -->
-    <link
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-        rel="stylesheet"
-    >
+    <!-- Unified Authentication Session Guard -->
+    <script type="module" src="auth-check.js"></script>
 
     <!-- Shared app-shell styles (topbar, sidebar, overlay, layout) -->
     <link rel="stylesheet" href="css/app-shell.css">
 
     <style>
-
-        /* =========================
-           PAGE-SPECIFIC: MESSAGES
-        ========================= */
-
         main.main {
             display: flex;
             flex-direction: column;
@@ -192,13 +179,7 @@
             font-size: 16px;
         }
 
-
-        /* =========================
-           RESPONSIVE (page-specific)
-        ========================= */
-
         @media (max-width: 768px) {
-
             .sidebar {
                 width: 260px;
             }
@@ -215,261 +196,77 @@
             .user-list-pane {
                 width: 240px;
             }
-
         }
-
     </style>
-
 </head>
 
 <body>
-
-
-    <!-- =================================
-         SIDEBAR / NAVIGATION
-    ================================== -->
-
-    <aside
-        class="sidebar"
-        id="sidebar"
-        role="navigation"
-        aria-label="Main navigation"
-    >
-
-
+    <!-- SIDEBAR / NAVIGATION -->
+    <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
         <div class="sidebar-header">
-
-            <!-- Close Button at Top Right Edge -->
-            <button
-                class="close-btn"
-                id="closeMenu"
-                aria-label="Close navigation"
-            >
+            <button class="close-btn" id="closeMenu" aria-label="Close navigation">
                 <i class="fa-solid fa-xmark"></i>
             </button>
-
-            <!-- Centered Stacked Logo -->
             <div class="logo">
-
-                <img
-                    src="logo.png"
-                    alt="Intra World Logo"
-                >
-
+                <img src="logo.png" alt="Intra World Logo">
                 <h2>INTRA WORLD</h2>
-
             </div>
-
         </div>
-
-
-        <!-- Navigation - Scrollable -->
 
         <div class="menu-container">
-
             <nav class="menu">
-
-
-                <a href="dashboard.html">
-
-                    <i class="fa-solid fa-house"></i>
-
-                    <span>
-                        Home
-                    </span>
-
-                </a>
-
-
-                <a href="connect.html">
-
-                    <i class="fa-solid fa-user-group"></i>
-
-                    <span>
-                        Student Connect
-                    </span>
-
-                </a>
-
-
-                <a href="posts.html">
-
-                    <i class="fa-solid fa-newspaper"></i>
-
-                    <span>
-                        Posts
-                    </span>
-
-                </a>
-
-
-                <a
-                    class="active"
-                    href="messages.html"
-                >
-
-                    <i class="fa-solid fa-comments"></i>
-
-                    <span>
-                        Messages
-                    </span>
-
-                </a>
-
-
-                <a href="profile.html">
-
-                    <i class="fa-solid fa-user"></i>
-
-                    <span>
-                        Profile
-                    </span>
-
-                </a>
-
-
-                <a href="settings.html">
-
-                    <i class="fa-solid fa-gear"></i>
-
-                    <span>
-                        Settings
-                    </span>
-
-                </a>
-
-
+                <a href="dashboard.html"><i class="fa-solid fa-house"></i><span>Home</span></a>
+                <a href="connect.html"><i class="fa-solid fa-user-group"></i><span>Student Connect</span></a>
+                <a href="posts.html"><i class="fa-solid fa-newspaper"></i><span>Posts</span></a>
+                <a class="active" href="messages.html"><i class="fa-solid fa-comments"></i><span>Messages</span></a>
+                <a href="profile.html"><i class="fa-solid fa-user"></i><span>Profile</span></a>
+                <a href="settings.html"><i class="fa-solid fa-gear"></i><span>Settings</span></a>
             </nav>
-
         </div>
-
-
-        <!-- Logout -->
 
         <div class="bottom">
-
             <nav class="menu">
-
-                <a
-                    class="logout"
-                    id="logoutBtn"
-                    href="index.html"
-                >
-
+                <a class="logout" id="logoutBtn" href="index.html">
                     <i class="fa-solid fa-right-from-bracket"></i>
-
-                    <span>
-                        Logout
-                    </span>
-
+                    <span>Logout</span>
                 </a>
-
             </nav>
-
         </div>
-
-
     </aside>
 
+    <div class="overlay" id="overlay"></div>
 
-    <!-- Overlay -->
-
-    <div
-        class="overlay"
-        id="overlay"
-    >
-    </div>
-
-
-    <!-- =================================
-         MAIN
-    ================================== -->
-
+    <!-- MAIN -->
     <main class="main">
-
-
-        <!-- =================================
-             TOP BAR
-        ================================== -->
-
         <header class="topbar">
-
-
-            <!-- Hamburger -->
-
-            <button
-                class="menu-btn"
-                id="openMenu"
-                aria-label="Open navigation"
-            >
-
+            <button class="menu-btn" id="openMenu" aria-label="Open navigation">
                 <i class="fa-solid fa-bars"></i>
-
             </button>
 
-
-            <!-- Search -->
-
             <div class="search">
-
-                <input
-                    type="text"
-                    placeholder="Search Users, Messages..."
-                >
-
+                <input type="text" placeholder="Search Users, Messages...">
             </div>
-
-
-            <!-- User -->
 
             <div class="user">
-
-                <span id="welcomeName">
-                    Loading...
-                </span>
-
-                <img
-                    id="profileImage"
-                    src="https://via.placeholder.com/45"
-                    alt="Profile"
-                >
-
+                <span id="welcomeName">Loading...</span>
+                <img id="profileImage" src="https://via.placeholder.com/45" alt="Profile">
             </div>
-
-
         </header>
 
-
-        <!-- =================================
-             CHAT CONTAINER CONTENT
-        ================================== -->
-
         <div class="chat-container">
-
-            <!-- Registered Users Side Pane -->
             <div class="user-list-pane">
-
-                <div class="pane-header">
-                    Registered Users
-                </div>
-
+                <div class="pane-header">Registered Users</div>
                 <div class="user-list" id="userList">
-                    <div style="padding: 20px; color: #7db7ff;">
-                        Loading registered profiles...
-                    </div>
+                    <div style="padding: 20px; color: #7db7ff;">Loading registered profiles...</div>
                 </div>
-
             </div>
 
-            <!-- Active Conversation Area -->
             <div class="chat-pane" id="chatPane">
-
                 <div class="no-chat-selected" id="noChatPlaceholder">
                     Select a user profile from the left to start chatting
                 </div>
 
                 <div id="activeChatContent" style="display: none; height: 100%; flex-direction: column;">
-
                     <div class="chat-header">
                         <div class="user-avatar" id="activeUserAvatar">U</div>
                         <div>
@@ -482,58 +279,32 @@
 
                     <form class="chat-input-area" id="chatForm">
                         <input type="text" id="messageInput" placeholder="Type a message..." required autocomplete="off">
-                        <button type="submit">
-                            <i class="fa-solid fa-paper-plane"></i> Send
-                        </button>
+                        <button type="submit"><i class="fa-solid fa-paper-plane"></i> Send</button>
                     </form>
-
                 </div>
-
             </div>
-
         </div>
-
-
     </main>
-
-
-    <!-- =================================
-         JAVASCRIPT
-    ================================== -->
 
     <script type="module" src="firebase-config.js"></script>
     <script type="module" src="messages.js"></script>
 
     <script>
-
-        /* =================================
-           AUTHENTICATION & USER SESSION
-        ================================== */
-
         document.addEventListener("DOMContentLoaded", () => {
             const currentUserRaw = localStorage.getItem("currentUser");
-
-            // Fallback default user if no active session is stored in localStorage
             const currentUser = currentUserRaw ? JSON.parse(currentUserRaw) : {
                 fullName: "Student User",
                 email: "user@intraworld.com",
                 avatar: "https://via.placeholder.com/45"
             };
 
-            // Populate User Topbar Info
             const welcomeName = document.getElementById("welcomeName");
             const profileImage = document.getElementById("profileImage");
 
-            if (welcomeName && currentUser.fullName) {
-                welcomeName.textContent = currentUser.fullName;
-            }
-
-            if (profileImage && currentUser.avatar) {
-                profileImage.src = currentUser.avatar;
-            }
+            if (welcomeName && currentUser.fullName) welcomeName.textContent = currentUser.fullName;
+            if (profileImage && currentUser.avatar) profileImage.src = currentUser.avatar;
         });
 
-        /* Logout Action */
         const logoutBtn = document.getElementById("logoutBtn");
         if (logoutBtn) {
             logoutBtn.addEventListener("click", (e) => {
@@ -543,110 +314,34 @@
             });
         }
 
-
-        /* =================================
-           UI & NAVIGATION
-        ================================== */
-
-        const sidebar =
-            document.getElementById("sidebar");
-
-        const overlay =
-            document.getElementById("overlay");
-
-        const openMenu =
-            document.getElementById("openMenu");
-
-        const closeMenu =
-            document.getElementById("closeMenu");
-
-
-        /* Open Sidebar */
+        const sidebar = document.getElementById("sidebar");
+        const overlay = document.getElementById("overlay");
+        const openMenu = document.getElementById("openMenu");
+        const closeMenu = document.getElementById("closeMenu");
 
         function openSidebar() {
-
             sidebar.classList.add("open");
-
             overlay.classList.add("show");
-
             document.body.style.overflow = "hidden";
-
         }
-
-
-        /* Close Sidebar */
 
         function closeSidebar() {
-
             sidebar.classList.remove("open");
-
             overlay.classList.remove("show");
-
             document.body.style.overflow = "";
-
         }
 
+        openMenu.addEventListener("click", openSidebar);
+        closeMenu.addEventListener("click", closeSidebar);
+        overlay.addEventListener("click", closeSidebar);
 
-        /* Hamburger */
+        document.querySelectorAll(".menu a").forEach(link => {
+            link.addEventListener("click", () => closeSidebar());
+        });
 
-        openMenu.addEventListener(
-            "click",
-            openSidebar
-        );
-
-
-        /* Close Button */
-
-        closeMenu.addEventListener(
-            "click",
-            closeSidebar
-        );
-
-
-        /* Click Outside */
-
-        overlay.addEventListener(
-            "click",
-            closeSidebar
-        );
-
-
-        /* Navigation Links */
-
-        document
-            .querySelectorAll(".menu a")
-            .forEach(link => {
-
-                link.addEventListener(
-                    "click",
-                    () => {
-
-                        closeSidebar();
-
-                    }
-                );
-
-            });
-
-
-        /* ESC Key */
-
-        document.addEventListener(
-            "keydown",
-            event => {
-
-                if (event.key === "Escape") {
-
-                    closeSidebar();
-
-                }
-
-            }
-        );
-
+        document.addEventListener("keydown", event => {
+            if (event.key === "Escape") closeSidebar();
+        });
     </script>
-
-
 </body>
-
 </html>
