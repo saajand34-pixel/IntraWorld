@@ -7,45 +7,50 @@ import {
 
 
 // =====================================================
-// WEB3FORMS CONFIGURATION
+// CONFIGURATION
 // =====================================================
 
-const WEB3FORMS_KEY =
+const WEB3FORMS_ACCESS_KEY =
     "bb00ad90-e756-4918-b4b5-caf2bab0b818";
 
+const WEB3FORMS_URL =
+    "https://api.web3forms.com/submit";
+
+const OTP_LENGTH = 6;
+
+const OTP_VALIDITY_MS =
+    5 * 60 * 1000;
+
 
 // =====================================================
-// OTP VARIABLES
+// OTP STATE
 // =====================================================
 
-let generatedOTP = null;
+let generatedOTP = "";
 
-let otpExpiryTime = null;
+let otpCreatedAt = 0;
 
-let isGmailOtpVerified = false;
-
-let countdownInterval = null;
-
-
-// OTP valid for 5 minutes
-const OTP_VALIDITY_TIME = 5 * 60 * 1000;
+let otpVerified = false;
 
 
 // =====================================================
 // ELEMENTS
 // =====================================================
 
+const form =
+    document.getElementById("registrationForm");
+
 const emailInput =
     document.getElementById("email");
 
-const sendOtpBtn =
+const sendOtpButton =
     document.getElementById("send-otp-btn");
-
-const verifyOtpBtn =
-    document.getElementById("verify-otp-btn");
 
 const otpInput =
     document.getElementById("otp-code");
+
+const verifyOtpButton =
+    document.getElementById("verify-otp-btn");
 
 const otpStatus =
     document.getElementById("otp-status");
@@ -58,21 +63,30 @@ const otpCountdown =
 
 
 // =====================================================
-// SHOW OTP STATUS
+// STATUS MESSAGE
 // =====================================================
 
-function showOtpStatus(message, color) {
+function setOtpStatus(message, type = "info") {
 
     if (!otpStatus) {
         return;
     }
 
+    otpStatus.textContent = message;
+
     otpStatus.style.display = "block";
 
-    otpStatus.style.color = color;
+    if (type === "success") {
+        otpStatus.style.color = "#22c55e";
+    }
 
-    otpStatus.innerText = message;
+    else if (type === "error") {
+        otpStatus.style.color = "#ef4444";
+    }
 
+    else {
+        otpStatus.style.color = "#38bdf8";
+    }
 }
 
 
@@ -82,312 +96,387 @@ function showOtpStatus(message, color) {
 
 function generateOTP() {
 
-    return Math.floor(
-        100000 + Math.random() * 900000
-    ).toString();
+    const minimum =
+        10 ** (OTP_LENGTH - 1);
 
+    const maximum =
+        (10 ** OTP_LENGTH) - 1;
+
+    return String(
+        Math.floor(
+            minimum +
+            Math.random() *
+            (maximum - minimum + 1)
+        )
+    );
 }
 
 
 // =====================================================
-// START OTP TIMER
+// TIMER
 // =====================================================
+
+let timerInterval = null;
 
 function startOtpTimer() {
 
-    clearInterval(countdownInterval);
+    clearInterval(timerInterval);
 
-    otpExpiryTime =
-        Date.now() + OTP_VALIDITY_TIME;
-
+    const expiresAt =
+        otpCreatedAt +
+        OTP_VALIDITY_MS;
 
     if (otpTimer) {
-
         otpTimer.style.display = "block";
-
     }
 
+    function updateTimer() {
 
-    countdownInterval =
-        setInterval(() => {
+        const remaining =
+            expiresAt - Date.now();
 
-            const remaining =
-                otpExpiryTime - Date.now();
+        if (remaining <= 0) {
 
+            clearInterval(timerInterval);
 
-            if (remaining <= 0) {
-
-                clearInterval(
-                    countdownInterval
-                );
-
-                generatedOTP = null;
-
-                if (otpCountdown) {
-
-                    otpCountdown.innerText =
-                        "00:00";
-
-                }
-
-                showOtpStatus(
-                    "OTP expired. Please request a new OTP.",
-                    "#ef4444"
-                );
-
-                if (verifyOtpBtn) {
-
-                    verifyOtpBtn.disabled =
-                        true;
-
-                }
-
-                return;
-
-            }
-
-
-            const minutes =
-                Math.floor(
-                    remaining / 60000
-                );
-
-
-            const seconds =
-                Math.floor(
-                    (remaining % 60000) / 1000
-                );
-
+            generatedOTP = "";
 
             if (otpCountdown) {
-
-                otpCountdown.innerText =
-                    `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
-
+                otpCountdown.textContent =
+                    "00:00";
             }
 
-        }, 1000);
+            if (verifyOtpButton) {
+                verifyOtpButton.disabled =
+                    true;
+            }
 
+            setOtpStatus(
+                "OTP expired. Please request a new OTP.",
+                "error"
+            );
+
+            return;
+        }
+
+        const minutes =
+            Math.floor(
+                remaining / 60000
+            );
+
+        const seconds =
+            Math.floor(
+                (remaining % 60000) / 1000
+            );
+
+        if (otpCountdown) {
+
+            otpCountdown.textContent =
+                String(minutes).padStart(2, "0") +
+                ":" +
+                String(seconds).padStart(2, "0");
+
+        }
+    }
+
+    updateTimer();
+
+    timerInterval =
+        setInterval(
+            updateTimer,
+            1000
+        );
 }
 
 
 // =====================================================
-// SEND OTP USING WEB3FORMS
+// EMAIL VALIDATION
 // =====================================================
 
-async function sendGmailOTP() {
+function isValidGmail(email) {
 
-    const userEmail =
-        emailInput
-            ? emailInput.value.trim().toLowerCase()
-            : "";
+    return /^[a-zA-Z0-9._%+-]+@gmail\.com$/i
+        .test(email);
+}
 
+
+// =====================================================
+// SEND OTP REQUEST
+// =====================================================
+
+async function sendOTP() {
+
+    if (!emailInput) {
+        alert(
+            "Email field was not found."
+        );
+        return;
+    }
+
+    const email =
+        emailInput.value
+            .trim()
+            .toLowerCase();
+
+
+    if (!email) {
+
+        alert(
+            "Please enter your Gmail address."
+        );
+
+        emailInput.focus();
+
+        return;
+    }
+
+
+    if (!isValidGmail(email)) {
+
+        alert(
+            "Please enter a valid Gmail address."
+        );
+
+        emailInput.focus();
+
+        return;
+    }
+
+
+    // -------------------------------------------------
+    // GENERATE OTP
+    // -------------------------------------------------
+
+    generatedOTP =
+        generateOTP();
+
+    otpCreatedAt =
+        Date.now();
+
+    otpVerified =
+        false;
+
+
+    // -------------------------------------------------
+    // GET NAME
+    // -------------------------------------------------
 
     const nameInput =
         document.querySelector(
             'input[name="full_name"]'
         );
 
-
-    const userName =
-        nameInput
-            ? nameInput.value.trim()
-            : "Student User";
+    const name =
+        nameInput?.value.trim() ||
+        "IntraWorld Student";
 
 
-    // Check Gmail
-    if (!userEmail) {
+    // -------------------------------------------------
+    // BUTTON
+    // -------------------------------------------------
 
-        alert(
-            "Please enter your Gmail address in Basic Details first."
-        );
+    if (sendOtpButton) {
 
-        return;
+        sendOtpButton.disabled = true;
 
+        sendOtpButton.textContent =
+            "Sending...";
     }
 
 
-    if (!userEmail.endsWith("@gmail.com")) {
-
-        alert(
-            "Please enter a valid Gmail address."
-        );
-
-        return;
-
-    }
-
-
-    // Generate OTP
-    generatedOTP =
-        generateOTP();
-
-
-    isGmailOtpVerified = false;
-
-
-    // Disable buttons
-    if (sendOtpBtn) {
-
-        sendOtpBtn.disabled = true;
-
-        sendOtpBtn.innerHTML =
-            '<i class="fa-solid fa-spinner fa-spin"></i> Sending...';
-
-    }
-
-
-    if (verifyOtpBtn) {
-
-        verifyOtpBtn.disabled = true;
-
-    }
-
-
-    showOtpStatus(
+    setOtpStatus(
         "Sending OTP request...",
-        "#38bdf8"
+        "info"
     );
 
 
     try {
 
-        // Web3Forms payload
+        // -------------------------------------------------
+        // WEB3FORMS PAYLOAD
+        // -------------------------------------------------
+
         const payload = {
 
             access_key:
-                WEB3FORMS_KEY,
-
-            name:
-                userName,
-
-            email:
-                userEmail,
+                WEB3FORMS_ACCESS_KEY,
 
             subject:
-                "IntraWorld Gmail OTP Verification",
+                "IntraWorld - OTP Verification Request",
+
+            from_name:
+                "IntraWorld",
+
+            name:
+                name,
+
+            email:
+                email,
 
             message:
-                `IntraWorld Gmail Verification
+`IntraWorld OTP Verification Request
 
-Student Name:
-${userName}
+Student:
+${name}
 
-Gmail Address:
-${userEmail}
+Gmail:
+${email}
 
-OTP Verification Code:
+OTP:
 ${generatedOTP}
 
-This OTP is valid for 5 minutes.
+OTP validity:
+5 minutes
 
-Please use this code to complete your IntraWorld registration.`
+IMPORTANT:
+This OTP is included in the Web3Forms submission.
+Web3Forms sends the submission to the email configured
+for the Access Key. The student's email is used as the
+reply-to address.`
 
         };
 
 
+        console.log(
+            "Sending Web3Forms request..."
+        );
+
+
+        // -------------------------------------------------
+        // SEND REQUEST
+        // -------------------------------------------------
+
         const response =
             await fetch(
-                "https://api.web3forms.com/submit",
+                WEB3FORMS_URL,
                 {
-
                     method: "POST",
 
                     headers: {
-
                         "Content-Type":
                             "application/json",
 
                         "Accept":
                             "application/json"
-
                     },
 
                     body:
-                        JSON.stringify(payload)
-
+                        JSON.stringify(
+                            payload
+                        )
                 }
             );
 
 
-        const data =
+        // -------------------------------------------------
+        // READ RESPONSE
+        // -------------------------------------------------
+
+        const result =
             await response.json();
 
 
-        // Check response
-        if (!response.ok || !data.success) {
+        console.log(
+            "Web3Forms HTTP status:",
+            response.status
+        );
 
-            throw new Error(
-                data.message ||
-                "Web3Forms failed to submit the OTP request."
-            );
-
-        }
-
-
-        // OTP successfully submitted
-        startOtpTimer();
-
-
-        showOtpStatus(
-            "OTP request sent successfully. Check the email configured for your Web3Forms access key.",
-            "#4ade80"
+        console.log(
+            "Web3Forms response:",
+            result
         );
 
 
-        if (verifyOtpBtn) {
+        // -------------------------------------------------
+        // ERROR
+        // -------------------------------------------------
 
-            verifyOtpBtn.disabled =
+        if (
+            !response.ok ||
+            !result.success
+        ) {
+
+            throw new Error(
+                result.message ||
+                "Web3Forms rejected the request."
+            );
+        }
+
+
+        // -------------------------------------------------
+        // SUCCESS
+        // -------------------------------------------------
+
+        startOtpTimer();
+
+
+        if (verifyOtpButton) {
+            verifyOtpButton.disabled =
                 false;
-
         }
 
 
         if (otpInput) {
 
-            otpInput.value = "";
+            otpInput.disabled =
+                false;
 
             otpInput.focus();
-
         }
 
 
-    } catch (error) {
+        setOtpStatus(
+            "OTP request sent successfully. Check the email configured for your Web3Forms Access Key.",
+            "success"
+        );
+
+
+        console.log(
+            "OTP generated:",
+            generatedOTP
+        );
+
+
+    }
+
+    catch (error) {
 
         console.error(
-            "Web3Forms OTP Error:",
+            "Web3Forms error:",
             error
         );
 
 
-        generatedOTP = null;
+        generatedOTP = "";
+
+        otpCreatedAt = 0;
 
 
-        showOtpStatus(
-            "Unable to send OTP request. " +
+        setOtpStatus(
+            "OTP request failed: " +
             error.message,
-            "#ef4444"
+            "error"
         );
 
 
         alert(
-            "OTP could not be sent.\n\n" +
-            "Please check your Web3Forms access key and browser console."
+            "Web3Forms could not send the request.\n\n" +
+            error.message
         );
-
-    } finally {
-
-        if (sendOtpBtn) {
-
-            sendOtpBtn.disabled = false;
-
-            sendOtpBtn.innerHTML =
-                '<i class="fa-solid fa-paper-plane"></i> Send OTP';
-
-        }
 
     }
 
+    finally {
+
+        if (sendOtpButton) {
+
+            sendOtpButton.disabled =
+                false;
+
+            sendOtpButton.textContent =
+                "Send OTP";
+        }
+    }
 }
 
 
@@ -395,169 +484,127 @@ Please use this code to complete your IntraWorld registration.`
 // VERIFY OTP
 // =====================================================
 
-function verifyGmailOTP() {
+function verifyOTP() {
 
-    const userEnteredOTP =
-        otpInput
-            ? otpInput.value.trim()
-            : "";
+    const enteredOTP =
+        otpInput?.value.trim() || "";
 
 
-    // OTP was never generated
     if (!generatedOTP) {
 
         alert(
-            "Please click Send OTP first."
+            "Please request an OTP first."
         );
 
         return;
-
     }
 
 
-    // OTP expired
+    // -------------------------------------------------
+    // EXPIRY
+    // -------------------------------------------------
+
     if (
-        !otpExpiryTime ||
-        Date.now() > otpExpiryTime
+        Date.now() >
+        otpCreatedAt +
+        OTP_VALIDITY_MS
     ) {
 
-        generatedOTP = null;
+        generatedOTP = "";
 
         clearInterval(
-            countdownInterval
+            timerInterval
         );
 
-        showOtpStatus(
+        setOtpStatus(
             "OTP expired. Please request a new OTP.",
-            "#ef4444"
+            "error"
         );
 
         return;
-
     }
 
 
-    // Check OTP format
-    if (!/^\d{6}$/.test(userEnteredOTP)) {
+    // -------------------------------------------------
+    // FORMAT
+    // -------------------------------------------------
+
+    if (!/^\d{6}$/.test(enteredOTP)) {
 
         alert(
             "Please enter the 6-digit OTP."
         );
 
         return;
-
     }
 
 
-    // Verify
+    // -------------------------------------------------
+    // VERIFY
+    // -------------------------------------------------
+
     if (
-        userEnteredOTP ===
+        enteredOTP ===
         generatedOTP
     ) {
 
-        isGmailOtpVerified =
+        otpVerified =
             true;
 
 
         clearInterval(
-            countdownInterval
+            timerInterval
         );
 
 
-        showOtpStatus(
-            "✓ Gmail OTP verified successfully!",
-            "#4ade80"
+        setOtpStatus(
+            "✓ OTP verified successfully.",
+            "success"
         );
 
 
-        if (otpStatus) {
+        if (verifyOtpButton) {
 
-            otpStatus.classList.add(
-                "otp-verified"
-            );
+            verifyOtpButton.disabled =
+                true;
 
+            verifyOtpButton.textContent =
+                "Verified";
+        }
+
+
+        if (sendOtpButton) {
+
+            sendOtpButton.disabled =
+                true;
         }
 
 
         if (otpTimer) {
-
             otpTimer.style.display =
                 "none";
-
-        }
-
-
-        if (verifyOtpBtn) {
-
-            verifyOtpBtn.disabled =
-                true;
-
-            verifyOtpBtn.innerHTML =
-                '<i class="fa-solid fa-check"></i> Verified';
-
-        }
-
-
-        if (sendOtpBtn) {
-
-            sendOtpBtn.disabled =
-                true;
-
         }
 
 
         alert(
-            "OTP verified successfully!"
-        );
-
-
-    } else {
-
-        showOtpStatus(
-            "Invalid OTP. Please check the code and try again.",
-            "#ef4444"
-        );
-
-
-        alert(
-            "Invalid OTP. Please enter the correct 6-digit code."
+            "OTP verified successfully."
         );
 
     }
 
+    else {
+
+        setOtpStatus(
+            "Incorrect OTP. Please try again.",
+            "error"
+        );
+
+    }
 }
 
 
 // =====================================================
-// SEND OTP BUTTON
-// =====================================================
-
-if (sendOtpBtn) {
-
-    sendOtpBtn.addEventListener(
-        "click",
-        sendGmailOTP
-    );
-
-}
-
-
-// =====================================================
-// VERIFY OTP BUTTON
-// =====================================================
-
-if (verifyOtpBtn) {
-
-    verifyOtpBtn.addEventListener(
-        "click",
-        verifyGmailOTP
-    );
-
-}
-
-
-// =====================================================
-// OTP INPUT - ONLY NUMBERS
+// OTP INPUT
 // =====================================================
 
 if (otpInput) {
@@ -573,30 +620,66 @@ if (otpInput) {
 
         }
     );
-
 }
 
 
 // =====================================================
-// FORM SUBMISSION
+// SEND BUTTON
 // =====================================================
 
-const form =
-    document.getElementById(
-        "registrationForm"
-    );
+if (sendOtpButton) {
 
+    sendOtpButton.addEventListener(
+        "click",
+        sendOTP
+    );
+}
+
+
+// =====================================================
+// VERIFY BUTTON
+// =====================================================
+
+if (verifyOtpButton) {
+
+    verifyOtpButton.addEventListener(
+        "click",
+        verifyOTP
+    );
+}
+
+
+// =====================================================
+// REGISTRATION
+// =====================================================
 
 if (form) {
 
     form.addEventListener(
         "submit",
-        async (e) => {
+        async (event) => {
 
-            e.preventDefault();
+            event.preventDefault();
 
 
-            // Password validation
+            // ---------------------------------------------
+            // OTP VERIFICATION
+            // ---------------------------------------------
+
+            if (!otpVerified) {
+
+                alert(
+                    "Please verify your Gmail OTP first."
+                );
+
+                return;
+            }
+
+
+            // ---------------------------------------------
+            // PASSWORD
+            // ---------------------------------------------
+
             const password =
                 document.getElementById(
                     "password"
@@ -615,142 +698,122 @@ if (form) {
             ) {
 
                 alert(
-                    "Passwords do not match. Please verify your entries."
+                    "Passwords do not match."
                 );
 
                 return;
-
             }
 
 
-            // OTP validation
-            if (!isGmailOtpVerified) {
+            // ---------------------------------------------
+            // COLLECT FORM DATA
+            // ---------------------------------------------
 
-                alert(
-                    "Please complete Gmail OTP verification before submitting your registration."
-                );
-
-                switchToSecurityTab();
-
-                return;
-
-            }
+            const formData =
+                new FormData(form);
 
 
-            // Document validation
-            const documentInput =
-                document.getElementById(
-                    "academic_document"
-                );
-
-
-            if (
-                !documentInput ||
-                !documentInput.files.length
-            ) {
-
-                alert(
-                    "Please upload your academic document."
-                );
-
-                switchToSecurityTab();
-
-                return;
-
-            }
-
-
-            // Collect registration information
-            const registrationPayload = {
+            const registrationData = {
 
                 fullName:
-                    document.querySelector(
-                        'input[name="full_name"]'
-                    )?.value.trim() || "",
+                    formData.get(
+                        "full_name"
+                    ) || "",
 
                 email:
-                    document.getElementById(
+                    formData.get(
                         "email"
-                    )?.value.trim().toLowerCase() || "",
+                    ) || "",
+
+                mobile:
+                    formData.get(
+                        "mobile_number"
+                    ) || "",
 
                 password:
                     password,
 
-                mobile:
-                    document.getElementById(
-                        "mobile_number"
-                    )?.value.trim() || "",
-
                 favouriteSport:
-                    document.getElementById(
+                    formData.get(
                         "favourite_sport"
-                    )?.value.trim() || "",
+                    ) || "",
 
                 ambition:
-                    document.getElementById(
+                    formData.get(
                         "ambition"
-                    )?.value.trim() || "",
+                    ) || "",
 
                 qualification:
-                    document.querySelector(
-                        'select[name="qualification"]'
-                    )?.value || "",
+                    formData.get(
+                        "qualification"
+                    ) || "",
 
                 specialization:
-                    document.querySelector(
-                        'input[name="specialization"]'
-                    )?.value.trim() || "",
+                    formData.get(
+                        "specialization"
+                    ) || "",
 
                 collegeUniversity:
-                    document.querySelector(
-                        'input[name="college_university"]'
-                    )?.value.trim() || "",
+                    formData.get(
+                        "college_university"
+                    ) || "",
 
                 skills:
-                    document.querySelector(
-                        'input[name="skills"]'
-                    )?.value.trim() || "",
+                    formData.get(
+                        "skills"
+                    ) || "",
 
-                interests:
-                    document.querySelector(
-                        'textarea[name="professional_interests"]'
-                    )?.value.trim() || "",
+                professionalInterests:
+                    formData.get(
+                        "professional_interests"
+                    ) || "",
 
-                isVerified:
+                emailVerified:
                     true,
 
                 createdAt:
-                    new Date().toISOString()
+                    new Date()
+                        .toISOString()
 
             };
 
 
-            // =================================================
-            // SAVE TO FIRESTORE
-            // =================================================
+            // ---------------------------------------------
+            // SAVE FIRESTORE
+            // ---------------------------------------------
 
             try {
 
-                await addDoc(
-                    collection(
-                        db,
-                        "registrations"
-                    ),
-                    registrationPayload
+                const document =
+                    await addDoc(
+                        collection(
+                            db,
+                            "registrations"
+                        ),
+                        registrationData
+                    );
+
+
+                console.log(
+                    "Registration created:",
+                    document.id
                 );
 
 
-                // Also keep current user locally
                 localStorage.setItem(
-                    "currentUser",
+                    "intraWorldUser",
                     JSON.stringify(
-                        registrationPayload
+                        {
+                            ...registrationData,
+                            id:
+                                document.id
+                        }
                     )
                 );
 
 
                 alert(
-                    "Account registration successful! Opening your dashboard..."
+                    "Registration successful!"
                 );
 
 
@@ -758,16 +821,18 @@ if (form) {
                     "dashboard.html";
 
 
-            } catch (error) {
+            }
+
+            catch (error) {
 
                 console.error(
-                    "Firestore Registration Error:",
+                    "Firestore registration error:",
                     error
                 );
 
 
                 alert(
-                    "Registration failed while saving your account.\n\n" +
+                    "Registration failed:\n\n" +
                     error.message
                 );
 
@@ -775,41 +840,33 @@ if (form) {
 
         }
     );
-
 }
 
 
 // =====================================================
-// SECURITY TAB
+// STARTUP CHECK
 // =====================================================
 
-function switchToSecurityTab() {
+console.log(
+    "===================================="
+);
 
-    document
-        .querySelectorAll(".tab-btn")
-        .forEach(
-            (tab, index) => {
+console.log(
+    "IntraWorld registration JavaScript loaded"
+);
 
-                tab.classList.toggle(
-                    "active",
-                    index === 2
-                );
+console.log(
+    "Firebase Firestore:",
+    db ? "OK" : "FAILED"
+);
 
-            }
-        );
+console.log(
+    "Web3Forms:",
+    WEB3FORMS_ACCESS_KEY
+        ? "Configured"
+        : "Missing"
+);
 
-
-    document
-        .querySelectorAll(".tab-content")
-        .forEach(
-            (content, index) => {
-
-                content.classList.toggle(
-                    "active",
-                    index === 2
-                );
-
-            }
-        );
-
-}
+console.log(
+    "===================================="
+);

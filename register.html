@@ -1,248 +1,633 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IntraWorld - Identity Gatekeeper Registration</title>
 
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-          rel="stylesheet">
+    <meta
+        name="description"
+        content="IntraWorld Student Registration"
+    >
 
-    <link rel="stylesheet" href="css/theme-base.css">
-    <link rel="stylesheet" href="css/auth-card.css">
+    <title>IntraWorld - Register</title>
+
+
+    <!-- =====================================================
+         GOOGLE FONT
+    ====================================================== -->
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+
+    <!-- =====================================================
+         FONT AWESOME
+    ====================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    >
+
+
+    <!-- =====================================================
+         YOUR EXISTING CSS
+    ====================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="./css/theme-base.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="./css/auth-card.css"
+    >
+
+
+    <!-- =====================================================
+         PAGE CSS
+    ====================================================== -->
 
     <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Inter", sans-serif;
+            background:
+                radial-gradient(
+                    circle at top,
+                    rgba(56, 189, 248, 0.12),
+                    transparent 35%
+                ),
+                #061525;
+            color: #e5eef8;
+        }
+
+
+        /* ==================================================
+           BACKGROUND
+        ================================================== */
+
+        .page-background {
+            min-height: 100vh;
+            padding: 40px 16px 70px;
+
+            background-image:
+                radial-gradient(
+                    rgba(255,255,255,0.08) 1px,
+                    transparent 1px
+                );
+
+            background-size: 24px 24px;
+        }
+
+
+        /* ==================================================
+           HEADER
+        ================================================== */
+
+        .register-header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .register-logo {
+            width: 90px;
+            height: 90px;
+            object-fit: contain;
+            margin-bottom: 10px;
+        }
+
+        .register-header h1 {
+            margin: 0;
+            font-size: 30px;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+
+        .register-header p {
+            margin: 8px 0 0;
+            color: #aebdcd;
+            font-size: 14px;
+        }
+
+
+        /* ==================================================
+           CARD
+        ================================================== */
+
         .register-card {
             width: 100%;
-            max-width: 700px;
-            padding: 10px 40px 40px;
-            background: rgba(10, 22, 40, 0.75);
-            border: 1px solid rgba(0, 140, 255, 0.25);
-            border-radius: 24px;
-            backdrop-filter: blur(20px);
-            box-shadow: 0 0 40px rgba(0, 102, 255, 0.15),
-                        0 20px 50px rgba(0, 0, 0, 0.8);
-            position: relative;
+            max-width: 900px;
+            margin: 0 auto;
+
+            padding: 34px;
+
+            border: 1px solid rgba(255,255,255,0.10);
+
+            border-radius: 20px;
+
+            background:
+                rgba(8, 24, 40, 0.94);
+
+            box-shadow:
+                0 25px 70px rgba(0,0,0,0.35);
+
+            backdrop-filter: blur(15px);
         }
 
-        .header {
-            margin-bottom: 0 !important;
-            text-align: center;
+
+        /* ==================================================
+           SECTION
+        ================================================== */
+
+        .form-section {
+            margin-bottom: 32px;
         }
 
-        .logo-container {
+        .section-title {
             display: flex;
-            justify-content: center;
             align-items: center;
-            margin-top: 1px;
-            margin-bottom: -30px;
-        }
+            gap: 10px;
 
-        .brand-logo {
-            width: 220px;
-            height: 220px;
-            object-fit: contain;
-            filter: drop-shadow(0 0 25px rgba(0, 140, 255, 0.5));
-            transition: transform 0.3s ease;
-        }
+            margin: 0 0 18px;
 
-        .brand-logo:hover {
-            transform: scale(1.05);
-        }
-
-        .header h1 {
-            letter-spacing: 1px;
-            font-size: 26px;
+            font-size: 18px;
             font-weight: 700;
-            margin-top: 0;
-            margin-bottom: 4px;
+
+            color: #f1f7ff;
         }
 
-        .header p {
-            font-size: 13px;
-            color: #94a3b8;
-            margin-bottom: 35px;
+        .section-title i {
+            color: #38bdf8;
         }
 
-        .tabs {
-            display: flex;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 4px;
-            margin-top: 10px;
-            margin-bottom: 30px;
-        }
 
-        .tab-btn {
-            flex: 1;
-            padding: 10px;
-            border: none;
-            background: transparent;
-            color: #94a3b8;
-            font-size: 13px;
-            font-weight: 500;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .tab-btn.active {
-            background: linear-gradient(135deg, #0052d4, #4364f7);
-            color: #ffffff;
-            box-shadow: 0 0 12px rgba(0, 102, 255, 0.4);
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
+        /* ==================================================
+           GRID
+        ================================================== */
 
         .form-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
         }
 
         .full-width {
-            grid-column: span 2;
+            grid-column: 1 / -1;
         }
 
-        .toggle-password {
-            position: absolute;
-            right: 14px;
-            color: #64748b;
-            cursor: pointer;
-        }
 
-        .verification-box {
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px dashed rgba(56, 189, 248, 0.3);
-            border-radius: 14px;
-            padding: 20px;
-            margin-top: 15px;
-            text-align: left;
-        }
+        /* ==================================================
+           FORM GROUP
+        ================================================== */
 
-        .mfa-container {
+        .form-group {
             display: flex;
-            gap: 10px;
-            margin-top: 10px;
+            flex-direction: column;
         }
 
-        .btn-send-otp {
-            padding: 10px 15px;
-            background: rgba(0, 136, 255, 0.2);
-            border: 1px solid #0088ff;
-            color: #38bdf8;
-            border-radius: 10px;
+        .form-group label {
+            margin-bottom: 8px;
+
             font-size: 13px;
-            font-weight: 500;
+            font-weight: 600;
+
+            color: #c9d7e5;
+        }
+
+        .required {
+            color: #f87171;
+        }
+
+
+        /* ==================================================
+           INPUTS
+        ================================================== */
+
+        input,
+        select,
+        textarea {
+
+            width: 100%;
+
+            border: 1px solid rgba(255,255,255,0.12);
+
+            border-radius: 10px;
+
+            padding: 13px 14px;
+
+            outline: none;
+
+            font-family: inherit;
+            font-size: 14px;
+
+            color: #f4f8fc;
+
+            background:
+                rgba(255,255,255,0.05);
+
+            transition:
+                border-color 0.2s,
+                box-shadow 0.2s,
+                background 0.2s;
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: #718296;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+
+            border-color: #38bdf8;
+
+            background:
+                rgba(56,189,248,0.06);
+
+            box-shadow:
+                0 0 0 3px
+                rgba(56,189,248,0.10);
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        select {
             cursor: pointer;
-            transition: all 0.3s;
+        }
+
+
+        /* ==================================================
+           PASSWORD HINT
+        ================================================== */
+
+        .field-hint {
+            margin-top: 6px;
+
+            color: #8293a6;
+
+            font-size: 11px;
+            line-height: 1.5;
+        }
+
+
+        /* ==================================================
+           OTP SECTION
+        ================================================== */
+
+        .otp-box {
+
+            padding: 20px;
+
+            border: 1px solid
+                rgba(56,189,248,0.18);
+
+            border-radius: 14px;
+
+            background:
+                rgba(56,189,248,0.045);
+        }
+
+        .otp-label {
+            display: block;
+
+            margin-bottom: 8px;
+
+            font-size: 13px;
+            font-weight: 600;
+
+            color: #dce9f6;
+        }
+
+        .otp-row {
+
+            display: grid;
+
+            grid-template-columns:
+                minmax(150px, 1fr)
+                auto
+                auto;
+
+            gap: 10px;
+
+            align-items: center;
+        }
+
+        .otp-row button {
             white-space: nowrap;
         }
 
-        .btn-send-otp:hover {
-            background: rgba(0, 136, 255, 0.35);
-            box-shadow: 0 0 12px rgba(0, 136, 255, 0.5);
-        }
 
-        .btn-send-otp:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
+        /* ==================================================
+           BUTTONS
+        ================================================== */
 
-        .btn-action-group {
-            display: flex;
-            gap: 12px;
-            margin-top: 24px;
-        }
+        button {
 
-        .btn-submit {
-            flex: 1;
-            padding: 12px 20px;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            background: linear-gradient(135deg, #0052d4, #4364f7);
-            box-shadow: 0 0 20px rgba(0, 102, 255, 0.3);
-            border-radius: 10px;
-            color: white;
             border: none;
+
+            border-radius: 10px;
+
+            padding: 12px 18px;
+
+            font-family: inherit;
+
+            font-size: 13px;
+            font-weight: 700;
+
             cursor: pointer;
-            font-weight: 600;
+
+            transition:
+                transform 0.15s,
+                opacity 0.15s,
+                background 0.2s;
         }
 
-        .btn-submit:hover {
-            box-shadow: 0 0 30px rgba(0, 102, 255, 0.5);
+        button:hover:not(:disabled) {
+            transform: translateY(-1px);
         }
 
-        .btn-submit:disabled {
+        button:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
 
-        .btn-submit.btn-secondary {
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: #cbd5e1;
+        .btn-primary {
+
+            color: #061525;
+
+            background:
+                #38bdf8;
         }
 
-        .footer-link {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 14px;
-            color: #94a3b8;
+        .btn-primary:hover:not(:disabled) {
+            background: #67cdf9;
         }
 
-        .footer-link a {
-            color: #38bdf8;
-            font-weight: 600;
-            text-decoration: none;
+        .btn-secondary {
+
+            color: #e5eef8;
+
+            background:
+                rgba(255,255,255,0.08);
+
+            border: 1px solid
+                rgba(255,255,255,0.15);
         }
 
-        .notice-banner {
-            background: rgba(234, 179, 8, 0.1);
-            border: 1px solid rgba(234, 179, 8, 0.3);
-            border-radius: 10px;
-            padding: 12px;
-            margin-bottom: 15px;
-            font-size: 12px;
-            color: #fde047;
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
+        .btn-secondary:hover:not(:disabled) {
+            background:
+                rgba(255,255,255,0.13);
         }
 
-        .otp-timer {
+
+        /* ==================================================
+           OTP STATUS
+        ================================================== */
+
+        #otp-status {
+
             display: none;
-            margin-top: 8px;
-            font-size: 12px;
+
+            margin: 12px 0 0;
+
+            font-size: 13px;
+
+            line-height: 1.5;
+        }
+
+        #otp-timer {
+
+            display: none;
+
+            margin: 8px 0 0;
+
             color: #facc15;
+
+            font-size: 12px;
         }
 
-        .otp-verified {
-            color: #4ade80 !important;
+        #otp-countdown {
+            font-weight: 700;
         }
 
-        @media (max-width: 600px) {
-            .brand-logo {
-                width: 150px;
-                height: 150px;
+
+        /* ==================================================
+           DOCUMENT UPLOAD
+        ================================================== */
+
+        .file-box {
+
+            padding: 16px;
+
+            border:
+                1px dashed
+                rgba(255,255,255,0.18);
+
+            border-radius: 10px;
+
+            background:
+                rgba(255,255,255,0.025);
+        }
+
+        input[type="file"] {
+            padding: 10px;
+        }
+
+
+        /* ==================================================
+           TERMS
+        ================================================== */
+
+        .terms-box {
+
+            display: flex;
+
+            align-items: flex-start;
+
+            gap: 10px;
+
+            margin-top: 5px;
+        }
+
+        .terms-box input[type="checkbox"] {
+
+            width: 17px;
+            height: 17px;
+
+            margin-top: 2px;
+
+            accent-color: #38bdf8;
+        }
+
+        .terms-box label {
+
+            margin: 0;
+
+            font-size: 12px;
+
+            line-height: 1.6;
+
+            color: #9eafc0;
+        }
+
+
+        /* ==================================================
+           SUBMIT AREA
+        ================================================== */
+
+        .submit-area {
+
+            padding-top: 10px;
+
+            text-align: center;
+        }
+
+        .submit-button {
+
+            width: 100%;
+
+            max-width: 400px;
+
+            padding: 15px 20px;
+
+            font-size: 15px;
+
+            color: #061525;
+
+            background: #38bdf8;
+
+            box-shadow:
+                0 8px 25px
+                rgba(56,189,248,0.18);
+        }
+
+        .submit-button:hover {
+            background: #67cdf9;
+        }
+
+
+        /* ==================================================
+           FOOTER
+        ================================================== */
+
+        .login-link {
+
+            margin-top: 20px;
+
+            text-align: center;
+
+            font-size: 13px;
+
+            color: #8799ac;
+        }
+
+        .login-link a {
+
+            color: #38bdf8;
+
+            text-decoration: none;
+
+            font-weight: 600;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+
+
+        /* ==================================================
+           SECURITY NOTICE
+        ================================================== */
+
+        .security-note {
+
+            display: flex;
+
+            align-items: flex-start;
+
+            gap: 10px;
+
+            margin-top: 20px;
+
+            padding: 13px;
+
+            border-radius: 10px;
+
+            background:
+                rgba(34,197,94,0.05);
+
+            border:
+                1px solid
+                rgba(34,197,94,0.12);
+
+            color: #9eb7a8;
+
+            font-size: 11px;
+
+            line-height: 1.6;
+        }
+
+        .security-note i {
+            color: #4ade80;
+            margin-top: 2px;
+        }
+
+
+        /* ==================================================
+           MOBILE
+        ================================================== */
+
+        @media (max-width: 700px) {
+
+            .page-background {
+                padding:
+                    24px
+                    10px
+                    50px;
+            }
+
+            .register-card {
+                padding: 22px 17px;
+                border-radius: 16px;
+            }
+
+            .register-header h1 {
+                font-size: 25px;
             }
 
             .form-grid {
@@ -250,732 +635,654 @@
             }
 
             .full-width {
-                grid-column: span 1;
+                grid-column: auto;
             }
 
-            .tabs {
-                flex-direction: column;
+            .otp-row {
+                grid-template-columns: 1fr;
             }
 
-            .mfa-container {
-                flex-direction: column;
+            .otp-row button {
+                width: 100%;
             }
         }
+
     </style>
+
 </head>
+
 
 <body>
 
-<div class="register-card">
-
-    <div class="header">
-
-        <div class="logo-container">
-            <img src="logo.png"
-                 alt="IntraWorld Logo"
-                 class="brand-logo"
-                 onerror="this.style.display='none'">
-        </div>
-
-        <h1>SOCIAL NETWORK</h1>
-        <p>One User. One Identity. One Verified Student.</p>
-
-    </div>
-
-    <div class="tabs">
-
-        <button class="tab-btn active"
-                id="btn-tab-0"
-                type="button">
-            <i class="fa-solid fa-user"></i>
-            1. Basic Details
-        </button>
-
-        <button class="tab-btn"
-                id="btn-tab-1"
-                type="button">
-            <i class="fa-solid fa-graduation-cap"></i>
-            2. Academic Info
-        </button>
-
-        <button class="tab-btn"
-                id="btn-tab-2"
-                type="button">
-            <i class="fa-solid fa-envelope"></i>
-            3. Gmail OTP MFA
-        </button>
-
-    </div>
+<div class="page-background">
 
 
-    <form id="registrationForm">
+    <!-- ==================================================
+         HEADER
+    =================================================== -->
 
-        <!-- TAB 1 -->
+    <header class="register-header">
 
-        <div class="tab-content active" id="tab-0">
+        <img
+            src="./logo.png"
+            alt="IntraWorld Logo"
+            class="register-logo"
+            onerror="this.style.display='none';"
+        >
 
-            <div class="form-grid">
+        <h1>INTRAWORLD</h1>
 
-                <div class="input-group full-width">
+        <p>
+            Stay Connected · Stay Informed · Stay Ahead
+        </p>
 
-                    <label>
-                        Full Name (Must match physical identity document)
+    </header>
+
+
+    <!-- ==================================================
+         REGISTRATION CARD
+    =================================================== -->
+
+    <main class="register-card">
+
+
+        <!-- =================================================
+             FORM
+        ================================================== -->
+
+        <form
+            id="registrationForm"
+            novalidate
+        >
+
+
+            <!-- =============================================
+                 PERSONAL INFORMATION
+            ============================================== -->
+
+            <section class="form-section">
+
+                <h2 class="section-title">
+                    <i class="fa-solid fa-user"></i>
+                    Personal Information
+                </h2>
+
+
+                <div class="form-grid">
+
+
+                    <!-- FULL NAME -->
+
+                    <div class="form-group">
+
+                        <label for="full_name">
+                            Full Name
+                            <span class="required">*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            id="full_name"
+                            name="full_name"
+                            placeholder="Enter your full name"
+                            autocomplete="name"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- MOBILE -->
+
+                    <div class="form-group">
+
+                        <label for="mobile_number">
+                            Mobile Number
+                            <span class="required">*</span>
+                        </label>
+
+                        <input
+                            type="tel"
+                            id="mobile_number"
+                            name="mobile_number"
+                            placeholder="Enter your mobile number"
+                            autocomplete="tel"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- EMAIL -->
+
+                    <div class="form-group full-width">
+
+                        <label for="email">
+                            Gmail Address
+                            <span class="required">*</span>
+                        </label>
+
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="yourname@gmail.com"
+                            autocomplete="email"
+                            required
+                        >
+
+                        <div class="field-hint">
+                            Use your Gmail address for email verification.
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+            </section>
+
+
+            <!-- =============================================
+                 OTP VERIFICATION
+            ============================================== -->
+
+            <section class="form-section">
+
+                <h2 class="section-title">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    Email Verification
+                </h2>
+
+
+                <div class="otp-box">
+
+
+                    <label
+                        for="otp-code"
+                        class="otp-label"
+                    >
+                        Enter 6-Digit OTP
                     </label>
 
-                    <div class="field-wrapper">
 
-                        <i class="fa-solid fa-user icon"></i>
+                    <div class="otp-row">
 
-                        <input type="text"
-                               name="full_name"
-                               placeholder="John Doe"
-                               required>
+
+                        <input
+                            type="text"
+                            id="otp-code"
+                            name="otp_code"
+                            inputmode="numeric"
+                            maxlength="6"
+                            autocomplete="one-time-code"
+                            placeholder="Enter OTP"
+                            disabled
+                        >
+
+
+                        <button
+                            type="button"
+                            id="send-otp-btn"
+                            class="btn-primary"
+                        >
+                            <i class="fa-solid fa-paper-plane"></i>
+                            Send OTP
+                        </button>
+
+
+                        <button
+                            type="button"
+                            id="verify-otp-btn"
+                            class="btn-secondary"
+                            disabled
+                        >
+                            <i class="fa-solid fa-check"></i>
+                            Verify OTP
+                        </button>
+
 
                     </div>
 
+
+                    <p id="otp-status"></p>
+
+
+                    <p id="otp-timer">
+
+                        OTP expires in:
+                        <span id="otp-countdown">
+                            05:00
+                        </span>
+
+                    </p>
+
+
                 </div>
 
+            </section>
 
-                <div class="input-group">
 
-                    <label>Email Address (Gmail)</label>
+            <!-- =============================================
+                 ACCOUNT INFORMATION
+            ============================================== -->
 
-                    <div class="field-wrapper">
+            <section class="form-section">
 
-                        <i class="fa-solid fa-envelope icon"></i>
+                <h2 class="section-title">
+                    <i class="fa-solid fa-lock"></i>
+                    Account Security
+                </h2>
 
-                        <input type="email"
-                               name="email"
-                               id="email"
-                               placeholder="john@gmail.com"
-                               required>
+
+                <div class="form-grid">
+
+
+                    <!-- PASSWORD -->
+
+                    <div class="form-group">
+
+                        <label for="password">
+
+                            Password
+                            <span class="required">*</span>
+
+                        </label>
+
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="Create a password"
+                            autocomplete="new-password"
+                            minlength="8"
+                            required
+                        >
+
+                        <div class="field-hint">
+                            Use at least 8 characters.
+                        </div>
 
                     </div>
 
-                </div>
 
+                    <!-- CONFIRM PASSWORD -->
 
-                <div class="input-group">
+                    <div class="form-group">
 
-                    <label>Mobile Number</label>
+                        <label for="confirm_password">
 
-                    <div class="field-wrapper">
+                            Confirm Password
+                            <span class="required">*</span>
 
-                        <i class="fa-solid fa-phone icon"></i>
+                        </label>
 
-                        <input type="tel"
-                               id="mobile_number"
-                               name="mobile_number"
-                               placeholder="+919999999999"
-                               required>
-
-                    </div>
-
-                </div>
-
-
-                <div class="input-group">
-
-                    <label>Password</label>
-
-                    <div class="field-wrapper">
-
-                        <i class="fa-solid fa-lock icon"></i>
-
-                        <input type="password"
-                               id="password"
-                               name="password"
-                               placeholder="••••••••"
-                               required>
-
-                        <i class="fa-solid fa-eye toggle-password"
-                           data-target="password"></i>
+                        <input
+                            type="password"
+                            id="confirm_password"
+                            name="confirm_password"
+                            placeholder="Re-enter your password"
+                            autocomplete="new-password"
+                            minlength="8"
+                            required
+                        >
 
                     </div>
 
-                </div>
-
-
-                <div class="input-group">
-
-                    <label>Confirm Password</label>
-
-                    <div class="field-wrapper">
-
-                        <i class="fa-solid fa-lock icon"></i>
-
-                        <input type="password"
-                               id="confirm_password"
-                               name="confirm_password"
-                               placeholder="••••••••"
-                               required>
-
-                        <i class="fa-solid fa-eye toggle-password"
-                           data-target="confirm_password"></i>
-
-                    </div>
 
                 </div>
 
-
-                <div class="input-group">
-
-                    <label>Security Question: Favourite Sport</label>
-
-                    <div class="field-wrapper">
-
-                        <i class="fa-solid fa-futbol icon"></i>
-
-                        <input type="text"
-                               name="favourite_sport"
-                               id="favourite_sport"
-                               placeholder="e.g. Football, Cricket"
-                               required>
-
-                    </div>
-
-                </div>
+            </section>
 
 
-                <div class="input-group">
+            <!-- =============================================
+                 ACADEMIC INFORMATION
+            ============================================== -->
 
-                    <label>Security Question: Primary Ambition</label>
+            <section class="form-section">
 
-                    <div class="field-wrapper">
-
-                        <i class="fa-solid fa-bullseye icon"></i>
-
-                        <input type="text"
-                               name="ambition"
-                               id="ambition"
-                               placeholder="e.g. Software Engineer"
-                               required>
-
-                    </div>
-
-                </div>
-
-            </div>
+                <h2 class="section-title">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                    Academic Information
+                </h2>
 
 
-            <div class="btn-action-group">
-
-                <button type="button"
-                        class="btn-submit"
-                        id="nav-to-1">
-
-                    Next: Profile Details
-
-                    <i class="fa-solid fa-arrow-right"></i>
-
-                </button>
-
-            </div>
-
-        </div>
+                <div class="form-grid">
 
 
-        <!-- TAB 2 -->
+                    <!-- QUALIFICATION -->
 
-        <div class="tab-content" id="tab-1">
+                    <div class="form-group">
 
-            <div class="form-grid">
+                        <label for="qualification">
 
-                <div class="input-group">
+                            Highest Qualification
+                            <span class="required">*</span>
 
-                    <label>Qualification / Degree</label>
+                        </label>
 
-                    <div class="field-wrapper">
-
-                        <i class="fa-solid fa-graduation-cap icon"></i>
-
-                        <select name="qualification" required>
+                        <select
+                            id="qualification"
+                            name="qualification"
+                            required
+                        >
 
                             <option value="">
-                                -- Select Qualification --
+                                Select qualification
                             </option>
 
-                            <option value="BCA">BCA</option>
-                            <option value="B.Tech">B.Tech</option>
-                            <option value="B.Sc">B.Sc</option>
-                            <option value="M.Sc">M.Sc</option>
-                            <option value="MBA">MBA</option>
+                            <option value="school">
+                                School
+                            </option>
+
+                            <option value="diploma">
+                                Diploma
+                            </option>
+
+                            <option value="undergraduate">
+                                Undergraduate
+                            </option>
+
+                            <option value="postgraduate">
+                                Postgraduate
+                            </option>
+
+                            <option value="phd">
+                                PhD
+                            </option>
+
+                            <option value="other">
+                                Other
+                            </option>
 
                         </select>
 
                     </div>
 
-                </div>
 
+                    <!-- SPECIALIZATION -->
 
-                <div class="input-group">
+                    <div class="form-group">
 
-                    <label>Specialization</label>
+                        <label for="specialization">
+                            Specialization
+                        </label>
 
-                    <div class="field-wrapper">
-
-                        <i class="fa-solid fa-book icon"></i>
-
-                        <input type="text"
-                               name="specialization"
-                               placeholder="e.g. Computer Science"
-                               required>
-
-                    </div>
-
-                </div>
-
-
-                <div class="input-group full-width">
-
-                    <label>College / University Name</label>
-
-                    <div class="field-wrapper">
-
-                        <i class="fa-solid fa-university icon"></i>
-
-                        <input type="text"
-                               name="college_university"
-                               placeholder="Seshadripuram First Grade College"
-                               required>
+                        <input
+                            type="text"
+                            id="specialization"
+                            name="specialization"
+                            placeholder="e.g. Computer Science"
+                        >
 
                     </div>
 
-                </div>
+
+                    <!-- COLLEGE -->
+
+                    <div class="form-group full-width">
+
+                        <label for="college_university">
+                            College / University
+                            <span class="required">*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            id="college_university"
+                            name="college_university"
+                            placeholder="Enter your college or university"
+                            required
+                        >
+
+                    </div>
 
 
-                <div class="input-group full-width">
+                    <!-- SKILLS -->
 
-                    <label>Skills (comma-separated)</label>
+                    <div class="form-group full-width">
 
-                    <div class="field-wrapper">
+                        <label for="skills">
+                            Skills
+                        </label>
 
-                        <i class="fa-solid fa-code icon"></i>
-
-                        <input type="text"
-                               name="skills"
-                               placeholder="Python, JavaScript, Cyber Security"
-                               required>
+                        <input
+                            type="text"
+                            id="skills"
+                            name="skills"
+                            placeholder="e.g. JavaScript, Python, Research, Communication"
+                        >
 
                     </div>
 
+
                 </div>
 
+            </section>
 
-                <div class="input-group full-width">
 
-                    <label>Professional Interests</label>
+            <!-- =============================================
+                 PROFESSIONAL INFORMATION
+            ============================================== -->
 
-                    <div class="field-wrapper">
+            <section class="form-section">
 
-                        <i class="fa-solid fa-lightbulb icon"></i>
+                <h2 class="section-title">
+                    <i class="fa-solid fa-briefcase"></i>
+                    Professional Information
+                </h2>
 
-                        <textarea name="professional_interests"
-                                  placeholder="Cybersecurity, AI development, Cloud Computing..."></textarea>
+
+                <div class="form-grid">
+
+
+                    <!-- FAVOURITE SPORT -->
+
+                    <div class="form-group">
+
+                        <label for="favourite_sport">
+                            Favourite Sport
+                        </label>
+
+                        <input
+                            type="text"
+                            id="favourite_sport"
+                            name="favourite_sport"
+                            placeholder="e.g. Cricket"
+                        >
 
                     </div>
+
+
+                    <!-- AMBITION -->
+
+                    <div class="form-group">
+
+                        <label for="ambition">
+                            Career Ambition
+                        </label>
+
+                        <input
+                            type="text"
+                            id="ambition"
+                            name="ambition"
+                            placeholder="What do you want to achieve?"
+                        >
+
+                    </div>
+
+
+                    <!-- PROFESSIONAL INTERESTS -->
+
+                    <div class="form-group full-width">
+
+                        <label for="professional_interests">
+
+                            Professional Interests
+
+                        </label>
+
+                        <textarea
+                            id="professional_interests"
+                            name="professional_interests"
+                            placeholder="Describe your professional interests, research interests, or career goals..."
+                        ></textarea>
+
+                    </div>
+
+
+                </div>
+
+            </section>
+
+
+            <!-- =============================================
+                 ACADEMIC DOCUMENT
+            ============================================== -->
+
+            <section class="form-section">
+
+                <h2 class="section-title">
+                    <i class="fa-solid fa-file-arrow-up"></i>
+                    Academic Document
+                </h2>
+
+
+                <div class="form-group">
+
+
+                    <label for="academic_document">
+
+                        Upload Academic Document
+                        <span class="required">*</span>
+
+                    </label>
+
+
+                    <div class="file-box">
+
+                        <input
+                            type="file"
+                            id="academic_document"
+                            name="academic_document"
+                            accept=".pdf,.jpg,.jpeg,.png"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="field-hint">
+
+                        Accepted formats:
+                        PDF, JPG, JPEG, PNG.
+
+                    </div>
+
+
+                </div>
+
+            </section>
+
+
+            <!-- =============================================
+                 TERMS
+            ============================================== -->
+
+            <section class="form-section">
+
+                <div class="terms-box">
+
+                    <input
+                        type="checkbox"
+                        id="terms"
+                        name="terms"
+                        required
+                    >
+
+                    <label for="terms">
+
+                        I confirm that the information provided
+                        is accurate and I agree to the
+                        IntraWorld registration terms.
+
+                        <span class="required">*</span>
+
+                    </label>
+
+                </div>
+
+            </section>
+
+
+            <!-- =============================================
+                 SUBMIT
+            ============================================== -->
+
+            <div class="submit-area">
+
+                <button
+                    type="submit"
+                    class="submit-button"
+                >
+
+                    <i class="fa-solid fa-user-plus"></i>
+
+                    Create IntraWorld Account
+
+                </button>
+
+
+                <div class="security-note">
+
+                    <i class="fa-solid fa-shield-halved"></i>
+
+                    <span>
+
+                        Your registration information is
+                        processed through the IntraWorld
+                        registration system.
+
+                    </span>
 
                 </div>
 
             </div>
 
 
-            <div class="btn-action-group">
-
-                <button type="button"
-                        class="btn-submit btn-secondary"
-                        id="nav-to-0">
-
-                    <i class="fa-solid fa-arrow-left"></i>
-
-                    Back
-
-                </button>
+        </form>
 
 
-                <button type="button"
-                        class="btn-submit"
-                        id="nav-to-2">
+        <!-- ===============================================
+             LOGIN
+        ================================================= -->
 
-                    Next: Identity Security
+        <div class="login-link">
 
-                    <i class="fa-solid fa-arrow-right"></i>
+            Already have an account?
 
-                </button>
-
-            </div>
+            <a href="./login.html">
+                Login here
+            </a>
 
         </div>
 
 
-        <!-- TAB 3 -->
-
-        <div class="tab-content" id="tab-2">
-
-            <div class="notice-banner">
-
-                <i class="fa-solid fa-triangle-exclamation"
-                   style="font-size:18px;margin-top:2px;"></i>
-
-                <div>
-
-                    <strong>Gmail OTP Verification Required</strong>
-
-                    <br>
-
-                    A verification code will be generated and submitted through Web3Forms.
-
-                </div>
-
-            </div>
-
-
-            <div class="verification-box">
-
-                <h3 style="font-size:15px;color:#38bdf8;margin-bottom:5px;">
-
-                    <i class="fa-solid fa-envelope"></i>
-
-                    Gmail Identity Authentication
-
-                </h3>
-
-
-                <p style="font-size:12px;color:#94a3b8;">
-
-                    Click <b>Send OTP</b> to generate a 6-digit verification code.
-
-                </p>
-
-
-                <div class="mfa-container">
-
-                    <div class="field-wrapper" style="flex:1;">
-
-                        <i class="fa-solid fa-key icon"></i>
-
-                        <input type="text"
-                               id="otp-code"
-                               maxlength="6"
-                               inputmode="numeric"
-                               autocomplete="one-time-code"
-                               placeholder="Enter 6-digit OTP">
-
-                    </div>
-
-
-                    <button type="button"
-                            class="btn-send-otp"
-                            id="send-otp-btn">
-
-                        <i class="fa-solid fa-paper-plane"></i>
-
-                        Send OTP
-
-                    </button>
-
-
-                    <button type="button"
-                            class="btn-send-otp"
-                            id="verify-otp-btn"
-                            disabled
-                            style="background:rgba(74,222,128,0.2);
-                                   border-color:#4ade80;
-                                   color:#4ade80;">
-
-                        <i class="fa-solid fa-check-circle"></i>
-
-                        Verify OTP
-
-                    </button>
-
-                </div>
-
-
-                <p id="otp-status"
-                   style="font-size:12px;
-                          margin-top:8px;
-                          display:none;">
-                </p>
-
-
-                <p id="otp-timer"
-                   class="otp-timer">
-
-                    OTP expires in:
-                    <span id="otp-countdown">05:00</span>
-
-                </p>
-
-            </div>
-
-
-            <!-- DOCUMENT -->
-
-            <div class="verification-box">
-
-                <h3 style="font-size:15px;color:#38bdf8;margin-bottom:5px;">
-
-                    <i class="fa-solid fa-id-card"></i>
-
-                    Physical Academic Document Upload
-
-                </h3>
-
-
-                <p style="font-size:12px;color:#94a3b8;margin-bottom:12px;">
-
-                    Upload a clear image or PDF of your Student ID Card,
-                    Official Enrollment Form, or Fee Receipt.
-
-                </p>
-
-
-                <div class="field-wrapper">
-
-                    <i class="fa-solid fa-file-arrow-up icon"></i>
-
-                    <input type="file"
-                           id="academic_document"
-                           name="academic_document"
-                           accept="image/*,.pdf"
-                           required>
-
-                </div>
-
-            </div>
-
-
-            <div class="btn-action-group">
-
-                <button type="button"
-                        class="btn-submit btn-secondary"
-                        id="nav-to-1-back">
-
-                    <i class="fa-solid fa-arrow-left"></i>
-
-                    Back
-
-                </button>
-
-
-                <button type="submit"
-                        class="btn-submit"
-                        id="btn-final-submit">
-
-                    <i class="fa-solid fa-user-shield"></i>
-
-                    Submit Identity for Enrolment
-
-                </button>
-
-            </div>
-
-        </div>
-
-    </form>
-
-
-    <div class="footer-link">
-
-        Already have an account?
-
-        <a href="login.html">
-            Sign In
-        </a>
-
-    </div>
+    </main>
 
 </div>
 
 
-<script>
-    function switchTab(tabIndex) {
+<!-- =====================================================
+     REGISTER JAVASCRIPT
+====================================================== -->
+
+<script
+    type="module"
+    src="./js/register.js"
+></script>
 
-        document.querySelectorAll('.tab-btn')
-            .forEach((tab, index) => {
-
-                tab.classList.toggle(
-                    'active',
-                    index === tabIndex
-                );
-
-            });
-
-
-        document.querySelectorAll('.tab-content')
-            .forEach((content, index) => {
-
-                content.classList.toggle(
-                    'active',
-                    index === tabIndex
-                );
-
-            });
-
-    }
-
-
-    function validateTab(tabId) {
-
-        const tab =
-            document.getElementById(tabId);
-
-        const fields =
-            tab.querySelectorAll('[required]');
-
-
-        for (const field of fields) {
-
-            if (!field.checkValidity()) {
-
-                field.reportValidity();
-
-                return false;
-
-            }
-
-        }
-
-        return true;
-
-    }
-
-
-    document
-        .getElementById('btn-tab-0')
-        .addEventListener(
-            'click',
-            () => switchTab(0)
-        );
-
-
-    document
-        .getElementById('btn-tab-1')
-        .addEventListener(
-            'click',
-            () => {
-
-                if (validateTab('tab-0')) {
-
-                    switchTab(1);
-
-                }
-
-            }
-        );
-
-
-    document
-        .getElementById('btn-tab-2')
-        .addEventListener(
-            'click',
-            () => {
-
-                if (
-                    validateTab('tab-0') &&
-                    validateTab('tab-1')
-                ) {
-
-                    switchTab(2);
-
-                }
-
-            }
-        );
-
-
-    document
-        .getElementById('nav-to-0')
-        .addEventListener(
-            'click',
-            () => switchTab(0)
-        );
-
-
-    document
-        .getElementById('nav-to-1')
-        .addEventListener(
-            'click',
-            () => {
-
-                if (validateTab('tab-0')) {
-
-                    switchTab(1);
-
-                }
-
-            }
-        );
-
-
-    document
-        .getElementById('nav-to-1-back')
-        .addEventListener(
-            'click',
-            () => switchTab(1)
-        );
-
-
-    document
-        .getElementById('nav-to-2')
-        .addEventListener(
-            'click',
-            () => {
-
-                if (
-                    validateTab('tab-0') &&
-                    validateTab('tab-1')
-                ) {
-
-                    switchTab(2);
-
-                }
-
-            }
-        );
-
-
-    document
-        .querySelectorAll('.toggle-password')
-        .forEach(icon => {
-
-            icon.addEventListener('click', () => {
-
-                const targetId =
-                    icon.getAttribute('data-target');
-
-                const field =
-                    document.getElementById(targetId);
-
-
-                if (field.type === "password") {
-
-                    field.type = "text";
-
-                    icon.classList.replace(
-                        "fa-eye",
-                        "fa-eye-slash"
-                    );
-
-                } else {
-
-                    field.type = "password";
-
-                    icon.classList.replace(
-                        "fa-eye-slash",
-                        "fa-eye"
-                    );
-
-                }
-
-            });
-
-        });
-</script>
-
-
-<script type="module" src="./js/register.js"></script>
 
 </body>
+
 </html>
