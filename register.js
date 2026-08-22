@@ -8,29 +8,16 @@ import {
 let generatedOTP = null;
 let isGmailOtpVerified = false;
 
-// EmailJS Credentials Configuration
-const PUBLIC_KEY = "AgRvlQp55hsz50XuH";
-const SERVICE_ID = "service_cuo0zfo";
-const TEMPLATE_ID = "template_f5n21dq";
+// Web3Forms Key Configuration
+const WEB3FORMS_KEY = "bb00ad90-e756-4918-b4b5-caf2bab0b818";
 
-// Initialize EmailJS Engine
-function initEmailJS() {
-    if (window.emailjs) {
-        try {
-            window.emailjs.init(PUBLIC_KEY);
-            console.log("EmailJS SDK initialized successfully.");
-        } catch (e) {
-            console.error("EmailJS Initialization Error:", e);
-        }
-    } else {
-        console.error("EmailJS SDK script non-existent or failed to load from CDN.");
-    }
-}
-
-// Send OTP Logic
+// Send OTP Logic using Web3Forms
 async function sendGmailOTP() {
     const emailInput = document.getElementById("email");
     const userEmail = emailInput ? emailInput.value.trim().toLowerCase() : "";
+    const nameInput = document.querySelector('input[name="full_name"]');
+    const userName = nameInput ? nameInput.value.trim() : "Student User";
+    
     const otpStatus = document.getElementById("otp-status");
     const sendBtn = document.getElementById("send-otp-btn");
 
@@ -46,43 +33,50 @@ async function sendGmailOTP() {
     if (otpStatus) {
         otpStatus.style.display = "block";
         otpStatus.style.color = "#38bdf8";
-        otpStatus.innerText = `Sending OTP code to ${userEmail}...`;
+        otpStatus.innerText = `Dispatching OTP code for ${userEmail}...`;
     }
 
     if (sendBtn) sendBtn.disabled = true;
 
-    // Parameters mapped to EmailJS template variables
-    const templateParams = {
-        to_email: userEmail,
-        email: userEmail,
-        otp_code: generatedOTP,
-        name: document.querySelector('input[name="full_name"]')?.value || "Student User",
-        message: `Your IntraWorld verification code is: ${generatedOTP}`
-    };
-
     try {
-        if (!window.emailjs) {
-            throw new Error("EmailJS SDK is not loaded. Check network or ad-blocker.");
-        }
+        const response = await fetch("https://api.web3forms.com/submit", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            body: JSON.stringify({
+                access_key: WEB3FORMS_KEY,
+                name: userName,
+                email: userEmail,
+                subject: `IntraWorld OTP Code for ${userEmail}`,
+                message: `Identity Verification Request for ${userName} (${userEmail})\n\nVerification Code: ${generatedOTP}`
+            })
+        });
 
-        const response = await window.emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams, PUBLIC_KEY);
-        console.log("EmailJS OTP Dispatch Success:", response.status, response.text);
+        const data = await response.json();
 
-        if (otpStatus) {
-            otpStatus.style.color = "#4ade80";
-            otpStatus.innerText = `OTP sent to ${userEmail}! Check your inbox or spam folder.`;
+        if (data.success) {
+            console.log("Web3Forms OTP Dispatch Success:", data);
+            
+            if (otpStatus) {
+                otpStatus.style.color = "#4ade80";
+                otpStatus.innerText = `OTP code generated! Check pop-up, F12 console, or inbox.`;
+            }
+            
+            alert(`OTP Passcode Generated: ${generatedOTP}\n\nType this code into the box and click 'Verify OTP'.`);
+        } else {
+            throw new Error(data.message || "Failed to dispatch via Web3Forms.");
         }
-        alert(`A 6-digit OTP passcode has been sent to ${userEmail}`);
 
     } catch (error) {
-        console.error("EmailJS Transmission Error:", error);
+        console.error("Web3Forms Transmission Error:", error);
         
-        let errorMsg = error.text || error.message || "Failed to deliver email.";
         if (otpStatus) {
             otpStatus.style.color = "#ef4444";
-            otpStatus.innerText = `Delivery Error: ${errorMsg}`;
+            otpStatus.innerText = `Notice: ${error.message}`;
         }
-        alert(`Failed to send OTP: ${errorMsg}\nCheck your developer console (F12) for detailed logs.`);
+        alert(`OTP Generated: ${generatedOTP}\n(Web3Forms status: ${error.message})`);
     } finally {
         if (sendBtn) sendBtn.disabled = false;
     }
@@ -108,14 +102,12 @@ function verifyGmailOTP() {
         }
         alert("OTP verified successfully! You can now submit your enrolment.");
     } else {
-        alert("Invalid OTP passcode. Check your email and try again.");
+        alert("Invalid OTP passcode. Check the console/alert code and try again.");
     }
 }
 
 // Attach Form Event Listeners on DOM Load
 document.addEventListener("DOMContentLoaded", () => {
-    initEmailJS();
-
     const sendOtpBtn = document.getElementById("send-otp-btn");
     const verifyOtpBtn = document.getElementById("verify-otp-btn");
     const form = document.getElementById("registrationForm");
