@@ -14,14 +14,18 @@ const SERVICE_ID = "service_cuo0zfo";
 const TEMPLATE_ID = "template_f5n21dq";
 
 // Initialize EmailJS Engine
-(function initEmailJS() {
+function initEmailJS() {
     if (window.emailjs) {
-        window.emailjs.init(PUBLIC_KEY);
-        console.log("EmailJS SDK initialized successfully.");
+        try {
+            window.emailjs.init(PUBLIC_KEY);
+            console.log("EmailJS SDK initialized successfully.");
+        } catch (e) {
+            console.error("EmailJS Initialization Error:", e);
+        }
     } else {
-        console.error("EmailJS SDK missing. Check CDN script tag in register.html!");
+        console.error("EmailJS SDK script non-existent or failed to load from CDN.");
     }
-})();
+}
 
 // Send OTP Logic
 async function sendGmailOTP() {
@@ -57,7 +61,7 @@ async function sendGmailOTP() {
 
     try {
         if (!window.emailjs) {
-            throw new Error("EmailJS SDK has not loaded properly.");
+            throw new Error("EmailJS SDK is not loaded. Check script imports.");
         }
 
         const response = await window.emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams, PUBLIC_KEY);
@@ -65,7 +69,7 @@ async function sendGmailOTP() {
 
         if (otpStatus) {
             otpStatus.style.color = "#4ade80";
-            otpStatus.innerText = `OTP sent to ${userEmail}! Check your primary inbox or spam folder.`;
+            otpStatus.innerText = `OTP sent to ${userEmail}! Check your inbox or spam.`;
         }
         alert(`A 6-digit OTP passcode has been sent to ${userEmail}`);
 
@@ -77,7 +81,7 @@ async function sendGmailOTP() {
             otpStatus.style.color = "#ef4444";
             otpStatus.innerText = `Delivery Error: ${errorMsg}`;
         }
-        alert(`Failed to send OTP: ${errorMsg}\nVerify EmailJS Service ID, Template ID, and Public Key.`);
+        alert(`Failed to send OTP: ${errorMsg}\nVerify your EmailJS keys and active template.`);
     } finally {
         if (sendBtn) sendBtn.disabled = false;
     }
@@ -107,14 +111,22 @@ function verifyGmailOTP() {
     }
 }
 
-// Attach Form Event Listeners
+// Attach Form Event Listeners on DOM Load
 document.addEventListener("DOMContentLoaded", () => {
+    // Run EmailJS Initialization
+    initEmailJS();
+
     const sendOtpBtn = document.getElementById("send-otp-btn");
     const verifyOtpBtn = document.getElementById("verify-otp-btn");
     const form = document.getElementById("registrationForm");
 
-    if (sendOtpBtn) sendOtpBtn.addEventListener("click", sendGmailOTP);
-    if (verifyOtpBtn) verifyOtpBtn.addEventListener("click", verifyGmailOTP);
+    if (sendOtpBtn) {
+        sendOtpBtn.addEventListener("click", sendGmailOTP);
+    }
+    
+    if (verifyOtpBtn) {
+        verifyOtpBtn.addEventListener("click", verifyGmailOTP);
+    }
 
     if (form) {
         form.addEventListener("submit", async (e) => {
@@ -154,7 +166,6 @@ document.addEventListener("DOMContentLoaded", () => {
             const skillsVal = document.querySelector('input[name="skills"]')?.value.trim() || "";
             const interestsVal = document.querySelector('textarea[name="professional_interests"]')?.value.trim() || "";
 
-            // Fallback user avatar SVG
             const defaultAvatar = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2338bdf8'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-3.8-.85-5.05-2.2.03-1.68 3.37-2.6 5.05-2.6s5.02.92 5.05 2.6C15.8 19.15 14.03 20 12 20z'/></svg>";
 
             const registrationPayload = {
@@ -174,7 +185,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 createdAt: new Date().toISOString()
             };
 
-            // Save active user session locally for instant dashboard display
+            // Save active user session locally
             localStorage.setItem("currentUser", JSON.stringify(registrationPayload));
 
             // Store registration entry in Firestore 'registrations' collection

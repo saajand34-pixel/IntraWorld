@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- EmailJS SDK Browser Bundle -->
+    <!-- EmailJS SDK Browser Bundle (Loaded First) -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
     <!-- Shared reset + dotted background theme -->
@@ -38,7 +38,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-top: -10px;
+            margin-top: 1px;
             margin-bottom: -30px;
         }
 
@@ -242,7 +242,7 @@
     <div class="register-card">
         <div class="header">
             <div class="logo-container">
-                <img src="logo.png" alt="IntraWorld Logo" class="brand-logo">
+                <img src="logo.png" alt="IntraWorld Logo" class="brand-logo" onerror="this.style.display='none'">
             </div>
             <h1>SOCIAL NETWORK</h1>
             <p>One User. One Identity. One Verified Student.</p>
@@ -499,7 +499,7 @@
         });
     </script>
 
-    <!-- JavaScript module imports -->
+    <!-- JavaScript Module Imports -->
     <script type="module" src="./firebase-config.js"></script>
     <script type="module" src="./register.js"></script>
 </body>
