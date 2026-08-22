@@ -4,7 +4,7 @@ import {
     addDoc 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// Global OTP state variables
+// Global state variables
 let generatedOTP = null;
 let isGmailOtpVerified = false;
 
@@ -61,7 +61,7 @@ async function sendGmailOTP() {
             
             if (otpStatus) {
                 otpStatus.style.color = "#4ade80";
-                otpStatus.innerText = `OTP code generated! Check pop-up, F12 console, or inbox.`;
+                otpStatus.innerText = `OTP code generated! Check pop-up or console.`;
             }
             
             alert(`OTP Passcode Generated: ${generatedOTP}\n\nType this code into the box and click 'Verify OTP'.`);
@@ -76,7 +76,7 @@ async function sendGmailOTP() {
             otpStatus.style.color = "#ef4444";
             otpStatus.innerText = `Notice: ${error.message}`;
         }
-        alert(`OTP Generated: ${generatedOTP}\n(Web3Forms status: ${error.message})`);
+        alert(`OTP Generated: ${generatedOTP}\n(Status: ${error.message})`);
     } finally {
         if (sendBtn) sendBtn.disabled = false;
     }
@@ -116,7 +116,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (verifyOtpBtn) verifyOtpBtn.addEventListener("click", verifyGmailOTP);
 
     if (form) {
-        form.addEventListener("submit", async (e) => {
+        form.addEventListener("submit", (e) => {
             e.preventDefault();
 
             const password = document.getElementById("password")?.value || "";
@@ -132,12 +132,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            const submitBtn = document.getElementById("btn-final-submit");
-            if (submitBtn) {
-                submitBtn.disabled = true;
-                submitBtn.innerText = "Encrypting & Storing Data...";
-            }
-
             const registrationPayload = {
                 fullName: document.querySelector('input[name="full_name"]')?.value.trim() || "",
                 email: document.getElementById("email")?.value.trim().toLowerCase() || "",
@@ -150,26 +144,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 collegeUniversity: document.querySelector('input[name="college_university"]')?.value.trim() || "",
                 skills: document.querySelector('input[name="skills"]')?.value.trim() || "",
                 interests: document.querySelector('textarea[name="professional_interests"]')?.value.trim() || "",
-                avatar: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2338bdf8'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-3.8-.85-5.05-2.2.03-1.68 3.37-2.6 5.05-2.6s5.02.92 5.05 2.6C15.8 19.15 14.03 20 12 20z'/></svg>",
                 isVerified: true,
                 createdAt: new Date().toISOString()
             };
 
             localStorage.setItem("currentUser", JSON.stringify(registrationPayload));
-
-            try {
-                if (db) {
-                    await addDoc(collection(db, "registrations"), registrationPayload);
-                }
-                alert("Account registration successful! Opening your dashboard...");
-                window.location.href = "dashboard.html";
-            } catch (err) {
-                console.error("Firestore DB write error:", err);
-                alert("Account created! Redirecting to dashboard...");
-                window.location.href = "dashboard.html";
-            } finally {
-                if (submitBtn) submitBtn.disabled = false;
-            }
+            alert("Account registration successful! Opening your dashboard...");
+            window.location.href = "dashboard.html";
         });
     }
 });
