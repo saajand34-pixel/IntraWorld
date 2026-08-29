@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Posts - Intra World</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+         body { 
+            display: flex; 
+            flex-direction: column; 
+            min-height: 100vh; 
+            background-color: #030712; 
+            color: #ffffff; 
+            padding-top: 100px;
+            background-image: radial-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px);
+            background-size: 24px 24px;
+            color: #ffffff;
+        }
+
+        /* ===== FLOATING NAVBAR CONTAINER ===== */
+        .nav-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            width: auto;
+            max-width: 95%;
+        }
+
+        .floating-navbar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #081b2e;
+            padding: 8px 12px;
+            border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+        }
+
+        /* Nav Links Group */
+        .nav-links { 
+            display: flex; 
+            align-items: center; 
+            gap: 6px; 
+        }
+
+        .nav-links a { 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            padding: 10px 18px; 
+            border-radius: 25px; 
+            color: #8fa8bf; 
+            text-decoration: none; 
+            font-size: 14px; 
+            font-weight: 500; 
+            white-space: nowrap; 
+            transition: all 0.2s ease; 
+        }
+
+        .nav-links a:hover { 
+            color: #fff; 
+            background: rgba(255, 255, 255, 0.08); 
+        }
+
+        .nav-links a.active { 
+            color: #fff; 
+            background: #0066ff; 
+            box-shadow: 0 4px 15px rgba(0, 102, 255, 0.35);
+        }
+
+        .nav-links a.logout { 
+            color: #ef4444; 
+            background: rgba(239, 68, 68, 0.1);
+            margin-left: 6px; 
+        }
+
+        .nav-links a.logout:hover { 
+            background: #ef4444; 
+            color: #ffffff; 
+        }
+
+        .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+        .content { flex: 1; padding: 35px; width: 100%; max-width: 900px; margin: 0 auto; overflow-y: auto; }
+        .create-post-card { background: #081b2e; padding: 25px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 30px; width: 100%; }
+        .post-input-header { display: flex; align-items: flex-start; gap: 18px; }
+        .user-avatar { width: 50px; height: 50px; border-radius: 50%; background: #0066ff; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; color: white; flex-shrink: 0; }
+        .create-post-card textarea { width: 100%; height: 90px; background: #102b45; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 14px; color: white; resize: none; outline: none; font-size: 15px; font-family: Poppins, sans-serif; }
+
+        .github-input-box { display: flex; align-items: center; gap: 10px; background: #102b45; border: 1px solid rgba(255,255,255,0.1); padding: 8px 14px; border-radius: 8px; margin-top: 12px; }
+        .github-input-box input { background: transparent; border: none; color: white; width: 100%; outline: none; font-size: 14px; }
+
+        .media-preview-container { margin-top: 14px; display: none; position: relative; width: max-content; max-width: 100%; }
+        .media-preview-container img { max-width: 100%; max-height: 250px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2); }
+        .pdf-preview-box { background: #1e3a5f; padding: 12px 18px; border-radius: 10px; color: #38bdf8; display: flex; align-items: center; gap: 10px; border: 1px dashed #0066ff; }
+        .remove-media-btn { position: absolute; top: 6px; right: 6px; background: rgba(239, 68, 68, 0.9); color: white; border: none; width: 26px; height: 26px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+        .post-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 18px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.08); flex-wrap: wrap; gap: 10px; }
+        .media-options { display: flex; gap: 15px; }
+        .upload-btn { background: transparent; color: #7db7ff; border: none; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
+        .upload-btn:hover { color: #fff; }
+
+        .submit-post-btn { background: #0066ff; color: white; border: none; padding: 12px 32px; border-radius: 10px; font-weight: 600; font-size: 15px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 8px; }
+        .submit-post-btn:hover { background: #0f3f8c; }
+
+        .ai-shield-status { margin-top: 12px; font-size: 13px; padding: 10px 14px; border-radius: 8px; display: none; }
+        .ai-shield-status.warning { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+        .ai-shield-status.success { background: rgba(74, 222, 128, 0.2); color: #4ade80; border: 1px solid #22c55e; }
+
+        .post-card { background: #081b2e; padding: 25px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 22px; width: 100%; }
+        .post-author { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+        .post-author .user-avatar { width: 45px; height: 45px; font-size: 18px; }
+        .author-info h4 { font-size: 16px; font-weight: 600; margin-bottom: 3px; }
+        .author-info p { font-size: 12px; color: #7db7ff; }
+
+        .post-content { font-size: 15px; line-height: 1.6; margin-bottom: 18px; color: #e0e0e0; }
+        .post-media { width: 100%; border-radius: 12px; max-height: 400px; object-fit: cover; margin-bottom: 18px; }
+        .github-card { display: flex; align-items: center; gap: 12px; background: #0d2137; padding: 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.15); margin-bottom: 18px; text-decoration: none; color: #38bdf8; }
+        .pdf-card { display: flex; align-items: center; gap: 12px; background: #0d2137; padding: 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.15); margin-bottom: 18px; text-decoration: none; color: #f87171; }
+
+        .deepfake-verified-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 20px; font-size: 12px; border: 1px solid; margin-bottom: 14px; }
+        .post-footer { display: flex; gap: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.08); }
+        .interaction-btn { background: transparent; border: none; color: #7db7ff; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 8px; }
+
+        @media (max-width: 768px) {
+            .nav-container { width: 95%; top: 10px; }
+            .floating-navbar { padding: 6px 8px; }
+            .nav-links a { padding: 8px 12px; font-size: 13px; }
+            .nav-links a span { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- FLOATING NAVBAR -->
+    <div class="nav-container">
+        <header class="floating-navbar">
+            <nav class="nav-links">
+                <a href="dashboard.html">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Home</span>
+                </a>
+                <a href="connect.html">
+                    <i class="fa-solid fa-user-group"></i>
+                    <span>Student Connect</span>
+                </a>
+                <a href="posts.html" class="active">
+                    <i class="fa-solid fa-newspaper"></i>
+                    <span>Posts</span>
+                </a>
+                <a href="messages.html">
+                    <i class="fa-solid fa-comments"></i>
+                    <span>Messages</span>
+                </a>
+                <a href="settings.html">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Settings</span>
+                </a>
+                <a class="logout" id="logoutBtn" href="index.html">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Logout</span>
+                </a>
+            </nav>
+        </header>
+    </div>
+
+    <main class="main">
+        <section class="content">
+            <div class="create-post-card">
+                <div class="post-input-header">
+                    <div class="user-avatar" id="myAvatar">U</div>
+                    <textarea id="postContentInput" placeholder="Share research updates, academic projects, GitHub links, or documents..."></textarea>
+                </div>
+
+                <div class="github-input-box" id="githubBox" style="display: none;">
+                    <i class="fa-brands fa-github" style="color: #fff; font-size: 18px;"></i>
+                    <input type="url" id="githubLinkInput" placeholder="Paste GitHub repository or project link (e.g. https://github.com/user/repo)...">
+                </div>
+
+                <div class="media-preview-container" id="mediaPreviewBox">
+                    <button class="remove-media-btn" id="removeMediaBtn" type="button"><i class="fa-solid fa-xmark"></i></button>
+                    <div id="previewContent"></div>
+                </div>
+
+                <div class="ai-shield-status" id="aiShieldStatus"></div>
+
+                <div class="post-actions">
+                    <div class="media-options">
+                        <label class="upload-btn">
+                            <i class="fa-solid fa-image"></i> Image
+                            <input type="file" id="imageUpload" accept="image/*" style="display: none;">
+                        </label>
+                        <label class="upload-btn">
+                            <i class="fa-solid fa-file-pdf"></i> Document / PDF
+                            <input type="file" id="docUpload" accept=".pdf,.doc,.docx" style="display: none;">
+                        </label>
+                        <button class="upload-btn" type="button" id="toggleGithubBtn">
+                            <i class="fa-brands fa-github"></i> GitHub Link
+                        </button>
+                    </div>
+
+                    <button class="submit-post-btn" id="publishPostBtn">
+                        <i class="fa-solid fa-shield-halved"></i> Scan & Post
+                    </button>
+                </div>
+            </div>
+
+            <div id="postsFeed">
+                <div style="color: #7db7ff; text-align: center; padding: 40px;">Loading posts...</div>
+            </div>
+        </section>
+    </main>
+
+    <script type="module" src="firebase-config.js"></script>
+    <script type="module" src="posts.js"></script>
+</body>
+</html>

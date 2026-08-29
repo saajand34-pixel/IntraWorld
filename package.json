@@ -1,0 +1,17 @@
+{
+  "name": "intraworld",
+  "version": "1.0.0",
+  "description": "",
+  "main": "firebase-config-template.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "dependencies": {
+    "axios": "^1.20.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1"
+  }
+}

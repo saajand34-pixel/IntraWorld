@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IntraWorld Admin Dashboard</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background-color: #030712;
+            background-image: radial-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px);
+            background-size: 24px 24px;
+            color: #ffffff;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            background: #071426;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        header h1 {
+            font-size: 28px;
+        }
+
+        header button {
+            padding: 12px 24px;
+            background: #ff4444;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        header button:hover {
+            background: #d91f1f;
+        }
+
+        .container {
+            padding: 35px;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
+            margin-bottom: 35px;
+        }
+
+        .card {
+            background: #0d2039;
+            padding: 25px;
+            border-radius: 18px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.35);
+        }
+
+        .card h2 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #9dc8ff;
+        }
+
+        .card span {
+            font-size: 38px;
+            font-weight: 700;
+        }
+
+        .section-title {
+            margin: 30px 0 15px 0;
+            font-size: 20px;
+            color: #38bdf8;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search {
+            margin-bottom: 25px;
+        }
+
+        .search input {
+            width: 100%;
+            padding: 15px;
+            border-radius: 12px;
+            border: none;
+            font-size: 16px;
+            background: #122947;
+            color: white;
+            outline: none;
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            border-radius: 16px;
+            margin-bottom: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #081624;
+            white-space: nowrap;
+        }
+
+        thead {
+            background: #0066ff;
+        }
+
+        th {
+            padding: 16px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        td {
+            padding: 14px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            text-align: center;
+            font-size: 13px;
+        }
+
+        img.profile {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .status-verified { background: #16a34a; color: #fff; }
+
+        .delete {
+            background: #ff3b3b;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .delete:hover {
+            background: #d91f1f;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>IntraWorld Admin Dashboard</h1>
+        <button id="logoutBtn">Logout</button>
+    </header>
+
+    <div class="container">
+        <!-- Stats Summary -->
+        <div class="cards">
+            <div class="card">
+                <h2>Total Members</h2>
+                <span id="totalUsers">0</span>
+            </div>
+            <div class="card">
+                <h2>OCR Verified</h2>
+                <span id="ocrVerifiedUsers">0</span>
+            </div>
+            <div class="card">
+                <h2>Verified Users</h2>
+                <span id="verifiedUsers">0</span>
+            </div>
+        </div>
+
+        <!-- MEMBERS DATABASE TABLE -->
+        <h2 class="section-title"><i class="fa-solid fa-users"></i> All Database Members</h2>
+        
+        <div class="search">
+            <input type="text" id="search" placeholder="Search by Name, Email, College, State or Qualification...">
+        </div>
+
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Photo</th>
+                        <th>Full Name</th>
+                        <th>Email</th>
+                        <th>Mobile</th>
+                        <th>Gender</th>
+                        <th>State</th>
+                        <th>Qualification</th>
+                        <th>College / University</th>
+                        <th>Passout Year</th>
+                        <th>Registered Date</th>
+                        <th>Status</th>
+                        <th>Delete</th>
+                    </tr>
+                </thead>
+                <tbody id="userTable"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script type="module" src="admin.js"></script>
+    <script>
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="IntraWorld Student Registration">
+    <title>IntraWorld - Register</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Inter", sans-serif;
+            background: radial-gradient(circle at top, rgba(56, 189, 248, 0.12), transparent 35%), #061525;
+            color: #e5eef8;
+        }
+
+        .page-background {
+            min-height: 100vh;
+            padding: 15px 16px 50px;
+            background-image: radial-gradient(rgba(255,255,255,0.08) 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        .register-header { text-align: center; margin-bottom: 12px; padding: 0; }
+        .register-logo { width: 250px; height: 250px; object-fit: contain; display: block; margin: 0 auto -45px; }
+        .register-header h1 { margin: 0; font-size: 30px; font-weight: 700; letter-spacing: 2px; line-height: 1.1; }
+        .register-header p { margin: 4px 0 0; color: #aebdcd; font-size: 14px; line-height: 1.2; }
+
+        .register-card {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 34px;
+            border: 1px solid rgba(255,255,255,0.10);
+            border-radius: 20px;
+            background: rgba(8, 24, 40, 0.94);
+            box-shadow: 0 25px 70px rgba(0,0,0,0.35);
+            backdrop-filter: blur(15px);
+        }
+
+        .form-section { margin-bottom: 32px; }
+        .section-title { display: flex; align-items: center; gap: 10px; margin: 0 0 18px; font-size: 18px; font-weight: 700; color: #f1f7ff; }
+        .section-title i { color: #38bdf8; }
+
+        .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+        .full-width { grid-column: 1 / -1; }
+
+        .form-group { display: flex; flex-direction: column; }
+        .form-group label { margin-bottom: 8px; font-size: 13px; font-weight: 600; color: #c9d7e5; }
+        .required { color: #f87171; }
+
+        .input-icon-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon-wrapper i.input-icon {
+            position: absolute;
+            left: 14px;
+            color: #718296;
+            font-size: 14px;
+            pointer-events: none;
+        }
+
+        .password-toggle-icon {
+            position: absolute;
+            right: 14px;
+            color: #718296;
+            font-size: 14px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .password-toggle-icon:hover { color: #38bdf8; }
+
+        input, select, textarea {
+            width: 100%;
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 10px;
+            padding: 13px 14px 13px 40px;
+            outline: none;
+            font-family: inherit;
+            font-size: 14px;
+            color: #f4f8fc;
+            background: rgba(255,255,255,0.05);
+            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+        }
+
+        input[type="password"] { padding-right: 40px; }
+
+        select option {
+            background-color: #081828;
+            color: #f4f8fc;
+        }
+
+        input::placeholder, textarea::placeholder { color: #718296; }
+        input:focus, select:focus, textarea:focus {
+            border-color: #38bdf8;
+            background: rgba(56,189,248,0.06);
+            box-shadow: 0 0 0 3px rgba(56,189,248,0.10);
+        }
+
+        /* EXPANDED UPLOAD CONTAINER */
+        .upload-card {
+            grid-column: 1 / -1;
+            width: 100%;
+            border: 1px dashed rgba(56, 189, 248, 0.35);
+            border-radius: 14px;
+            padding: 24px;
+            background: rgba(56, 189, 248, 0.02);
+            margin-top: 10px;
+        }
+
+        .upload-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #38bdf8;
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .upload-desc {
+            font-size: 13px;
+            color: #aebdcd;
+            margin: 0 0 15px 0;
+            line-height: 1.4;
+        }
+
+        .custom-file-upload {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 10px;
+            padding: 12px 16px;
+            background: rgba(255,255,255,0.05);
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.2s, border-color 0.2s;
+        }
+
+        .custom-file-upload:hover {
+            background: rgba(56,189,248,0.08);
+            border-color: #38bdf8;
+        }
+
+        .custom-file-upload i { color: #38bdf8; font-size: 16px; }
+        .custom-file-upload span { font-size: 13px; color: #e5eef8; font-weight: 500; }
+        .file-name-display { margin-top: 8px; font-size: 12px; color: #38bdf8; font-weight: 500; }
+
+        input[type="file"] { display: none; }
+
+        .otp-box {
+            padding: 20px;
+            border: 1px solid rgba(56,189,248,0.18);
+            border-radius: 14px;
+            background: rgba(56,189,248,0.045);
+            margin-bottom: 15px;
+        }
+
+        .otp-label { display: block; margin-bottom: 8px; font-size: 13px; font-weight: 600; color: #dce9f6; }
+        .otp-row { display: grid; grid-template-columns: minmax(150px, 1fr) auto auto; gap: 10px; align-items: center; }
+        .otp-row input { padding-left: 14px; }
+        .otp-row button { white-space: nowrap; }
+
+        button {
+            border: none;
+            border-radius: 10px;
+            padding: 12px 18px;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.15s, opacity 0.15s, background 0.2s;
+        }
+
+        button:hover:not(:disabled) { transform: translateY(-1px); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .btn-primary { color: #061525; background: #38bdf8; }
+        .btn-primary:hover:not(:disabled) { background: #67cdf9; }
+        .btn-secondary { color: #e5eef8; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); }
+        .btn-secondary:hover:not(:disabled) { background: rgba(255,255,255,0.13); }
+
+        .status-msg { display: none; margin: 12px 0 0; font-size: 13px; line-height: 1.5; }
+
+        .turnstile-box {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            min-height: 80px;
+        }
+
+        .terms-box { display: flex; align-items: flex-start; gap: 10px; margin-top: 5px; }
+        .terms-box input[type="checkbox"] { width: 17px; height: 17px; margin-top: 2px; accent-color: #38bdf8; }
+        .terms-box label { margin: 0; font-size: 12px; line-height: 1.6; color: #9eafc0; }
+
+        .submit-area { padding-top: 10px; text-align: center; }
+        .submit-button { width: 100%; max-width: 400px; padding: 15px 20px; font-size: 15px; color: #061525; background: #38bdf8; box-shadow: 0 8px 25px rgba(56,189,248,0.18); }
+        .submit-button:hover { background: #67cdf9; }
+
+        .login-link { margin-top: 20px; text-align: center; font-size: 13px; color: #8799ac; }
+        .login-link a { color: #38bdf8; text-decoration: none; font-weight: 600; }
+        .login-link a:hover { text-decoration: underline; }
+
+        @media (max-width: 700px) {
+            .page-background { padding: 24px 10px 50px; }
+            .register-card { padding: 22px 17px; border-radius: 16px; }
+            .form-grid { grid-template-columns: 1fr; }
+            .otp-row { grid-template-columns: 1fr; }
+            .otp-row button { width: 100%; }
+        }
+    </style>
+</head>
+
+<body>
+<div class="page-background">
+
+    <header class="register-header">
+        <img src="./logo.png" alt="IntraWorld Logo" class="register-logo" onerror="this.style.display='none';">
+        <h1>INTRAWORLD</h1>
+        <p>Stay Connected · Stay Informed · Stay Ahead <br><br></p>
+    </header>
+
+    <main class="register-card">
+        <form id="registrationForm" novalidate>
+
+            <section class="form-section">
+                <h2 class="section-title"><i class="fa-solid fa-user"></i> Personal Information</h2>
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label for="full_name">Full Name <span class="required">*</span></label>
+                        <div class="input-icon-wrapper">
+                            <i class="fa-solid fa-user input-icon"></i>
+                            <input type="text" id="full_name" name="full_name" placeholder="Enter your full name" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Gmail Address <span class="required">*</span></label>
+                        <div class="input-icon-wrapper">
+                            <i class="fa-solid fa-envelope input-icon"></i>
+                            <input type="email" id="email" name="email" placeholder="yourname@gmail.com" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="mobile_number">Mobile Number (with Country Code) <span class="required">*</span></label>
+                        <div class="input-icon-wrapper">
+                            <i class="fa-solid fa-phone input-icon"></i>
+                            <input type="tel" id="mobile_number" name="mobile_number" placeholder="+919876543210" required>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="form-section">
+                <h2 class="section-title"><i class="fa-solid fa-graduation-cap"></i> Academic Details</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="qualification">Qualification / Degree <span class="required">*</span></label>
+                        <div class="input-icon-wrapper">
+                            <i class="fa-solid fa-graduation-cap input-icon"></i>
+                            <select id="qualification" name="qualification" required>
+                                <option value="" disabled selected>-- Select Qualification --</option>
+                                <option value="B.Tech / B.E.">Engineering & Tech</option>
+                                <option value="BCA">Business & Management</option>
+                                <option value="B.Sc">Humanities & Science</option>
+                                <option value="MCA">Computers & IT</option>
+                                <option value="M.Tech">Medical & Allied</option>
+                                <option value="M.Sc">Law</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="specialization">Specialization <span class="required">*</span></label>
+                        <div class="input-icon-wrapper">
+                            <i class="fa-solid fa-book input-icon"></i>
+                            <input type="text" id="specialization" name="specialization" placeholder="e.g. Computer Science" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="college_name">College / University Name <span class="required">*</span></label>
+                        <div class="input-icon-wrapper">
+                            <i class="fa-solid fa-building-columns input-icon"></i>
+                            <input type="text" id="college_name" name="college_name" placeholder="Your College Name" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="skills">Skills (comma-separated) <span class="required">*</span></label>
+                        <div class="input-icon-wrapper">
+                            <i class="fa-solid fa-code input-icon"></i>
+                            <input type="text" id="skills" name="skills" placeholder="Python, JavaScript, Cyber Security" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group full-width"> 
+                        <label for="passed_out_year">Passed Out Year <span class="required">*</span></label> 
+                        <div class="input-icon-wrapper"> 
+                            <i class="fa-solid fa-calendar-days input-icon"></i> 
+                            <input type="text" id="passed_out_year" name="passed_out_year" placeholder="YYYY" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required> 
+                        </div> 
+                    </div>
+
+                    <div class="upload-card">
+                        <div class="upload-header">
+                            <i class="fa-solid fa-id-card"></i> Physical Academic Document Upload
+                        </div>
+                        <p class="upload-desc">
+                            Upload a clear image or PDF of your Student ID Card, Official Enrollment Form, or Fee Receipt. Must display full name and matching institution.
+                        </p>
+                        <label for="academic_doc" class="custom-file-upload">
+                            <i class="fa-solid fa-file-arrow-up"></i>
+                            <span>Choose File</span>
+                        </label>
+                        <input type="file" id="academic_doc" name="academic_doc" accept="image/*,.pdf" required>
+                        <div id="file-name-display" class="file-name-display"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="form-section">
+                <h2 class="section-title"><i class="fa-solid fa-shield-halved"></i> Verification Controls</h2>
+                
+                <div class="otp-box">
+                    <label for="otp-code" class="otp-label">Gmail Verification (6-Digit OTP)</label>
+                    <div class="otp-row">
+                        <input type="text" id="otp-code" name="otp_code" inputmode="numeric" maxlength="6" placeholder="Enter Gmail OTP" disabled>
+                        <button type="button" id="send-otp-btn" class="btn-primary"><i class="fa-solid fa-paper-plane"></i> Send Email OTP</button>
+                        <button type="button" id="verify-otp-btn" class="btn-secondary" disabled><i class="fa-solid fa-check"></i> Verify Email</button>
+                    </div>
+                    <p id="otp-status" class="status-msg"></p>
+                </div>
+
+                <div class="otp-box">
+                    <label for="phone-otp-code" class="otp-label">Phone Verification (SMS OTP)</label>
+                    <div class="otp-row">
+                        <input type="text" id="phone-otp-code" name="phone_otp_code" inputmode="numeric" maxlength="6" placeholder="Enter SMS OTP" disabled>
+                        <button type="button" id="send-phone-otp-btn" class="btn-primary"><i class="fa-solid fa-mobile-screen"></i> Send SMS OTP</button>
+                        <button type="button" id="verify-phone-otp-btn" class="btn-secondary" disabled><i class="fa-solid fa-check"></i> Verify Phone</button>
+                    </div>
+                    <p id="phone-otp-status" class="status-msg"></p>
+                </div>
+            </section>
+
+            <section class="form-section">
+                <h2 class="section-title"><i class="fa-solid fa-lock"></i> Account Security</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="password">Password <span class="required">*</span></label>
+                        <div class="input-icon-wrapper">
+                            <i class="fa-solid fa-key input-icon"></i>
+                            <input type="password" id="password" name="password" placeholder="Create a password" minlength="8" required>
+                            <i class="fa-solid fa-eye password-toggle-icon" id="togglePassword"></i>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm_password">Confirm Password <span class="required">*</span></label>
+                        <div class="input-icon-wrapper">
+                            <i class="fa-solid fa-key input-icon"></i>
+                            <input type="password" id="confirm_password" name="confirm_password" placeholder="Re-enter password" minlength="8" required>
+                            <i class="fa-solid fa-eye password-toggle-icon" id="toggleConfirmPassword"></i>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="form-section">
+                <h2 class="section-title"><i class="fa-solid fa-robot"></i> Anti-Bot Security</h2>
+                <div class="turnstile-box">
+                    <div class="cf-turnstile" 
+                         data-sitekey="0x4AAAAAAEY6J12KOOGwNUJ-" 
+                         data-callback="onTurnstileSuccess"
+                         data-expired-callback="onTurnstileExpired"
+                         data-error-callback="onTurnstileError"
+                         data-response-field="true"
+                         data-theme="dark">
+                    </div>
+                </div>
+            </section>
+
+            <section class="form-section">
+                <div class="terms-box">
+                    <input type="checkbox" id="terms" name="terms" required>
+                    <label for="terms">I confirm that all provided info is accurate and agree to terms. <span class="required">*</span></label>
+                </div>
+            </section>
+
+            <div class="submit-area">
+                <button type="submit" class="submit-button">
+                    <i class="fa-solid fa-user-plus"></i> Complete Registration
+                </button>
+            </div>
+
+        </form>
+
+        <div class="login-link">
+            Already have an account? <a href="./login.html">Login here</a>
+        </div>
+    </main>
+</div>
+
+<script type="module" src="./js/register.js"></script>
+
+</body>
+</html>

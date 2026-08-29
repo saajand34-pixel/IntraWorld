@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages - Intra World</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+         body { 
+            display: flex; 
+            flex-direction: column; 
+            min-height: 100vh; 
+            background-color: #030712; 
+            color: #ffffff; 
+            padding-top: 100px;
+            background-image: radial-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px);
+            background-size: 24px 24px;
+            color: #ffffff;
+        }
+
+        /* ===== FLOATING NAVBAR CONTAINER ===== */
+        .nav-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            width: auto;
+            max-width: 95%;
+        }
+
+        .floating-navbar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #081b2e;
+            padding: 8px 12px;
+            border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+        }
+
+        /* Nav Links Group */
+        .nav-links { 
+            display: flex; 
+            align-items: center; 
+            gap: 6px; 
+        }
+
+        .nav-links a { 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            padding: 10px 18px; 
+            border-radius: 25px; 
+            color: #8fa8bf; 
+            text-decoration: none; 
+            font-size: 14px; 
+            font-weight: 500; 
+            white-space: nowrap; 
+            transition: all 0.2s ease; 
+        }
+
+        .nav-links a:hover { 
+            color: #fff; 
+            background: rgba(255, 255, 255, 0.08); 
+        }
+
+        .nav-links a.active { 
+            color: #fff; 
+            background: #0066ff; 
+            box-shadow: 0 4px 15px rgba(0, 102, 255, 0.35);
+        }
+
+        .nav-links a.logout { 
+            color: #ef4444; 
+            background: rgba(239, 68, 68, 0.1);
+            margin-left: 6px; 
+        }
+
+        .nav-links a.logout:hover { 
+            background: #ef4444; 
+            color: #ffffff; 
+        }
+
+        .main { flex: 1; display: flex; flex-direction: column; min-width: 0; height: calc(100vh - 90px); }
+
+        .chat-container { flex: 1; display: flex; background: #061524; overflow: hidden; }
+        .user-list-pane { width: 320px; background: #081b2e; border-right: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; }
+        .pane-header { padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 18px; font-weight: 600; }
+        .user-list { flex: 1; overflow-y: auto; }
+        .user-item { display: flex; align-items: center; gap: 12px; padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.04); cursor: pointer; transition: background 0.2s; }
+        .user-item:hover, .user-item.active { background: #102b45; }
+        .user-avatar { width: 42px; height: 42px; border-radius: 50%; background: #0066ff; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #fff; flex-shrink: 0; }
+        .user-details h4 { font-size: 14px; font-weight: 500; }
+        .user-details p { font-size: 11px; color: #7db7ff; }
+        .chat-pane { flex: 1; display: flex; flex-direction: column; background: #061524; }
+        .chat-header { padding: 18px 25px; background: #081b2e; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; gap: 12px; }
+        .messages-box { flex: 1; padding: 25px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+        .message { max-width: 60%; padding: 12px 18px; border-radius: 16px; font-size: 14px; line-height: 1.4; word-wrap: break-word; }
+        .message.sent { align-self: flex-end; background: #0066ff; color: #fff; border-bottom-right-radius: 4px; }
+        .message.received { align-self: flex-start; background: #102b45; color: #e0e0e0; border-bottom-left-radius: 4px; }
+        .chat-input-area { padding: 20px; background: #081b2e; border-top: 1px solid rgba(255,255,255,0.08); display: flex; gap: 12px; }
+        .chat-input-area input { flex: 1; padding: 14px 18px; background: #102b45; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: white; outline: none; }
+        .chat-input-area button { padding: 0 25px; background: #0066ff; color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: 500; transition: 0.2s; }
+        .chat-input-area button:hover { background: #0f3f8c; }
+        .no-chat-selected { flex: 1; display: flex; align-items: center; justify-content: center; color: #7db7ff; font-size: 16px; }
+
+        @media (max-width: 768px) {
+            .nav-container { width: 95%; top: 10px; }
+            .floating-navbar { padding: 6px 8px; }
+            .nav-links a { padding: 8px 12px; font-size: 13px; }
+            .nav-links a span { display: none; }
+            .user-list-pane { width: 240px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- FLOATING NAVBAR -->
+    <div class="nav-container">
+        <header class="floating-navbar">
+            <nav class="nav-links">
+                <a href="dashboard.html">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Home</span>
+                </a>
+                <a href="connect.html">
+                    <i class="fa-solid fa-user-group"></i>
+                    <span>Student Connect</span>
+                </a>
+                <a href="posts.html">
+                    <i class="fa-solid fa-newspaper"></i>
+                    <span>Posts</span>
+                </a>
+                <a href="messages.html" class="active">
+                    <i class="fa-solid fa-comments"></i>
+                    <span>Messages</span>
+                </a>
+                <a href="settings.html">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Settings</span>
+                </a>
+                <a class="logout" id="logoutBtn" href="index.html">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Logout</span>
+                </a>
+            </nav>
+        </header>
+    </div>
+
+    <main class="main">
+        <div class="chat-container">
+            <div class="user-list-pane">
+                <div class="pane-header">Registered Users</div>
+                <div class="user-list" id="userList">
+                    <div style="padding: 20px; color: #7db7ff;">Loading registered profiles...</div>
+                </div>
+            </div>
+
+            <div class="chat-pane" id="chatPane">
+                <div class="no-chat-selected" id="noChatPlaceholder">
+                    Select a user profile from the left to start chatting
+                </div>
+
+                <div id="activeChatContent" style="display: none; height: 100%; flex-direction: column;">
+                    <div class="chat-header">
+                        <div class="user-avatar" id="activeUserAvatar">U</div>
+                        <div>
+                            <h3 id="activeUserName">User Name</h3>
+                            <p style="font-size: 11px; color: #7db7ff;" id="activeUserEmail">user@example.com</p>
+                        </div>
+                    </div>
+
+                    <div class="messages-box" id="messagesBox"></div>
+
+                    <form class="chat-input-area" id="chatForm">
+                        <input type="text" id="messageInput" placeholder="Type a message..." required autocomplete="off">
+                        <button type="submit"><i class="fa-solid fa-paper-plane"></i> Send</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script type="module" src="firebase-config.js"></script>
+    <script type="module" src="messages.js"></script>
+</body>
+</html>
