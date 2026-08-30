@@ -5,13 +5,29 @@ const cors = require('cors');
 
 const app = express();
 
-// Middleware
-app.use(cors());
-app.use(express.json({ limit: '10mb' }));
+// Universal CORS configuration
+app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+    credentials: false
+}));
+
+// Handle preflight requests explicitly
+app.options('*', cors());
+
+// Payload limit adjustments for base64 uploads
+app.use(express.json({ limit: '25mb' }));
+app.use(express.urlencoded({ limit: '25mb', extended: true }));
 
 const PORT = process.env.PORT || 3000;
 const ID_ANALYZER_KEY = process.env.ID_ANALYZER_KEY;
 const WEB3FORMS_ACCESS_KEY = process.env.WEB3FORMS_ACCESS_KEY;
+
+// Health Check Endpoint
+app.get('/', (req, res) => {
+    res.status(200).send("🚀 IntraWorld Backend API is active.");
+});
 
 // 1. EMAIL OTP ENDPOINT
 app.post('/api/send-email-otp', async (req, res) => {
@@ -34,45 +50,75 @@ app.post('/api/send-email-otp', async (req, res) => {
             return res.status(400).json({ success: false, message: response.data.message || "Failed to send email." });
         }
     } catch (err) {
-        console.error("Web3Forms Error:", err.message);
+        console.error("Web3Forms Error:", err.response?.data || err.message);
         return res.status(500).json({ success: false, message: "Server error sending email OTP." });
     }
 });
 
-// 2. ANTI-AI DOCUMENT SCAN ENDPOINT
+// 2. DOCUMENT OCR ENDPOINT
 app.post('/api/verify-document', async (req, res) => {
     try {
-        const { documentBase64 } = req.body;
+        const { documentBase64, expectedName } = req.body;
         if (!documentBase64) {
             return res.status(400).json({ success: false, message: "Missing document image payload." });
         }
 
-        const apiResponse = await axios.post('https://api.idanalyzer.com', {
-            apikey: ID_ANALYZER_KEY,
-            file_base64: documentBase64,
-            authentication: true,
-            output_image: false
-        });
+        const apiResponse = await axios.post(
+            'https://api2.idanalyzer.com/',
+            {
+                document: documentBase64,
+                authenticate: true,
+                dupecheck: true,
+                ocr: true
+            },
+            {
+                headers: {
+                    'X-API-KEY': ID_ANALYZER_KEY,
+                    'Content-Type': 'application/json'
+                },
+                timeout: 30000
+            }
+        );
 
         const data = apiResponse.data;
+
         if (data.error) {
-            return res.status(400).json({ success: false, message: data.error.message });
+            return res.status(400).json({ success: false, message: data.error.message || "Document analysis failed." });
         }
 
-        if (data.authentication && data.authentication.score < 0.5) {
-            return res.status(400).json({ 
-                success: false, 
-                message: "Document failed anti-tamper check. High probability of AI generation or digital modification." 
-            });
+        if (data.authentication) {
+            const authScore = data.authentication.score || 0;
+            if (data.authentication.is_tampered || authScore < 0.5) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Document failed anti-tamper check. High probability of AI generation or digital modification."
+                });
+            }
+        }
+
+        if (expectedName && data.ocr) {
+            const extractedText = JSON.stringify(data.ocr).toLowerCase();
+            const formattedExpectedName = expectedName.toLowerCase().trim();
+
+            const nameParts = formattedExpectedName.split(" ").filter(p => p.length > 2);
+            const matches = nameParts.some(part => extractedText.includes(part));
+
+            if (!matches && nameParts.length > 0) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Name on uploaded document does not match your full name."
+                });
+            }
         }
 
         return res.status(200).json({ success: true, message: "Document successfully verified." });
     } catch (err) {
-        console.error("ID Analyzer Error:", err.message);
-        return res.status(500).json({ success: false, message: "Document verification server error." });
+        console.error("ID Analyzer Error:", err.response?.data || err.message);
+        const errMessage = err.response?.data?.error?.message || "Document verification server error.";
+        return res.status(500).json({ success: false, message: errMessage });
     }
 });
 
 app.listen(PORT, () => {
-    console.log(`🚀 Secure backend server running on http://localhost:${PORT}`);
+    console.log(`🚀 Secure backend server running on port ${PORT}`);
 });
