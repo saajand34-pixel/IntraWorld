@@ -5,7 +5,7 @@ const cors = require('cors');
 
 const app = express();
 
-// Configure CORS - app.use(cors()) handles OPTIONS preflight automatically
+// 1. CORS Middleware Configuration
 app.use(cors({
     origin: '*',
     methods: ['GET', 'POST', 'OPTIONS'],
@@ -13,9 +13,12 @@ app.use(cors({
     credentials: false
 }));
 
-// Payload limit adjustments for base64 uploads
-app.use(express.json({ limit: '25mb' }));
-app.use(express.urlencoded({ limit: '25mb', extended: true }));
+// 2. Explicit Preflight Handling (Express 5 Safe Syntax)
+app.options('*', cors());
+
+// 3. Payload Limit Adjustments for Base64 Uploads
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 const PORT = process.env.PORT || 3000;
 const ID_ANALYZER_KEY = process.env.ID_ANALYZER_KEY;
@@ -73,7 +76,7 @@ app.post('/api/verify-document', async (req, res) => {
                     'X-API-KEY': ID_ANALYZER_KEY,
                     'Content-Type': 'application/json'
                 },
-                timeout: 30000
+                timeout: 45000
             }
         );
 
