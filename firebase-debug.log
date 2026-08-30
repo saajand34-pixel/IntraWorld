@@ -1,0 +1,134 @@
+[debug] [2026-08-30T14:19:05.396Z] ----------------------------------------------------------------------
+[debug] [2026-08-30T14:19:05.400Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\saaja\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy --only hosting
+[debug] [2026-08-30T14:19:05.401Z] CLI Version:   15.28.2
+[debug] [2026-08-30T14:19:05.401Z] Platform:      win32
+[debug] [2026-08-30T14:19:05.402Z] Node Version:  v22.23.1
+[debug] [2026-08-30T14:19:05.402Z] Detected Agent: unknown
+[debug] [2026-08-30T14:19:05.402Z] Time:          Sun Aug 30 2026 19:49:05 GMT+0530 (India Standard Time)
+[debug] [2026-08-30T14:19:05.403Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-08-30T14:19:06.978Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-08-30T14:19:06.978Z] > authorizing via signed-in user (saajand18@gmail.com)
+[debug] [2026-08-30T14:19:06.978Z] [iam] checking project intraworld for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2026-08-30T14:19:06.999Z] Checked if tokens are valid: true, expires at: 1788101194144
+[debug] [2026-08-30T14:19:07.000Z] Checked if tokens are valid: true, expires at: 1788101194144
+[debug] [2026-08-30T14:19:07.001Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/intraworld:testIamPermissions [none]
+[debug] [2026-08-30T14:19:07.001Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/intraworld:testIamPermissions  x-goog-user-project=intraworld
+[debug] [2026-08-30T14:19:07.001Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/intraworld:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2026-08-30T14:19:08.487Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/intraworld:testIamPermissions 200
+[debug] [2026-08-30T14:19:08.487Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/intraworld:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2026-08-30T14:19:08.488Z] Checked if tokens are valid: true, expires at: 1788101194144
+[debug] [2026-08-30T14:19:08.488Z] Checked if tokens are valid: true, expires at: 1788101194144
+[debug] [2026-08-30T14:19:08.488Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/intraworld [none]
+[debug] [2026-08-30T14:19:09.162Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/intraworld 200
+[debug] [2026-08-30T14:19:09.162Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/intraworld {"projectId":"intraworld","projectNumber":"547389253115","displayName":"IntraWorld","name":"projects/intraworld","resources":{"hostingSite":"intraworld"},"state":"ACTIVE","labels":{"firebase":"enabled"},"etag":"1_715eec48-0874-4a44-a129-ac9ff9eacb1d"}
+[info] 
+[info] === Deploying to 'intraworld'...
+[info] 
+[info] i  deploying hosting 
+[debug] [2026-08-30T14:19:09.170Z] Checked if tokens are valid: true, expires at: 1788101194144
+[debug] [2026-08-30T14:19:09.170Z] Checked if tokens are valid: true, expires at: 1788101194144
+[debug] [2026-08-30T14:19:09.170Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/intraworld/sites/intraworld [none]
+[debug] [2026-08-30T14:19:10.326Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/intraworld/sites/intraworld 200
+[debug] [2026-08-30T14:19:10.327Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/intraworld/sites/intraworld {"name":"projects/intraworld/sites/intraworld","defaultUrl":"https://intraworld.web.app","type":"DEFAULT_SITE"}
+[debug] [2026-08-30T14:19:10.331Z] Checked if tokens are valid: true, expires at: 1788101194144
+[debug] [2026-08-30T14:19:10.332Z] Checked if tokens are valid: true, expires at: 1788101194144
+[debug] [2026-08-30T14:19:10.333Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/intraworld/versions [none]
+[debug] [2026-08-30T14:19:10.333Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/intraworld/versions {"status":"CREATED","labels":{"deployment-tool":"cli-firebase"}}
+[debug] [2026-08-30T14:19:11.459Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/intraworld/versions 200
+[debug] [2026-08-30T14:19:11.460Z] <<< [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/intraworld/versions {"name":"projects/547389253115/sites/intraworld/versions/6b53f4683b345a1e","status":"CREATED","config":{},"labels":{"deployment-tool":"cli-firebase"}}
+[info] i  hosting[intraworld]: beginning deploy... 
+[info] i  hosting[intraworld]: found 26 files in public 
+[debug] [2026-08-30T14:19:11.487Z] [hosting] uploading with 200 concurrency
+[debug] [2026-08-30T14:19:11.493Z] Checked if tokens are valid: true, expires at: 1788101194144
+[debug] [2026-08-30T14:19:11.493Z] Checked if tokens are valid: true, expires at: 1788101194144
+[debug] [2026-08-30T14:19:11.495Z] [hosting] hash cache [cHVibGlj] stored for 26 files
+[debug] [2026-08-30T14:19:11.495Z] [hosting][hash queue][FINAL] {"max":3,"min":1,"avg":1,"active":0,"complete":26,"success":26,"errored":0,"retried":0,"total":26,"elapsed":6}
+[debug] [2026-08-30T14:19:11.496Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/547389253115/sites/intraworld/versions/6b53f4683b345a1e:populateFiles [none]
+[debug] [2026-08-30T14:19:11.496Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/547389253115/sites/intraworld/versions/6b53f4683b345a1e:populateFiles {"files":{"/settings.html":"508fe1c8a52112a89e84a90857ca303cb96146c61020738c447c1b318ba9c088","/register.html":"95c54ef6620acc77e593d716f986443c0cfd362a2a3aa2067cc5bc883abfc25f","/posts.html":"dd4f53beae34bc5de560672a7229139e88172411eda58ed411b134dac1f29f19","/messages.html":"d3721280052dfd4f20d53869302c9f18790f25a3cee30728bf193e8b4a18f634","/logo.png":"3ee5706e8314ef8ac471253d12c35d957b3da144cd3665ae18dd81131feee2ef","/login.html":"0c96a2c8ea09037acf9cdd39b835bf4d0c6a03331c4b9f949ba425bac28fd1ad","/index.html":"80167f1881bcb79735deac256f88127af6bed8a14d8c28a61cc1ee92a3faeda8","/functions-package.json":"832384dbf4ffc4d58f6073e1b77ccde7971cfce97d070bc46f0c23e63fa2803a","/forgotpassword.html":"8889260af9ba127289cf76049c259aaa571947dcd971b5f3c0d0b353a0056d1e","/firebase-config.js":"40c8dda6d7281048060af26fa3ac3ebf6f81a6a29d4f38a0da6b686e4a16ae22","/database-debug.log":"d269e2d69fcfdd9dc363d5be1090f14337a3fdc319dec58af627b5113d53909e","/dashboard.html":"a6147de75433df5a17b362fa283666d2cc6e3515cce81c410b0abd90dcfe64dc","/connect.html":"2de0d108168f8145208f27b6a806d03387e967f61b9554cc565c835d5520d923","/community.html":"918dc6eb032f902c024b6d694350f228cbd5d69d3ae436d3a85322cfea10a5a2","/admin.html":"05361e52d34aae279e3dbea402e2d53802564dc7ba36df7379b931e9e416e61f","/js/sidebar.js":"2b9f9b15443c7fe6b9900fa912a6d4b97410e2b7cca6bce427cb6531e335f0b6","/js/settings.js":"371940227e735be1ffb1404bed518837729f099fe1632fdaf4029212aabe8c76","/js/register.js":"55b29e23c0f07baf8b211e9d7f4b8baf61415620bc6c666b9d6ac2d7139730e2","/js/posts.js":"06b9480bc3e54293960806014060409f51238146c8c129168eff9c2032a2d872","/js/login.js":"8b0c22427797db6b252856e3e4fcb0c8cdf4212a0bdc9167a594b8dac6bd7143","/js/dashboard.js":"22225c4571f0a2f49d4f12889a508d02bb53023cc851331279b9db0fdc6d07b8","/js/connect.js":"2d18995f03c3d4be3ace113ccb93e4f98de72ac1e18e49b33350fb01cb274495","/js/community.js":"775c3f37fca3157fb21923aaf5e47e2147c106ceee248ae446f82419becf70ff","/js/auth-check.js":"f7fb686ee76cabb39bfe06e7996d897793167cd6c92725e8340cefa3bbe68494","/js/app-shell.js":"8bf93d1f8647bd4286aac0bdf3981c1998d2a6ba08574a6565fe349d225e6942","/js/admin.js":"7f74cb3e03b907b6be15277fd873d205629ac6c4386b8c4b93e99c392302c1a5"}}
+[debug] [2026-08-30T14:19:12.182Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/547389253115/sites/intraworld/versions/6b53f4683b345a1e:populateFiles 200
+[debug] [2026-08-30T14:19:12.182Z] <<< [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/547389253115/sites/intraworld/versions/6b53f4683b345a1e:populateFiles {"uploadUrl":"https://upload-firebasehosting.googleapis.com/upload/sites/intraworld/versions/6b53f4683b345a1e/files"}
+[debug] [2026-08-30T14:19:12.183Z] [hosting][populate queue][FINAL] {"max":690,"min":690,"avg":690,"active":0,"complete":1,"success":1,"errored":0,"retried":0,"total":1,"elapsed":690}
+[debug] [2026-08-30T14:19:12.184Z] [hosting] uploads queued: 0
+[debug] [2026-08-30T14:19:12.184Z] [hosting][upload queue][FINAL] {"max":0,"min":9999999999,"avg":0,"active":0,"complete":0,"success":0,"errored":0,"retried":0,"total":0,"elapsed":1788099552184}
+[info] +  hosting[intraworld]: file upload complete 
+[debug] [2026-08-30T14:19:12.186Z] [hosting] deploy completed after 717ms
+[debug] [2026-08-30T14:19:12.187Z] [
+  {
+    "config": {
+      "public": "public",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "headers": [
+        {
+          "source": "**",
+          "headers": [
+            {
+              "key": "Content-Security-Policy",
+              "value": "default-src 'self' https:; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://challenges.cloudflare.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; frame-src 'self' https://challenges.cloudflare.com https://*.cloudflare.com; img-src 'self' data: https:; connect-src 'self' https://www.gstatic.com https://api.web3forms.com https://*.firebaseio.com https://*.googleapis.com https://challenges.cloudflare.com https://api.sightengine.com; child-src https://challenges.cloudflare.com https://*.cloudflare.com; manifest-src 'self';"
+            },
+            {
+              "key": "X-Content-Type-Options",
+              "value": "nosniff"
+            },
+            {
+              "key": "X-Frame-Options",
+              "value": "SAMEORIGIN"
+            },
+            {
+              "key": "Referrer-Policy",
+              "value": "strict-origin-when-cross-origin"
+            },
+            {
+              "key": "Permissions-Policy",
+              "value": "geolocation=(), microphone=(), camera=()"
+            }
+          ]
+        },
+        {
+          "source": "/js/**",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/javascript; charset=utf-8"
+            }
+          ]
+        }
+      ],
+      "site": "intraworld"
+    },
+    "version": "projects/547389253115/sites/intraworld/versions/6b53f4683b345a1e"
+  }
+]
+[info] i  hosting[intraworld]: finalizing version... 
+[debug] [2026-08-30T14:19:12.191Z] Checked if tokens are valid: true, expires at: 1788101194144
+[debug] [2026-08-30T14:19:12.191Z] Checked if tokens are valid: true, expires at: 1788101194144
+[debug] [2026-08-30T14:19:12.191Z] >>> [apiv2][query] PATCH https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/intraworld/versions/6b53f4683b345a1e updateMask=status%2Cconfig
+[debug] [2026-08-30T14:19:12.192Z] >>> [apiv2][body] PATCH https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/intraworld/versions/6b53f4683b345a1e {"status":"FINALIZED","config":{"headers":[{"glob":"**","headers":{"Content-Security-Policy":"default-src 'self' https:; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://challenges.cloudflare.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; frame-src 'self' https://challenges.cloudflare.com https://*.cloudflare.com; img-src 'self' data: https:; connect-src 'self' https://www.gstatic.com https://api.web3forms.com https://*.firebaseio.com https://*.googleapis.com https://challenges.cloudflare.com https://api.sightengine.com; child-src https://challenges.cloudflare.com https://*.cloudflare.com; manifest-src 'self';","X-Content-Type-Options":"nosniff","X-Frame-Options":"SAMEORIGIN","Referrer-Policy":"strict-origin-when-cross-origin","Permissions-Policy":"geolocation=(), microphone=(), camera=()"}},{"glob":"/js/**","headers":{"Content-Type":"application/javascript; charset=utf-8"}}]}}
+[debug] [2026-08-30T14:19:13.014Z] <<< [apiv2][status] PATCH https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/intraworld/versions/6b53f4683b345a1e 200
+[debug] [2026-08-30T14:19:13.014Z] <<< [apiv2][body] PATCH https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/intraworld/versions/6b53f4683b345a1e {"name":"projects/547389253115/sites/intraworld/versions/6b53f4683b345a1e","status":"FINALIZED","config":{"headers":[{"headers":{"Content-Security-Policy":"default-src 'self' https:; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://challenges.cloudflare.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; frame-src 'self' https://challenges.cloudflare.com https://*.cloudflare.com; img-src 'self' data: https:; connect-src 'self' https://www.gstatic.com https://api.web3forms.com https://*.firebaseio.com https://*.googleapis.com https://challenges.cloudflare.com https://api.sightengine.com; child-src https://challenges.cloudflare.com https://*.cloudflare.com; manifest-src 'self';","X-Content-Type-Options":"nosniff","X-Frame-Options":"SAMEORIGIN","Referrer-Policy":"strict-origin-when-cross-origin","Permissions-Policy":"geolocation=(), microphone=(), camera=()"},"glob":"**"},{"headers":{"Content-Type":"application/javascript; charset=utf-8"},"glob":"/js/**"}]},"labels":{"deployment-tool":"cli-firebase"},"createTime":"2026-08-30T14:19:08.485041Z","createUser":{"email":"saajand18@gmail.com"},"finalizeTime":"2026-08-30T14:19:10.609138Z","finalizeUser":{"email":"saajand18@gmail.com"}}
+[debug] [2026-08-30T14:19:13.014Z] [hosting] finalized version for intraworld:[object Object]
+[info] +  hosting[intraworld]: version finalized 
+[info] i  hosting[intraworld]: releasing new version... 
+[debug] [2026-08-30T14:19:13.017Z] Checked if tokens are valid: true, expires at: 1788101194144
+[debug] [2026-08-30T14:19:13.017Z] Checked if tokens are valid: true, expires at: 1788101194144
+[debug] [2026-08-30T14:19:13.018Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/intraworld/channels/live/releases versionName=projects%2F547389253115%2Fsites%2Fintraworld%2Fversions%2F6b53f4683b345a1e
+[debug] [2026-08-30T14:19:13.018Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/intraworld/channels/live/releases {}
+[debug] [2026-08-30T14:19:14.122Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/intraworld/channels/live/releases 200
+[debug] [2026-08-30T14:19:14.122Z] <<< [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/intraworld/channels/live/releases {"name":"projects/547389253115/sites/intraworld/channels/live/releases/1788099550777000","version":{"name":"projects/547389253115/sites/intraworld/versions/6b53f4683b345a1e","status":"FINALIZED","config":{"headers":[{"headers":{"Permissions-Policy":"geolocation=(), microphone=(), camera=()","Content-Security-Policy":"default-src 'self' https:; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://challenges.cloudflare.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; frame-src 'self' https://challenges.cloudflare.com https://*.cloudflare.com; img-src 'self' data: https:; connect-src 'self' https://www.gstatic.com https://api.web3forms.com https://*.firebaseio.com https://*.googleapis.com https://challenges.cloudflare.com https://api.sightengine.com; child-src https://challenges.cloudflare.com https://*.cloudflare.com; manifest-src 'self';","X-Content-Type-Options":"nosniff","X-Frame-Options":"SAMEORIGIN","Referrer-Policy":"strict-origin-when-cross-origin"},"glob":"**"},{"headers":{"Content-Type":"application/javascript; charset=utf-8"},"glob":"/js/**"}]},"labels":{"deployment-tool":"cli-firebase"},"createTime":"2026-08-30T14:19:08.485041Z","createUser":{"email":"saajand18@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocIeb1EA0J6YO2klfZiuhZ4aaflCVjB0PsCj45In_d41lDvmXsj2nw"},"finalizeTime":"2026-08-30T14:19:10.609138Z","finalizeUser":{"email":"saajand18@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocIeb1EA0J6YO2klfZiuhZ4aaflCVjB0PsCj45In_d41lDvmXsj2nw"}},"type":"DEPLOY","releaseTime":"2026-08-30T14:19:10.777Z","releaseUser":{"email":"saajand18@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocIeb1EA0J6YO2klfZiuhZ4aaflCVjB0PsCj45In_d41lDvmXsj2nw"}}
+[debug] [2026-08-30T14:19:14.122Z] [hosting] release: {"name":"projects/547389253115/sites/intraworld/channels/live/releases/1788099550777000","version":{"name":"projects/547389253115/sites/intraworld/versions/6b53f4683b345a1e","status":"FINALIZED","config":{"headers":[{"headers":{"Permissions-Policy":"geolocation=(), microphone=(), camera=()","Content-Security-Policy":"default-src 'self' https:; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://challenges.cloudflare.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; frame-src 'self' https://challenges.cloudflare.com https://*.cloudflare.com; img-src 'self' data: https:; connect-src 'self' https://www.gstatic.com https://api.web3forms.com https://*.firebaseio.com https://*.googleapis.com https://challenges.cloudflare.com https://api.sightengine.com; child-src https://challenges.cloudflare.com https://*.cloudflare.com; manifest-src 'self';","X-Content-Type-Options":"nosniff","X-Frame-Options":"SAMEORIGIN","Referrer-Policy":"strict-origin-when-cross-origin"},"glob":"**"},{"headers":{"Content-Type":"application/javascript; charset=utf-8"},"glob":"/js/**"}]},"labels":{"deployment-tool":"cli-firebase"},"createTime":"2026-08-30T14:19:08.485041Z","createUser":{"email":"saajand18@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocIeb1EA0J6YO2klfZiuhZ4aaflCVjB0PsCj45In_d41lDvmXsj2nw"},"finalizeTime":"2026-08-30T14:19:10.609138Z","finalizeUser":{"email":"saajand18@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocIeb1EA0J6YO2klfZiuhZ4aaflCVjB0PsCj45In_d41lDvmXsj2nw"}},"type":"DEPLOY","releaseTime":"2026-08-30T14:19:10.777Z","releaseUser":{"email":"saajand18@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocIeb1EA0J6YO2klfZiuhZ4aaflCVjB0PsCj45In_d41lDvmXsj2nw"}}
+[info] +  hosting[intraworld]: release complete 
+[info] 
+[info] +  Deploy complete! 
+[info] 
+[info] Project Console: https://console.firebase.google.com/project/intraworld/overview
+[info] Hosting URL: https://intraworld.web.app
+[debug] [2026-08-30T14:19:19.318Z] Error: Timed out.
+    at Timeout._onTimeout (C:\Users\saaja\AppData\Roaming\npm\node_modules\firebase-tools\lib\utils.js:296:49)
+    at listOnTimeout (node:internal/timers:585:17)
+    at process.processTimers (node:internal/timers:521:7)
+[error] 
+[error] Error: An unexpected error has occurred.
