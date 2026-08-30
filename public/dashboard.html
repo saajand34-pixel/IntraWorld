@@ -35,17 +35,17 @@
             transform: translateX(-50%);
             z-index: 1000;
             width: auto;
-            max-width: 90%;
+            max-width: 95%;
         }
 
         .floating-navbar {
             display: flex;
             align-items: center;
             background: #081b2e;
-            padding: 8px 14px;
+            padding: 8px 16px;
             border-radius: 50px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.1);
-            gap: 12px;
+            box-sizing: border-box;
         }
 
         /* Cleaned & Proportionate Logo */
@@ -64,14 +64,14 @@
         .nav-links { 
             display: flex; 
             align-items: center; 
-            gap: 6px; 
+            gap: 4px; 
         }
 
         .nav-links a { 
             display: flex; 
             align-items: center; 
             gap: 8px; 
-            padding: 10px 18px; 
+            padding: 10px 16px; 
             border-radius: 25px; 
             color: #8fa8bf; 
             text-decoration: none; 
@@ -95,7 +95,7 @@
         .nav-links a.logout { 
             color: #ef4444; 
             background: rgba(239, 68, 68, 0.1);
-            margin-left: 8px; 
+            margin-left: 4px; 
         }
 
         .nav-links a.logout:hover { 
@@ -137,31 +137,35 @@
     <div class="nav-container">
         <header class="floating-navbar">
             <nav class="nav-links">
-                <a href="dashboard.html" class="active">
-                    <i class="fa-solid fa-house"></i>
-                    <span>Home</span>
-                </a>
-                <a href="connect.html">
-                    <i class="fa-solid fa-user-group"></i>
-                    <span>Student Connect</span>
-                </a>
-                <a href="posts.html">
-                    <i class="fa-solid fa-newspaper"></i>
-                    <span>Posts</span>
-                </a>
-                <a href="messages.html">
-                    <i class="fa-solid fa-comments"></i>
-                    <span>Messages</span>
-                </a>
-                <a href="settings.html">
-                    <i class="fa-solid fa-gear"></i>
-                    <span>Settings</span>
-                </a>
-                <a class="logout" id="logoutBtn" href="index.html">
-                    <i class="fa-solid fa-right-from-bracket"></i>
-                    <span>Logout</span>
-                </a>
-            </nav>
+    <a href="dashboard.html" class="active">
+        <i class="fa-solid fa-house"></i>
+        <span>Home</span>
+    </a>
+    <a href="connect.html">
+        <i class="fa-solid fa-user-group"></i>
+        <span>Student Connect</span>
+    </a>
+    <a href="posts.html">
+        <i class="fa-solid fa-newspaper"></i>
+        <span>Posts</span>
+    </a>
+    <a href="community.html">
+        <i class="fa-solid fa-location-dot"></i>
+        <span>Community</span>
+    </a>
+    <a href="messages.html">
+        <i class="fa-solid fa-comments"></i>
+        <span>Messages</span>
+    </a>
+    <a href="settings.html">
+        <i class="fa-solid fa-gear"></i>
+        <span>Settings</span>
+    </a>
+    <a class="logout" id="logoutBtn" href="index.html">
+        <i class="fa-solid fa-right-from-bracket"></i>
+        <span>Logout</span>
+    </a>
+</nav>
         </header>
     </div>
 

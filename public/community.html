@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College Community - Intra World</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+        body { 
+            display: flex; 
+            flex-direction: column; 
+            min-height: 100vh; 
+            background-color: #030712; 
+            color: #ffffff; 
+            padding-top: 100px;
+            background-image: radial-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        /* ===== FLOATING NAVBAR CONTAINER ===== */
+        .nav-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            width: auto;
+            max-width: 95%;
+        }
+
+        .floating-navbar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #081b2e;
+            padding: 8px 12px;
+            border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-links { display: flex; align-items: center; gap: 6px; }
+
+        .nav-links a { 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            padding: 10px 18px; 
+            border-radius: 25px; 
+            color: #8fa8bf; 
+            text-decoration: none; 
+            font-size: 14px; 
+            font-weight: 500; 
+            white-space: nowrap; 
+            transition: all 0.2s ease; 
+        }
+
+        .nav-links a:hover { color: #fff; background: rgba(255, 255, 255, 0.08); }
+
+        .nav-links a.active { 
+            color: #fff; 
+            background: #0066ff; 
+            box-shadow: 0 4px 15px rgba(0, 102, 255, 0.35);
+        }
+
+        .nav-links a.logout { 
+            color: #ef4444; 
+            background: rgba(239, 68, 68, 0.1);
+            margin-left: 6px; 
+        }
+
+        .nav-links a.logout:hover { background: #ef4444; color: #ffffff; }
+
+        /* Main Section */
+        .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+        .content { flex: 1; padding: 35px; width: 100%; max-width: 900px; margin: 0 auto; overflow-y: auto; }
+
+        .card { 
+            background: #081b2e; 
+            padding: 25px; 
+            border-radius: 16px; 
+            border: 1px solid rgba(255,255,255,0.08); 
+            margin-bottom: 22px; 
+            width: 100%; 
+        }
+
+        .location-banner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .status-msg { font-size: 13px; color: #7db7ff; margin-top: 4px; }
+
+        .btn {
+            background: #0066ff;
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
+        }
+
+        .btn:hover { background: #0f3f8c; }
+        .btn:disabled { background: rgba(255,255,255,0.1); color: #8fa8bf; cursor: not-allowed; }
+
+        /* College Pills Styling */
+        .pills-title { font-size: 14px; font-weight: 500; color: #7db7ff; margin-bottom: 12px; }
+        .pills-container {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+        }
+
+        .college-pill {
+            background: #102b45;
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #8fa8bf;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 13px;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .college-pill:hover { color: #ffffff; background: rgba(255, 255, 255, 0.08); }
+
+        .college-pill.active {
+            background: #0066ff;
+            color: #ffffff;
+            border-color: #0066ff;
+            box-shadow: 0 4px 15px rgba(0, 102, 255, 0.35);
+        }
+
+        .empty-feed { text-align: center; padding: 35px 20px; }
+
+        @media (max-width: 768px) {
+            .nav-container { width: 95%; top: 10px; }
+            .floating-navbar { padding: 6px 8px; }
+            .nav-links a { padding: 8px 12px; font-size: 13px; }
+            .nav-links a span { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- FLOATING NAVBAR -->
+    <div class="nav-container">
+        <header class="floating-navbar">
+            <nav class="nav-links">
+                <a href="dashboard.html"><i class="fa-solid fa-house"></i><span>Home</span></a>
+                <a href="connect.html"><i class="fa-solid fa-user-group"></i><span>Student Connect</span></a>
+                <a href="posts.html"><i class="fa-solid fa-newspaper"></i><span>Posts</span></a>
+                <a href="community.html"><i class="fa-solid fa-location-dot"></i><span>Community</span></a>
+                <a href="messages.html"><i class="fa-solid fa-comments"></i><span>Messages</span></a>
+                <a href="settings.html"><i class="fa-solid fa-gear"></i><span>Settings</span></a>
+                <a class="logout" id="logoutBtn" href="index.html"><i class="fa-solid fa-right-from-bracket"></i><span>Logout</span></a>
+            </nav>
+        </header>
+    </div>
+
+    <!-- MAIN FEED CONTENT AREA -->
+    <main class="main">
+        <section class="content">
+
+            <!-- Location Detection Bar -->
+            <div class="card location-banner">
+                <div>
+                    <h3><i class="fa-solid fa-location-dot" style="color: #0066ff;"></i> Nearby Campuses</h3>
+                    <p id="location-status-text" class="status-msg">Enable location to find colleges near you.</p>
+                </div>
+                <button id="enable-location-btn" class="btn">
+                    <i class="fa-solid fa-crosshairs"></i> Detect Nearby Colleges
+                </button>
+            </div>
+
+            <!-- Nearby College Selection Bar -->
+            <div id="colleges-wrapper" class="card" style="display: none;">
+                <div class="pills-title">Colleges within 5 km radius:</div>
+                <div id="college-pills-container" class="pills-container"></div>
+            </div>
+
+            <!-- Feed Container -->
+            <div id="feed-container">
+                <div class="card empty-feed">
+                    <i class="fa-solid fa-compass fa-2x" style="margin-bottom: 12px; color: #7db7ff; display: block;"></i>
+                    Click "Detect Nearby Colleges" to discover local campus networks within 5km.
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- AUTOMATIC NAVBAR HIGHLIGHTING -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const currentFileName = window.location.pathname.split("/").pop() || "community.html";
+            document.querySelectorAll(".nav-links a").forEach(link => {
+                link.classList.remove("active");
+                if (link.getAttribute("href") === currentFileName) {
+                    link.classList.add("active");
+                }
+            });
+        });
+    </script>
+
+    <script type="module" src="firebase-config.js"></script>
+    <script type="module" src="js/community.js"></script>
+</body>
+</html>

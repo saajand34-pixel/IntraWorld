@@ -3,11 +3,18 @@ import { collection, query, where, getDocs, addDoc } from "https://www.gstatic.c
 
 console.log("✅ register.js loaded successfully");
 
-// CONFIGURATION
-const WEB3FORMS_ACCESS_KEY = "bb00ad90-e756-4918-b4b5-caf2bab0b818";
-const WEB3FORMS_URL = "https://api.web3forms.com/submit";
-const BACKEND_VERIFY_URL = "/api/verify-document"; // Secure Node/Firebase backend endpoint
+// CONFIGURATION - LIVE RENDER BACKEND
+const BACKEND_URL = "https://intraworld.onrender.com";
+const BACKEND_VERIFY_URL = `${BACKEND_URL}/api/verify-document`;
+const BACKEND_SEND_OTP_URL = `${BACKEND_URL}/api/send-email-otp`;
+
+const WEB3FORMS_ACCESS_KEY = "bb00ad90-e756-4918-b4b5-caf2bab0b818"; 
 const OTP_VALIDITY_MS = 5 * 60 * 1000;
+
+// WAKE UP RENDER BACKEND ON PAGE LOAD
+fetch(`${BACKEND_URL}/`)
+    .then(() => console.log("⚡ Render Backend pinged & active."))
+    .catch(() => console.warn("⚠️ Backend ping failed. Server may be spinning up."));
 
 // STATE VARIABLES
 let generatedEmailOTP = "";
@@ -18,7 +25,6 @@ let generatedPhoneOTP = "";
 let phoneOtpCreatedAt = 0;
 let phoneOtpVerified = false;
 
-// Attach turnstileToken to the global window scope
 window.turnstileToken = null;
 
 window.onTurnstileSuccess = function(token) {
@@ -65,7 +71,6 @@ const toggleConfirmPassword = document.getElementById("toggleConfirmPassword");
 const passwordInput = document.getElementById("password");
 const confirmPasswordInput = document.getElementById("confirm_password");
 
-// PASSWORD VISIBILITY TOGGLE LOGIC
 if (togglePassword && passwordInput) {
     togglePassword.addEventListener("click", () => {
         const type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
@@ -94,7 +99,6 @@ if (docFileInput && fileNameDisplay) {
     });
 }
 
-// HELPER FUNCTIONS
 async function isValueDuplicate(field, value) {
     try {
         const q = query(collection(db, "registrations"), where(field, "==", value));
@@ -102,9 +106,6 @@ async function isValueDuplicate(field, value) {
         return !snap.empty;
     } catch (error) {
         console.error(`Error checking duplicate ${field}:`, error);
-        if (error.code === "permission-denied" || error.message?.includes("ERR_BLOCKED")) {
-            throw new Error("Database access blocked. Please disable your ad blocker and try again.");
-        }
         throw error;
     }
 }
@@ -117,35 +118,83 @@ function showStatus(element, message, color = "#22c55e") {
     }
 }
 
-// Convert file to Base64 for Server Verification
-function fileToBase64(file) {
+// CLIENT-SIDE IMAGE COMPRESSION TO PREVENT RENDER TIMEOUTS / PAYLOAD OVERLOAD
+function compressAndConvertToBase64(file, maxWidth = 1200, quality = 0.7) {
     return new Promise((resolve, reject) => {
+        if (file.type === "application/pdf") {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result.split(',')[1]);
+            reader.onerror = (err) => reject(err);
+            return;
+        }
+
         const reader = new FileReader();
         reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result.split(',')[1]);
-        reader.onerror = (error) => reject(error);
+        reader.onload = (e) => {
+            const img = new Image();
+            img.src = e.target.result;
+            img.onload = () => {
+                const canvas = document.createElement("canvas");
+                let width = img.width;
+                let height = img.height;
+
+                if (width > maxWidth) {
+                    height = Math.round((height * maxWidth) / width);
+                    width = maxWidth;
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(img, 0, 0, width, height);
+
+                const compressedDataUrl = canvas.toDataURL("image/jpeg", quality);
+                resolve(compressedDataUrl.split(',')[1]);
+            };
+            img.onerror = (err) => reject(err);
+        };
+        reader.onerror = (err) => reject(err);
     });
 }
 
-// SECURE DOCUMENT VERIFICATION VIA SERVER
+// DOCUMENT VERIFICATION WITH TIMEOUT & COMPRESSION
 async function verifyDocumentViaIDAnalyzer(file, fullName) {
-    const base64Data = await fileToBase64(file);
+    const base64Data = await compressAndConvertToBase64(file);
 
-    const response = await fetch(BACKEND_VERIFY_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            documentBase64: base64Data,
-            expectedName: fullName
-        })
-    });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 120000);
 
-    const result = await response.json();
-    if (!response.ok || !result.success) {
-        throw new Error(result.message || "Document verification failed.");
+    try {
+        const response = await fetch(BACKEND_VERIFY_URL, {
+            method: "POST",
+            headers: { 
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            body: JSON.stringify({
+                documentBase64: base64Data,
+                expectedName: fullName
+            }),
+            signal: controller.signal
+        });
+
+        clearTimeout(timeoutId);
+
+        const result = await response.json();
+        if (!response.ok || !result.success) {
+            throw new Error(result.message || "Document verification failed.");
+        }
+
+        return result;
+    } catch (err) {
+        clearTimeout(timeoutId);
+        if (err.name === 'AbortError') {
+            throw new Error("Server request timed out. Please retry uploading a smaller file.");
+        }
+        throw err;
     }
-
-    return result;
 }
 
 // EMAIL OTP LOGIC
@@ -174,27 +223,46 @@ async function sendEmailOTP() {
     if (sendOtpButton) sendOtpButton.textContent = "Sending...";
 
     try {
-        const response = await fetch(WEB3FORMS_URL, {
+        const response = await fetch(BACKEND_SEND_OTP_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                access_key: WEB3FORMS_ACCESS_KEY,
-                subject: "IntraWorld - Gmail OTP Verification",
-                email: email,
-                message: `Your IntraWorld Email Verification OTP code is: ${generatedEmailOTP}`
-            })
+            body: JSON.stringify({ email: email, otp: generatedEmailOTP })
         });
 
         const result = await response.json();
-        if (!result.success) throw new Error(result.message || "Failed to send email");
+        if (!response.ok || !result.success) throw new Error(result.message || "Backend unreachable");
 
         if (otpInput) otpInput.disabled = false;
         if (verifyOtpButton) verifyOtpButton.disabled = false;
-
         showStatus(otpStatus, "✅ Gmail OTP sent successfully!");
-    } catch (err) {
-        showStatus(otpStatus, `❌ Error: ${err.message}`, "#ef4444");
-        alert("❌ Failed to send Email OTP: " + err.message);
+
+    } catch (backendErr) {
+        console.warn("Backend request failed, initiating Web3Forms fallback...", backendErr);
+
+        try {
+            const fallbackRes = await fetch("https://api.web3forms.com/submit", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    access_key: WEB3FORMS_ACCESS_KEY,
+                    subject: "IntraWorld - Gmail OTP Verification",
+                    email: email,
+                    message: `Your IntraWorld Email Verification OTP code is: ${generatedEmailOTP}`
+                })
+            });
+
+            const fallbackResult = await fallbackRes.json();
+            if (fallbackResult.success) {
+                if (otpInput) otpInput.disabled = false;
+                if (verifyOtpButton) verifyOtpButton.disabled = false;
+                showStatus(otpStatus, "✅ Gmail OTP sent via direct channel!");
+            } else {
+                throw new Error(fallbackResult.message || "Fallback service failed.");
+            }
+        } catch (fallbackErr) {
+            showStatus(otpStatus, `❌ Error: ${fallbackErr.message}`, "#ef4444");
+            alert("❌ Failed to send Email OTP: " + fallbackErr.message);
+        }
     } finally {
         if (sendOtpButton) sendOtpButton.textContent = "Send Email OTP";
     }
@@ -266,7 +334,7 @@ function verifyPhoneOTP() {
     }
 }
 
-// LISTENERS
+// EVENT LISTENERS
 if (sendOtpButton) sendOtpButton.addEventListener("click", (e) => { e.preventDefault(); sendEmailOTP(); });
 if (verifyOtpButton) verifyOtpButton.addEventListener("click", (e) => { e.preventDefault(); verifyEmailOTP(); });
 if (sendPhoneOtpButton) sendPhoneOtpButton.addEventListener("click", (e) => { e.preventDefault(); sendPhoneOTP(); });
@@ -325,24 +393,22 @@ if (form) {
 
             if (emailExists || phoneExists) return alert("❌ Registration blocked: Email or Mobile already registered.");
 
-            // --- ID ANALYZER AI ANTI-FORGERY SCAN ---
             if (submitBtn) {
                 submitBtn.disabled = true;
-                submitBtn.textContent = "Verifying Anti-AI Authenticity...";
+                submitBtn.textContent = "Scanning Document OCR & Deepfake Checks...";
             }
 
             try {
                 await verifyDocumentViaIDAnalyzer(uploadedFile, fullName);
-                console.log("🛡️ Document verified authentic by ID Analyzer API.");
+                console.log("🛡️ OCR & Anti-Deepfake authentication passed.");
             } catch (authErr) {
                 if (submitBtn) {
                     submitBtn.disabled = false;
                     submitBtn.textContent = "Complete Registration";
                 }
-                return alert("❌ Document Authentication Failed: " + authErr.message);
+                return alert("❌ Document Scan Failed: " + authErr.message);
             }
 
-            // --- AUTO-VERIFIED REGISTRATION ---
             const registrationData = {
                 fullName, email, mobile, qualification, specialization, collegeName, passoutYear,
                 skills: skillsArray,
@@ -363,7 +429,7 @@ if (form) {
             localStorage.setItem("currentUser", JSON.stringify(sessionData));
             localStorage.setItem("intraWorldUser", JSON.stringify(sessionData));
 
-            alert("✅ Anti-AI authentication passed & Account registered successfully! Redirecting...");
+            alert("✅ Registration and OCR verification successful! Redirecting...");
             setTimeout(() => { window.location.href = "./dashboard.html"; }, 1500);
 
         } catch (err) {
