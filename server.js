@@ -1,4 +1,3 @@
-require('dotenv').config();
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
@@ -13,15 +12,18 @@ app.use(cors({
     credentials: false
 }));
 
-app.options('*', cors());
+// Express 5 compatible OPTIONS handler (named wildcard parameter)
+app.options('/*splat', cors());
+
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
+// Read Environment Variables (Injected automatically by Vercel)
 const PORT = process.env.PORT || 3000;
 const ID_ANALYZER_KEY = process.env.ID_ANALYZER_KEY;
 const WEB3FORMS_ACCESS_KEY = process.env.WEB3FORMS_ACCESS_KEY;
 
-// Root Health Check
+// Root Health Check Route
 app.get('/', (req, res) => {
     res.status(200).send("🚀 IntraWorld Backend API is active.");
 });
@@ -41,10 +43,10 @@ app.post('/api/send-email-otp', async (req, res) => {
             message: `Your IntraWorld Email Verification OTP code is: ${otp}`
         });
 
-        if (response.data.success) {
+        if (response.data && response.data.success) {
             return res.status(200).json({ success: true, message: "OTP sent successfully." });
         } else {
-            return res.status(400).json({ success: false, message: response.data.message || "Failed to send email." });
+            return res.status(400).json({ success: false, message: response.data?.message || "Failed to send email." });
         }
     } catch (err) {
         console.error("Web3Forms Error:", err.response?.data || err.message);
@@ -124,11 +126,12 @@ app.post('/api/verify-document', async (req, res) => {
     }
 });
 
-// Run server listener only in local development environment
+// Run server listener only when running locally
 if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
     app.listen(PORT, () => {
-        console.log(`🚀 Local server running on port ${PORT}`);
+        console.log(`🚀 Server running on port ${PORT}`);
     });
 }
 
+// Export module for Vercel Serverless Function engine
 module.exports = app;

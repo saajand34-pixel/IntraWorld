@@ -4,7 +4,7 @@ import { collection, query, where, getDocs, addDoc } from "https://www.gstatic.c
 console.log("✅ register.js loaded successfully");
 
 // CONFIGURATION - LIVE RENDER BACKEND
-const BACKEND_URL = "https://intraworld.onrender.com";
+const BACKEND_URL = "https://intra-world.vercel.app"; 
 const BACKEND_VERIFY_URL = `${BACKEND_URL}/api/verify-document`;
 const BACKEND_SEND_OTP_URL = `${BACKEND_URL}/api/send-email-otp`;
 
