@@ -5,16 +5,13 @@ const cors = require('cors');
 
 const app = express();
 
-// Configure CORS across all routes safely
+// Configure CORS - app.use(cors()) handles OPTIONS preflight automatically
 app.use(cors({
     origin: '*',
     methods: ['GET', 'POST', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
     credentials: false
 }));
-
-// Express v5 compatible preflight wildcard setup
-app.options('(.*)', cors());
 
 // Payload limit adjustments for base64 uploads
 app.use(express.json({ limit: '25mb' }));
