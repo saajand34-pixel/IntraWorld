@@ -3,7 +3,7 @@ import { collection, query, where, getDocs, addDoc } from "https://www.gstatic.c
 
 console.log("✅ register.js loaded successfully");
 
-// CONFIGURATION - LIVE RENDER BACKEND
+// CONFIGURATION - LIVE VERCEL BACKEND
 const BACKEND_URL = "https://intra-world.vercel.app"; 
 const BACKEND_VERIFY_URL = `${BACKEND_URL}/api/verify-document`;
 const BACKEND_SEND_OTP_URL = `${BACKEND_URL}/api/send-email-otp`;
@@ -11,10 +11,10 @@ const BACKEND_SEND_OTP_URL = `${BACKEND_URL}/api/send-email-otp`;
 const WEB3FORMS_ACCESS_KEY = "bb00ad90-e756-4918-b4b5-caf2bab0b818"; 
 const OTP_VALIDITY_MS = 5 * 60 * 1000;
 
-// WAKE UP RENDER BACKEND ON PAGE LOAD
+// WAKE UP BACKEND ON PAGE LOAD
 fetch(`${BACKEND_URL}/`)
-    .then(() => console.log("⚡ Render Backend pinged & active."))
-    .catch(() => console.warn("⚠️ Backend ping failed. Server may be spinning up."));
+    .then(() => console.log("⚡ Vercel Backend pinged & active."))
+    .catch((err) => console.warn("⚠️ Backend ping failed:", err));
 
 // STATE VARIABLES
 let generatedEmailOTP = "";
@@ -118,8 +118,8 @@ function showStatus(element, message, color = "#22c55e") {
     }
 }
 
-// CLIENT-SIDE IMAGE COMPRESSION TO PREVENT OVERLOAD
-function compressAndConvertToBase64(file, maxWidth = 1200, quality = 0.7) {
+// CLIENT-SIDE IMAGE COMPRESSION (Max 800px width, 0.6 quality to prevent 4.5MB Vercel Serverless payload crash)
+function compressAndConvertToBase64(file, maxWidth = 800, quality = 0.6) {
     return new Promise((resolve, reject) => {
         if (file.type === "application/pdf") {
             const reader = new FileReader();
@@ -159,12 +159,14 @@ function compressAndConvertToBase64(file, maxWidth = 1200, quality = 0.7) {
     });
 }
 
-// DOCUMENT VERIFICATION WITH TIMEOUT & COMPRESSION
+// DOCUMENT VERIFICATION WITH TIMEOUT, COMPRESSION & DETAILED ERROR LOGGING
 async function verifyDocumentViaIDAnalyzer(file, fullName) {
+    console.log("Compressing image payload...");
     const base64Data = await compressAndConvertToBase64(file);
+    console.log(`Payload size: ~${Math.round(base64Data.length / 1024)} KB`);
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 120000);
+    const timeoutId = setTimeout(() => controller.abort(), 60000);
 
     try {
         const response = await fetch(BACKEND_VERIFY_URL, {
@@ -182,16 +184,26 @@ async function verifyDocumentViaIDAnalyzer(file, fullName) {
 
         clearTimeout(timeoutId);
 
-        const result = await response.json();
+        let result;
+        try {
+            result = await response.json();
+        } catch (jsonErr) {
+            throw new Error(`Server returned non-JSON response (HTTP ${response.status})`);
+        }
+
         if (!response.ok || !result.success) {
-            throw new Error(result.message || "Document verification failed.");
+            throw new Error(result.message || `Document verification failed with status ${response.status}`);
         }
 
         return result;
     } catch (err) {
         clearTimeout(timeoutId);
+        console.error("Fetch Exception Details:", err);
         if (err.name === 'AbortError') {
-            throw new Error("Server request timed out. Please retry uploading a smaller file.");
+            throw new Error("Server request timed out. Please upload a smaller file.");
+        }
+        if (err.message === "Failed to fetch") {
+            throw new Error("Failed to connect to backend server. Please verify CSP headers or network status.");
         }
         throw err;
     }
