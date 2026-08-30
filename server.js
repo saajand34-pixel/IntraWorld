@@ -5,7 +5,7 @@ const cors = require('cors');
 
 const app = express();
 
-// 1. CORS Middleware Configuration
+// CORS Configuration
 app.use(cors({
     origin: '*',
     methods: ['GET', 'POST', 'OPTIONS'],
@@ -13,10 +13,7 @@ app.use(cors({
     credentials: false
 }));
 
-// 2. Explicit Preflight Handling
 app.options('*', cors());
-
-// 3. Payload Limit Adjustments for Base64 Uploads
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
@@ -24,12 +21,12 @@ const PORT = process.env.PORT || 3000;
 const ID_ANALYZER_KEY = process.env.ID_ANALYZER_KEY;
 const WEB3FORMS_ACCESS_KEY = process.env.WEB3FORMS_ACCESS_KEY;
 
-// Health Check Endpoint
+// Root Health Check
 app.get('/', (req, res) => {
     res.status(200).send("🚀 IntraWorld Backend API is active.");
 });
 
-// 1. EMAIL OTP ENDPOINT
+// Email OTP Endpoint
 app.post('/api/send-email-otp', async (req, res) => {
     try {
         const { email, otp } = req.body;
@@ -55,7 +52,7 @@ app.post('/api/send-email-otp', async (req, res) => {
     }
 });
 
-// 2. DOCUMENT OCR ENDPOINT
+// Document Verification Endpoint
 app.post('/api/verify-document', async (req, res) => {
     try {
         const { documentBase64, expectedName } = req.body;
@@ -63,9 +60,8 @@ app.post('/api/verify-document', async (req, res) => {
             return res.status(400).json({ success: false, message: "Missing document image payload." });
         }
 
-        // Check API key configuration
         if (!ID_ANALYZER_KEY) {
-            console.warn("⚠️ ID_ANALYZER_KEY environment variable is missing. Falling back to test mode authorization.");
+            console.warn("⚠️ ID_ANALYZER_KEY environment variable is missing. Falling back to dev mode authorization.");
             return res.status(200).json({ 
                 success: true, 
                 message: "Document successfully verified (Dev Mode)." 
@@ -128,6 +124,11 @@ app.post('/api/verify-document', async (req, res) => {
     }
 });
 
-app.listen(PORT, () => {
-    console.log(`🚀 Secure backend server running on port ${PORT}`);
-});
+// Run server listener only in local development environment
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+    app.listen(PORT, () => {
+        console.log(`🚀 Local server running on port ${PORT}`);
+    });
+}
+
+module.exports = app;
