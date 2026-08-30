@@ -118,7 +118,7 @@ function showStatus(element, message, color = "#22c55e") {
     }
 }
 
-// CLIENT-SIDE IMAGE COMPRESSION TO PREVENT RENDER TIMEOUTS / PAYLOAD OVERLOAD
+// CLIENT-SIDE IMAGE COMPRESSION TO PREVENT OVERLOAD
 function compressAndConvertToBase64(file, maxWidth = 1200, quality = 0.7) {
     return new Promise((resolve, reject) => {
         if (file.type === "application/pdf") {
