@@ -5,7 +5,7 @@ const cors = require('cors');
 
 const app = express();
 
-// Universal CORS configuration
+// Configure CORS across all routes safely
 app.use(cors({
     origin: '*',
     methods: ['GET', 'POST', 'OPTIONS'],
@@ -13,8 +13,8 @@ app.use(cors({
     credentials: false
 }));
 
-// Handle preflight requests explicitly
-app.options('*', cors());
+// Express v5 compatible preflight wildcard setup
+app.options('(.*)', cors());
 
 // Payload limit adjustments for base64 uploads
 app.use(express.json({ limit: '25mb' }));
