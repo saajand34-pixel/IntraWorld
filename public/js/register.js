@@ -1,20 +1,36 @@
+// ⭐ IMPROVED register.js with Smart Field Matching
+
 import { db, auth } from "../firebase-config.js";
 import { collection, query, where, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 console.log("✅ register.js loaded successfully");
 
-// CONFIGURATION - LIVE VERCEL BACKEND
-const BACKEND_URL = "https://intra-world.vercel.app"; 
+// ⭐ Backend Configuration
+const BACKEND_URL = "https://intraworld.onrender.com";
 const BACKEND_VERIFY_URL = `${BACKEND_URL}/api/verify-document`;
 const BACKEND_SEND_OTP_URL = `${BACKEND_URL}/api/send-email-otp`;
 
-const WEB3FORMS_ACCESS_KEY = "bb00ad90-e756-4918-b4b5-caf2bab0b818"; 
+const WEB3FORMS_ACCESS_KEY = "bb00ad90-e756-4918-b4b5-caf2bab0b818";
 const OTP_VALIDITY_MS = 5 * 60 * 1000;
 
-// WAKE UP BACKEND ON PAGE LOAD
-fetch(`${BACKEND_URL}/`)
-    .then(() => console.log("⚡ Vercel Backend pinged & active."))
-    .catch((err) => console.warn("⚠️ Backend ping failed:", err));
+// ⭐ BACKEND HEALTH CHECK
+async function checkBackendHealth() {
+    console.log(`🔍 Checking backend health at: ${BACKEND_URL}`);
+    try {
+        const response = await fetch(`${BACKEND_URL}/`, {
+            method: 'GET',
+            headers: { 'Accept': 'application/json' }
+        });
+        const text = await response.text();
+        console.log(`✅ Backend is online! Status: ${response.status}`);
+        return true;
+    } catch (error) {
+        console.error(`❌ Backend health check FAILED:`, error.message);
+        return false;
+    }
+}
+
+checkBackendHealth();
 
 // STATE VARIABLES
 let generatedEmailOTP = "";
@@ -29,30 +45,28 @@ window.turnstileToken = null;
 
 window.onTurnstileSuccess = function(token) {
     window.turnstileToken = token;
-    console.log("✅ Turnstile verification successful:", token);
+    console.log("✅ Turnstile verification successful");
 };
 
 window.onTurnstileExpired = function() {
     window.turnstileToken = null;
-    console.log("⚠️ Turnstile token expired - please verify again");
+    console.log("⚠️ Turnstile token expired");
 };
 
 window.onTurnstileError = function() {
     window.turnstileToken = null;
-    console.error("❌ Turnstile error - verification widget failed to load");
-    alert("❌ Security check failed. Please refresh the page and try again.");
+    console.error("❌ Turnstile error");
+    alert("❌ Security check failed. Please refresh and try again.");
 };
 
 // DOM ELEMENTS
 const form = document.getElementById("registrationForm");
 const emailInput = document.getElementById("email");
 const phoneInput = document.getElementById("mobile_number");
-
 const sendOtpButton = document.getElementById("send-otp-btn");
 const otpInput = document.getElementById("otp-code");
 const verifyOtpButton = document.getElementById("verify-otp-btn");
 const otpStatus = document.getElementById("otp-status");
-
 const sendPhoneOtpButton = document.getElementById("send-phone-otp-btn");
 const phoneOtpInput = document.getElementById("phone-otp-code");
 const verifyPhoneOtpButton = document.getElementById("verify-phone-otp-btn");
@@ -92,7 +106,8 @@ if (toggleConfirmPassword && confirmPasswordInput) {
 if (docFileInput && fileNameDisplay) {
     docFileInput.addEventListener("change", (e) => {
         if (e.target.files.length > 0) {
-            fileNameDisplay.textContent = `Selected File: ${e.target.files[0].name}`;
+            const file = e.target.files[0];
+            fileNameDisplay.textContent = `✅ Selected: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`;
         } else {
             fileNameDisplay.textContent = "";
         }
@@ -118,8 +133,8 @@ function showStatus(element, message, color = "#22c55e") {
     }
 }
 
-// CLIENT-SIDE IMAGE COMPRESSION (Max 800px width, 0.6 quality to prevent Vercel Serverless payload limits)
-function compressAndConvertToBase64(file, maxWidth = 800, quality = 0.6) {
+// IMAGE COMPRESSION
+function compressAndConvertToBase64(file, maxWidth = 1200, quality = 0.7) {
     return new Promise((resolve, reject) => {
         if (file.type === "application/pdf") {
             const reader = new FileReader();
@@ -159,16 +174,26 @@ function compressAndConvertToBase64(file, maxWidth = 800, quality = 0.6) {
     });
 }
 
-// DOCUMENT VERIFICATION WITH STRICT FIELD MATCHING AND ANTI-TAMPER VALIDATION
-async function verifyDocumentViaIDAnalyzer(file, fullName, collegeName) {
-    console.log("Compressing image payload...");
-    const base64Data = await compressAndConvertToBase64(file);
-    console.log(`Payload size: ~${Math.round(base64Data.length / 1024)} KB`);
-
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 60000);
+// ⭐ IMPROVED DOCUMENT VERIFICATION (Sends multiple fields for matching)
+async function verifyDocumentViaIDAnalyzer(file, fullName, collegeName, passoutYear) {
+    console.log(`🔍 Starting document verification`);
+    console.log(`   Full Name: ${fullName}`);
+    console.log(`   College: ${collegeName}`);
+    console.log(`   Year: ${passoutYear}`);
 
     try {
+        console.log(`📦 Compressing image...`);
+        const base64Data = await compressAndConvertToBase64(file);
+        console.log(`✅ Compressed to ${(base64Data.length / 1024).toFixed(2)}KB`);
+
+        console.log(`📡 Sending to backend for OCR & field matching...`);
+        
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => {
+            console.error(`⏱️ Request timeout after 120 seconds`);
+            controller.abort();
+        }, 120000);
+
         const response = await fetch(BACKEND_VERIFY_URL, {
             method: "POST",
             headers: { 
@@ -178,34 +203,46 @@ async function verifyDocumentViaIDAnalyzer(file, fullName, collegeName) {
             body: JSON.stringify({
                 documentBase64: base64Data,
                 expectedName: fullName,
-                expectedCollege: collegeName
+                expectedCollege: collegeName,
+                expectedYear: passoutYear
             }),
             signal: controller.signal
         });
 
         clearTimeout(timeoutId);
 
-        let result;
-        try {
-            result = await response.json();
-        } catch (jsonErr) {
-            throw new Error(`Server returned non-JSON response (HTTP ${response.status})`);
+        console.log(`📊 Response status: ${response.status}`);
+
+        const result = await response.json();
+        console.log(`📋 Server response:`, result);
+
+        if (!response.ok) {
+            // ⭐ NEW: Show detailed error with confidence score
+            let errorMsg = result.message || "Document verification failed.";
+            if (result.confidence === "low" && result.score !== undefined) {
+                errorMsg += `\n\nConfidence Score: ${result.score}/100\n`;
+                errorMsg += `Suggestions:\n`;
+                errorMsg += `• Upload a clear photo/scan of your document\n`;
+                errorMsg += `• Ensure your name is clearly visible\n`;
+                errorMsg += `• Include your college/institution name\n`;
+                errorMsg += `• Use good lighting and avoid glare`;
+            }
+            console.error(`❌ Verification failed: ${errorMsg}`);
+            throw new Error(errorMsg);
         }
 
-        if (!response.ok || !result.success) {
-            throw new Error(result.message || `Document verification failed.`);
-        }
-
+        // ⭐ Success with confidence level
+        console.log(`✅ Document verified! Confidence: ${result.confidence} (Score: ${result.score}/100)`);
         return result;
+
     } catch (err) {
-        clearTimeout(timeoutId);
-        console.error("Fetch Exception Details:", err);
         if (err.name === 'AbortError') {
-            throw new Error("Server request timed out. Please upload a smaller file.");
+            const timeoutMsg = "Server request timed out. Please retry with a smaller image.";
+            console.error(`⏱️ ${timeoutMsg}`);
+            throw new Error(timeoutMsg);
         }
-        if (err.message === "Failed to fetch") {
-            throw new Error("Failed to connect to backend server. Please verify CSP headers or network status.");
-        }
+
+        console.error(`❌ Verification error:`, err.message);
         throw err;
     }
 }
@@ -250,7 +287,7 @@ async function sendEmailOTP() {
         showStatus(otpStatus, "✅ Gmail OTP sent successfully!");
 
     } catch (backendErr) {
-        console.warn("Backend request failed, initiating Web3Forms fallback...", backendErr);
+        console.warn("Backend request failed, using Web3Forms fallback...", backendErr);
 
         try {
             const fallbackRes = await fetch("https://api.web3forms.com/submit", {
@@ -268,13 +305,13 @@ async function sendEmailOTP() {
             if (fallbackResult.success) {
                 if (otpInput) otpInput.disabled = false;
                 if (verifyOtpButton) verifyOtpButton.disabled = false;
-                showStatus(otpStatus, "✅ Gmail OTP sent via direct channel!");
+                showStatus(otpStatus, "✅ Gmail OTP sent!");
             } else {
-                throw new Error(fallbackResult.message || "Fallback service failed.");
+                throw new Error(fallbackResult.message || "Service failed.");
             }
         } catch (fallbackErr) {
             showStatus(otpStatus, `❌ Error: ${fallbackErr.message}`, "#ef4444");
-            alert("❌ Failed to send Email OTP: " + fallbackErr.message);
+            alert("❌ Failed to send OTP: " + fallbackErr.message);
         }
     } finally {
         if (sendOtpButton) sendOtpButton.textContent = "Send Email OTP";
@@ -353,7 +390,7 @@ if (verifyOtpButton) verifyOtpButton.addEventListener("click", (e) => { e.preven
 if (sendPhoneOtpButton) sendPhoneOtpButton.addEventListener("click", (e) => { e.preventDefault(); sendPhoneOTP(); });
 if (verifyPhoneOtpButton) verifyPhoneOtpButton.addEventListener("click", (e) => { e.preventDefault(); verifyPhoneOTP(); });
 
-// FORM SUBMISSION
+// ⭐ FORM SUBMISSION (with smart field matching)
 if (form) {
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
@@ -408,18 +445,26 @@ if (form) {
 
             if (submitBtn) {
                 submitBtn.disabled = true;
-                submitBtn.textContent = "Scanning Document OCR & Deepfake Checks...";
+                submitBtn.textContent = "Scanning Document & Verifying Fields...";
             }
 
+            console.log(`🚀 Starting document verification with field matching...`);
+            let verificationResult;
             try {
-                await verifyDocumentViaIDAnalyzer(uploadedFile, fullName, collegeName);
-                console.log("🛡️ OCR & Anti-Deepfake authentication passed.");
+                // ⭐ SEND college and year for smart matching
+                verificationResult = await verifyDocumentViaIDAnalyzer(
+                    uploadedFile, 
+                    fullName,
+                    collegeName,
+                    passoutYear
+                );
+                console.log("✅ Document verification passed.");
             } catch (authErr) {
                 if (submitBtn) {
                     submitBtn.disabled = false;
                     submitBtn.textContent = "Complete Registration";
                 }
-                return alert("❌ Document Scan Failed: " + authErr.message);
+                return alert("❌ Document Verification Failed:\n\n" + authErr.message);
             }
 
             const registrationData = {
@@ -430,7 +475,9 @@ if (form) {
                 password,
                 emailVerified: true,
                 phoneVerified: true,
-                aiAuthenticityCheckPassed: true,
+                documentVerified: true,
+                documentVerificationScore: verificationResult.score,
+                documentVerificationConfidence: verificationResult.confidence,
                 verificationStatus: "verified",
                 isVerified: true,
                 turnstileToken: activeToken,
@@ -442,10 +489,11 @@ if (form) {
             localStorage.setItem("currentUser", JSON.stringify(sessionData));
             localStorage.setItem("intraWorldUser", JSON.stringify(sessionData));
 
-            alert("✅ Registration and OCR verification successful! Redirecting...");
-            setTimeout(() => { window.location.href = "./dashboard.html"; }, 1500);
+            alert(`✅ Registration successful!\n\nDocument Verification: ${verificationResult.confidence.toUpperCase()}\nScore: ${verificationResult.score}/100\n\nRedirecting to dashboard...`);
+            setTimeout(() => { window.location.href = "./dashboard.html"; }, 2000);
 
         } catch (err) {
+            console.error(`❌ Registration error:`, err);
             alert("❌ Registration failed: " + err.message);
         } finally {
             if (submitBtn) {
