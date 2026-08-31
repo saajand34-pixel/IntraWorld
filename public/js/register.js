@@ -1,47 +1,114 @@
-// ⭐ Document Verification Function with Smart Match Support
-async function verifyDocumentViaIDAnalyzer(file, fullName, collegeName, passoutYear) {
-    console.log(`🔍 Starting smart document verification`);
-    try {
-        const base64Data = await compressAndConvertToBase64(file);
-        
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 120000);
+// ⭐ 2. GMAIL OTP FUNCTION
+async function sendEmailOTP() {
+    const email = emailInput?.value.trim().toLowerCase();
 
-        const response = await fetch(BACKEND_VERIFY_URL, {
+    if (!email || !/^[a-zA-Z0-9._%+-]+@gmail\.com$/i.test(email)) {
+        alert("❌ Please enter a valid Gmail address.");
+        return;
+    }
+
+    try {
+        if (await isValueDuplicate("email", email)) {
+            alert("❌ This Gmail address is already registered.");
+            return;
+        }
+    } catch (err) {
+        alert("❌ Error checking email: " + err.message);
+        return;
+    }
+
+    generatedEmailOTP = String(Math.floor(100000 + Math.random() * 900000));
+    emailOtpCreatedAt = Date.now();
+    emailOtpVerified = false;
+
+    if (sendOtpButton) sendOtpButton.textContent = "Sending...";
+
+    try {
+        // Primary Attempt: Call Vercel Backend
+        const response = await fetch(BACKEND_SEND_OTP_URL, {
             method: "POST",
-            headers: { 
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            },
-            body: JSON.stringify({
-                documentBase64: base64Data,
-                expectedName: fullName,
-                expectedCollege: collegeName,
-                expectedYear: passoutYear
-            }),
-            signal: controller.signal
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: email, otp: generatedEmailOTP })
         });
 
-        clearTimeout(timeoutId);
         const result = await response.json();
+        if (!response.ok || !result.success) throw new Error(result.message || "Backend email request failed.");
 
-        if (!response.ok) {
-            let errorMsg = result.message || "Document verification failed.";
-            if (result.score !== undefined) {
-                errorMsg += `\n\nScore: ${result.score}/100 (LOW CONFIDENCE)\n`;
-                errorMsg += `• Ensure your name matches the registration\n`;
-                errorMsg += `• Ensure the college name is clearly visible`;
+        if (otpInput) otpInput.disabled = false;
+        if (verifyOtpButton) verifyOtpButton.disabled = false;
+        showStatus(otpStatus, "✅ Gmail OTP sent! Check your inbox.");
+        alert(`✅ OTP sent to ${email}`);
+
+    } catch (backendErr) {
+        console.warn("Backend failed, triggering direct Web3Forms fallback...", backendErr);
+
+        try {
+            // Fallback Attempt: Direct Web3Forms Call
+            const fallbackRes = await fetch("https://api.web3forms.com/submit", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    access_key: WEB3FORMS_ACCESS_KEY,
+                    subject: "IntraWorld - Gmail OTP Verification",
+                    email: email,
+                    message: `Your IntraWorld Email Verification OTP code is: ${generatedEmailOTP}`
+                })
+            });
+
+            const fallbackResult = await fallbackRes.json();
+            if (fallbackResult.success) {
+                if (otpInput) otpInput.disabled = false;
+                if (verifyOtpButton) verifyOtpButton.disabled = false;
+                showStatus(otpStatus, "✅ Gmail OTP sent via fallback!");
+                alert(`✅ OTP sent to ${email}`);
+            } else {
+                throw new Error(fallbackResult.message || "Web3Forms submission failed.");
             }
-            throw new Error(errorMsg);
+        } catch (fallbackErr) {
+            showStatus(otpStatus, `❌ Error sending OTP`, "#ef4444");
+            alert("❌ Failed to send Gmail OTP: " + fallbackErr.message);
         }
-
-        console.log(`✅ Document verified! Confidence: ${result.confidence.toUpperCase()} (${result.score}/100)`);
-        return result;
-
-    } catch (err) {
-        if (err.name === 'AbortError') {
-            throw new Error("Server request timed out. Please retry with a smaller image.");
-        }
-        throw err;
+    } finally {
+        if (sendOtpButton) sendOtpButton.textContent = "Send Email OTP";
     }
+}
+
+// ⭐ 3. SMS OTP FUNCTION (With Auto-Fill & Test Mode)
+async function sendPhoneOTP() {
+    let phone = phoneInput?.value.trim() || "";
+    phone = phone.replace("+91", "").replace(/\D/g, "").trim();
+
+    if (!phone || phone.length !== 10) {
+        alert("❌ Please enter a valid 10-digit mobile number.");
+        return;
+    }
+
+    try {
+        if (await isValueDuplicate("mobile", phone)) {
+            alert("❌ This mobile number is already registered.");
+            return;
+        }
+    } catch (err) {
+        alert("❌ Error checking mobile number: " + err.message);
+        return;
+    }
+
+    generatedPhoneOTP = String(Math.floor(100000 + Math.random() * 900000));
+    phoneOtpCreatedAt = Date.now();
+    phoneOtpVerified = false;
+
+    if (sendPhoneOtpButton) sendPhoneOtpButton.textContent = "Sending SMS...";
+
+    setTimeout(() => {
+        if (phoneOtpInput) {
+            phoneOtpInput.disabled = false;
+            phoneOtpInput.value = generatedPhoneOTP; // Auto-fills generated OTP into input
+        }
+        if (verifyPhoneOtpButton) verifyPhoneOtpButton.disabled = false;
+
+        showStatus(phoneOtpStatus, `✅ Demo SMS Sent! Code: ${generatedPhoneOTP}`, "#22c55e");
+        alert(`[DEV MODE] SMS Gateway simulated.\n\nYour Mobile OTP is: ${generatedPhoneOTP}\n(It has been automatically filled in for convenience)`);
+        
+        if (sendPhoneOtpButton) sendPhoneOtpButton.textContent = "Send SMS OTP";
+    }, 800);
 }
