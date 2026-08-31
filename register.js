@@ -4,15 +4,16 @@ import { collection, query, where, getDocs, addDoc } from "https://www.gstatic.c
 console.log("✅ register.js loaded successfully");
 
 // CONFIGURATION - LIVE VERCEL BACKEND
-const BACKEND_BASE_URL = "https://intra-world.vercel.app"; 
-const BACKEND_VERIFY_URL = `${BACKEND_BASE_URL}/api/verify-document`;
-const BACKEND_SEND_OTP_URL = `${BACKEND_BASE_URL}/api/send-email-otp`;
+// Replace any temporary/preview vercel URLs with your primary backend host
+const BACKEND_URL = "https://intra-world.vercel.app"; 
+const BACKEND_VERIFY_URL = `${BACKEND_URL}/api/verify-document`;
+const BACKEND_SEND_OTP_URL = `${BACKEND_URL}/api/send-email-otp`;
 
 const WEB3FORMS_ACCESS_KEY = "bb00ad90-e756-4918-b4b5-caf2bab0b818"; 
 const OTP_VALIDITY_MS = 5 * 60 * 1000;
 
 // WAKE UP BACKEND ON PAGE LOAD
-fetch(`${BACKEND_BASE_URL}/`)
+fetch(`${BACKEND_URL}/`)
     .then(() => console.log("⚡ Vercel Backend pinged & active."))
     .catch((err) => console.warn("⚠️ Backend ping failed:", err));
 
@@ -118,7 +119,7 @@ function showStatus(element, message, color = "#22c55e") {
     }
 }
 
-// CLIENT-SIDE IMAGE COMPRESSION (Max 800px width, 0.6 quality to prevent Vercel payload limit crash)
+// CLIENT-SIDE IMAGE COMPRESSION (Max 800px width, 0.6 quality to prevent 4.5MB Vercel Serverless payload crash)
 function compressAndConvertToBase64(file, maxWidth = 800, quality = 0.6) {
     return new Promise((resolve, reject) => {
         if (file.type === "application/pdf") {
@@ -159,7 +160,7 @@ function compressAndConvertToBase64(file, maxWidth = 800, quality = 0.6) {
     });
 }
 
-// DOCUMENT VERIFICATION
+// DOCUMENT VERIFICATION WITH TIMEOUT, COMPRESSION & DETAILED ERROR LOGGING
 async function verifyDocumentViaIDAnalyzer(file, fullName) {
     console.log("Compressing image payload...");
     const base64Data = await compressAndConvertToBase64(file);

@@ -1,13 +1,21 @@
-require('dotenv').config();
+const path = require('path');
+const fs = require('fs');
+
+const envPath = fs.existsSync(path.resolve(__dirname, '../IntraWorld.env'))
+    ? path.resolve(__dirname, '../IntraWorld.env')
+    : path.resolve(__dirname, '../.env');
+
+require('dotenv').config({ path: envPath });
+
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
 
 const app = express();
 
-// Enable global CORS for all routes and handle OPTIONS preflight directly
+// Enable global CORS for all routes and explicitly handle OPTIONS preflight requests
 app.use(cors({ origin: '*', methods: ['GET', 'POST', 'OPTIONS'] }));
-app.options('*', cors());
+app.options(/(.*)/, cors());
 
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
@@ -15,37 +23,32 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 const ID_ANALYZER_KEY = process.env.ID_ANALYZER_KEY || '';
 const WEB3FORMS_ACCESS_KEY = process.env.WEB3FORMS_ACCESS_KEY || '';
 
-// Enhanced flexible name matching function
-function verifyNameMatch(scannedText, expectedName) {
-    if (!scannedText || !expectedName) return false;
+// Strict name matching helper
+function verifyNameMatch(scannedName, expectedName) {
+    if (!scannedName || !expectedName) return false;
 
-    // Normalize strings to lowercase alphanumeric
-    const cleanScanned = scannedText.toLowerCase().replace(/[^a-z0-9 ]/g, ' ').trim();
-    const cleanExpected = expectedName.toLowerCase().replace(/[^a-z0-9 ]/g, ' ').trim();
+    // Normalize strings to lowercase alphanumeric tokens
+    const cleanScanned = scannedName.toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
+    const cleanExpected = expectedName.toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
 
-    const expectedTokens = cleanExpected.split(/\s+/).filter(token => token.length > 0);
-    const scannedTokens = cleanScanned.split(/\s+/).filter(token => token.length > 0);
+    const expectedTokens = cleanExpected.split(' ').filter(token => token.length > 1);
+    const scannedTokens = cleanScanned.split(' ').filter(token => token.length > 1);
 
-    if (expectedTokens.length === 0 || scannedTokens.length === 0) return false;
-
-    // Separate main name parts (length > 1) from single-letter initials
-    const mainNameTokens = expectedTokens.filter(t => t.length > 1);
-
-    // If main name (e.g., "saajan") exists anywhere in the scanned text, treat it as a match
-    const mainNameFound = mainNameTokens.length === 0 || mainNameTokens.every(token => 
-        scannedTokens.some(scannedToken => scannedToken.includes(token) || token.includes(scannedToken))
-    );
-
-    return mainNameFound;
+    // Require every word from the expected name to exist in the scanned document text
+    return expectedTokens.every(token => scannedTokens.includes(token));
 }
 
 // Root Health Checks
-app.get(['/', '/api'], (req, res) => {
+app.get('/', (req, res) => {
+    res.status(200).send("🚀 IntraWorld Backend API is active.");
+});
+
+app.get('/api', (req, res) => {
     res.status(200).send("🚀 IntraWorld Backend API is active.");
 });
 
 // Email OTP Endpoint
-app.post(['/api/send-email-otp', '/send-email-otp'], async (req, res) => {
+app.post('/api/send-email-otp', async (req, res) => {
     try {
         const { email, otp } = req.body;
         if (!email || !otp) {
@@ -71,7 +74,7 @@ app.post(['/api/send-email-otp', '/send-email-otp'], async (req, res) => {
 });
 
 // Document Verification Endpoint
-app.post(['/api/verify-document', '/verify-document'], async (req, res) => {
+app.post('/api/verify-document', async (req, res) => {
     try {
         const { documentBase64, expectedName } = req.body;
         
@@ -120,11 +123,17 @@ app.post(['/api/verify-document', '/verify-document'], async (req, res) => {
             });
         }
 
+        // Reject digitally edited or AI-generated documents (Deepfake check)
+        if (data.authentication && data.authentication.score < 0.5) {
+            return res.status(400).json({
+                success: false,
+                message: "Document failed anti-tamper check. High probability of AI generation or digital modification."
+            });
+        }
+
         // Extract OCR data or fallback to raw OCR text output
         const ocrData = data.response || {};
-        const rawOcrText = (data.ocr && data.ocr.text) 
-            ? (Array.isArray(data.ocr.text) ? data.ocr.text.join(' ') : data.ocr.text)
-            : JSON.stringify(data);
+        const rawOcrText = (data.ocr && data.ocr.text) ? data.ocr.text : JSON.stringify(data);
         
         let fullNameOnID = ocrData.fullName || `${ocrData.firstName || ''} ${ocrData.lastName || ''}`.trim();
 
@@ -134,7 +143,7 @@ app.post(['/api/verify-document', '/verify-document'], async (req, res) => {
         if (!isMatch) {
             return res.status(400).json({
                 success: false,
-                message: `Name mismatch! Document text did not match registration name "${expectedName}".`
+                message: `Name mismatch! Document belongs to "${fullNameOnID || 'Unknown'}". Registration name "${expectedName}" was not found on document.`
             });
         }
 
