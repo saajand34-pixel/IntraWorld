@@ -17,10 +17,43 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 const ID_ANALYZER_KEY = process.env.ID_ANALYZER_KEY;
-const WEB3FORMS_ACCESS_KEY = process.env.WEB3FORMS_ACCESS_KEY;
+const WEB3FORMS_ACCESS_KEY = process.env.WEB3FORMS_ACCESS_KEY || "bb00ad90-e756-4918-b4b5-caf2bab0b818";
 
 app.get('/', (req, res) => {
     res.status(200).send("🚀 IntraWorld Backend API is active.");
+});
+
+// ⭐ 1. EMAIL OTP ENDPOINT
+app.post('/api/send-email-otp', async (req, res) => {
+    try {
+        const { email, otp } = req.body;
+        if (!email || !otp) {
+            return res.status(400).json({ success: false, message: "Email and OTP required." });
+        }
+
+        console.log(`✉️ Sending Gmail OTP (${otp}) to: ${email}`);
+
+        const response = await axios.post('https://api.web3forms.com/submit', {
+            access_key: WEB3FORMS_ACCESS_KEY,
+            subject: "IntraWorld - Gmail OTP Verification",
+            email: email,
+            message: `Your IntraWorld Email Verification OTP code is: ${otp}`
+        });
+
+        if (response.data.success) {
+            console.log("✅ Gmail OTP sent via Web3Forms.");
+            return res.status(200).json({ success: true, message: "OTP sent successfully." });
+        } else {
+            console.error("❌ Web3Forms API returned failure:", response.data);
+            return res.status(400).json({ success: false, message: response.data.message || "Failed to send email." });
+        }
+    } catch (err) {
+        console.error("Web3Forms Error:", err.response?.data || err.message);
+        return res.status(500).json({ 
+            success: false, 
+            message: "Server failed to send email OTP." 
+        });
+    }
 });
 
 // Helper: Levenshtein distance for fuzzy matching
@@ -70,7 +103,6 @@ app.post('/api/verify-document', async (req, res) => {
 
         console.log(`📄 Processing document verification for: ${expectedName}`);
 
-        // FIX: Correct ID Analyzer Endpoint URL (/quickscan or /scan)
         const apiResponse = await axios.post(
             'https://api2.idanalyzer.com/quickscan',
             {
@@ -94,7 +126,6 @@ app.post('/api/verify-document', async (req, res) => {
             });
         }
 
-        // Extract Raw OCR Text from response
         const rawOcrText = JSON.stringify(data).toLowerCase();
         let verificationScore = 0;
 
@@ -117,7 +148,7 @@ app.post('/api/verify-document', async (req, res) => {
         } else {
             const institutionalKeywords = ['university', 'college', 'institute', 'school', 'academy', 'technology', 'polytechnic'];
             if (institutionalKeywords.some(kw => rawOcrText.includes(kw))) {
-                collegeMatchScore = 20; // Partial points if institution keyword is found
+                collegeMatchScore = 20;
             }
         }
         verificationScore += collegeMatchScore;
@@ -135,7 +166,6 @@ app.post('/api/verify-document', async (req, res) => {
         console.log(`📊 Score Breakdown: Name (${nameMatchScore}/40), College (${collegeMatchScore}/35), Quality (${qualityScore}/15), Data (${dataPresentScore}/10)`);
         console.log(`🎯 Total Score: ${verificationScore}/100`);
 
-        // DECISION LOGIC
         if (verificationScore >= 70) {
             return res.status(200).json({ 
                 success: true, 
