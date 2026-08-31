@@ -5,8 +5,8 @@ import { collection, query, where, getDocs, addDoc } from "https://www.gstatic.c
 
 console.log("✅ register.js loaded successfully");
 
-// ⭐ Backend Configuration
-const BACKEND_URL = "https://intraworld.onrender.com";
+// ⭐ Backend Configuration (Updated to Vercel)
+const BACKEND_URL = "https://intra-world.vercel.app";
 const BACKEND_VERIFY_URL = `${BACKEND_URL}/api/verify-document`;
 const BACKEND_SEND_OTP_URL = `${BACKEND_URL}/api/send-email-otp`;
 
@@ -217,7 +217,6 @@ async function verifyDocumentViaIDAnalyzer(file, fullName, collegeName, passoutY
         console.log(`📋 Server response:`, result);
 
         if (!response.ok) {
-            // ⭐ NEW: Show detailed error with confidence score
             let errorMsg = result.message || "Document verification failed.";
             if (result.confidence === "low" && result.score !== undefined) {
                 errorMsg += `\n\nConfidence Score: ${result.score}/100\n`;
@@ -231,7 +230,6 @@ async function verifyDocumentViaIDAnalyzer(file, fullName, collegeName, passoutY
             throw new Error(errorMsg);
         }
 
-        // ⭐ Success with confidence level
         console.log(`✅ Document verified! Confidence: ${result.confidence} (Score: ${result.score}/100)`);
         return result;
 
@@ -390,7 +388,7 @@ if (verifyOtpButton) verifyOtpButton.addEventListener("click", (e) => { e.preven
 if (sendPhoneOtpButton) sendPhoneOtpButton.addEventListener("click", (e) => { e.preventDefault(); sendPhoneOTP(); });
 if (verifyPhoneOtpButton) verifyPhoneOtpButton.addEventListener("click", (e) => { e.preventDefault(); verifyPhoneOTP(); });
 
-// ⭐ FORM SUBMISSION (with smart field matching)
+// FORM SUBMISSION
 if (form) {
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
@@ -451,7 +449,6 @@ if (form) {
             console.log(`🚀 Starting document verification with field matching...`);
             let verificationResult;
             try {
-                // ⭐ SEND college and year for smart matching
                 verificationResult = await verifyDocumentViaIDAnalyzer(
                     uploadedFile, 
                     fullName,
