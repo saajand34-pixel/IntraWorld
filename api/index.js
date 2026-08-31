@@ -20,7 +20,6 @@ app.options('*', cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-const PORT = process.env.PORT || 3000;
 const ID_ANALYZER_KEY = process.env.ID_ANALYZER_KEY;
 const WEB3FORMS_ACCESS_KEY = process.env.WEB3FORMS_ACCESS_KEY;
 
@@ -147,9 +146,9 @@ app.post('/api/verify-document', async (req, res) => {
             'https://api2.idanalyzer.com/',
             {
                 document: documentBase64,
-                authenticate: false,  // ⭐ CHANGED: Disable AI detection (too strict)
+                authenticate: false,
                 dupecheck: true,
-                ocr: true  // ⭐ Keep OCR enabled for field extraction
+                ocr: true
             },
             {
                 headers: {
@@ -171,7 +170,7 @@ app.post('/api/verify-document', async (req, res) => {
             });
         }
 
-        // ⭐ NEW: Extract and validate OCR data
+        // Extract and validate OCR data
         const extractedData = extractOCRData(data.ocr);
         console.log("Extracted OCR Data:", extractedData);
 
@@ -183,7 +182,7 @@ app.post('/api/verify-document', async (req, res) => {
             documentQuality: data.ocr ? true : false
         };
 
-        // ⭐ NAME MATCHING (40 points)
+        // NAME MATCHING (40 points)
         if (expectedName && extractedData.name) {
             const nameSimilarity = calculateSimilarity(expectedName, extractedData.name);
             checks.nameMatch = nameSimilarity;
@@ -197,7 +196,7 @@ app.post('/api/verify-document', async (req, res) => {
             console.log(`⚠️  Could not extract name from document`);
         }
 
-        // ⭐ COLLEGE VERIFICATION (35 points)
+        // COLLEGE VERIFICATION (35 points)
         if (checks.collegeMatch) {
             verificationScore += 35;
             console.log(`✅ College/Institution found in document`);
@@ -205,13 +204,13 @@ app.post('/api/verify-document', async (req, res) => {
             console.log(`⚠️  No institution keywords found in document OCR`);
         }
 
-        // ⭐ DOCUMENT QUALITY (15 points)
+        // DOCUMENT QUALITY (15 points)
         if (checks.documentQuality) {
             verificationScore += 15;
             console.log(`✅ Document is readable (OCR successful)`);
         }
 
-        // ⭐ OCR DATA PRESENCE (10 points)
+        // OCR DATA PRESENCE (10 points)
         if (checks.ocrDataFound) {
             verificationScore += 10;
             console.log(`✅ Substantial text data extracted`);
@@ -220,9 +219,8 @@ app.post('/api/verify-document', async (req, res) => {
         console.log(`\n📊 Verification Score: ${verificationScore}/100`);
         console.log(`📋 Check Results:`, checks);
 
-        // ⭐ DECISION LOGIC
+        // DECISION LOGIC
         if (verificationScore >= 70) {
-            // HIGH CONFIDENCE - Accept
             console.log(`✅ VERIFICATION PASSED (Score: ${verificationScore})`);
             return res.status(200).json({ 
                 success: true, 
@@ -232,7 +230,6 @@ app.post('/api/verify-document', async (req, res) => {
                 details: checks
             });
         } else if (verificationScore >= 40) {
-            // MEDIUM CONFIDENCE - Accept with warning
             console.log(`⚠️  VERIFICATION PASSED WITH CAUTION (Score: ${verificationScore})`);
             return res.status(200).json({ 
                 success: true, 
@@ -242,7 +239,6 @@ app.post('/api/verify-document', async (req, res) => {
                 details: checks
             });
         } else {
-            // LOW CONFIDENCE - Reject
             console.log(`❌ VERIFICATION FAILED (Score: ${verificationScore})`);
             return res.status(400).json({ 
                 success: false, 
@@ -260,6 +256,13 @@ app.post('/api/verify-document', async (req, res) => {
     }
 });
 
-app.listen(PORT, () => {
-    console.log(`🚀 Secure backend server running on port ${PORT}`);
-});
+// Run standalone server when testing locally
+if (process.env.NODE_ENV !== 'production') {
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => {
+        console.log(`🚀 Secure backend server running on port ${PORT}`);
+    });
+}
+
+// Export for Vercel Serverless Function deployment
+module.exports = app;
