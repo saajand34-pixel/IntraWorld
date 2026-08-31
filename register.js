@@ -4,7 +4,6 @@ import { collection, query, where, getDocs, addDoc } from "https://www.gstatic.c
 console.log("✅ register.js loaded successfully");
 
 // CONFIGURATION - LIVE VERCEL BACKEND
-// Replace any temporary/preview vercel URLs with your primary backend host
 const BACKEND_URL = "https://intra-world.vercel.app"; 
 const BACKEND_VERIFY_URL = `${BACKEND_URL}/api/verify-document`;
 const BACKEND_SEND_OTP_URL = `${BACKEND_URL}/api/send-email-otp`;
@@ -119,7 +118,7 @@ function showStatus(element, message, color = "#22c55e") {
     }
 }
 
-// CLIENT-SIDE IMAGE COMPRESSION (Max 800px width, 0.6 quality to prevent 4.5MB Vercel Serverless payload crash)
+// CLIENT-SIDE IMAGE COMPRESSION (Max 800px width, 0.6 quality to prevent Vercel Serverless payload limits)
 function compressAndConvertToBase64(file, maxWidth = 800, quality = 0.6) {
     return new Promise((resolve, reject) => {
         if (file.type === "application/pdf") {
@@ -160,8 +159,8 @@ function compressAndConvertToBase64(file, maxWidth = 800, quality = 0.6) {
     });
 }
 
-// DOCUMENT VERIFICATION WITH TIMEOUT, COMPRESSION & DETAILED ERROR LOGGING
-async function verifyDocumentViaIDAnalyzer(file, fullName) {
+// DOCUMENT VERIFICATION WITH STRICT FIELD MATCHING AND ANTI-TAMPER VALIDATION
+async function verifyDocumentViaIDAnalyzer(file, fullName, collegeName) {
     console.log("Compressing image payload...");
     const base64Data = await compressAndConvertToBase64(file);
     console.log(`Payload size: ~${Math.round(base64Data.length / 1024)} KB`);
@@ -178,7 +177,8 @@ async function verifyDocumentViaIDAnalyzer(file, fullName) {
             },
             body: JSON.stringify({
                 documentBase64: base64Data,
-                expectedName: fullName
+                expectedName: fullName,
+                expectedCollege: collegeName
             }),
             signal: controller.signal
         });
@@ -193,7 +193,7 @@ async function verifyDocumentViaIDAnalyzer(file, fullName) {
         }
 
         if (!response.ok || !result.success) {
-            throw new Error(result.message || `Document verification failed with status ${response.status}`);
+            throw new Error(result.message || `Document verification failed.`);
         }
 
         return result;
@@ -412,7 +412,7 @@ if (form) {
             }
 
             try {
-                await verifyDocumentViaIDAnalyzer(uploadedFile, fullName);
+                await verifyDocumentViaIDAnalyzer(uploadedFile, fullName, collegeName);
                 console.log("🛡️ OCR & Anti-Deepfake authentication passed.");
             } catch (authErr) {
                 if (submitBtn) {

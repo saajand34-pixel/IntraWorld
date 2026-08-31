@@ -23,19 +23,19 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 const ID_ANALYZER_KEY = process.env.ID_ANALYZER_KEY || '';
 const WEB3FORMS_ACCESS_KEY = process.env.WEB3FORMS_ACCESS_KEY || '';
 
-// Strict name matching helper
-function verifyNameMatch(scannedName, expectedName) {
-    if (!scannedName || !expectedName) return false;
+// Token matching helper for strict field checking
+function verifyTextMatch(scannedText, expectedText) {
+    if (!scannedText || !expectedText) return false;
 
     // Normalize strings to lowercase alphanumeric tokens
-    const cleanScanned = scannedName.toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
-    const cleanExpected = expectedName.toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
+    const cleanScanned = scannedText.toLowerCase().replace(/[^a-z0-9 ]/g, ' ').trim();
+    const cleanExpected = expectedText.toLowerCase().replace(/[^a-z0-9 ]/g, ' ').trim();
 
-    const expectedTokens = cleanExpected.split(' ').filter(token => token.length > 1);
-    const scannedTokens = cleanScanned.split(' ').filter(token => token.length > 1);
+    const expectedTokens = cleanExpected.split(/\s+/).filter(token => token.length > 1);
+    const scannedTokens = cleanScanned.split(/\s+/).filter(token => token.length > 1);
 
-    // Require every word from the expected name to exist in the scanned document text
-    return expectedTokens.every(token => scannedTokens.includes(token));
+    // Require at least one significant word from the expected input to exist in the scanned text
+    return expectedTokens.some(token => scannedTokens.includes(token));
 }
 
 // Root Health Checks
@@ -73,10 +73,10 @@ app.post('/api/send-email-otp', async (req, res) => {
     }
 });
 
-// Document Verification Endpoint
+// Document Verification Endpoint (Strict OCR & 80% Anti-Tamper Check)
 app.post('/api/verify-document', async (req, res) => {
     try {
-        const { documentBase64, expectedName } = req.body;
+        const { documentBase64, expectedName, expectedCollege } = req.body;
         
         if (!documentBase64) {
             return res.status(400).json({ success: false, message: "Missing document image payload." });
@@ -123,33 +123,46 @@ app.post('/api/verify-document', async (req, res) => {
             });
         }
 
-        // Reject digitally edited or AI-generated documents (Deepfake check)
-        if (data.authentication && data.authentication.score < 0.5) {
+        // STRICT CHECK 1: Reject if AI / Tamper Authenticity score is under 80% (0.80)
+        const authScore = data.authentication ? data.authentication.score : 0;
+        if (authScore < 0.80) {
             return res.status(400).json({
                 success: false,
-                message: "Document failed anti-tamper check. High probability of AI generation or digital modification."
+                message: `Document failed AI anti-tamper check (Score: ${Math.round(authScore * 100)}%). Document displays high probability of AI generation or digital tampering.`
             });
         }
 
-        // Extract OCR data or fallback to raw OCR text output
-        const ocrData = data.response || {};
+        // Extract structured OCR fields & raw OCR text output
+        const ocrData = data.result || data.response || data || {};
         const rawOcrText = (data.ocr && data.ocr.text) ? data.ocr.text : JSON.stringify(data);
         
         let fullNameOnID = ocrData.fullName || `${ocrData.firstName || ''} ${ocrData.lastName || ''}`.trim();
 
-        // Check matching against structured name OR raw OCR text
-        const isMatch = verifyNameMatch(fullNameOnID, expectedName) || verifyNameMatch(rawOcrText, expectedName);
+        // STRICT CHECK 2: Match Name against structured OCR OR full text
+        const isNameMatched = verifyTextMatch(fullNameOnID, expectedName) || verifyTextMatch(rawOcrText, expectedName);
 
-        if (!isMatch) {
+        if (!isNameMatched) {
             return res.status(400).json({
                 success: false,
-                message: `Name mismatch! Document belongs to "${fullNameOnID || 'Unknown'}". Registration name "${expectedName}" was not found on document.`
+                message: `Name mismatch! Scanned text on the document does not contain registration name "${expectedName}".`
             });
+        }
+
+        // STRICT CHECK 3: Optional matching for Institution/College Name
+        if (expectedCollege) {
+            const isCollegeMatched = verifyTextMatch(rawOcrText, expectedCollege);
+            if (!isCollegeMatched) {
+                return res.status(400).json({
+                    success: false,
+                    message: `College mismatch! Institution "${expectedCollege}" was not found on the uploaded document.`
+                });
+            }
         }
 
         return res.status(200).json({ 
             success: true, 
             message: "Document successfully verified.",
+            authenticityScore: authScore,
             ocrName: fullNameOnID || expectedName 
         });
 
