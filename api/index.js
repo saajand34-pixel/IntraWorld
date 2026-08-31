@@ -5,7 +5,6 @@ const cors = require('cors');
 
 const app = express();
 
-// 1. CORS Middleware Configuration
 app.use(cors({
     origin: '*',
     methods: ['GET', 'POST', 'OPTIONS'],
@@ -13,82 +12,22 @@ app.use(cors({
     credentials: false
 }));
 
-// 2. Explicit Preflight Handling
 app.options('*', cors());
-
-// 3. Payload Limit Adjustments for Base64 Uploads
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 const ID_ANALYZER_KEY = process.env.ID_ANALYZER_KEY;
 const WEB3FORMS_ACCESS_KEY = process.env.WEB3FORMS_ACCESS_KEY;
 
-// Health Check Endpoint
 app.get('/', (req, res) => {
     res.status(200).send("🚀 IntraWorld Backend API is active.");
 });
 
-// 1. EMAIL OTP ENDPOINT
-app.post('/api/send-email-otp', async (req, res) => {
-    try {
-        const { email, otp } = req.body;
-        if (!email || !otp) {
-            return res.status(400).json({ success: false, message: "Email and OTP required." });
-        }
-
-        const response = await axios.post('https://api.web3forms.com/submit', {
-            access_key: WEB3FORMS_ACCESS_KEY,
-            subject: "IntraWorld - Gmail OTP Verification",
-            email: email,
-            message: `Your IntraWorld Email Verification OTP code is: ${otp}`
-        });
-
-        if (response.data.success) {
-            return res.status(200).json({ success: true, message: "OTP sent successfully." });
-        } else {
-            return res.status(400).json({ success: false, message: response.data.message || "Failed to send email." });
-        }
-    } catch (err) {
-        console.error("Web3Forms Error:", err.response?.data || err.message);
-        return res.status(500).json({ success: false, message: "Server error sending email OTP." });
-    }
-});
-
-// ⭐ HELPER: Similarity Score (0-100)
-function calculateSimilarity(str1, str2) {
-    if (!str1 || !str2) return 0;
-    
-    const s1 = str1.toLowerCase().trim();
-    const s2 = str2.toLowerCase().trim();
-    
-    // Exact match
-    if (s1 === s2) return 100;
-    
-    // Contains check (one contains the other)
-    if (s1.includes(s2) || s2.includes(s1)) return 85;
-    
-    // Levenshtein distance for typos
-    const longer = s1.length > s2.length ? s1 : s2;
-    const shorter = s1.length > s2.length ? s2 : s1;
-    
-    if (longer.length === 0) return 100;
-    
-    const editDistance = levenshteinDistance(longer, shorter);
-    const similarity = ((longer.length - editDistance) / longer.length) * 100;
-    
-    return Math.max(0, similarity);
-}
-
-// Levenshtein distance for calculating string similarity
+// Helper: Levenshtein distance for fuzzy matching
 function levenshteinDistance(s1, s2) {
     const track = Array(s2.length + 1).fill(null).map(() => Array(s1.length + 1).fill(0));
-    
-    for (let i = 0; i <= s1.length; i += 1) {
-        track[0][i] = i;
-    }
-    for (let j = 0; j <= s2.length; j += 1) {
-        track[j][0] = j;
-    }
+    for (let i = 0; i <= s1.length; i += 1) track[0][i] = i;
+    for (let j = 0; j <= s2.length; j += 1) track[j][0] = j;
     
     for (let j = 1; j <= s2.length; j += 1) {
         for (let i = 1; i <= s1.length; i += 1) {
@@ -100,68 +39,53 @@ function levenshteinDistance(s1, s2) {
             );
         }
     }
-    
     return track[s2.length][s1.length];
 }
 
-// ⭐ HELPER: Extract keywords from OCR data
-function extractOCRData(ocrData) {
-    if (!ocrData) return { name: '', college: '', date: '' };
+// Helper: Calculate Similarity (0-100)
+function calculateSimilarity(str1, str2) {
+    if (!str1 || !str2) return 0;
+    const s1 = str1.toLowerCase().trim();
+    const s2 = str2.toLowerCase().trim();
     
-    const text = JSON.stringify(ocrData).toLowerCase();
+    if (s1 === s2) return 100;
+    if (s1.includes(s2) || s2.includes(s1)) return 85;
     
-    // Look for common institutional keywords
-    const collegeKeywords = ['university', 'college', 'institute', 'school', 'academy', 'iit', 'nit'];
-    const hasCollege = collegeKeywords.some(keyword => text.includes(keyword));
+    const longer = s1.length > s2.length ? s1 : s2;
+    const shorter = s1.length > s2.length ? s2 : s1;
+    if (longer.length === 0) return 100;
     
-    // Look for name-like patterns (words at start of lines)
-    const namePattern = /^[a-z]+\s+[a-z]+/gm;
-    const potentialNames = text.match(namePattern) || [];
-    
-    // Look for year patterns (19xx, 20xx)
-    const yearPattern = /\b(19|20)\d{2}\b/g;
-    const potentialYears = text.match(yearPattern) || [];
-    
-    return {
-        name: potentialNames[0] || '',
-        college: hasCollege ? 'verified' : 'not_found',
-        date: potentialYears[0] || 'not_found',
-        hasOCRData: !!ocrData,
-        textLength: text.length
-    };
+    const editDistance = levenshteinDistance(longer, shorter);
+    return Math.max(0, ((longer.length - editDistance) / longer.length) * 100);
 }
 
-// ⭐ ENHANCED DOCUMENT VERIFICATION (Smart Matching)
+// Document Verification Endpoint (Smart Approach)
 app.post('/api/verify-document', async (req, res) => {
     try {
-        const { documentBase64, expectedName, expectedCollege, expectedYear } = req.body;
+        const { documentBase64, expectedName, expectedCollege } = req.body;
         
         if (!documentBase64) {
             return res.status(400).json({ success: false, message: "Missing document image payload." });
         }
 
-        console.log(`📄 Verifying document for: ${expectedName}`);
+        console.log(`📄 Processing document verification for: ${expectedName}`);
 
+        // FIX: Correct ID Analyzer Endpoint URL (/quickscan or /scan)
         const apiResponse = await axios.post(
-            'https://api2.idanalyzer.com/',
+            'https://api2.idanalyzer.com/quickscan',
             {
-                document: documentBase64,
-                authenticate: false,
-                dupecheck: true,
+                apikey: ID_ANALYZER_KEY,
+                file: documentBase64,
                 ocr: true
             },
             {
-                headers: {
-                    'X-API-KEY': ID_ANALYZER_KEY,
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 timeout: 45000
             }
         );
 
         const data = apiResponse.data;
 
-        // Check for critical errors
         if (data.error) {
             console.error("API Error:", data.error.message);
             return res.status(400).json({ 
@@ -170,99 +94,83 @@ app.post('/api/verify-document', async (req, res) => {
             });
         }
 
-        // Extract and validate OCR data
-        const extractedData = extractOCRData(data.ocr);
-        console.log("Extracted OCR Data:", extractedData);
-
+        // Extract Raw OCR Text from response
+        const rawOcrText = JSON.stringify(data).toLowerCase();
         let verificationScore = 0;
-        const checks = {
-            ocrDataFound: extractedData.hasOCRData && extractedData.textLength > 50,
-            nameMatch: 0,
-            collegeMatch: extractedData.college === 'verified',
-            documentQuality: data.ocr ? true : false
-        };
 
-        // NAME MATCHING (40 points)
-        if (expectedName && extractedData.name) {
-            const nameSimilarity = calculateSimilarity(expectedName, extractedData.name);
-            checks.nameMatch = nameSimilarity;
-            if (nameSimilarity >= 70) {
-                verificationScore += 40;
-                console.log(`✅ Name Match: ${nameSimilarity.toFixed(1)}% (${expectedName} vs ${extractedData.name})`);
-            } else {
-                console.log(`⚠️  Name Mismatch: ${nameSimilarity.toFixed(1)}% (${expectedName} vs ${extractedData.name})`);
+        // 1. NAME MATCHING (40 Points Max)
+        let nameMatchScore = 0;
+        if (expectedName) {
+            const nameSimilarity = calculateSimilarity(expectedName, rawOcrText);
+            if (rawOcrText.includes(expectedName.toLowerCase())) {
+                nameMatchScore = 40;
+            } else if (nameSimilarity >= 60) {
+                nameMatchScore = Math.round((nameSimilarity / 100) * 40);
             }
-        } else if (expectedName && !extractedData.name) {
-            console.log(`⚠️  Could not extract name from document`);
         }
+        verificationScore += nameMatchScore;
 
-        // COLLEGE VERIFICATION (35 points)
-        if (checks.collegeMatch) {
-            verificationScore += 35;
-            console.log(`✅ College/Institution found in document`);
-        } else if (expectedCollege) {
-            console.log(`⚠️  No institution keywords found in document OCR`);
+        // 2. COLLEGE / INSTITUTION MATCHING (35 Points Max)
+        let collegeMatchScore = 0;
+        if (expectedCollege && rawOcrText.includes(expectedCollege.toLowerCase())) {
+            collegeMatchScore = 35;
+        } else {
+            const institutionalKeywords = ['university', 'college', 'institute', 'school', 'academy', 'technology', 'polytechnic'];
+            if (institutionalKeywords.some(kw => rawOcrText.includes(kw))) {
+                collegeMatchScore = 20; // Partial points if institution keyword is found
+            }
         }
+        verificationScore += collegeMatchScore;
 
-        // DOCUMENT QUALITY (15 points)
-        if (checks.documentQuality) {
-            verificationScore += 15;
-            console.log(`✅ Document is readable (OCR successful)`);
-        }
+        // 3. DOCUMENT QUALITY (15 Points Max)
+        const isReadable = rawOcrText.length > 100;
+        const qualityScore = isReadable ? 15 : 5;
+        verificationScore += qualityScore;
 
-        // OCR DATA PRESENCE (10 points)
-        if (checks.ocrDataFound) {
-            verificationScore += 10;
-            console.log(`✅ Substantial text data extracted`);
-        }
+        // 4. DATA PRESENT (10 Points Max)
+        const hasSubstantialData = rawOcrText.length > 250;
+        const dataPresentScore = hasSubstantialData ? 10 : 5;
+        verificationScore += dataPresentScore;
 
-        console.log(`\n📊 Verification Score: ${verificationScore}/100`);
-        console.log(`📋 Check Results:`, checks);
+        console.log(`📊 Score Breakdown: Name (${nameMatchScore}/40), College (${collegeMatchScore}/35), Quality (${qualityScore}/15), Data (${dataPresentScore}/10)`);
+        console.log(`🎯 Total Score: ${verificationScore}/100`);
 
         // DECISION LOGIC
         if (verificationScore >= 70) {
-            console.log(`✅ VERIFICATION PASSED (Score: ${verificationScore})`);
             return res.status(200).json({ 
                 success: true, 
                 message: "Document verified successfully.",
                 confidence: "high",
-                score: verificationScore,
-                details: checks
+                score: verificationScore
             });
         } else if (verificationScore >= 40) {
-            console.log(`⚠️  VERIFICATION PASSED WITH CAUTION (Score: ${verificationScore})`);
             return res.status(200).json({ 
                 success: true, 
-                message: "Document verified (partial match). Please ensure accuracy.",
+                message: "Document verified with medium confidence. Please ensure details are correct.",
                 confidence: "medium",
-                score: verificationScore,
-                details: checks
+                score: verificationScore
             });
         } else {
-            console.log(`❌ VERIFICATION FAILED (Score: ${verificationScore})`);
             return res.status(400).json({ 
                 success: false, 
-                message: `Document verification failed. Confidence score too low (${verificationScore}/100). Please upload a clearer document with your name and institution details visible.`,
+                message: `Document verification failed. Score: ${verificationScore}/100. Please upload a clear document displaying your full name and college.`,
                 confidence: "low",
-                score: verificationScore,
-                details: checks
+                score: verificationScore
             });
         }
 
     } catch (err) {
-        console.error("Document Verification Error:", err.response?.data || err.message);
-        const errMessage = err.response?.data?.error?.message || "Document verification server error.";
-        return res.status(500).json({ success: false, message: errMessage });
+        console.error("Verification Error:", err.response?.data || err.message);
+        return res.status(500).json({ 
+            success: false, 
+            message: err.response?.data?.error?.message || "Document verification server error." 
+        });
     }
 });
 
-// Run standalone server when testing locally
 if (process.env.NODE_ENV !== 'production') {
     const PORT = process.env.PORT || 3000;
-    app.listen(PORT, () => {
-        console.log(`🚀 Secure backend server running on port ${PORT}`);
-    });
+    app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
 }
 
-// Export for Vercel Serverless Function deployment
 module.exports = app;
