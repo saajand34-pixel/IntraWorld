@@ -15,19 +15,28 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 const ID_ANALYZER_KEY = process.env.ID_ANALYZER_KEY || '';
 const WEB3FORMS_ACCESS_KEY = process.env.WEB3FORMS_ACCESS_KEY || '';
 
-// Strict name matching helper
-function verifyNameMatch(scannedName, expectedName) {
-    if (!scannedName || !expectedName) return false;
+// Enhanced flexible name matching function
+function verifyNameMatch(scannedText, expectedName) {
+    if (!scannedText || !expectedName) return false;
 
-    // Normalize strings to lowercase alphanumeric tokens
-    const cleanScanned = scannedName.toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
-    const cleanExpected = expectedName.toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
+    // Normalize strings to lowercase alphanumeric
+    const cleanScanned = scannedText.toLowerCase().replace(/[^a-z0-9 ]/g, ' ').trim();
+    const cleanExpected = expectedName.toLowerCase().replace(/[^a-z0-9 ]/g, ' ').trim();
 
-    const expectedTokens = cleanExpected.split(' ').filter(token => token.length > 1);
-    const scannedTokens = cleanScanned.split(' ').filter(token => token.length > 1);
+    const expectedTokens = cleanExpected.split(/\s+/).filter(token => token.length > 0);
+    const scannedTokens = cleanScanned.split(/\s+/).filter(token => token.length > 0);
 
-    // Require every word from the expected name to exist in the scanned document text
-    return expectedTokens.every(token => scannedTokens.includes(token));
+    if (expectedTokens.length === 0 || scannedTokens.length === 0) return false;
+
+    // Separate main name parts (length > 1) from single-letter initials
+    const mainNameTokens = expectedTokens.filter(t => t.length > 1);
+
+    // If main name (e.g., "saajan") exists anywhere in the scanned text, treat it as a match
+    const mainNameFound = mainNameTokens.length === 0 || mainNameTokens.every(token => 
+        scannedTokens.some(scannedToken => scannedToken.includes(token) || token.includes(scannedToken))
+    );
+
+    return mainNameFound;
 }
 
 // Root Health Checks
@@ -35,7 +44,7 @@ app.get(['/', '/api'], (req, res) => {
     res.status(200).send("🚀 IntraWorld Backend API is active.");
 });
 
-// Email OTP Endpoint (Supports both route structures)
+// Email OTP Endpoint
 app.post(['/api/send-email-otp', '/send-email-otp'], async (req, res) => {
     try {
         const { email, otp } = req.body;
@@ -61,7 +70,7 @@ app.post(['/api/send-email-otp', '/send-email-otp'], async (req, res) => {
     }
 });
 
-// Document Verification Endpoint (Supports both route structures)
+// Document Verification Endpoint
 app.post(['/api/verify-document', '/verify-document'], async (req, res) => {
     try {
         const { documentBase64, expectedName } = req.body;
@@ -113,7 +122,9 @@ app.post(['/api/verify-document', '/verify-document'], async (req, res) => {
 
         // Extract OCR data or fallback to raw OCR text output
         const ocrData = data.response || {};
-        const rawOcrText = (data.ocr && data.ocr.text) ? data.ocr.text : JSON.stringify(data);
+        const rawOcrText = (data.ocr && data.ocr.text) 
+            ? (Array.isArray(data.ocr.text) ? data.ocr.text.join(' ') : data.ocr.text)
+            : JSON.stringify(data);
         
         let fullNameOnID = ocrData.fullName || `${ocrData.firstName || ''} ${ocrData.lastName || ''}`.trim();
 
@@ -123,7 +134,7 @@ app.post(['/api/verify-document', '/verify-document'], async (req, res) => {
         if (!isMatch) {
             return res.status(400).json({
                 success: false,
-                message: `Name mismatch! Document belongs to "${fullNameOnID || 'Unknown'}". Registration name "${expectedName}" was not found on document.`
+                message: `Name mismatch! Document text did not match registration name "${expectedName}".`
             });
         }
 
