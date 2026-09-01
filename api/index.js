@@ -9,10 +9,6 @@ const app = express();
 // MIDDLEWARE
 // ==========================================
 
-// IMPORTANT:
-// Base64 files are larger than the original file.
-// 10mb allows the 5MB file after Base64 conversion.
-
 app.use(express.json({
     limit: "10mb"
 }));
@@ -22,84 +18,29 @@ app.use(express.urlencoded({
     limit: "10mb"
 }));
 
-
 app.use(cors({
     origin: "*"
 }));
 
 
 // ==========================================
-// OCR API KEY
+// ENVIRONMENT VARIABLES
 // ==========================================
 
-const OCR_SPACE_API_KEY =
-    process.env.OCR_SPACE_API_KEY;
-
-
-// ==========================================
-// TEXT SIMILARITY FUNCTION
-// ==========================================
-
-function calculateSimilarity(text, documentText) {
-
-    if (!text || !documentText) {
-        return 0;
-    }
-
-
-    const searchWords =
-        text
-            .toLowerCase()
-            .split(/\s+/)
-            .filter(Boolean);
-
-
-    const documentWords =
-        documentText
-            .toLowerCase();
-
-
-    if (searchWords.length === 0) {
-        return 0;
-    }
-
-
-    let matchedWords = 0;
-
-
-    for (const word of searchWords) {
-
-        if (
-            documentWords.includes(word)
-        ) {
-
-            matchedWords++;
-
-        }
-
-    }
-
-
-    return Math.round(
-        (matchedWords / searchWords.length) * 100
-    );
-
-}
+const ID_ANALYZER_KEY =
+    process.env.ID_ANALYZER_KEY;
 
 
 // ==========================================
-// DOCUMENT VERIFICATION API
+// DOCUMENT VERIFICATION
 // ==========================================
 
 app.post(
     "/api/verify-document",
-
     async (req, res) => {
 
         try {
 
-
-            // Get data from frontend
             const {
                 documentBase64,
                 expectedName,
@@ -108,7 +49,32 @@ app.post(
             } = req.body;
 
 
-            // Check document
+            // ------------------------------------------
+            // CHECK API KEY
+            // ------------------------------------------
+
+            if (!ID_ANALYZER_KEY) {
+
+                console.error(
+                    "ID_ANALYZER_KEY is missing."
+                );
+
+                return res.status(500).json({
+
+                    success: false,
+
+                    message:
+                        "Server configuration error. ID Analyzer API key is missing."
+
+                });
+
+            }
+
+
+            // ------------------------------------------
+            // CHECK DOCUMENT
+            // ------------------------------------------
+
             if (
                 !documentBase64 ||
                 typeof documentBase64 !== "string"
@@ -119,51 +85,53 @@ app.post(
                     success: false,
 
                     message:
-                        "Missing or invalid document payload."
+                        "Document is missing or invalid."
 
                 });
 
             }
 
 
-            // Check document format
-            const validDocument =
-                documentBase64.startsWith(
-                    "data:image/"
-                ) ||
-                documentBase64.startsWith(
-                    "data:application/pdf"
-                );
+            // ------------------------------------------
+            // REMOVE DATA URI PREFIX
+            // ------------------------------------------
+            //
+            // Browser gives:
+            //
+            // data:image/jpeg;base64,/9j/4AAQ...
+            //
+            // ID Analyzer accepts Base64 document data.
+            //
+            // We remove only the "data:...;base64,"
+            // prefix and send the actual Base64.
+            // ------------------------------------------
+
+            let documentData =
+                documentBase64;
 
 
-            if (!validDocument) {
+            if (
+                documentData.includes(
+                    ";base64,"
+                )
+            ) {
+
+                documentData =
+                    documentData.split(
+                        ";base64,"
+                    )[1];
+
+            }
+
+
+            if (!documentData) {
 
                 return res.status(400).json({
 
                     success: false,
 
                     message:
-                        "Invalid document format. Please upload JPG, PNG, or PDF."
-
-                });
-
-            }
-
-
-            // Check OCR API key
-            if (!OCR_SPACE_API_KEY) {
-
-                console.error(
-                    "OCR_SPACE_API_KEY is missing."
-                );
-
-
-                return res.status(500).json({
-
-                    success: false,
-
-                    message:
-                        "Server configuration error. OCR API key is missing."
+                        "Invalid document Base64 data."
 
                 });
 
@@ -171,126 +139,106 @@ app.post(
 
 
             console.log(
-                "📄 Processing document verification"
+                "📄 Starting ID Analyzer verification..."
             );
 
             console.log(
-                "👤 Expected Name:",
+                "👤 Name:",
                 expectedName
             );
 
             console.log(
-                "🏫 Expected College:",
+                "🏫 College:",
                 expectedCollege
             );
 
             console.log(
-                "📅 Expected Year:",
+                "📅 Year:",
                 expectedYear
             );
 
 
             // ==========================================
-            // PREPARE OCR REQUEST
+            // ID ANALYZER REQUEST
             // ==========================================
 
-            const params =
-                new URLSearchParams();
-
-
-            params.append(
-                "apikey",
-                OCR_SPACE_API_KEY
-            );
-
-
-            // IMPORTANT:
-            // OCR.space expects the Base64 data URI here
-
-            params.append(
-                "base64Image",
-                documentBase64
-            );
-
-
-            params.append(
-                "OCREngine",
-                "2"
-            );
-
-
-            params.append(
-                "scale",
-                "true"
-            );
-
-
-            params.append(
-                "isOverlayRequired",
-                "false"
-            );
-
-
-            // ==========================================
-            // SEND TO OCR.SPACE
-            // ==========================================
-
-            const apiResponse =
+            const response =
                 await axios.post(
 
-                    "https://api.ocr.space/parse/image",
-
-                    params,
+                    "https://api2.idanalyzer.com/scan",
 
                     {
+
+                        // IMPORTANT:
+                        // ID Analyzer requires the field
+                        // to be called "document".
+
+                        document:
+                            documentData,
+
+                        // Use a suitable profile.
+                        // security_none is useful when
+                        // you mainly need document OCR.
+
+                        profile:
+                            "security_none",
+
+                        // Verify the entered name
+                        // against the document.
+
+                        ...(expectedName
+                            ? {
+                                verifyName:
+                                    expectedName
+                            }
+                            : {})
+
+                    },
+
+                    {
+
                         headers: {
+
+                            "X-API-KEY":
+                                ID_ANALYZER_KEY,
+
+                            "Accept":
+                                "application/json",
+
                             "Content-Type":
-                                "application/x-www-form-urlencoded"
+                                "application/json"
+
                         },
 
-                        timeout: 45000
+                        timeout:
+                            60000
+
                     }
 
                 );
 
 
             const data =
-                apiResponse.data;
+                response.data;
+
+
+            console.log(
+                "✅ ID Analyzer response received."
+            );
 
 
             // ==========================================
-            // OCR ERROR CHECK
+            // CHECK RESPONSE
             // ==========================================
 
-            if (
-                data.IsErroredOnProcessing ||
-                data.OCRExitCode !== 1
-            ) {
-
-
-                const errorMessage =
-                    Array.isArray(
-                        data.ErrorMessage
-                    )
-                        ? data.ErrorMessage.join(" ")
-                        : (
-                            data.ErrorMessage ||
-                            "Document could not be processed. Please upload a clearer image or PDF."
-                        );
-
-
-                console.error(
-                    "OCR Error:",
-                    errorMessage
-                );
-
+            if (!data) {
 
                 return res.status(400).json({
 
                     success: false,
 
                     message:
-                        errorMessage
+                        "ID Analyzer returned an empty response."
 
                 });
 
@@ -298,194 +246,99 @@ app.post(
 
 
             // ==========================================
-            // EXTRACT OCR TEXT
+            // EXTRACT OCR DATA
             // ==========================================
 
-            const parsedText =
-                (data.ParsedResults || [])
-                    .map(
-                        result =>
-                            result.ParsedText || ""
-                    )
-                    .join(" ");
+            let extractedText = "";
 
 
-            const rawOcrText =
-                parsedText.toLowerCase();
+            if (data.data) {
+
+                try {
+
+                    extractedText =
+                        JSON.stringify(
+                            data.data
+                        ).toLowerCase();
+
+                } catch {
+
+                    extractedText = "";
+
+                }
+
+            }
 
 
-            console.log(
-                "📄 OCR Text Length:",
-                rawOcrText.length
-            );
+            // Also include response text so that
+            // name/college matching can work even
+            // if the response structure changes.
+
+            const completeResponseText =
+                JSON.stringify(
+                    data
+                ).toLowerCase();
+
+
+            const searchableText =
+                (
+                    extractedText +
+                    " " +
+                    completeResponseText
+                );
 
 
             // ==========================================
-            // START SCORING
+            // NAME CHECK
             // ==========================================
 
-            let verificationScore = 0;
-
-
-            // ------------------------------------------
-            // 1. NAME MATCHING - 40 POINTS
-            // ------------------------------------------
-
-            let nameMatchScore = 0;
+            let nameMatch = false;
 
 
             if (expectedName) {
 
-                const normalizedName =
+                const name =
                     expectedName
-                        .toLowerCase()
-                        .trim();
+                        .trim()
+                        .toLowerCase();
 
 
-                if (
-                    rawOcrText.includes(
-                        normalizedName
-                    )
-                ) {
-
-                    nameMatchScore = 40;
-
-                } else {
-
-                    const similarity =
-                        calculateSimilarity(
-                            expectedName,
-                            rawOcrText
-                        );
-
-
-                    if (similarity >= 75) {
-
-                        nameMatchScore = 30;
-
-                    } else if (
-                        similarity >= 50
-                    ) {
-
-                        nameMatchScore = 20;
-
-                    } else if (
-                        similarity >= 25
-                    ) {
-
-                        nameMatchScore = 10;
-
-                    }
-
-                }
+                nameMatch =
+                    searchableText.includes(
+                        name
+                    );
 
             }
 
 
-            verificationScore +=
-                nameMatchScore;
+            // ==========================================
+            // COLLEGE CHECK
+            // ==========================================
 
-
-            // ------------------------------------------
-            // 2. COLLEGE MATCHING - 35 POINTS
-            // ------------------------------------------
-
-            let collegeMatchScore = 0;
+            let collegeMatch = false;
 
 
             if (expectedCollege) {
 
-                const normalizedCollege =
+                const college =
                     expectedCollege
-                        .toLowerCase()
-                        .trim();
+                        .trim()
+                        .toLowerCase();
 
 
-                if (
-                    rawOcrText.includes(
-                        normalizedCollege
-                    )
-                ) {
-
-                    collegeMatchScore = 35;
-
-                } else {
-
-                    const collegeSimilarity =
-                        calculateSimilarity(
-                            expectedCollege,
-                            rawOcrText
-                        );
-
-
-                    if (
-                        collegeSimilarity >= 75
-                    ) {
-
-                        collegeMatchScore = 25;
-
-                    } else if (
-                        collegeSimilarity >= 50
-                    ) {
-
-                        collegeMatchScore = 15;
-
-                    }
-
-                }
+                collegeMatch =
+                    searchableText.includes(
+                        college
+                    );
 
             }
 
 
-            // If college is not an exact match,
-            // check for institution-related words
+            // ==========================================
+            // YEAR CHECK
+            // ==========================================
 
-            if (collegeMatchScore === 0) {
-
-                const institutionKeywords = [
-
-                    "university",
-
-                    "college",
-
-                    "institute",
-
-                    "school",
-
-                    "academy",
-
-                    "technology",
-
-                    "polytechnic"
-
-                ];
-
-
-                if (
-                    institutionKeywords.some(
-                        keyword =>
-                            rawOcrText.includes(
-                                keyword
-                            )
-                    )
-                ) {
-
-                    collegeMatchScore = 10;
-
-                }
-
-            }
-
-
-            verificationScore +=
-                collegeMatchScore;
-
-
-            // ------------------------------------------
-            // 3. YEAR MATCHING - 10 POINTS
-            // ------------------------------------------
-
-            let yearMatchScore = 0;
+            let yearMatch = false;
 
 
             if (
@@ -495,126 +348,76 @@ app.post(
                 )
             ) {
 
-                if (
-                    rawOcrText.includes(
+                yearMatch =
+                    searchableText.includes(
                         expectedYear
-                    )
-                ) {
-
-                    yearMatchScore = 10;
-
-                }
+                    );
 
             }
-
-
-            verificationScore +=
-                yearMatchScore;
-
-
-            // ------------------------------------------
-            // 4. DOCUMENT QUALITY - 10 POINTS
-            // ------------------------------------------
-
-            let qualityScore = 0;
-
-
-            if (
-                rawOcrText.length > 300
-            ) {
-
-                qualityScore = 10;
-
-            } else if (
-                rawOcrText.length > 100
-            ) {
-
-                qualityScore = 7;
-
-            } else if (
-                rawOcrText.length > 30
-            ) {
-
-                qualityScore = 4;
-
-            }
-
-
-            verificationScore +=
-                qualityScore;
-
-
-            // ------------------------------------------
-            // 5. DOCUMENT HAS DATA - 5 POINTS
-            // ------------------------------------------
-
-            let dataScore = 0;
-
-
-            if (
-                rawOcrText.length > 250
-            ) {
-
-                dataScore = 5;
-
-            } else if (
-                rawOcrText.length > 100
-            ) {
-
-                dataScore = 3;
-
-            }
-
-
-            verificationScore +=
-                dataScore;
 
 
             // ==========================================
-            // LIMIT SCORE TO 100
+            // SCORING
             // ==========================================
 
-            verificationScore =
-                Math.min(
-                    verificationScore,
-                    100
+            let score = 0;
+
+
+            if (nameMatch) {
+
+                score += 50;
+
+            }
+
+
+            if (collegeMatch) {
+
+                score += 30;
+
+            }
+
+
+            if (yearMatch) {
+
+                score += 20;
+
+            }
+
+
+            // ==========================================
+            // IF ID ANALYZER ITSELF REJECTED DOCUMENT
+            // ==========================================
+
+            if (
+                data.success === false ||
+                data.error
+            ) {
+
+                console.error(
+                    "ID Analyzer Error:",
+                    data
                 );
 
 
-            console.log(
-                `📊 Name: ${nameMatchScore}/40`
-            );
+                return res.status(400).json({
 
-            console.log(
-                `🏫 College: ${collegeMatchScore}/35`
-            );
+                    success: false,
 
-            console.log(
-                `📅 Year: ${yearMatchScore}/10`
-            );
+                    message:
+                        data.error?.message ||
+                        data.message ||
+                        "ID Analyzer could not process this document."
 
-            console.log(
-                `📄 Quality: ${qualityScore}/10`
-            );
+                });
 
-            console.log(
-                `📋 Data: ${dataScore}/5`
-            );
-
-            console.log(
-                `🎯 TOTAL: ${verificationScore}/100`
-            );
+            }
 
 
             // ==========================================
             // FINAL RESULT
             // ==========================================
 
-
-            // HIGH CONFIDENCE
-            if (
-                verificationScore >= 70
-            ) {
+            if (score >= 70) {
 
                 return res.status(200).json({
 
@@ -627,80 +430,106 @@ app.post(
                         "high",
 
                     score:
-                        verificationScore
+                        score,
+
+                    nameMatch:
+                        nameMatch,
+
+                    collegeMatch:
+                        collegeMatch,
+
+                    yearMatch:
+                        yearMatch
 
                 });
 
             }
 
 
-            // MEDIUM CONFIDENCE
-            if (
-                verificationScore >= 40
-            ) {
+            if (score >= 40) {
 
                 return res.status(200).json({
 
                     success: true,
 
                     message:
-                        "Document accepted for review.",
+                        "Document accepted with medium confidence.",
 
                     confidence:
                         "medium",
 
                     score:
-                        verificationScore
+                        score,
+
+                    nameMatch:
+                        nameMatch,
+
+                    collegeMatch:
+                        collegeMatch,
+
+                    yearMatch:
+                        yearMatch
 
                 });
 
             }
 
 
-            // LOW CONFIDENCE
             return res.status(400).json({
 
                 success: false,
 
                 message:
-                    `Document verification failed. Score: ${verificationScore}/100. Please upload a clearer document that shows your full name and institution.`,
+                    "Document verification failed. Please make sure the document clearly shows your name and institution.",
 
                 confidence:
                     "low",
 
                 score:
-                    verificationScore
+                    score,
+
+                nameMatch:
+                    nameMatch,
+
+                collegeMatch:
+                    collegeMatch,
+
+                yearMatch:
+                    yearMatch
 
             });
 
 
         } catch (error) {
 
+            console.error(
+                "ID Analyzer verification error:"
+            );
+
 
             console.error(
-                "Verification Error:",
                 error.response?.data ||
                 error.message
             );
 
 
-            const errorMessage =
-
-                error.response?.data?.ErrorMessage ||
-
-                error.response?.data?.error?.message ||
-
-                error.message ||
-
-                "Document verification server error.";
+            const status =
+                error.response?.status || 500;
 
 
-            return res.status(500).json({
+            const apiError =
+                error.response?.data;
+
+
+            return res.status(status).json({
 
                 success: false,
 
                 message:
-                    errorMessage
+                    apiError?.message ||
+                    apiError?.error ||
+                    error.message ||
+                    "Document verification server error."
 
             });
 
@@ -711,7 +540,7 @@ app.post(
 
 
 // ==========================================
-// TEST ROUTE
+// TEST ENDPOINT
 // ==========================================
 
 app.get(
@@ -723,7 +552,10 @@ app.get(
             success: true,
 
             message:
-                "IntraWorld backend is running."
+                "IntraWorld backend is running.",
+
+            idAnalyzerConfigured:
+                !!ID_ANALYZER_KEY
 
         });
 
@@ -732,7 +564,7 @@ app.get(
 
 
 // ==========================================
-// START SERVER
+// SERVER
 // ==========================================
 
 const PORT =
@@ -744,7 +576,7 @@ app.listen(
     () => {
 
         console.log(
-            `Server running on port ${PORT}`
+            `IntraWorld server running on port ${PORT}`
         );
 
     }
