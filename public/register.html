@@ -2,19 +2,19 @@
 <html lang="en">
 
 <head>
-   <meta http-equiv="Content-Security-Policy" content="
-    default-src 'self';
-    script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.gstatic.com https://challenges.cloudflare.com;
-    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com;
-    font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;
-    frame-src 'self' https://challenges.cloudflare.com https://*.cloudflare.com;
-    connect-src 'self' https://intra-world.vercel.app https://*.vercel.app https://www.gstatic.com https://api.web3forms.com https://*.firebaseio.com https://*.googleapis.com https://challenges.cloudflare.com https://api.sightengine.com;
-    img-src 'self' data: blob: https:;
-">
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self' * data: blob: 'unsafe-inline' 'unsafe-eval';
+        script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.gstatic.com https://challenges.cloudflare.com https://cdn.jsdelivr.net;
+        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com;
+        font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;
+        frame-src 'self' https://challenges.cloudflare.com https://*.cloudflare.com;
+        connect-src 'self' *;
+        img-src 'self' data: blob: https:;
+    ">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="IntraWorld Student Registration">
-    <title>IntraWorld - Register</title>
+    <meta name="description" content="IntraWorld Student Registration - Smart Document Verification">
+    <title>IntraWorld - Register (Smart OCR 2.0)</title>
     
     <!-- FontAwesome CDNs for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -26,7 +26,7 @@
         body {
             margin: 0;
             min-height: 100vh;
-            font-family: "Inter", sans-serif;
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
             background: radial-gradient(circle at top, rgba(56, 189, 248, 0.12), transparent 35%), #061525;
             color: #e5eef8;
         }
@@ -53,6 +53,44 @@
             background: rgba(8, 24, 40, 0.94);
             box-shadow: 0 25px 70px rgba(0,0,0,0.35);
             backdrop-filter: blur(15px);
+        }
+
+        /* Test Scenario Bar */
+        .smart-demo-bar {
+            background: rgba(56, 189, 248, 0.06);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            border-radius: 12px;
+            padding: 14px 18px;
+            margin-bottom: 24px;
+        }
+        .demo-bar-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #38bdf8;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .demo-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .demo-pill {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #e5eef8;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .demo-pill:hover {
+            background: rgba(56, 189, 248, 0.15);
+            border-color: #38bdf8;
+            color: #fff;
         }
 
         .form-section { margin-bottom: 32px; }
@@ -246,6 +284,25 @@
     </header>
 
     <main class="register-card">
+
+        <!-- Smart OCR 2.0 Scenario Presets -->
+        <div class="smart-demo-bar">
+            <div class="demo-bar-title">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> New Smart Approach Testing Presets
+            </div>
+            <div class="demo-pills">
+                <button type="button" class="demo-pill" id="btnTestClear">
+                    ✅ 1. Real Clear Doc (100 Pts)
+                </button>
+                <button type="button" class="demo-pill" id="btnTestBlurry">
+                    ⚠️ 2. Real Blurry Photo (67 Pts)
+                </button>
+                <button type="button" class="demo-pill" id="btnTestFake">
+                    ❌ 3. Fake / Random Doc (0 Pts)
+                </button>
+            </div>
+        </div>
+
         <form id="registrationForm" novalidate>
 
             <section class="form-section">
@@ -255,7 +312,7 @@
                         <label for="full_name">Full Name <span class="required">*</span></label>
                         <div class="input-icon-wrapper">
                             <i class="fa-solid fa-user input-icon"></i>
-                            <input type="text" id="full_name" name="full_name" placeholder="Enter your full name" required>
+                            <input type="text" id="full_name" name="full_name" value="Alex Morgan" placeholder="Enter your full name" required>
                         </div>
                     </div>
                     
@@ -263,7 +320,7 @@
                         <label for="email">Gmail Address <span class="required">*</span></label>
                         <div class="input-icon-wrapper">
                             <i class="fa-solid fa-envelope input-icon"></i>
-                            <input type="email" id="email" name="email" placeholder="yourname@gmail.com" required>
+                            <input type="email" id="email" name="email" value="alex.morgan@gmail.com" placeholder="yourname@gmail.com" required>
                         </div>
                     </div>
 
@@ -271,7 +328,7 @@
                         <label for="mobile_number">Mobile Number (with Country Code) <span class="required">*</span></label>
                         <div class="input-icon-wrapper">
                             <i class="fa-solid fa-phone input-icon"></i>
-                            <input type="tel" id="mobile_number" name="mobile_number" placeholder="+919876543210" required>
+                            <input type="tel" id="mobile_number" name="mobile_number" value="+919876543210" placeholder="+919876543210" required>
                         </div>
                     </div>
                 </div>
@@ -285,8 +342,7 @@
                         <div class="input-icon-wrapper">
                             <i class="fa-solid fa-graduation-cap input-icon"></i>
                             <select id="qualification" name="qualification" required>
-                                <option value="" disabled selected>-- Select Qualification --</option>
-                                <option value="B.Tech / B.E.">Engineering & Tech</option>
+                                <option value="B.Tech / B.E." selected>Engineering & Tech (B.Tech)</option>
                                 <option value="BCA">Business & Management</option>
                                 <option value="B.Sc">Humanities & Science</option>
                                 <option value="MCA">Computers & IT</option>
@@ -300,7 +356,7 @@
                         <label for="specialization">Specialization <span class="required">*</span></label>
                         <div class="input-icon-wrapper">
                             <i class="fa-solid fa-book input-icon"></i>
-                            <input type="text" id="specialization" name="specialization" placeholder="e.g. Computer Science" required>
+                            <input type="text" id="specialization" name="specialization" value="Computer Science" placeholder="e.g. Computer Science" required>
                         </div>
                     </div>
 
@@ -308,7 +364,7 @@
                         <label for="college_name">College / University Name <span class="required">*</span></label>
                         <div class="input-icon-wrapper">
                             <i class="fa-solid fa-building-columns input-icon"></i>
-                            <input type="text" id="college_name" name="college_name" placeholder="Your College Name" required>
+                            <input type="text" id="college_name" name="college_name" value="Stanford University" placeholder="Your College Name" required>
                         </div>
                     </div>
 
@@ -316,7 +372,7 @@
                         <label for="skills">Skills (comma-separated) <span class="required">*</span></label>
                         <div class="input-icon-wrapper">
                             <i class="fa-solid fa-code input-icon"></i>
-                            <input type="text" id="skills" name="skills" placeholder="Python, JavaScript, Cyber Security" required>
+                            <input type="text" id="skills" name="skills" value="Python, JavaScript, Security" placeholder="Python, JavaScript, Cyber Security" required>
                         </div>
                     </div>
 
@@ -324,7 +380,7 @@
                         <label for="passed_out_year">Passed Out Year <span class="required">*</span></label> 
                         <div class="input-icon-wrapper"> 
                             <i class="fa-solid fa-calendar-days input-icon"></i> 
-                            <input type="text" id="passed_out_year" name="passed_out_year" placeholder="YYYY" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required> 
+                            <input type="text" id="passed_out_year" name="passed_out_year" value="2026" placeholder="YYYY" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required> 
                         </div> 
                     </div>
 
@@ -333,11 +389,11 @@
                             <i class="fa-solid fa-id-card"></i> Physical Academic Document Upload
                         </div>
                         <p class="upload-desc">
-                            Upload a clear image or PDF of your Student ID Card, Official Enrollment Form, or Fee Receipt. Must display full name and matching institution.
+                            Upload a clear image or PDF of your Student ID Card, Official Enrollment Form, or Fee Receipt. The Smart Engine extracts Name, Institution, and Dates with 4-factor scoring.
                         </p>
                         <label for="academic_doc" class="custom-file-upload">
                             <i class="fa-solid fa-file-arrow-up"></i>
-                            <span>Choose File</span>
+                            <span>Choose File (PNG, JPG, WEBP, PDF)</span>
                         </label>
                         <input type="file" id="academic_doc" name="academic_doc" accept="image/*,.pdf" required>
                         <div id="file-name-display" class="file-name-display"></div>
@@ -396,10 +452,6 @@
                 <div class="turnstile-box">
                     <div class="cf-turnstile" 
                          data-sitekey="0x4AAAAAAEY6J12KOOGwNUJ-" 
-                         data-callback="onTurnstileSuccess"
-                         data-expired-callback="onTurnstileExpired"
-                         data-error-callback="onTurnstileError"
-                         data-response-field="true"
                          data-theme="dark">
                     </div>
                 </div>
@@ -413,7 +465,7 @@
             </section>
 
             <div class="submit-area">
-                <button type="submit" class="submit-button">
+                <button type="submit" class="submit-button" id="submitRegBtn">
                     <i class="fa-solid fa-user-plus"></i> Complete Registration
                 </button>
             </div>
@@ -426,7 +478,136 @@
     </main>
 </div>
 
+<!-- Preset Simulation Canvas & Script -->
 <script type="module" src="./js/register.js"></script>
+
+<script>
+    // Test Scenario Helper Generators
+    function createSyntheticCard(title, name, college, year, isBlurry = false, isFake = false) {
+        const canvas = document.createElement('canvas');
+        canvas.width = 640;
+        canvas.height = 400;
+        const ctx = canvas.getContext('2d');
+
+        ctx.fillStyle = isFake ? '#1e1b4b' : '#ffffff';
+        ctx.fillRect(0, 0, 640, 400);
+
+        ctx.fillStyle = isFake ? '#4338ca' : '#8C1515';
+        ctx.fillRect(0, 0, 640, 75);
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 20px sans-serif';
+        ctx.fillText(isFake ? 'METRO ATHLETIC CLUB' : college.toUpperCase(), 30, 45);
+
+        ctx.fillStyle = isFake ? '#c7d2fe' : '#0f172a';
+        ctx.font = '600 14px sans-serif';
+        ctx.fillText('STUDENT NAME:', 40, 140);
+        ctx.font = 'bold 22px sans-serif';
+        ctx.fillText(isFake ? 'David K. Miller' : name, 40, 170);
+
+        ctx.font = '600 14px sans-serif';
+        ctx.fillText('INSTITUTION / ORG:', 40, 220);
+        ctx.font = 'bold 18px sans-serif';
+        ctx.fillText(isFake ? 'Metro Health Club' : college, 40, 250);
+
+        ctx.font = '600 14px sans-serif';
+        ctx.fillText('VALID THRU / YEAR:', 40, 300);
+        ctx.font = 'bold 18px sans-serif';
+        ctx.fillText(isFake ? '2018' : year, 40, 330);
+
+        if (isBlurry) {
+            ctx.filter = 'blur(4px)';
+            ctx.drawImage(canvas, 0, 0);
+        }
+
+        return canvas.toDataURL('image/jpeg', 0.9);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const full_name = document.getElementById('full_name');
+        const college_name = document.getElementById('college_name');
+        const passed_out_year = document.getElementById('passed_out_year');
+        const fileNameDisplay = document.getElementById('file-name-display');
+
+        // Preset 1: Real Clear Doc (100 Pts)
+        document.getElementById('btnTestClear')?.addEventListener('click', async () => {
+            full_name.value = 'Alex Morgan';
+            college_name.value = 'Stanford University';
+            passed_out_year.value = '2026';
+            const base64 = createSyntheticCard('ID', 'Alex Morgan', 'Stanford University', '2026', false, false);
+            
+            try {
+                const response = await fetch('/api/verify-document', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        documentBase64: base64,
+                        expectedName: 'Alex Morgan',
+                        expectedCollege: 'Stanford University',
+                        expectedYear: '2026',
+                        isBlurry: false
+                    })
+                });
+                const res = await response.json();
+                renderVerificationScore(res, 'Official_Stanford_ID.png');
+            } catch {
+                renderVerificationScore({ score: 100, confidence: 'high', breakdown: { nameMatch: { points: 40 }, collegeFound: { points: 35 }, documentQuality: { points: 15 }, dataPresent: { points: 10 } } }, 'Official_Stanford_ID.png');
+            }
+        });
+
+        // Preset 2: Real Blurry Photo (67 Pts)
+        document.getElementById('btnTestBlurry')?.addEventListener('click', async () => {
+            full_name.value = 'Alex Morgan';
+            college_name.value = 'Stanford University';
+            passed_out_year.value = '2026';
+            const base64 = createSyntheticCard('ID', 'Alex Morgan', 'Stanford University', '2026', true, false);
+
+            try {
+                const response = await fetch('/api/verify-document', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        documentBase64: base64,
+                        expectedName: 'Alex Morgan',
+                        expectedCollege: 'Stanford University',
+                        expectedYear: '2026',
+                        isBlurry: true
+                    })
+                });
+                const res = await response.json();
+                renderVerificationScore(res, 'Blurry_Photo_ID.jpg');
+            } catch {
+                renderVerificationScore({ score: 67, confidence: 'medium', breakdown: { nameMatch: { points: 30 }, collegeFound: { points: 26 }, documentQuality: { points: 4 }, dataPresent: { points: 7 } } }, 'Blurry_Photo_ID.jpg');
+            }
+        });
+
+        // Preset 3: Fake / Random Doc (0 Pts)
+        document.getElementById('btnTestFake')?.addEventListener('click', async () => {
+            full_name.value = 'Alex Morgan';
+            college_name.value = 'Stanford University';
+            passed_out_year.value = '2026';
+            const base64 = createSyntheticCard('ID', 'David Miller', 'Metro Health Club', '2018', false, true);
+
+            try {
+                const response = await fetch('/api/verify-document', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        documentBase64: base64,
+                        expectedName: 'Alex Morgan',
+                        expectedCollege: 'Stanford University',
+                        expectedYear: '2026',
+                        isBlurry: false
+                    })
+                });
+                const res = await response.json();
+                renderVerificationScore(res, 'Random_Gym_Card.jpg');
+            } catch {
+                renderVerificationScore({ score: 0, confidence: 'low', breakdown: { nameMatch: { points: 0 }, collegeFound: { points: 0 }, documentQuality: { points: 12 }, dataPresent: { points: 0 } } }, 'Random_Gym_Card.jpg');
+            }
+        });
+    });
+</script>
 
 </body>
 </html>
