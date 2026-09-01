@@ -16,6 +16,9 @@ function showStatus(element, message, color = "#22c55e") {
 }
 
 // 1. FILE BASE64 CONVERTER
+// NOTE: OCR.space's base64Image param wants the FULL data URI
+// ("data:image/jpeg;base64,...."), not the bare base64 string, so unlike
+// the old ID Analyzer integration we keep the "data:<mime>;base64," prefix.
 
 // Plain base64 read - used for PDFs and as a fallback for images
 // that the browser's <img> tag can't decode (HEIC, some phone formats, etc).
@@ -23,20 +26,20 @@ function readFileAsBase64(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
-        reader.onload = (event) => resolve(event.target.result.split(',')[1]);
+        reader.onload = (event) => resolve(event.target.result); // full data URI
         reader.onerror = () => reject(new Error("Failed to read document file. Please try a different file."));
     });
 }
 
-// Image-only compressor. Resolves with a compressed base64 string on success.
-// On decode failure it resolves with the ORIGINAL uncompressed base64 instead
-// of rejecting, so a format quirk doesn't block the whole upload.
+// Image-only compressor. Resolves with a compressed data URI on success.
+// On decode failure it resolves with the ORIGINAL uncompressed data URI
+// instead of rejecting, so a format quirk doesn't block the whole upload.
 function compressImageToBase64(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = (event) => {
-            const originalBase64 = event.target.result.split(',')[1];
+            const originalDataUri = event.target.result;
             const img = new Image();
             img.onload = () => {
                 try {
@@ -57,18 +60,18 @@ function compressImageToBase64(file) {
                     canvas.height = height;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
-                    resolve(canvas.toDataURL('image/jpeg', 0.7).split(',')[1]);
+                    resolve(canvas.toDataURL('image/jpeg', 0.7)); // full data URI
                 } catch (e) {
                     // Canvas compression failed (e.g. tainted canvas) - fall back to original
-                    resolve(originalBase64);
+                    resolve(originalDataUri);
                 }
             };
             img.onerror = () => {
                 // Browser couldn't decode this as an image (HEIC etc.) - fall back
                 // to sending the raw file bytes instead of failing outright.
-                resolve(originalBase64);
+                resolve(originalDataUri);
             };
-            img.src = event.target.result;
+            img.src = originalDataUri;
         };
         reader.onerror = () => reject(new Error("Failed to read document file. Please try a different file."));
     });
