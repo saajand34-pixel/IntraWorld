@@ -1,22 +1,55 @@
 const express = require("express");
 const cors = require("cors");
 const axios = require("axios");
+const path = require("path");
+const fs = require("fs");
+const https = require("https");
 
 const app = express();
+
+// ==========================================
+// ENVIRONMENT VARIABLES & CONFIGURATION
+// ==========================================
+
+// Load IntraWorld.env if present
+const envPath = path.join(__dirname, "IntraWorld.env");
+if (fs.existsSync(envPath)) {
+    try {
+        const envContent = fs.readFileSync(envPath, "utf-8");
+        envContent.split(/\r?\n/).forEach(line => {
+            const parts = line.split("=");
+            if (parts.length >= 2) {
+                const key = parts[0].trim();
+                const val = parts.slice(1).join("=").trim();
+                if (key && !process.env[key]) {
+                    process.env[key] = val;
+                }
+            }
+        });
+    } catch (e) {
+        console.warn("Could not read IntraWorld.env:", e.message);
+    }
+}
+
+const ID_ANALYZER_KEY = process.env.ID_ANALYZER_KEY || "idk_KsgEWHZV7A2dKjSYcPO2SlDLebdylyMt2Q1eBciS";
+const WEB3FORMS_ACCESS_KEY = process.env.WEB3FORMS_ACCESS_KEY || "bb00ad90-e756-4918-b4b5-caf2bab0b818";
+const TWOFACTOR_API_KEY = process.env.TWOFACTOR_API_KEY || "33d4086d-a553-11f1-9cb1-0200cd936042";
+
+// TLS agent
+const httpsAgent = new https.Agent({ rejectUnauthorized: false });
+
+// In-memory OTP Store (expires in 10 minutes)
+const emailOtpStore = new Map();
+const phoneOtpStore = new Map();
 
 // ==========================================
 // MIDDLEWARE
 // ==========================================
 
-app.use(express.json({ limit: "15mb" }));
-app.use(express.urlencoded({ extended: true, limit: "15mb" }));
+app.use(express.json({ limit: "25mb" }));
+app.use(express.urlencoded({ extended: true, limit: "25mb" }));
 app.use(cors({ origin: "*" }));
-
-// ==========================================
-// ENVIRONMENT VARIABLES
-// ==========================================
-
-const ID_ANALYZER_KEY = process.env.ID_ANALYZER_KEY || "";
+app.use(express.static(path.join(__dirname, "public")));
 
 // ==========================================
 // SMART SCORING & FUZZY MATCHING HELPERS
@@ -111,24 +144,28 @@ function generateAcronyms(institutionName) {
  * Estimate Image Quality & Blur from Base64 metadata / size
  * Returns points (0 - 15) and quality label
  */
-function estimateDocumentQuality(documentBase64, isBlurryFlag = false) {
+function estimateDocumentQuality(documentBase64, isBlurryFlag = false, clientQualityPoints = null) {
     if (!documentBase64) return { points: 0, label: "Missing Document", isSharp: false };
 
-    // If explicit flag from frontend image sharpness analyzer or very low payload
-    const approxBytes = (documentBase64.length * 3) / 4;
+    if (clientQualityPoints !== null && clientQualityPoints !== undefined && !isNaN(clientQualityPoints)) {
+        const pts = Math.min(15, Math.max(0, Number(clientQualityPoints)));
+        return {
+            points: pts,
+            label: isBlurryFlag ? "Moderate Blur / Soft Focus" : "Sharp & High Contrast",
+            isSharp: !isBlurryFlag
+        };
+    }
     
     if (isBlurryFlag) {
         return { points: 4, label: "Moderate Blur / Soft Focus", isSharp: false };
     }
 
-    if (approxBytes < 25000) {
-        // Very low resolution / heavy compression
-        return { points: 5, label: "Low Resolution", isSharp: false };
-    } else if (approxBytes < 80000) {
-        return { points: 10, label: "Acceptable Quality", isSharp: true };
-    } else {
-        return { points: 15, label: "Sharp & High Contrast", isSharp: true };
+    const approxBytes = (documentBase64.length * 3) / 4;
+    if (approxBytes < 5000) {
+        return { points: 8, label: "Low Resolution", isSharp: false };
     }
+
+    return { points: 15, label: "Sharp & High Contrast", isSharp: true };
 }
 
 /**
@@ -349,16 +386,12 @@ app.post("/api/verify-document", async (req, res) => {
         }
 
         console.log("📄 Starting Smart Document Verification...");
-        console.log("👤 Name:", expectedName);
-        console.log("🏫 College:", expectedCollege);
-        console.log("📅 Year:", expectedYear);
+        console.log("👤 Name:", expectedName, "| 🏫 College:", expectedCollege, "| 📅 Year:", expectedYear);
 
+        let qualityAssessment = estimateDocumentQuality(cleanBase64, !!isBlurry, req.body.qualityPoints);
         let extractedText = "";
-        let qualityAssessment = estimateDocumentQuality(cleanBase64, !!isBlurry);
 
-        // ------------------------------------------
-        // 1. TRY ID ANALYZER (If configured)
-        // ------------------------------------------
+        // 1. Invoke ID Analyzer API if configured
         if (ID_ANALYZER_KEY) {
             try {
                 console.log("🌐 Invoking ID Analyzer OCR...");
@@ -375,35 +408,32 @@ app.post("/api/verify-document", async (req, res) => {
                             "Accept": "application/json",
                             "Content-Type": "application/json"
                         },
-                        timeout: 20000
+                        httpsAgent,
+                        timeout: 15000
                     }
                 );
 
                 const data = response.data;
                 if (data) {
                     extractedText = JSON.stringify(data.data || data).toLowerCase();
+                    console.log("✅ ID Analyzer scan response received.");
                 }
             } catch (apiErr) {
-                console.warn("⚠️ ID Analyzer call bypassed/failed, using Smart Built-in Engine:", apiErr.message);
+                console.warn("⚠️ ID Analyzer API call notice:", apiErr.message);
             }
         }
 
-        // ------------------------------------------
-        // 2. CLIENT-ASSISTED OCR / SYNTHETIC EXTRACTION
-        // ------------------------------------------
+        // 2. Client-Assisted OCR / Synthetic Extraction fallback
         if (!extractedText && clientOcrText) {
             extractedText = clientOcrText;
         }
 
-        // If no external OCR returned text, decode strings or pattern match
+        // 3. Fallback extraction based on credentials
         if (!extractedText) {
-            // Smart text extraction from payload or client fallback
             extractedText = `${expectedName || ""} ${expectedCollege || ""} ${expectedYear || ""} STUDENT ID CARD UNIVERSITY`;
         }
 
-        // ------------------------------------------
-        // 3. EXECUTE NEW SMART 4-FACTOR SCORING
-        // ------------------------------------------
+        // 4. Run Smart 4-Factor Scoring Engine
         const scoreResult = scoreDocument({
             expectedName,
             expectedCollege,
@@ -415,7 +445,6 @@ app.post("/api/verify-document", async (req, res) => {
 
         console.log(`🎯 Verification Result: Score=${scoreResult.totalScore}/100 [${scoreResult.tier}] -> ${scoreResult.decision}`);
 
-        // Return appropriate HTTP status and formatted payload
         if (scoreResult.totalScore >= 40) {
             return res.status(200).json({
                 success: true,
@@ -428,7 +457,7 @@ app.post("/api/verify-document", async (req, res) => {
             });
         }
 
-        return res.status(400).json({
+        return res.status(200).json({
             success: false,
             confidence: "low",
             score: scoreResult.totalScore,
@@ -449,21 +478,244 @@ app.post("/api/verify-document", async (req, res) => {
     }
 });
 
+
 // ==========================================
-// TEST ENDPOINT
+// EMAIL OTP ENDPOINTS (Web3Forms)
+// ==========================================
+
+app.post("/api/send-email-otp", async (req, res) => {
+    try {
+        const { email, otp: customOtp } = req.body;
+        if (!email || !email.includes("@")) {
+            return res.status(400).json({ success: false, message: "Valid email address is required." });
+        }
+
+        const otp = customOtp || String(Math.floor(100000 + Math.random() * 900000));
+        const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
+
+        emailOtpStore.set(email.toLowerCase().trim(), {
+            otp,
+            expiresAt,
+            verified: false
+        });
+
+        console.log(`📧 Sending Email OTP [${otp}] to ${email}...`);
+
+        let sentViaWeb3Forms = false;
+        try {
+            const w3Res = await axios.post(
+                "https://api.web3forms.com/submit",
+                {
+                    access_key: WEB3FORMS_ACCESS_KEY,
+                    subject: "IntraWorld Verification OTP Code",
+                    from_name: "IntraWorld Security",
+                    email: email,
+                    message: `Hello,\n\nYour 6-digit IntraWorld verification OTP code is: ${otp}\n\nThis code will expire in 10 minutes. If you did not request this, please ignore this email.\n\nTeam IntraWorld`
+                },
+                {
+                    headers: { "Content-Type": "application/json" },
+                    httpsAgent,
+                    timeout: 10000
+                }
+            );
+
+            if (w3Res.data && (w3Res.data.success || w3Res.status === 200)) {
+                sentViaWeb3Forms = true;
+                console.log("✅ Web3Forms Email dispatched successfully.");
+            }
+        } catch (w3Err) {
+            console.warn("⚠️ Web3Forms delivery warning:", w3Err.message);
+        }
+
+        return res.json({
+            success: true,
+            message: sentViaWeb3Forms 
+                ? "Verification OTP sent to your Gmail inbox." 
+                : "Verification OTP generated.",
+            email: email,
+            demoOtp: otp
+        });
+
+    } catch (error) {
+        console.error("❌ Send Email OTP Error:", error.message);
+        return res.status(500).json({ success: false, message: "Failed to send Email OTP: " + error.message });
+    }
+});
+
+app.post("/api/verify-email-otp", (req, res) => {
+    try {
+        const { email, otp } = req.body;
+        if (!email || !otp) {
+            return res.status(400).json({ success: false, message: "Email and OTP code are required." });
+        }
+
+        const record = emailOtpStore.get(email.toLowerCase().trim());
+        if (!record) {
+            return res.status(400).json({ success: false, message: "No OTP was requested for this email or it has expired." });
+        }
+
+        if (Date.now() > record.expiresAt) {
+            emailOtpStore.delete(email.toLowerCase().trim());
+            return res.status(400).json({ success: false, message: "OTP code has expired. Please request a new one." });
+        }
+
+        if (record.otp !== String(otp).trim()) {
+            return res.status(400).json({ success: false, message: "Incorrect OTP code. Please check and try again." });
+        }
+
+        record.verified = true;
+        return res.json({
+            success: true,
+            verified: true,
+            message: "✅ Gmail address verified successfully!"
+        });
+
+    } catch (error) {
+        return res.status(500).json({ success: false, message: "Failed to verify email OTP: " + error.message });
+    }
+});
+
+
+// ==========================================
+// SMS OTP ENDPOINTS (2Factor API)
+// ==========================================
+
+app.post("/api/send-sms-otp", async (req, res) => {
+    try {
+        let { phone, otp: customOtp } = req.body;
+        if (!phone) {
+            return res.status(400).json({ success: false, message: "Phone number is required." });
+        }
+
+        // Sanitize phone number (strip +91, non-digits)
+        const cleanPhone = String(phone).replace("+91", "").replace(/\D/g, "").trim();
+        if (cleanPhone.length !== 10) {
+            return res.status(400).json({ success: false, message: "Please provide a valid 10-digit mobile number." });
+        }
+
+        const otp = customOtp || String(Math.floor(100000 + Math.random() * 900000));
+        const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
+
+        phoneOtpStore.set(cleanPhone, {
+            otp,
+            expiresAt,
+            verified: false
+        });
+
+        console.log(`📱 Sending SMS OTP [${otp}] to +91${cleanPhone}...`);
+
+        let sentVia2Factor = false;
+        try {
+            const smsUrl = `https://2factor.in/API/V1/${TWOFACTOR_API_KEY}/SMS/+91${cleanPhone}/${otp}/IntraWorld+Verification`;
+            const smsRes = await axios.get(smsUrl, { httpsAgent, timeout: 10000 });
+            if (smsRes.data && (smsRes.data.Status === "Success" || smsRes.status === 200)) {
+                sentVia2Factor = true;
+                console.log("✅ 2Factor SMS dispatched successfully:", smsRes.data);
+            }
+        } catch (smsErr) {
+            console.warn("⚠️ 2Factor SMS delivery warning:", smsErr.message);
+        }
+
+        return res.json({
+            success: true,
+            message: sentVia2Factor 
+                ? "SMS OTP sent to your phone number." 
+                : "SMS OTP generated.",
+            phone: cleanPhone,
+            demoOtp: otp
+        });
+
+    } catch (error) {
+        console.error("❌ Send SMS OTP Error:", error.message);
+        return res.status(500).json({ success: false, message: "Failed to send SMS OTP: " + error.message });
+    }
+});
+
+app.post("/api/verify-sms-otp", (req, res) => {
+    try {
+        let { phone, otp } = req.body;
+        if (!phone || !otp) {
+            return res.status(400).json({ success: false, message: "Phone number and OTP code are required." });
+        }
+
+        const cleanPhone = String(phone).replace("+91", "").replace(/\D/g, "").trim();
+        const record = phoneOtpStore.get(cleanPhone);
+
+        if (!record) {
+            return res.status(400).json({ success: false, message: "No OTP was requested for this phone number or it has expired." });
+        }
+
+        if (Date.now() > record.expiresAt) {
+            phoneOtpStore.delete(cleanPhone);
+            return res.status(400).json({ success: false, message: "OTP code has expired. Please request a new one." });
+        }
+
+        if (record.otp !== String(otp).trim()) {
+            return res.status(400).json({ success: false, message: "Incorrect SMS OTP. Please check and try again." });
+        }
+
+        record.verified = true;
+        return res.json({
+            success: true,
+            verified: true,
+            message: "✅ Phone number verified successfully!"
+        });
+
+    } catch (error) {
+        return res.status(500).json({ success: false, message: "Failed to verify phone OTP: " + error.message });
+    }
+});
+
+
+// ==========================================
+// REGISTRATION SUBMISSION ENDPOINT
+// ==========================================
+
+app.post("/api/register", (req, res) => {
+    try {
+        const { full_name, email, mobile_number, college_name, documentScore } = req.body;
+
+        if (documentScore !== undefined && Number(documentScore) < 40) {
+            return res.status(400).json({
+                success: false,
+                message: "❌ Registration Rejected: Your uploaded document failed identity verification (0 Pts / Fake Document). Please upload a valid official ID."
+            });
+        }
+
+        return res.json({
+            success: true,
+            message: "✅ Registration completed successfully! Welcome to IntraWorld."
+        });
+
+    } catch (error) {
+        return res.status(500).json({ success: false, message: "Registration failed: " + error.message });
+    }
+});
+
+
+// ==========================================
+// SYSTEM STATUS & TEST ENDPOINT
 // ==========================================
 
 app.get("/api/test", (req, res) => {
     res.json({
         success: true,
-        message: "IntraWorld Smart OCR backend is running.",
+        message: "IntraWorld Smart OCR backend is active.",
         idAnalyzerConfigured: !!ID_ANALYZER_KEY,
+        web3FormsConfigured: !!WEB3FORMS_ACCESS_KEY,
+        twoFactorConfigured: !!TWOFACTOR_API_KEY,
         version: "2.0-smart-confidence"
     });
 });
 
+// Serve register.html at root
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "register.html"));
+});
+
+
 // ==========================================
-// SERVER
+// SERVER START
 // ==========================================
 
 const PORT = process.env.PORT || 3000;
@@ -471,7 +723,9 @@ const PORT = process.env.PORT || 3000;
 if (process.env.NODE_ENV !== "production") {
     app.listen(PORT, () => {
         console.log(`🚀 IntraWorld Smart OCR server running on port ${PORT}`);
+        console.log(`🔗 http://localhost:${PORT}`);
     });
 }
 
 module.exports = app;
+

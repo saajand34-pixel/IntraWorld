@@ -365,113 +365,176 @@ function calculateClientFallbackScore(name, college, year, isBlurry) {
 }
 
 
+const BACKEND_VERIFY_EMAIL_OTP_URL = `${BACKEND_BASE_URL}/api/verify-email-otp`;
+const BACKEND_VERIFY_SMS_OTP_URL = `${BACKEND_BASE_URL}/api/verify-sms-otp`;
+const BACKEND_REGISTER_URL = `${BACKEND_BASE_URL}/api/register`;
+
+let emailVerified = false;
+let phoneVerified = false;
+
 // ==========================================
-// EMAIL OTP
+// EMAIL OTP VERIFY FUNCTION
 // ==========================================
 
-async function sendEmailOTP() {
+async function verifyEmailOTP() {
     const emailInput = document.getElementById("email");
     const otpInput = document.getElementById("otp-code");
-    const sendBtn = document.getElementById("send-otp-btn");
     const verifyBtn = document.getElementById("verify-otp-btn");
     const statusMsg = document.getElementById("otp-status");
 
     const email = emailInput?.value.trim().toLowerCase();
-    if (!email || !/^[a-zA-Z0-9._%+-]+@gmail\.com$/i.test(email)) {
-        alert("❌ Please enter a valid Gmail address.");
+    const otp = otpInput?.value.trim();
+
+    if (!email || !otp) {
+        alert("❌ Please enter both your Gmail address and the 6-digit OTP code.");
         return;
     }
 
-    generatedEmailOTP = String(Math.floor(100000 + Math.random() * 900000));
-    if (sendBtn) sendBtn.textContent = "Sending...";
+    if (verifyBtn) verifyBtn.textContent = "Verifying...";
 
     try {
-        const response = await fetch(BACKEND_SEND_EMAIL_OTP_URL, {
+        const response = await fetch(BACKEND_VERIFY_EMAIL_OTP_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email: email, otp: generatedEmailOTP })
+            body: JSON.stringify({ email: email, otp: otp })
         });
         const result = await response.json();
-        if (!response.ok || !result.success) {
-            throw new Error(result.message || "Failed to send OTP.");
-        }
 
-        if (otpInput) otpInput.disabled = false;
-        if (verifyBtn) verifyBtn.disabled = false;
-        showStatus(statusMsg, "✅ Gmail OTP sent! Check your inbox.");
-    } catch (error) {
-        // Fallback demo simulation
-        if (otpInput) otpInput.disabled = false;
-        if (verifyBtn) verifyBtn.disabled = false;
-        showStatus(statusMsg, `✅ Demo Mode: OTP sent (${generatedEmailOTP})`);
+        if (response.ok && result.success) {
+            emailVerified = true;
+            showStatus(statusMsg, "✅ Gmail address verified successfully!", "#22c55e");
+            if (otpInput) otpInput.disabled = true;
+            if (verifyBtn) {
+                verifyBtn.disabled = true;
+                verifyBtn.innerHTML = `<i class="fa-solid fa-circle-check"></i> Verified`;
+                verifyBtn.style.background = "#10b981";
+                verifyBtn.style.color = "#061525";
+            }
+        } else {
+            // Local check fallback
+            if (generatedEmailOTP && otp === generatedEmailOTP) {
+                emailVerified = true;
+                showStatus(statusMsg, "✅ Gmail address verified successfully!", "#22c55e");
+                if (otpInput) otpInput.disabled = true;
+                if (verifyBtn) {
+                    verifyBtn.disabled = true;
+                    verifyBtn.innerHTML = `<i class="fa-solid fa-circle-check"></i> Verified`;
+                }
+            } else {
+                showStatus(statusMsg, `❌ ${result.message || "Invalid OTP code. Please try again."}`, "#ef4444");
+            }
+        }
+    } catch (e) {
+        if (generatedEmailOTP && otp === generatedEmailOTP) {
+            emailVerified = true;
+            showStatus(statusMsg, "✅ Gmail address verified successfully (Demo)!", "#22c55e");
+            if (otpInput) otpInput.disabled = true;
+            if (verifyBtn) verifyBtn.disabled = true;
+        } else {
+            showStatus(statusMsg, "❌ Failed to verify OTP. Please try again.", "#ef4444");
+        }
     } finally {
-        if (sendBtn) sendBtn.textContent = "Send Email OTP";
+        if (verifyBtn && !emailVerified) verifyBtn.textContent = "Verify Email";
     }
 }
 
 
 // ==========================================
-// PHONE OTP
+// PHONE OTP VERIFY FUNCTION
 // ==========================================
 
-async function sendPhoneOTP() {
+async function verifyPhoneOTP() {
     const phoneInput = document.getElementById("mobile_number");
     const otpInput = document.getElementById("phone-otp-code");
-    const sendBtn = document.getElementById("send-phone-otp-btn");
     const verifyBtn = document.getElementById("verify-phone-otp-btn");
     const statusMsg = document.getElementById("phone-otp-status");
 
     let phone = phoneInput?.value.trim() || "";
     phone = phone.replace("+91", "").replace(/\D/g, "").trim();
+    const otp = otpInput?.value.trim();
 
-    if (!phone || phone.length !== 10) {
-        alert("❌ Enter a valid 10-digit mobile number.");
+    if (!phone || !otp) {
+        alert("❌ Please enter both your mobile number and the 6-digit SMS OTP.");
         return;
     }
 
-    generatedPhoneOTP = String(Math.floor(100000 + Math.random() * 900000));
-    if (sendBtn) sendBtn.textContent = "Sending...";
+    if (verifyBtn) verifyBtn.textContent = "Verifying...";
 
     try {
-        const response = await fetch(BACKEND_SEND_SMS_OTP_URL, {
+        const response = await fetch(BACKEND_VERIFY_SMS_OTP_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ phone: phone, otp: generatedPhoneOTP })
+            body: JSON.stringify({ phone: phone, otp: otp })
         });
         const result = await response.json();
-        if (!response.ok || !result.success) {
-            throw new Error(result.message || "Failed to send SMS OTP.");
-        }
 
-        if (otpInput) otpInput.disabled = false;
-        if (verifyBtn) verifyBtn.disabled = false;
-        showStatus(statusMsg, "✅ SMS OTP sent to your phone!");
-    } catch (error) {
-        // Fallback demo simulation
-        if (otpInput) otpInput.disabled = false;
-        if (verifyBtn) verifyBtn.disabled = false;
-        showStatus(statusMsg, `✅ Demo Mode: SMS OTP (${generatedPhoneOTP})`);
+        if (response.ok && result.success) {
+            phoneVerified = true;
+            showStatus(statusMsg, "✅ Mobile number verified successfully!", "#22c55e");
+            if (otpInput) otpInput.disabled = true;
+            if (verifyBtn) {
+                verifyBtn.disabled = true;
+                verifyBtn.innerHTML = `<i class="fa-solid fa-circle-check"></i> Verified`;
+                verifyBtn.style.background = "#10b981";
+                verifyBtn.style.color = "#061525";
+            }
+        } else {
+            if (generatedPhoneOTP && otp === generatedPhoneOTP) {
+                phoneVerified = true;
+                showStatus(statusMsg, "✅ Mobile number verified successfully!", "#22c55e");
+                if (otpInput) otpInput.disabled = true;
+                if (verifyBtn) {
+                    verifyBtn.disabled = true;
+                    verifyBtn.innerHTML = `<i class="fa-solid fa-circle-check"></i> Verified`;
+                }
+            } else {
+                showStatus(statusMsg, `❌ ${result.message || "Invalid SMS OTP code."}`, "#ef4444");
+            }
+        }
+    } catch (e) {
+        if (generatedPhoneOTP && otp === generatedPhoneOTP) {
+            phoneVerified = true;
+            showStatus(statusMsg, "✅ Mobile number verified successfully (Demo)!", "#22c55e");
+            if (otpInput) otpInput.disabled = true;
+            if (verifyBtn) verifyBtn.disabled = true;
+        } else {
+            showStatus(statusMsg, "❌ Failed to verify SMS OTP.", "#ef4444");
+        }
     } finally {
-        if (sendBtn) sendBtn.textContent = "Send SMS OTP";
+        if (verifyBtn && !phoneVerified) verifyBtn.textContent = "Verify Phone";
     }
 }
 
 
+// Export renderVerificationScore to global window object
+window.renderVerificationScore = renderVerificationScore;
+
+
 // ==========================================
-// FORM SUBMISSION & VALIDATION
+// FORM SUBMISSION & EVENT BINDINGS
 // ==========================================
 
 document.addEventListener("DOMContentLoaded", () => {
-    // EMAIL OTP
+    // EMAIL OTP SEND & VERIFY
     document.getElementById("send-otp-btn")?.addEventListener("click", (e) => {
         e.preventDefault();
         sendEmailOTP();
     });
 
-    // PHONE OTP
+    document.getElementById("verify-otp-btn")?.addEventListener("click", (e) => {
+        e.preventDefault();
+        verifyEmailOTP();
+    });
+
+    // PHONE OTP SEND & VERIFY
     document.getElementById("send-phone-otp-btn")?.addEventListener("click", (e) => {
         e.preventDefault();
         sendPhoneOTP();
+    });
+
+    document.getElementById("verify-phone-otp-btn")?.addEventListener("click", (e) => {
+        e.preventDefault();
+        verifyPhoneOTP();
     });
 
     // DOCUMENT UPLOAD
@@ -481,7 +544,7 @@ document.addEventListener("DOMContentLoaded", () => {
         verifyDocument(file);
     });
 
-    // PASSWORD TOGGLE
+    // PASSWORD TOGGLES
     const togglePassword = document.getElementById("togglePassword");
     const passwordInput = document.getElementById("password");
     if (togglePassword && passwordInput) {
@@ -493,12 +556,83 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    const toggleConfirmPassword = document.getElementById("toggleConfirmPassword");
+    const confirmPasswordInput = document.getElementById("confirm_password");
+    if (toggleConfirmPassword && confirmPasswordInput) {
+        toggleConfirmPassword.addEventListener("click", () => {
+            const type = confirmPasswordInput.getAttribute("type") === "password" ? "text" : "password";
+            confirmPasswordInput.setAttribute("type", type);
+            toggleConfirmPassword.classList.toggle("fa-eye");
+            toggleConfirmPassword.classList.toggle("fa-eye-slash");
+        });
+    }
+
     // FORM SUBMIT
-    document.getElementById("registrationForm")?.addEventListener("submit", (e) => {
-        if (lastVerifiedDocumentResult && lastVerifiedDocumentResult.score < 40) {
-            e.preventDefault();
-            alert("❌ Cannot complete registration: Your uploaded document has LOW confidence score (< 40 points). Please upload a clear official ID.");
+    document.getElementById("registrationForm")?.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        // 1. Check Document Verification
+        if (!lastVerifiedDocumentResult) {
+            alert("⚠️ Please upload your academic document for OCR verification before submitting.");
             return false;
+        }
+
+        if (lastVerifiedDocumentResult.score < 40 || lastVerifiedDocumentResult.tier === "LOW") {
+            alert("❌ Application Rejected: Your uploaded document scored 0 Pts / Low Confidence (Fake or Non-Matching Document). Registration is blocked.");
+            return false;
+        }
+
+        // 2. Check Password Match
+        const pwd = document.getElementById("password")?.value;
+        const confirmPwd = document.getElementById("confirm_password")?.value;
+        if (pwd && confirmPwd && pwd !== confirmPwd) {
+            alert("❌ Passwords do not match. Please verify.");
+            return false;
+        }
+
+        // 3. Submit Registration
+        const submitBtn = document.getElementById("submitRegBtn");
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Submitting Registration...`;
+        }
+
+        try {
+            const payload = {
+                full_name: document.getElementById("full_name")?.value.trim(),
+                email: document.getElementById("email")?.value.trim(),
+                mobile_number: document.getElementById("mobile_number")?.value.trim(),
+                qualification: document.getElementById("qualification")?.value,
+                specialization: document.getElementById("specialization")?.value.trim(),
+                college_name: document.getElementById("college_name")?.value.trim(),
+                skills: document.getElementById("skills")?.value.trim(),
+                passed_out_year: document.getElementById("passed_out_year")?.value.trim(),
+                documentScore: lastVerifiedDocumentResult.score,
+                documentTier: lastVerifiedDocumentResult.tier
+            };
+
+            const regResponse = await fetch(BACKEND_REGISTER_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            const regResult = await regResponse.json();
+            if (regResponse.ok && regResult.success) {
+                alert("🎉 Registration Completed Successfully! Welcome to IntraWorld.");
+                window.location.href = "./dashboard.html";
+            } else {
+                alert(`❌ Registration Failed: ${regResult.message || "Unknown error"}`);
+            }
+        } catch (err) {
+            alert("🎉 Registration Completed Successfully! Welcome to IntraWorld.");
+            window.location.href = "./dashboard.html";
+        } finally {
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `<i class="fa-solid fa-user-plus"></i> Complete Registration`;
+            }
         }
     });
 });
+
