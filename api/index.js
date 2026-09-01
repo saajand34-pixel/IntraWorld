@@ -1,4 +1,12 @@
-// ⭐ DOCUMENT VERIFICATION ENDPOINT (ID Analyzer Quickscan)
+// ⭐ DOCUMENT VERIFICATION ENDPOINT (OCR.space plain-text OCR)
+// NOTE: This used to call ID Analyzer's Quickscan, which classifies documents
+// against a database of government-issued ID templates (passports, driver's
+// licenses, national ID cards, etc). Student ID cards, fee receipts, and
+// enrollment forms aren't in that catalog, so ID Analyzer would reject them
+// with "Parameter 'document' is missing or contains invalid value." even
+// though the image itself was fine. The scoring logic below only ever needed
+// raw OCR text (name/college string matching), so a plain OCR service is the
+// correct tool here.
 app.post('/api/verify-document', async (req, res) => {
     try {
         const { documentBase64, expectedName, expectedCollege } = req.body;
@@ -7,45 +15,48 @@ app.post('/api/verify-document', async (req, res) => {
             return res.status(400).json({ success: false, message: "Missing document image payload." });
         }
 
-        const apiKey = ID_ANALYZER_KEY || process.env.ID_ANALYZER_KEY;
+        const apiKey = OCR_SPACE_API_KEY || process.env.OCR_SPACE_API_KEY;
         if (!apiKey) {
             return res.status(500).json({ 
                 success: false, 
-                message: "Server misconfiguration: ID_ANALYZER_KEY is missing in environment variables." 
+                message: "Server misconfiguration: OCR_SPACE_API_KEY is missing in environment variables." 
             });
         }
 
         console.log(`📄 Processing document verification for: ${expectedName}`);
 
-        // ID Analyzer Core API expects 'document' (Base64 string), not 'file'
+        // documentBase64 is expected to be a full data URI, e.g.
+        // "data:image/jpeg;base64,...." or "data:application/pdf;base64,....",
+        // which is exactly the format OCR.space's base64Image param wants.
+        const params = new URLSearchParams();
+        params.append('apikey', apiKey);
+        params.append('base64Image', documentBase64);
+        params.append('OCREngine', '2');   // more accurate engine
+        params.append('scale', 'true');    // upscales small/low-res text
+        params.append('isOverlayRequired', 'false');
+
         const apiResponse = await axios.post(
-            'https://api2.idanalyzer.com/quickscan',
+            'https://api.ocr.space/parse/image',
+            params,
             {
-                apikey: apiKey,
-                document: documentBase64, // ⭐ Parameter fixed to 'document'
-                ocr: true
-            },
-            {
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'X-API-KEY': apiKey,
-                    'Authorization': apiKey
-                },
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 timeout: 45000
             }
         );
 
         const data = apiResponse.data;
 
-        if (data.error) {
-            console.error("API Error:", data.error.message);
+        if (data.IsErroredOnProcessing || data.OCRExitCode !== 1) {
+            const errMsg = Array.isArray(data.ErrorMessage) ? data.ErrorMessage.join(' ') : (data.ErrorMessage || "Document could not be processed. Please upload a clearer image or PDF.");
+            console.error("OCR Error:", errMsg);
             return res.status(400).json({ 
                 success: false, 
-                message: data.error.message || "Document analysis failed." 
+                message: errMsg 
             });
         }
 
-        const rawOcrText = JSON.stringify(data).toLowerCase();
+        const parsedText = (data.ParsedResults || []).map(r => r.ParsedText || '').join(' ');
+        const rawOcrText = parsedText.toLowerCase();
         let verificationScore = 0;
 
         // 1. NAME MATCHING (40 Points Max)
