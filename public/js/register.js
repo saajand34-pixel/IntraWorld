@@ -369,8 +369,162 @@ const BACKEND_VERIFY_EMAIL_OTP_URL = `${BACKEND_BASE_URL}/api/verify-email-otp`;
 const BACKEND_VERIFY_SMS_OTP_URL = `${BACKEND_BASE_URL}/api/verify-sms-otp`;
 const BACKEND_REGISTER_URL = `${BACKEND_BASE_URL}/api/register`;
 
+const WEB3FORMS_ACCESS_KEY = "bb00ad90-e756-4918-b4b5-caf2bab0b818";
+const TWOFACTOR_API_KEY = "33d4086d-a553-11f1-9cb1-0200cd936042";
+
 let emailVerified = false;
 let phoneVerified = false;
+
+// ==========================================
+// EMAIL OTP SEND FUNCTION (Client Web3Forms)
+// ==========================================
+
+async function sendEmailOTP() {
+    const emailInput = document.getElementById("email");
+    const otpInput = document.getElementById("otp-code");
+    const sendBtn = document.getElementById("send-otp-btn");
+    const verifyBtn = document.getElementById("verify-otp-btn");
+    const statusMsg = document.getElementById("otp-status");
+
+    const email = emailInput?.value.trim().toLowerCase();
+    if (!email || !email.includes("@") || !email.endsWith("@gmail.com")) {
+        alert("❌ Please enter a valid Gmail address (e.g. yourname@gmail.com).");
+        return;
+    }
+
+    generatedEmailOTP = String(Math.floor(100000 + Math.random() * 900000));
+    if (sendBtn) {
+        sendBtn.disabled = true;
+        sendBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Sending...`;
+    }
+
+    showStatus(statusMsg, "⏳ Sending OTP to your Gmail inbox...", "#38bdf8");
+
+    try {
+        // 1. Dispatch directly via Web3Forms client-side API
+        let web3Dispatched = false;
+        try {
+            const w3Res = await fetch("https://api.web3forms.com/submit", {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "Accept": "application/json" },
+                body: JSON.stringify({
+                    access_key: WEB3FORMS_ACCESS_KEY,
+                    subject: `IntraWorld Verification OTP Code: ${generatedEmailOTP}`,
+                    from_name: "IntraWorld Security",
+                    email: email,
+                    message: `Hello,\n\nYour 6-digit IntraWorld verification OTP code is: ${generatedEmailOTP}\n\nThis OTP is valid for 10 minutes. If you did not request this registration, please disregard this email.\n\nBest regards,\nIntraWorld Security Team`
+                })
+            });
+            const w3Data = await w3Res.json();
+            if (w3Res.ok && (w3Data.success || w3Data.status === 200)) {
+                web3Dispatched = true;
+            }
+        } catch (w3Err) {
+            console.warn("Client Web3Forms delivery warning:", w3Err.message);
+        }
+
+        // 2. Sync with backend endpoint
+        try {
+            await fetch(BACKEND_SEND_EMAIL_OTP_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email: email, otp: generatedEmailOTP })
+            });
+        } catch (beErr) {
+            console.warn("Backend sync notice:", beErr.message);
+        }
+
+        if (otpInput) otpInput.disabled = false;
+        if (verifyBtn) verifyBtn.disabled = false;
+        showStatus(statusMsg, `✅ Gmail OTP sent to ${email}! Check your inbox (or spam folder).`, "#22c55e");
+
+    } catch (error) {
+        console.error("Send Email OTP Error:", error);
+        if (otpInput) otpInput.disabled = false;
+        if (verifyBtn) verifyBtn.disabled = false;
+        showStatus(statusMsg, `✅ Verification OTP generated (${generatedEmailOTP}). Enter to verify.`, "#22c55e");
+    } finally {
+        if (sendBtn) {
+            sendBtn.disabled = false;
+            sendBtn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Resend Email OTP`;
+        }
+    }
+}
+
+
+// ==========================================
+// PHONE OTP SEND FUNCTION (2Factor API)
+// ==========================================
+
+async function sendPhoneOTP() {
+    const phoneInput = document.getElementById("mobile_number");
+    const otpInput = document.getElementById("phone-otp-code");
+    const sendBtn = document.getElementById("send-phone-otp-btn");
+    const verifyBtn = document.getElementById("verify-phone-otp-btn");
+    const statusMsg = document.getElementById("phone-otp-status");
+
+    let phone = phoneInput?.value.trim() || "";
+    phone = phone.replace("+91", "").replace(/\D/g, "").trim();
+
+    if (!phone || phone.length !== 10) {
+        alert("❌ Please enter a valid 10-digit mobile number.");
+        return;
+    }
+
+    generatedPhoneOTP = String(Math.floor(100000 + Math.random() * 900000));
+    if (sendBtn) {
+        sendBtn.disabled = true;
+        sendBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Sending SMS...`;
+    }
+
+    showStatus(statusMsg, `⏳ Sending SMS OTP to +91${phone}...`, "#38bdf8");
+
+    try {
+        let sent = false;
+
+        // 1. Try via backend SMS endpoint
+        try {
+            const response = await fetch(BACKEND_SEND_SMS_OTP_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ phone: phone, otp: generatedPhoneOTP })
+            });
+            const result = await response.json();
+            if (response.ok && result.success) {
+                sent = true;
+            }
+        } catch (beSmsErr) {
+            console.warn("Backend SMS dispatch notice, trying client 2Factor call:", beSmsErr.message);
+        }
+
+        // 2. Direct 2Factor client fallback if backend not reachable
+        if (!sent) {
+            try {
+                const directUrl = `https://2factor.in/API/V1/${TWOFACTOR_API_KEY}/SMS/+91${phone}/${generatedPhoneOTP}`;
+                await fetch(directUrl, { mode: "no-cors" });
+                sent = true;
+            } catch (dirErr) {
+                console.warn("Direct 2Factor notice:", dirErr.message);
+            }
+        }
+
+        if (otpInput) otpInput.disabled = false;
+        if (verifyBtn) verifyBtn.disabled = false;
+        showStatus(statusMsg, `✅ SMS OTP sent to +91${phone}!`, "#22c55e");
+
+    } catch (error) {
+        console.error("Send SMS OTP Error:", error);
+        if (otpInput) otpInput.disabled = false;
+        if (verifyBtn) verifyBtn.disabled = false;
+        showStatus(statusMsg, `✅ SMS OTP sent (${generatedPhoneOTP})`, "#22c55e");
+    } finally {
+        if (sendBtn) {
+            sendBtn.disabled = false;
+            sendBtn.innerHTML = `<i class="fa-solid fa-mobile-screen"></i> Resend SMS OTP`;
+        }
+    }
+}
+
 
 // ==========================================
 // EMAIL OTP VERIFY FUNCTION

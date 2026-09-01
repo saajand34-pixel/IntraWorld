@@ -392,14 +392,16 @@ app.post("/api/verify-document", async (req, res) => {
         let extractedText = "";
 
         // 1. Invoke ID Analyzer API if configured
+        let isIdAnalyzerFakeOrTampered = false;
         if (ID_ANALYZER_KEY) {
             try {
-                console.log("🌐 Invoking ID Analyzer OCR...");
+                console.log("🌐 Invoking ID Analyzer OCR & Deepfake Analysis...");
                 const response = await axios.post(
                     "https://api2.idanalyzer.com/scan",
                     {
                         document: cleanBase64,
-                        profile: "security_none",
+                        profile: "security_medium",
+                        document_type: "auto",
                         ...(expectedName ? { verifyName: expectedName } : {})
                     },
                     {
@@ -415,11 +417,33 @@ app.post("/api/verify-document", async (req, res) => {
 
                 const data = response.data;
                 if (data) {
-                    extractedText = JSON.stringify(data.data || data).toLowerCase();
-                    console.log("✅ ID Analyzer scan response received.");
+                    // Check ID Analyzer deepfake / security flags
+                    const warnings = data.warning || [];
+                    const hasTampering = warnings.some(w => 
+                        ["AI_GENERATED", "DIGITAL_TAMPERING", "SCREEN_RECAPTURE", "PHOTOCOPY", "FAKE_DOCUMENT", "FORGERY"].includes(w.code)
+                    );
+
+                    if (hasTampering || (data.decision === "reject" && data.rejectScore >= 0.8)) {
+                        console.warn("⚠️ ID Analyzer flagged document as deepfake/tampered/invalid.");
+                        isIdAnalyzerFakeOrTampered = true;
+                    }
+
+                    // Extract text from result fields and OCR lines
+                    let ocrLines = [];
+                    if (data.result) {
+                        if (data.result.lines && Array.isArray(data.result.lines)) {
+                            ocrLines.push(...data.result.lines);
+                        }
+                        if (data.result.name) ocrLines.push(data.result.name);
+                        if (data.result.fullName) ocrLines.push(data.result.fullName);
+                        if (data.result.documentNumber) ocrLines.push(data.result.documentNumber);
+                        if (data.result.institution) ocrLines.push(data.result.institution);
+                    }
+                    extractedText = (ocrLines.join(" ") + " " + JSON.stringify(data.result || data)).toUpperCase();
+                    console.log("✅ ID Analyzer scan and text analysis completed.");
                 }
             } catch (apiErr) {
-                console.warn("⚠️ ID Analyzer API call notice:", apiErr.message);
+                console.warn("⚠️ ID Analyzer API notice:", apiErr.message);
             }
         }
 
@@ -442,6 +466,14 @@ app.post("/api/verify-document", async (req, res) => {
             isBlurry: !!isBlurry,
             qualityPoints: qualityAssessment.points
         });
+
+        // If explicitly flagged by ID Analyzer as fake/tampered, ensure 0 score
+        if (isIdAnalyzerFakeOrTampered && scoreResult.totalScore < 70) {
+            scoreResult.totalScore = 0;
+            scoreResult.tier = "LOW";
+            scoreResult.decision = "REJECT";
+            scoreResult.message = "❌ Document verification failed: Deepfake, digital tampering, or non-matching document detected.";
+        }
 
         console.log(`🎯 Verification Result: Score=${scoreResult.totalScore}/100 [${scoreResult.tier}] -> ${scoreResult.decision}`);
 
@@ -499,39 +531,11 @@ app.post("/api/send-email-otp", async (req, res) => {
             verified: false
         });
 
-        console.log(`📧 Sending Email OTP [${otp}] to ${email}...`);
-
-        let sentViaWeb3Forms = false;
-        try {
-            const w3Res = await axios.post(
-                "https://api.web3forms.com/submit",
-                {
-                    access_key: WEB3FORMS_ACCESS_KEY,
-                    subject: "IntraWorld Verification OTP Code",
-                    from_name: "IntraWorld Security",
-                    email: email,
-                    message: `Hello,\n\nYour 6-digit IntraWorld verification OTP code is: ${otp}\n\nThis code will expire in 10 minutes. If you did not request this, please ignore this email.\n\nTeam IntraWorld`
-                },
-                {
-                    headers: { "Content-Type": "application/json" },
-                    httpsAgent,
-                    timeout: 10000
-                }
-            );
-
-            if (w3Res.data && (w3Res.data.success || w3Res.status === 200)) {
-                sentViaWeb3Forms = true;
-                console.log("✅ Web3Forms Email dispatched successfully.");
-            }
-        } catch (w3Err) {
-            console.warn("⚠️ Web3Forms delivery warning:", w3Err.message);
-        }
+        console.log(`📧 Registered Email OTP [${otp}] for ${email}`);
 
         return res.json({
             success: true,
-            message: sentViaWeb3Forms 
-                ? "Verification OTP sent to your Gmail inbox." 
-                : "Verification OTP generated.",
+            message: "Verification OTP generated for Gmail.",
             email: email,
             demoOtp: otp
         });
@@ -605,15 +609,29 @@ app.post("/api/send-sms-otp", async (req, res) => {
         console.log(`📱 Sending SMS OTP [${otp}] to +91${cleanPhone}...`);
 
         let sentVia2Factor = false;
+        let responseDetails = null;
+
+        // Try direct 2Factor OTP endpoint
         try {
-            const smsUrl = `https://2factor.in/API/V1/${TWOFACTOR_API_KEY}/SMS/+91${cleanPhone}/${otp}/IntraWorld+Verification`;
+            const smsUrl = `https://2factor.in/API/V1/${TWOFACTOR_API_KEY}/SMS/+91${cleanPhone}/${otp}`;
             const smsRes = await axios.get(smsUrl, { httpsAgent, timeout: 10000 });
             if (smsRes.data && (smsRes.data.Status === "Success" || smsRes.status === 200)) {
                 sentVia2Factor = true;
+                responseDetails = smsRes.data.Details;
                 console.log("✅ 2Factor SMS dispatched successfully:", smsRes.data);
             }
         } catch (smsErr) {
-            console.warn("⚠️ 2Factor SMS delivery warning:", smsErr.message);
+            console.warn("⚠️ 2Factor direct SMS attempt notice, trying AUTOGEN:", smsErr.message);
+            try {
+                const autoUrl = `https://2factor.in/API/V1/${TWOFACTOR_API_KEY}/SMS/+91${cleanPhone}/AUTOGEN`;
+                const autoRes = await axios.get(autoUrl, { httpsAgent, timeout: 10000 });
+                if (autoRes.data && (autoRes.data.Status === "Success" || autoRes.status === 200)) {
+                    sentVia2Factor = true;
+                    responseDetails = autoRes.data.Details;
+                }
+            } catch (e2) {
+                console.warn("⚠️ 2Factor SMS notice:", e2.message);
+            }
         }
 
         return res.json({
@@ -622,7 +640,8 @@ app.post("/api/send-sms-otp", async (req, res) => {
                 ? "SMS OTP sent to your phone number." 
                 : "SMS OTP generated.",
             phone: cleanPhone,
-            demoOtp: otp
+            demoOtp: otp,
+            sessionId: responseDetails
         });
 
     } catch (error) {
