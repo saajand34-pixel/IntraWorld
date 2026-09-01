@@ -16,37 +16,68 @@ function showStatus(element, message, color = "#22c55e") {
 }
 
 // 1. FILE BASE64 CONVERTER
-function compressAndConvertToBase64(file) {
+
+// Plain base64 read - used for PDFs and as a fallback for images
+// that the browser's <img> tag can't decode (HEIC, some phone formats, etc).
+function readFileAsBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (event) => resolve(event.target.result.split(',')[1]);
+        reader.onerror = () => reject(new Error("Failed to read document file. Please try a different file."));
+    });
+}
+
+// Image-only compressor. Resolves with a compressed base64 string on success.
+// On decode failure it resolves with the ORIGINAL uncompressed base64 instead
+// of rejecting, so a format quirk doesn't block the whole upload.
+function compressImageToBase64(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = (event) => {
+            const originalBase64 = event.target.result.split(',')[1];
             const img = new Image();
-            img.src = event.target.result;
             img.onload = () => {
-                const canvas = document.createElement('canvas');
-                const MAX_WIDTH = 1000;
-                const MAX_HEIGHT = 1000;
-                let width = img.width, height = img.height;
+                try {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 1000;
+                    const MAX_HEIGHT = 1000;
+                    let width = img.width, height = img.height;
 
-                if (width > height && width > MAX_WIDTH) {
-                    height *= MAX_WIDTH / width;
-                    width = MAX_WIDTH;
-                } else if (height > MAX_HEIGHT) {
-                    width *= MAX_HEIGHT / height;
-                    height = MAX_HEIGHT;
+                    if (width > height && width > MAX_WIDTH) {
+                        height *= MAX_WIDTH / width;
+                        width = MAX_WIDTH;
+                    } else if (height > MAX_HEIGHT) {
+                        width *= MAX_HEIGHT / height;
+                        height = MAX_HEIGHT;
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    resolve(canvas.toDataURL('image/jpeg', 0.7).split(',')[1]);
+                } catch (e) {
+                    // Canvas compression failed (e.g. tainted canvas) - fall back to original
+                    resolve(originalBase64);
                 }
-
-                canvas.width = width;
-                canvas.height = height;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, width, height);
-                resolve(canvas.toDataURL('image/jpeg', 0.7).split(',')[1]);
             };
-            img.onerror = () => reject(new Error("Failed to load document image."));
+            img.onerror = () => {
+                // Browser couldn't decode this as an image (HEIC etc.) - fall back
+                // to sending the raw file bytes instead of failing outright.
+                resolve(originalBase64);
+            };
+            img.src = event.target.result;
         };
-        reader.onerror = () => reject(new Error("Failed to read document file."));
+        reader.onerror = () => reject(new Error("Failed to read document file. Please try a different file."));
     });
+}
+
+// Picks the right path based on file type. PDFs never go through <img>/canvas.
+function getDocumentBase64(file) {
+    const isPDF = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+    return isPDF ? readFileAsBase64(file) : compressImageToBase64(file);
 }
 
 // 2. DOCUMENT VERIFICATION FUNCTION
@@ -59,7 +90,7 @@ async function verifyDocument(file) {
     if (fileNameDisplay) fileNameDisplay.textContent = `Selected: ${file.name} (Verifying...)`;
 
     try {
-        const base64Data = await compressAndConvertToBase64(file);
+        const base64Data = await getDocumentBase64(file);
         const response = await fetch(BACKEND_VERIFY_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -74,11 +105,20 @@ async function verifyDocument(file) {
         const result = await response.json();
         if (!response.ok) throw new Error(result.message || "Document verification failed.");
 
+        const isHighConfidence = result.confidence === "high";
+
         if (fileNameDisplay) {
-            fileNameDisplay.style.color = "#22c55e";
-            fileNameDisplay.textContent = `✅ Verified: ${file.name} (Score: ${result.score}/100)`;
+            fileNameDisplay.style.color = isHighConfidence ? "#22c55e" : "#f59e0b";
+            fileNameDisplay.textContent = isHighConfidence
+                ? `✅ Verified: ${file.name} (Score: ${result.score}/100)`
+                : `⚠️ Accepted (needs review): ${file.name} (Score: ${result.score}/100)`;
         }
-        alert("✅ Document verified successfully!");
+
+        if (isHighConfidence) {
+            alert("✅ Document verified successfully!");
+        } else {
+            alert(`⚠️ Document accepted with medium confidence (Score: ${result.score}/100). Please double-check that your name and college exactly match your document, or upload a clearer copy.`);
+        }
     } catch (err) {
         if (fileNameDisplay) {
             fileNameDisplay.style.color = "#ef4444";
