@@ -1,243 +1,801 @@
+// ==========================================
 // CONFIGURATION & ENDPOINTS
-const BACKEND_BASE_URL = "https://intra-world.vercel.app"; // Update with your active Vercel domain
-const BACKEND_VERIFY_URL = `${BACKEND_BASE_URL}/api/verify-document`;
-const BACKEND_SEND_EMAIL_OTP_URL = `${BACKEND_BASE_URL}/api/send-email-otp`;
-const BACKEND_SEND_SMS_OTP_URL = `${BACKEND_BASE_URL}/api/send-sms-otp`;
-const WEB3FORMS_ACCESS_KEY = "bb00ad90-e756-4918-b4b5-caf2bab0b818";
+// ==========================================
+
+const BACKEND_BASE_URL = "https://intra-world.vercel.app";
+
+const BACKEND_VERIFY_URL =
+    `${BACKEND_BASE_URL}/api/verify-document`;
+
+const BACKEND_SEND_EMAIL_OTP_URL =
+    `${BACKEND_BASE_URL}/api/send-email-otp`;
+
+const BACKEND_SEND_SMS_OTP_URL =
+    `${BACKEND_BASE_URL}/api/send-sms-otp`;
+
+const WEB3FORMS_ACCESS_KEY =
+    "bb00ad90-e756-4918-b4b5-caf2bab0b818";
+
+
+// ==========================================
+// SETTINGS
+// ==========================================
+
+// Maximum file size = 5 MB
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
+
+// Allowed file types
+const ALLOWED_FILE_TYPES = [
+    "image/jpeg",
+    "image/png",
+    "image/jpg",
+    "application/pdf"
+];
 
 let generatedEmailOTP = null;
 let generatedPhoneOTP = null;
 
+
+// ==========================================
+// STATUS MESSAGE FUNCTION
+// ==========================================
+
 function showStatus(element, message, color = "#22c55e") {
+
     if (!element) return;
+
     element.style.display = "block";
     element.style.color = color;
     element.textContent = message;
 }
 
-// 1. FILE BASE64 CONVERTER
-// NOTE: OCR.space's base64Image param wants the FULL data URI
-// ("data:image/jpeg;base64,...."), not the bare base64 string, so unlike
-// the old ID Analyzer integration we keep the "data:<mime>;base64," prefix.
 
-// Plain base64 read - used for PDFs and as a fallback for images
-// that the browser's <img> tag can't decode (HEIC, some phone formats, etc).
-function readFileAsBase64(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = (event) => resolve(event.target.result); // full data URI
-        reader.onerror = () => reject(new Error("Failed to read document file. Please try a different file."));
-    });
+// ==========================================
+// FILE VALIDATION
+// ==========================================
+
+function validateDocument(file) {
+
+    if (!file) {
+        throw new Error("Please select a document.");
+    }
+
+    // Check file size
+    if (file.size > MAX_FILE_SIZE) {
+        throw new Error(
+            "File is too large. Please upload a file smaller than 5 MB."
+        );
+    }
+
+    const fileName = file.name.toLowerCase();
+
+    const validExtension =
+        fileName.endsWith(".jpg") ||
+        fileName.endsWith(".jpeg") ||
+        fileName.endsWith(".png") ||
+        fileName.endsWith(".pdf");
+
+    if (!ALLOWED_FILE_TYPES.includes(file.type) && !validExtension) {
+        throw new Error(
+            "Invalid file type. Please upload JPG, JPEG, PNG, or PDF."
+        );
+    }
+
+    return true;
 }
 
-// Image-only compressor. Resolves with a compressed data URI on success.
-// On decode failure it resolves with the ORIGINAL uncompressed data URI
-// instead of rejecting, so a format quirk doesn't block the whole upload.
-function compressImageToBase64(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = (event) => {
-            const originalDataUri = event.target.result;
-            const img = new Image();
-            img.onload = () => {
-                try {
-                    const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 1000;
-                    const MAX_HEIGHT = 1000;
-                    let width = img.width, height = img.height;
 
+// ==========================================
+// READ FILE AS BASE64
+// ==========================================
+
+function readFileAsBase64(file) {
+
+    return new Promise((resolve, reject) => {
+
+        const reader = new FileReader();
+
+        reader.readAsDataURL(file);
+
+        reader.onload = (event) => {
+            resolve(event.target.result);
+        };
+
+        reader.onerror = () => {
+            reject(
+                new Error(
+                    "Failed to read the document. Please try another file."
+                )
+            );
+        };
+
+    });
+
+}
+
+
+// ==========================================
+// COMPRESS IMAGE
+// ==========================================
+
+function compressImageToBase64(file) {
+
+    return new Promise((resolve, reject) => {
+
+        const reader = new FileReader();
+
+        reader.readAsDataURL(file);
+
+        reader.onload = (event) => {
+
+            const originalDataUri = event.target.result;
+
+            const img = new Image();
+
+            img.onload = () => {
+
+                try {
+
+                    const canvas = document.createElement("canvas");
+
+                    const MAX_WIDTH = 1200;
+                    const MAX_HEIGHT = 1200;
+
+                    let width = img.width;
+                    let height = img.height;
+
+
+                    // Resize large images
                     if (width > height && width > MAX_WIDTH) {
-                        height *= MAX_WIDTH / width;
+
+                        height = height * (MAX_WIDTH / width);
                         width = MAX_WIDTH;
+
                     } else if (height > MAX_HEIGHT) {
-                        width *= MAX_HEIGHT / height;
+
+                        width = width * (MAX_HEIGHT / height);
                         height = MAX_HEIGHT;
+
                     }
+
 
                     canvas.width = width;
                     canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-                    resolve(canvas.toDataURL('image/jpeg', 0.7)); // full data URI
-                } catch (e) {
-                    // Canvas compression failed (e.g. tainted canvas) - fall back to original
+
+                    const ctx = canvas.getContext("2d");
+
+                    ctx.drawImage(
+                        img,
+                        0,
+                        0,
+                        width,
+                        height
+                    );
+
+
+                    // Compress image
+                    const compressedImage =
+                        canvas.toDataURL(
+                            "image/jpeg",
+                            0.8
+                        );
+
+                    resolve(compressedImage);
+
+                } catch (error) {
+
+                    console.error(
+                        "Image compression error:",
+                        error
+                    );
+
+                    // Send original image if compression fails
                     resolve(originalDataUri);
+
                 }
+
             };
+
+
             img.onerror = () => {
-                // Browser couldn't decode this as an image (HEIC etc.) - fall back
-                // to sending the raw file bytes instead of failing outright.
+
+                // Some image formats may not load properly
+                // Send the original file instead
                 resolve(originalDataUri);
+
             };
+
+
             img.src = originalDataUri;
+
         };
-        reader.onerror = () => reject(new Error("Failed to read document file. Please try a different file."));
+
+
+        reader.onerror = () => {
+
+            reject(
+                new Error(
+                    "Failed to read the document."
+                )
+            );
+
+        };
+
     });
+
 }
 
-// Picks the right path based on file type. PDFs never go through <img>/canvas.
-function getDocumentBase64(file) {
-    const isPDF = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
-    return isPDF ? readFileAsBase64(file) : compressImageToBase64(file);
+
+// ==========================================
+// GET DOCUMENT BASE64
+// ==========================================
+
+async function getDocumentBase64(file) {
+
+    const fileName = file.name.toLowerCase();
+
+    const isPDF =
+        file.type === "application/pdf" ||
+        fileName.endsWith(".pdf");
+
+
+    // PDFs should not go through image compression
+    if (isPDF) {
+        return await readFileAsBase64(file);
+    }
+
+
+    // Images can be compressed
+    return await compressImageToBase64(file);
+
 }
 
-// 2. DOCUMENT VERIFICATION FUNCTION
+
+// ==========================================
+// DOCUMENT VERIFICATION
+// ==========================================
+
 async function verifyDocument(file) {
-    const fullName = document.getElementById("full_name")?.value || "";
-    const collegeName = document.getElementById("college_name")?.value || "";
-    const passoutYear = document.getElementById("passed_out_year")?.value || "";
-    const fileNameDisplay = document.getElementById("file-name-display");
 
-    if (fileNameDisplay) fileNameDisplay.textContent = `Selected: ${file.name} (Verifying...)`;
+    const fullName =
+        document.getElementById("full_name")
+            ?.value
+            .trim() || "";
+
+    const collegeName =
+        document.getElementById("college_name")
+            ?.value
+            .trim() || "";
+
+    const passoutYear =
+        document.getElementById("passed_out_year")
+            ?.value
+            .trim() || "";
+
+    const fileNameDisplay =
+        document.getElementById(
+            "file-name-display"
+        );
+
 
     try {
-        const base64Data = await getDocumentBase64(file);
-        const response = await fetch(BACKEND_VERIFY_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                documentBase64: base64Data,
-                expectedName: fullName,
-                expectedCollege: collegeName,
-                expectedYear: passoutYear
-            })
-        });
 
-        const result = await response.json();
-        if (!response.ok) throw new Error(result.message || "Document verification failed.");
+        // Validate file
+        validateDocument(file);
 
-        const isHighConfidence = result.confidence === "high";
+
+        // Make sure important fields are filled
+        if (!fullName) {
+            throw new Error(
+                "Please enter your full name before uploading the document."
+            );
+        }
+
+        if (!collegeName) {
+            throw new Error(
+                "Please enter your college name before uploading the document."
+            );
+        }
+
 
         if (fileNameDisplay) {
-            fileNameDisplay.style.color = isHighConfidence ? "#22c55e" : "#f59e0b";
-            fileNameDisplay.textContent = isHighConfidence
-                ? `✅ Verified: ${file.name} (Score: ${result.score}/100)`
-                : `⚠️ Accepted (needs review): ${file.name} (Score: ${result.score}/100)`;
+
+            fileNameDisplay.style.color = "#38bdf8";
+
+            fileNameDisplay.textContent =
+                `Selected: ${file.name} - Verifying...`;
+
         }
+
+
+        // Convert document
+        const base64Data =
+            await getDocumentBase64(file);
+
+
+        // Check if Base64 conversion worked
+        if (!base64Data) {
+            throw new Error(
+                "Document could not be converted properly."
+            );
+        }
+
+
+        // Send to backend
+        const response =
+            await fetch(
+                BACKEND_VERIFY_URL,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+
+                        documentBase64: base64Data,
+
+                        expectedName: fullName,
+
+                        expectedCollege: collegeName,
+
+                        expectedYear: passoutYear
+
+                    })
+
+                }
+            );
+
+
+        let result;
+
+
+        try {
+
+            result =
+                await response.json();
+
+        } catch {
+
+            throw new Error(
+                "Server returned an invalid response."
+            );
+
+        }
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                result.message ||
+                "Document verification failed."
+            );
+
+        }
+
+
+        const isHighConfidence =
+            result.confidence === "high";
+
+
+        if (fileNameDisplay) {
+
+            if (isHighConfidence) {
+
+                fileNameDisplay.style.color =
+                    "#22c55e";
+
+                fileNameDisplay.textContent =
+                    `✅ Verified: ${file.name} (Score: ${result.score}/100)`;
+
+            } else {
+
+                fileNameDisplay.style.color =
+                    "#f59e0b";
+
+                fileNameDisplay.textContent =
+                    `⚠️ Accepted for review: ${file.name} (Score: ${result.score}/100)`;
+
+            }
+
+        }
+
 
         if (isHighConfidence) {
-            alert("✅ Document verified successfully!");
+
+            alert(
+                "✅ Document verified successfully!"
+            );
+
         } else {
-            alert(`⚠️ Document accepted with medium confidence (Score: ${result.score}/100). Please double-check that your name and college exactly match your document, or upload a clearer copy.`);
+
+            alert(
+                `⚠️ Document accepted with medium confidence. Score: ${result.score}/100`
+            );
+
         }
-    } catch (err) {
+
+
+    } catch (error) {
+
+        console.error(
+            "Document Verification Error:",
+            error
+        );
+
+
         if (fileNameDisplay) {
-            fileNameDisplay.style.color = "#ef4444";
-            fileNameDisplay.textContent = `❌ Verification Failed: ${err.message}`;
+
+            fileNameDisplay.style.color =
+                "#ef4444";
+
+            fileNameDisplay.textContent =
+                `❌ Verification Failed: ${error.message}`;
+
         }
-        alert(`❌ Document Verification Error: ${err.message}`);
+
+
+        alert(
+            `❌ Document Verification Error: ${error.message}`
+        );
+
     }
+
 }
 
-// 3. GMAIL OTP FUNCTION
+
+// ==========================================
+// EMAIL OTP
+// ==========================================
+
 async function sendEmailOTP() {
-    const emailInput = document.getElementById("email");
-    const otpInput = document.getElementById("otp-code");
-    const sendBtn = document.getElementById("send-otp-btn");
-    const verifyBtn = document.getElementById("verify-otp-btn");
-    const statusMsg = document.getElementById("otp-status");
 
-    const email = emailInput?.value.trim().toLowerCase();
-    if (!email || !/^[a-zA-Z0-9._%+-]+@gmail\.com$/i.test(email)) {
-        alert("❌ Please enter a valid Gmail address.");
+    const emailInput =
+        document.getElementById("email");
+
+    const otpInput =
+        document.getElementById("otp-code");
+
+    const sendBtn =
+        document.getElementById(
+            "send-otp-btn"
+        );
+
+    const verifyBtn =
+        document.getElementById(
+            "verify-otp-btn"
+        );
+
+    const statusMsg =
+        document.getElementById(
+            "otp-status"
+        );
+
+
+    const email =
+        emailInput?.value
+            .trim()
+            .toLowerCase();
+
+
+    if (
+        !email ||
+        !/^[a-zA-Z0-9._%+-]+@gmail\.com$/i.test(email)
+    ) {
+
+        alert(
+            "❌ Please enter a valid Gmail address."
+        );
+
         return;
+
     }
 
-    generatedEmailOTP = String(Math.floor(100000 + Math.random() * 900000));
-    if (sendBtn) sendBtn.textContent = "Sending...";
+
+    generatedEmailOTP =
+        String(
+            Math.floor(
+                100000 +
+                Math.random() * 900000
+            )
+        );
+
+
+    if (sendBtn) {
+        sendBtn.textContent =
+            "Sending...";
+    }
+
 
     try {
-        const response = await fetch(BACKEND_SEND_EMAIL_OTP_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email: email, otp: generatedEmailOTP })
-        });
-        const result = await response.json();
-        if (!response.ok || !result.success) throw new Error(result.message);
 
-        if (otpInput) otpInput.disabled = false;
-        if (verifyBtn) verifyBtn.disabled = false;
-        showStatus(statusMsg, "✅ Gmail OTP sent! Check your inbox.");
-    } catch (err) {
-        // Fallback directly to Web3Forms
-        const fallbackRes = await fetch("https://api.web3forms.com/submit", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                access_key: WEB3FORMS_ACCESS_KEY,
-                subject: "IntraWorld OTP",
-                email: email,
-                message: `Your OTP code is: ${generatedEmailOTP}`
-            })
-        });
-        const fallbackResult = await fallbackRes.json();
-        if (fallbackResult.success) {
-            if (otpInput) otpInput.disabled = false;
-            if (verifyBtn) verifyBtn.disabled = false;
-            showStatus(statusMsg, "✅ Gmail OTP sent via Web3Forms!");
-        } else {
-            showStatus(statusMsg, `❌ Failed to send OTP: ${err.message}`, "#ef4444");
+        const response =
+            await fetch(
+                BACKEND_SEND_EMAIL_OTP_URL,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        email: email,
+                        otp: generatedEmailOTP
+                    })
+
+                }
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if (
+            !response.ok ||
+            !result.success
+        ) {
+
+            throw new Error(
+                result.message ||
+                "Failed to send OTP."
+            );
+
         }
+
+
+        if (otpInput) {
+            otpInput.disabled = false;
+        }
+
+        if (verifyBtn) {
+            verifyBtn.disabled = false;
+        }
+
+
+        showStatus(
+            statusMsg,
+            "✅ Gmail OTP sent! Check your inbox."
+        );
+
+
+    } catch (error) {
+
+        showStatus(
+            statusMsg,
+            `❌ Failed to send OTP: ${error.message}`,
+            "#ef4444"
+        );
+
     } finally {
-        if (sendBtn) sendBtn.textContent = "Send Email OTP";
+
+        if (sendBtn) {
+            sendBtn.textContent =
+                "Send Email OTP";
+        }
+
     }
+
 }
 
-// 4. SMS OTP FUNCTION (2Factor Integration)
+
+// ==========================================
+// PHONE OTP
+// ==========================================
+
 async function sendPhoneOTP() {
-    const phoneInput = document.getElementById("mobile_number");
-    const otpInput = document.getElementById("phone-otp-code");
-    const sendBtn = document.getElementById("send-phone-otp-btn");
-    const verifyBtn = document.getElementById("verify-phone-otp-btn");
-    const statusMsg = document.getElementById("phone-otp-status");
 
-    let phone = phoneInput?.value.trim() || "";
-    phone = phone.replace("+91", "").replace(/\D/g, "").trim();
+    const phoneInput =
+        document.getElementById(
+            "mobile_number"
+        );
 
-    if (!phone || phone.length !== 10) {
-        alert("❌ Enter a valid 10-digit mobile number.");
+    const otpInput =
+        document.getElementById(
+            "phone-otp-code"
+        );
+
+    const sendBtn =
+        document.getElementById(
+            "send-phone-otp-btn"
+        );
+
+    const verifyBtn =
+        document.getElementById(
+            "verify-phone-otp-btn"
+        );
+
+    const statusMsg =
+        document.getElementById(
+            "phone-otp-status"
+        );
+
+
+    let phone =
+        phoneInput?.value.trim() || "";
+
+
+    phone =
+        phone
+            .replace("+91", "")
+            .replace(/\D/g, "")
+            .trim();
+
+
+    if (
+        !phone ||
+        phone.length !== 10
+    ) {
+
+        alert(
+            "❌ Enter a valid 10-digit mobile number."
+        );
+
         return;
+
     }
 
-    generatedPhoneOTP = String(Math.floor(100000 + Math.random() * 900000));
-    if (sendBtn) sendBtn.textContent = "Sending...";
+
+    generatedPhoneOTP =
+        String(
+            Math.floor(
+                100000 +
+                Math.random() * 900000
+            )
+        );
+
+
+    if (sendBtn) {
+
+        sendBtn.textContent =
+            "Sending...";
+
+    }
+
 
     try {
-        const response = await fetch(BACKEND_SEND_SMS_OTP_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ phone: phone, otp: generatedPhoneOTP })
-        });
-        const result = await response.json();
-        if (!response.ok || !result.success) throw new Error(result.message);
 
-        if (otpInput) otpInput.disabled = false;
-        if (verifyBtn) verifyBtn.disabled = false;
-        showStatus(statusMsg, "✅ SMS OTP sent to your phone!");
-    } catch (err) {
-        showStatus(statusMsg, `❌ SMS Error: ${err.message}`, "#ef4444");
+        const response =
+            await fetch(
+                BACKEND_SEND_SMS_OTP_URL,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        phone: phone,
+                        otp: generatedPhoneOTP
+                    })
+
+                }
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if (
+            !response.ok ||
+            !result.success
+        ) {
+
+            throw new Error(
+                result.message ||
+                "Failed to send SMS OTP."
+            );
+
+        }
+
+
+        if (otpInput) {
+            otpInput.disabled = false;
+        }
+
+        if (verifyBtn) {
+            verifyBtn.disabled = false;
+        }
+
+
+        showStatus(
+            statusMsg,
+            "✅ SMS OTP sent to your phone!"
+        );
+
+
+    } catch (error) {
+
+        showStatus(
+            statusMsg,
+            `❌ SMS Error: ${error.message}`,
+            "#ef4444"
+        );
+
     } finally {
-        if (sendBtn) sendBtn.textContent = "Send SMS OTP";
+
+        if (sendBtn) {
+            sendBtn.textContent =
+                "Send SMS OTP";
+        }
+
     }
+
 }
 
-// 5. ATTACH LISTENERS MATCHING HTML IDs EXACTLY
-document.addEventListener("DOMContentLoaded", () => {
-    document.getElementById("send-otp-btn")?.addEventListener("click", (e) => {
-        e.preventDefault();
-        sendEmailOTP();
-    });
 
-    document.getElementById("send-phone-otp-btn")?.addEventListener("click", (e) => {
-        e.preventDefault();
-        sendPhoneOTP();
-    });
+// ==========================================
+// FILE UPLOAD + BUTTON LISTENERS
+// ==========================================
 
-    document.getElementById("academic_doc")?.addEventListener("change", (e) => {
-        if (e.target.files && e.target.files[0]) {
-            verifyDocument(e.target.files[0]);
-        }
-    });
-});
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+
+        // EMAIL OTP
+        document
+            .getElementById(
+                "send-otp-btn"
+            )
+            ?.addEventListener(
+                "click",
+                (event) => {
+
+                    event.preventDefault();
+
+                    sendEmailOTP();
+
+                }
+            );
+
+
+        // PHONE OTP
+        document
+            .getElementById(
+                "send-phone-otp-btn"
+            )
+            ?.addEventListener(
+                "click",
+                (event) => {
+
+                    event.preventDefault();
+
+                    sendPhoneOTP();
+
+                }
+            );
+
+
+        // DOCUMENT UPLOAD
+        document
+            .getElementById(
+                "academic_doc"
+            )
+            ?.addEventListener(
+                "change",
+                (event) => {
+
+                    const file =
+                        event.target.files?.[0];
+
+
+                    if (!file) {
+                        return;
+                    }
+
+
+                    verifyDocument(file);
+
+                }
+            );
+
+    }
+);
