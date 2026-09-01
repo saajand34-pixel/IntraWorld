@@ -17,6 +17,7 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 const ID_ANALYZER_KEY = process.env.ID_ANALYZER_KEY;
+const TWOFACTOR_API_KEY = process.env.TWOFACTOR_API_KEY;
 const WEB3FORMS_ACCESS_KEY = process.env.WEB3FORMS_ACCESS_KEY || "bb00ad90-e756-4918-b4b5-caf2bab0b818";
 
 app.get('/', (req, res) => {
@@ -56,6 +57,38 @@ app.post('/api/send-email-otp', async (req, res) => {
     }
 });
 
+// ⭐ 2. SMS OTP ENDPOINT (2Factor)
+app.post('/api/send-sms-otp', async (req, res) => {
+    try {
+        const { phone, otp } = req.body;
+        if (!phone || !otp) {
+            return res.status(400).json({ success: false, message: "Phone number and OTP required." });
+        }
+
+        const apiKey = TWOFACTOR_API_KEY || process.env.TWOFACTOR_API_KEY;
+        if (!apiKey) {
+            return res.status(500).json({ success: false, message: "Server misconfiguration: TWOFACTOR_API_KEY is missing." });
+        }
+
+        const templateName = "Registration_OTP";
+        const url = `https://2factor.in/API/V1/${apiKey}/SMS/${phone}/${otp}/${templateName}`;
+
+        console.log(`📱 Sending SMS to: ${phone}`);
+        const response = await axios.get(url);
+
+        if (response.data.Status === "Success") {
+            console.log("✅ SMS sent via 2Factor.");
+            return res.status(200).json({ success: true, message: "SMS OTP sent successfully." });
+        } else {
+            console.error("❌ 2Factor Error:", response.data.Details);
+            return res.status(400).json({ success: false, message: response.data.Details || "SMS delivery failed." });
+        }
+    } catch (err) {
+        console.error("2Factor Error:", err.response?.data || err.message);
+        return res.status(500).json({ success: false, message: "Failed to send SMS OTP via server." });
+    }
+});
+
 // Helper: Levenshtein distance for fuzzy matching
 function levenshteinDistance(s1, s2) {
     const track = Array(s2.length + 1).fill(null).map(() => Array(s1.length + 1).fill(0));
@@ -92,7 +125,7 @@ function calculateSimilarity(str1, str2) {
     return Math.max(0, ((longer.length - editDistance) / longer.length) * 100);
 }
 
-// Document Verification Endpoint (Smart Approach)
+// ⭐ 3. DOCUMENT VERIFICATION ENDPOINT (ID Analyzer + Quickscan)
 app.post('/api/verify-document', async (req, res) => {
     try {
         const { documentBase64, expectedName, expectedCollege } = req.body;
@@ -101,17 +134,29 @@ app.post('/api/verify-document', async (req, res) => {
             return res.status(400).json({ success: false, message: "Missing document image payload." });
         }
 
+        const apiKey = ID_ANALYZER_KEY || process.env.ID_ANALYZER_KEY;
+        if (!apiKey) {
+            return res.status(500).json({ 
+                success: false, 
+                message: "Server misconfiguration: ID_ANALYZER_KEY is missing in environment variables." 
+            });
+        }
+
         console.log(`📄 Processing document verification for: ${expectedName}`);
 
         const apiResponse = await axios.post(
             'https://api2.idanalyzer.com/quickscan',
             {
-                apikey: ID_ANALYZER_KEY,
+                apikey: apiKey,
                 file: documentBase64,
                 ocr: true
             },
             {
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-API-KEY': apiKey,
+                    'Authorization': apiKey
+                },
                 timeout: 45000
             }
         );
@@ -191,9 +236,10 @@ app.post('/api/verify-document', async (req, res) => {
 
     } catch (err) {
         console.error("Verification Error:", err.response?.data || err.message);
+        const errorMsg = err.response?.data?.error?.message || err.message || "Document verification server error.";
         return res.status(500).json({ 
             success: false, 
-            message: err.response?.data?.error?.message || "Document verification server error." 
+            message: errorMsg 
         });
     }
 });
