@@ -11,14 +11,22 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
 
-  <!-- Real-Time Client OCR Engine (Tesseract.js) -->
+  <!-- Real PDF Text Extractor Engine (PDF.js) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>
+    if (typeof pdfjsLib !== 'undefined') {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+  </script>
+
+  <!-- Real Image OCR Engine (Tesseract.js) -->
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
   <!-- Firebase App & Firestore SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
-  <!-- INTERNAL CSS -->
+  <!-- INTERNAL CSS (IntraWorld Dark Cyan Theme) -->
   <style>
     :root {
       --bg-color: #020614;
@@ -261,7 +269,7 @@
     .status-msg.info { color: #38bdf8; }
     .status-msg.error { color: #fb7185; }
 
-    /* File Drop Zone with Laser Scanner */
+    /* Drop Zone with Laser Scanner */
     .drop-zone {
       border: 2px dashed rgba(56, 189, 248, 0.25);
       border-radius: 16px; padding: 22px; text-align: center;
@@ -280,7 +288,7 @@
     }
     @keyframes scanAnim { 0% { top: 0; } 100% { top: 100%; } }
 
-    /* Deepfake 3-Tier Badges */
+    /* 3-Tier Badges */
     .tier-badge {
       display: inline-flex; align-items: center; gap: 6px;
       padding: 4px 12px; border-radius: 9999px; font-size: 11px; font-weight: 700;
@@ -460,7 +468,6 @@
     <!-- REGISTRATION FORM VIEW -->
     <div id="formView">
       
-      <!-- Card Header: Logo & Title -->
       <div class="card-header">
         <div class="logo-container">
           <img src="logo.png" alt="IntraWorld Logo" class="logo-img" onerror="this.style.display='none'; document.getElementById('fallbackLogo').style.display='flex';" />
@@ -518,7 +525,7 @@
               <span style="color: #94a3b8;">Web3Forms Dispatcher</span>
             </div>
             <div class="otp-row">
-              <input type="text" id="enteredEmailOtp" maxlength="6" placeholder="849201" class="otp-input">
+              <input type="text" id="enteredEmailOtp" maxlength="6" placeholder="------" class="otp-input">
               <button type="button" class="btn btn-success" onclick="verifyGmailOtp()">Verify OTP</button>
             </div>
           </div>
@@ -546,7 +553,7 @@
               <span style="color: #94a3b8;">2Factor Gateway</span>
             </div>
             <div class="otp-row">
-              <input type="text" id="enteredSmsOtp" maxlength="6" placeholder="529103" class="otp-input">
+              <input type="text" id="enteredSmsOtp" maxlength="6" placeholder="------" class="otp-input">
               <button type="button" class="btn btn-success" onclick="verifySmsOtp()">Verify SMS</button>
             </div>
           </div>
@@ -558,7 +565,6 @@
           <span>📚 2. Academic Details</span>
         </div>
 
-        <!-- Categorized Qualification / Degree Dropdown -->
         <div class="form-row">
           <div class="form-group no-icon">
             <label>Qualification / Degree <span class="req">*</span></label>
@@ -636,7 +642,6 @@
           </div>
         </div>
 
-        <!-- Custom Degree Input if 'Other' selected -->
         <div id="customDegreeContainer" class="form-group hidden">
           <label>Specify Your Degree Name <span class="req">*</span></label>
           <div class="input-wrapper">
@@ -645,7 +650,6 @@
           </div>
         </div>
 
-        <!-- College / University Name -->
         <div class="form-group">
           <label>College / University Name <span class="req">*</span></label>
           <div class="input-wrapper">
@@ -672,14 +676,14 @@
           </div>
         </div>
 
-        <!-- 3. PHYSICAL ACADEMIC DOCUMENT UPLOAD & REAL OCR OCR COMPARISON -->
+        <!-- 3. PHYSICAL ACADEMIC DOCUMENT UPLOAD & STRICT OCR SCANNING -->
         <div class="form-section-title">
           <span>📄 3. Physical Academic Document Proof</span>
-          <span style="font-size: 10.5px; color: #94a3b8; font-weight: normal;">Strict Anti-Impersonation Scanner</span>
+          <span style="font-size: 10.5px; color: #94a3b8; font-weight: normal;">PDF.js + OCR Anti-Impersonation Scanner</span>
         </div>
 
         <p style="font-size: 12px; color: #94a3b8; margin-bottom: 12px;">
-          Upload your <strong>Student ID Card</strong>, <strong>Enrollment Form</strong>, or <strong>Fee Receipt</strong>. The Smart Engine extracts the <strong>exact text on your document</strong> and verifies it matches your entered name:
+          Upload your <strong>Student ID Card</strong>, <strong>Enrollment Form</strong>, or <strong>Fee Receipt</strong> (PDF / PNG / JPG). The Smart Engine extracts the <strong>exact text on your document</strong> and verifies it matches your entered name:
         </p>
 
         <div class="drop-zone" id="dropZoneContainer">
@@ -692,13 +696,13 @@
           <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">Drag & drop or click to browse</div>
         </div>
 
-        <!-- 3-Tier Deepfake & Friend Mismatch OCR Result Box -->
+        <!-- 3-Tier Deepfake Result Box -->
         <div id="factorBox" class="factor-container hidden">
           <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(30,58,110,0.5); padding-bottom: 8px;">
             <span id="docScanStatus" style="font-size: 11px; font-weight: 700; color: #38bdf8;">
-              🔍 Scanning Real OCR Text & Anti-Impersonation Signals...
+              🔍 Extracting Real Text & Anti-Impersonation Signals...
             </span>
-            <span id="docTierBadge" class="tier-badge tier-100">✅ 1. Real Clear Doc (100 Pts)</span>
+            <span id="docTierBadge" class="tier-badge tier-100">Checking...</span>
           </div>
 
           <div class="factor-grid">
@@ -726,7 +730,6 @@
           <span>⚡ 4. Anti-Bot Security & Biometric Proof</span>
         </div>
 
-        <!-- Cloudflare Turnstile Box -->
         <div class="cf-box" id="cfBoxWrap" onclick="triggerCloudflareCheck()">
           <div class="cf-left">
             <div class="cf-check" id="cfCheck"></div>
@@ -740,7 +743,6 @@
           <div style="font-size: 10px; font-family: 'JetBrains Mono', monospace; color: #64748b;">⚙️ Cloudflare</div>
         </div>
 
-        <!-- Biometric Camera Verification -->
         <div class="camera-row">
           <div>
             <div style="font-size: 12.5px; font-weight: 600; color: #f1f5f9;">
@@ -777,7 +779,7 @@
           </div>
         </div>
 
-        <!-- SUBMIT REGISTRATION BUTTON -->
+        <!-- SUBMIT BUTTON -->
         <button type="submit" id="submitBtn" class="btn btn-submit">
           🛡️ Create Account & Verify Student Status
         </button>
