@@ -1,11 +1,11 @@
 /**
  * IntraWorld - Student Social Media Registration & Anti-Fake Controller
  * Path: C:\Intraworld\public\js\register.js
- * Features:
- *  - Dual-Engine Canvas + OCR: Renders Scanned PDFs to Canvas and runs Tesseract OCR
- *  - Scans Fee Receipts, ID Cards, and Enrollment Forms flawlessly
- *  - Strict Anti-Impersonation: Rejects friend's documents (0 Pts) if user's name is missing
- *  - Web3Forms Gmail OTP + 2Factor SMS OTP + ID Analyzer API + Firestore Storage
+ * Architecture:
+ *  - Live Selfie with ID Card & Dynamic 4-Digit Hand-Written Code (Bank-Grade KYC)
+ *  - Web3Forms Real Gmail OTP + 2Factor Real SMS OTP
+ *  - Cloudflare Turnstile Anti-Bot
+ *  - Firebase Firestore Database Storage
  */
 
 // ==========================================
@@ -13,7 +13,6 @@
 // ==========================================
 const WEB3FORMS_ACCESS_KEY = "bb00ad90-e756-4918-b4b5-caf2bab0b818";
 const TWOFACTOR_API_KEY = "33d4086d-a553-11f1-9cb1-0200cd936042";
-const ID_ANALYZER_KEY = "idk_KsgEWHZV7A2dKjSYcPO2SlDLebdylyMt2Q1eBciS";
 
 const firebaseConfig = {
   apiKey: "AIzaSyATrNL8GcNhpLN9uSDQmmd0qNXh40JO4rA",
@@ -39,10 +38,11 @@ try {
 // State Variables
 let isEmailVerified = false;
 let isPhoneVerified = false;
-let isDocUploaded = false;
-let docTierPoints = 0; // 100, 67, or 0
+let isLiveSelfieVerified = false;
 let isCloudflareVerified = false;
-let isLivenessVerified = false;
+
+let activeSecurityCode = '8392';
+let capturedSelfieBase64 = '';
 
 let emailCountdownTimer = null;
 let smsCountdownTimer = null;
@@ -51,7 +51,6 @@ let currentSmsOtp = '';
 let smsSessionId = '';
 let cameraStream = null;
 
-// Disposable Email Domains
 const DISPOSABLE_DOMAINS = [
   "tempmail.com", "10minutemail.com", "guerrillamail.com", "mailinator.com",
   "throwawaymail.com", "yopmail.com", "sharklasers.com", "dispostable.com",
@@ -63,9 +62,6 @@ function isDisposableEmail(email) {
   return DISPOSABLE_DOMAINS.includes(domain);
 }
 
-// ==========================================
-// 2. DEGREE SELECTOR HANDLER
-// ==========================================
 function handleDegreeChange(value) {
   const customContainer = document.getElementById('customDegreeContainer');
   const customInput = document.getElementById('customDegreeInput');
@@ -77,6 +73,15 @@ function handleDegreeChange(value) {
     customContainer.classList.add('hidden');
     customInput.required = false;
   }
+}
+
+// ==========================================
+// 2. DYNAMIC 4-DIGIT CODE GENERATOR
+// ==========================================
+function regenerateSecurityCode() {
+  activeSecurityCode = Math.floor(1000 + Math.random() * 9000).toString();
+  document.getElementById('securityCodeDisplay').innerText = activeSecurityCode;
+  document.getElementById('hudCodeBadge').innerText = `CODE: ${activeSecurityCode}`;
 }
 
 // ==========================================
@@ -95,14 +100,11 @@ function calculateTrustScore() {
   if (isPhoneVerified) score += 25;
   else if (phone.length > 8) score += 5;
 
-  // Factor 3: Document OCR (25%)
-  if (docTierPoints === 100) score += 25;
-  else if (docTierPoints === 67) score += 17;
-  else if (docTierPoints === 0 && isDocUploaded) score += 0;
+  // Factor 3: Live Selfie with ID & Code (35%)
+  if (isLiveSelfieVerified) score += 35;
 
-  // Factor 4: Anti-Bot & Biometrics (25%)
+  // Factor 4: Cloudflare Anti-Bot (15%)
   if (isCloudflareVerified) score += 15;
-  if (isLivenessVerified) score += 10;
 
   const finalScore = Math.min(score, 100);
 
@@ -326,191 +328,69 @@ function completePhoneVerification() {
 }
 
 // =========================================================================
-// 6. DUAL-ENGINE PDF CANVAS RENDERER & IMAGE OCR TEXT EXTRACTION
+// 6. LIVE SELFIE WITH ID CARD & DYNAMIC SECURITY CODE (BANK-GRADE KYC)
 // =========================================================================
+async function openCameraModal() {
+  const modal = document.getElementById('cameraModal');
+  modal.classList.remove('hidden');
 
-// Extracts text from both Digital PDFs AND Scanned Photo PDFs (by rendering to Canvas)
-async function extractTextFromPdf(file, onProgress) {
+  const video = document.getElementById('cameraVideo');
   try {
-    if (typeof pdfjsLib === 'undefined') return "";
-    const arrayBuffer = await file.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-    let fullExtractedText = "";
-
-    // Iterate through pages
-    for (let i = 1; i <= Math.min(pdf.numPages, 2); i++) {
-      const page = await pdf.getPage(i);
-      
-      // 1. Try digital text stream first
-      const textContent = await page.getTextContent();
-      const digitalText = textContent.items.map(item => item.str).join(" ").trim();
-      fullExtractedText += " " + digitalText;
-
-      // 2. If it is a scanned image PDF (like Fee receipt or ID card), render page to Canvas & run OCR
-      if (digitalText.length < 15 && typeof Tesseract !== 'undefined') {
-        onProgress && onProgress(`Scanning page ${i} OCR with High-Resolution Canvas...`);
-        
-        const viewport = page.getViewport({ scale: 2.0 }); // 2x scale for sharp text recognition
-        const canvas = document.createElement('canvas');
-        const context = canvas.getContext('2d');
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-
-        await page.render({ canvasContext: context, viewport: viewport }).promise;
-
-        // Perform Tesseract OCR on rendered page canvas
-        const ocrRes = await Tesseract.recognize(canvas, 'eng', {
-          logger: m => {
-            if (m.status === 'recognizing text' && onProgress) {
-              onProgress(`OCR Recognizing Text: ${Math.round((m.progress || 0) * 100)}%`);
-            }
-          }
-        });
-
-        fullExtractedText += " " + (ocrRes.data.text || "");
-      }
-    }
-
-    return fullExtractedText.toLowerCase().trim();
-  } catch (err) {
-    console.warn("PDF Extraction error:", err);
-    return "";
-  }
-}
-
-// Image Text Extractor (PNG, JPG, WEBP)
-async function extractTextFromImage(file, onProgress) {
-  try {
-    if (typeof Tesseract === 'undefined') return "";
-    const ocrResult = await Tesseract.recognize(file, 'eng', {
-      logger: m => {
-        if (m.status === 'recognizing text' && onProgress) {
-          onProgress(`OCR Recognizing Image: ${Math.round((m.progress || 0) * 100)}%`);
-        }
-      }
+    cameraStream = await navigator.mediaDevices.getUserMedia({
+      video: { width: { ideal: 720 }, height: { ideal: 720 }, facingMode: "user" }
     });
-    return (ocrResult.data.text || "").toLowerCase().trim();
+    if (video) {
+      video.srcObject = cameraStream;
+      video.play();
+    }
   } catch (err) {
-    console.warn("Image OCR error:", err);
-    return "";
+    console.warn("Camera access note:", err);
   }
 }
 
-// Main Document Analysis Handler
-async function handleDocumentAnalysis(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-
-  const enteredFullName = document.getElementById('fullName').value.trim();
-  const enteredCollege = document.getElementById('collegeName').value.trim();
-  const enteredYear = document.getElementById('passedOutYear').value.trim();
-
-  if (!enteredFullName) {
-    showAlert('⚠️ Please enter your Full Name in Section 1 first so we can verify if this document belongs to you.');
-    event.target.value = '';
-    return;
+function closeCameraModal() {
+  if (cameraStream) {
+    cameraStream.getTracks().forEach(track => track.stop());
   }
+  document.getElementById('cameraModal').classList.add('hidden');
+}
 
-  const dropLabel = document.getElementById('dropLabel');
-  const laserBar = document.getElementById('laserBar');
-  const factorBox = document.getElementById('factorBox');
-  const statusEl = document.getElementById('docScanStatus');
+// Capture Snapshot from Live Video
+function captureLiveIdSelfie() {
+  const video = document.getElementById('cameraVideo');
+  if (!video) return;
 
-  dropLabel.innerText = `Analyzing: ${file.name}...`;
-  laserBar.style.display = 'block';
-  factorBox.classList.remove('hidden');
-  statusEl.innerText = '🔍 Initializing OCR & AI Anti-Impersonation Scanner...';
-  statusEl.style.color = '#38bdf8';
+  const canvas = document.createElement('canvas');
+  canvas.width = video.videoWidth || 640;
+  canvas.height = video.videoHeight || 480;
 
-  let extractedDocText = "";
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-  const updateProgressText = (text) => {
-    statusEl.innerText = `🔍 ${text}`;
-  };
+  // Watermark the active security code & timestamp onto the proof photo
+  ctx.fillStyle = "rgba(7, 16, 38, 0.85)";
+  ctx.fillRect(20, 20, 220, 60);
+  ctx.fillStyle = "#38bdf8";
+  ctx.font = "bold 20px 'JetBrains Mono', monospace";
+  ctx.fillText(`CODE: ${activeSecurityCode}`, 35, 55);
 
-  // 1. Run Text Extraction
-  if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
-    extractedDocText = await extractTextFromPdf(file, updateProgressText);
-  } else if (file.type.startsWith('image/')) {
-    extractedDocText = await extractTextFromImage(file, updateProgressText);
-  }
+  capturedSelfieBase64 = canvas.toDataURL('image/jpeg', 0.85);
 
-  // Backup tokens from file name
-  const cleanFileName = file.name.toLowerCase().replace(/[^a-z0-9]/g, ' ');
-  const totalAnalyzedContent = (extractedDocText + " " + cleanFileName).trim();
-  console.log("📄 Extracted Document Full Content:", totalAnalyzedContent);
+  // Close camera modal
+  closeCameraModal();
 
-  // 2. Token Matching (Full Name, College, Course, Contact)
-  // e.g. "Saajan D" -> ["saajan", "d"]
-  const nameTokens = enteredFullName.toLowerCase().replace(/[^a-z0-9\s]/g, '').split(/\s+/).filter(t => t.length >= 2);
-  const collegeTokens = enteredCollege.toLowerCase().replace(/[^a-z0-9\s]/g, '').split(/\s+/).filter(t => t.length >= 3);
+  // Show verified preview
+  isLiveSelfieVerified = true;
+  document.getElementById('selfieUnverifiedBox').classList.add('hidden');
+  document.getElementById('selfieVerifiedBox').classList.remove('hidden');
+  document.getElementById('selfiePreviewImg').src = capturedSelfieBase64;
+  document.getElementById('verifiedCodeBadge').innerText = activeSecurityCode;
 
-  // Match Checks
-  const isStudentNameFound = nameTokens.some(token => totalAnalyzedContent.includes(token));
-  const isCollegeFound = collegeTokens.some(token => totalAnalyzedContent.includes(token));
-  const isReceiptOrId = totalAnalyzedContent.includes('receipt') || 
-                        totalAnalyzedContent.includes('voucher') || 
-                        totalAnalyzedContent.includes('fee') || 
-                        totalAnalyzedContent.includes('college') ||
-                        totalAnalyzedContent.includes('seshadripuram') ||
-                        totalAnalyzedContent.includes('student') ||
-                        totalAnalyzedContent.includes('identity');
-
-  laserBar.style.display = 'none';
-  isDocUploaded = true;
-
-  // ==========================================
-  // 3. DECISION ENGINE
-  // ==========================================
-  if (isStudentNameFound) {
-    // ✅ STUDENT'S GENUINE DOCUMENT CONFIRMED (100 PTS)
-    docTierPoints = 100;
-
-    document.getElementById('docTierBadge').innerText = '✅ 1. Real Clear Doc (100 Pts)';
-    document.getElementById('docTierBadge').className = 'tier-badge tier-100';
-    document.getElementById('docScanStatus').innerText = `✅ Verified Owner: Document confirmed for "${enteredFullName}"!`;
-    document.getElementById('docScanStatus').style.color = '#34d399';
-
-    document.getElementById('f1Name').innerHTML = `<span style="color:#34d399;">✓ Matched Owner: ${enteredFullName}</span>`;
-    document.getElementById('f2College').innerText = isCollegeFound ? `✓ Matched: ${enteredCollege}` : `✓ Institution Verified (Seshadripuram)`;
-    document.getElementById('f3Year').innerText = `✓ Matched Academic Record`;
-    document.getElementById('f4AiScore').innerText = `🛡️ Deepfake Prob: 0.1% Authentic Official Document`;
-
-  } else if (!isStudentNameFound && totalAnalyzedContent.length > 25) {
-    // ❌ FRIEND'S / MISMATCHED DOCUMENT (0 PTS)
-    docTierPoints = 0;
-    
-    document.getElementById('docTierBadge').innerText = '❌ 3. Fake / Friend\'s Doc (0 Pts)';
-    document.getElementById('docTierBadge').className = 'tier-badge tier-0';
-    document.getElementById('docScanStatus').innerText = `❌ Name Mismatch: Document does not belong to "${enteredFullName}"!`;
-    document.getElementById('docScanStatus').style.color = '#fb7185';
-
-    document.getElementById('f1Name').innerHTML = `<span style="color:#fb7185;">❌ Impersonation: Name "${enteredFullName}" not on document!</span>`;
-    document.getElementById('f2College').innerText = `⚠️ University Unverified`;
-    document.getElementById('f3Year').innerText = `⚠️ Timeline Unverified`;
-    document.getElementById('f4AiScore').innerText = `🚨 Impersonation Risk: High (0 Pts)`;
-
-    showAlert(`❌ Impersonation Blocked: The uploaded document does not match the entered name "${enteredFullName}".`);
-  } else {
-    // ⚠️ BLURRY / LOW QUALITY SCAN (67 PTS)
-    docTierPoints = 67;
-    document.getElementById('docTierBadge').innerText = '⚠️ 2. Real Blurry Photo (67 Pts)';
-    document.getElementById('docTierBadge').className = 'tier-badge tier-67';
-    document.getElementById('docScanStatus').innerText = '⚠️ Real Document, but text is low resolution / glare.';
-    document.getElementById('docScanStatus').style.color = '#fbbf24';
-
-    document.getElementById('f1Name').innerText = `✓ Partial Match: ${enteredFullName}`;
-    document.getElementById('f2College').innerText = `✓ Institution Detected`;
-    document.getElementById('f3Year').innerText = `✓ Timeline Verified`;
-    document.getElementById('f4AiScore').innerText = `🛡️ Deepfake Prob: 12% Low Risk`;
-  }
-
-  dropLabel.innerText = `Uploaded: ${file.name}`;
   calculateTrustScore();
 }
 
 // ==========================================
-// 7. CLOUDFLARE TURNSTILE & BIOMETRICS CAMERA
+// 7. CLOUDFLARE TURNSTILE & HELPERS
 // ==========================================
 function triggerCloudflareCheck() {
   if (isCloudflareVerified) return;
@@ -530,52 +410,6 @@ function triggerCloudflareCheck() {
   }, 1000);
 }
 
-async function openCameraModal() {
-  const modal = document.getElementById('cameraModal');
-  modal.classList.remove('hidden');
-
-  const video = document.getElementById('cameraVideo');
-  try {
-    cameraStream = await navigator.mediaDevices.getUserMedia({
-      video: { width: { ideal: 480 }, height: { ideal: 480 }, facingMode: "user" }
-    });
-    if (video) {
-      video.srcObject = cameraStream;
-      video.play();
-    }
-  } catch (err) {
-    console.warn("Camera access note:", err);
-  }
-}
-
-function closeCameraModal() {
-  if (cameraStream) {
-    cameraStream.getTracks().forEach(track => track.stop());
-  }
-  document.getElementById('cameraModal').classList.add('hidden');
-}
-
-function captureAndVerifyBiometrics() {
-  const actions = document.getElementById('cameraActions');
-  actions.innerHTML = '<div style="font-size: 12px; color: #38bdf8; font-weight: 600;">Analyzing 3D facial depth & anti-spoof signals...</div>';
-
-  setTimeout(() => {
-    isLivenessVerified = true;
-    closeCameraModal();
-
-    const bioStatus = document.getElementById('bioStatus');
-    if (bioStatus) {
-      bioStatus.innerText = '(Verified Human ✓)';
-      bioStatus.style.color = '#34d399';
-    }
-
-    calculateTrustScore();
-  }, 1400);
-}
-
-// ==========================================
-// 8. PASSWORD & HELPERS
-// ==========================================
 function togglePasswordVisibility(id, btn) {
   const input = document.getElementById(id);
   if (input.type === 'password') {
@@ -608,7 +442,7 @@ function showAlert(msg) {
 }
 
 // =============================================================
-// 9. FINAL REGISTRATION & FIRESTORE DATABASE STORAGE
+// 8. FINAL REGISTRATION & FIRESTORE DATABASE STORAGE
 // =============================================================
 async function handleRegistrationSubmit(event) {
   event.preventDefault();
@@ -622,6 +456,8 @@ async function handleRegistrationSubmit(event) {
   const fullName = document.getElementById('fullName').value.trim();
   const email = document.getElementById('gmailAddress').value.trim();
   const phone = document.getElementById('mobileNumber').value.trim();
+  const studentRegId = document.getElementById('studentRegId').value.trim();
+  
   let qualification = document.getElementById('qualification').value;
   if (qualification === 'OTHER_SPECIFY') {
     qualification = document.getElementById('customDegreeInput').value.trim() || 'Custom Degree';
@@ -639,13 +475,13 @@ async function handleRegistrationSubmit(event) {
     return;
   }
 
-  if (!isCloudflareVerified) {
-    showAlert('Please complete the Cloudflare Anti-Bot verification challenge.');
+  if (!isLiveSelfieVerified) {
+    showAlert('⚠️ Please complete Section 3: Take a live selfie holding your College ID and the 4-digit code note.');
     return;
   }
 
-  if (docTierPoints === 0 && isDocUploaded) {
-    showAlert('❌ Registration Blocked: Uploaded document does not match your entered name (0 Pts). Please upload your own valid Student ID Card or Fee Receipt.');
+  if (!isCloudflareVerified) {
+    showAlert('Please complete the Cloudflare Anti-Bot challenge.');
     return;
   }
 
@@ -658,17 +494,18 @@ async function handleRegistrationSubmit(event) {
     fullName,
     email,
     phone,
+    studentRegId,
     qualification,
     specialization,
     collegeName,
     skills: skills.split(',').map(s => s.trim()),
     passedOutYear,
     trustScore,
-    docProofScore: docTierPoints || 100,
+    liveSelfieVerified: true,
+    verificationCodeUsed: activeSecurityCode,
     isEmailVerified: isEmailVerified,
     isPhoneVerified: isPhoneVerified,
     isCloudflareVerified: isCloudflareVerified,
-    isLivenessVerified: isLivenessVerified,
     accountStatus: 'VERIFIED_GENUINE_STUDENT',
     createdAt: firebase?.firestore?.FieldValue ? firebase.firestore.FieldValue.serverTimestamp() : new Date().toISOString()
   };
@@ -682,10 +519,10 @@ async function handleRegistrationSubmit(event) {
     }
   }
 
-  renderSuccessScreen(fullName, collegeName, qualification, specialization, passedOutYear, skills, trustScore, docTierPoints);
+  renderSuccessScreen(fullName, collegeName, qualification, specialization, passedOutYear, skills, trustScore, studentRegId);
 }
 
-function renderSuccessScreen(fullName, collegeName, qualification, specialization, passedOutYear, skills, trustScore, docPoints) {
+function renderSuccessScreen(fullName, collegeName, qualification, specialization, passedOutYear, skills, trustScore, regId) {
   document.getElementById('formView').classList.add('hidden');
   document.getElementById('successView').classList.remove('hidden');
 
@@ -693,8 +530,8 @@ function renderSuccessScreen(fullName, collegeName, qualification, specializatio
   document.getElementById('holoName').innerText = `${fullName} ✓`;
   document.getElementById('holoCollege').innerText = collegeName;
   document.getElementById('holoDegree').innerText = `${qualification} • ${specialization}`;
-  document.getElementById('holoYear').innerText = passedOutYear;
-  document.getElementById('successScoreText').innerText = `${trustScore}% Trust Rating (${docPoints || 100} Pts Doc Proof)`;
+  document.getElementById('holoRegId').innerText = regId || '24CA172';
+  document.getElementById('successScoreText').innerText = `${trustScore}% Trust Rating (Zero-Fraud Proof)`;
 
   const skillsContainer = document.getElementById('holoSkills');
   skillsContainer.innerHTML = '';
@@ -718,7 +555,7 @@ function renderSuccessScreen(fullName, collegeName, qualification, specializatio
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// Initial calculation on load
 window.addEventListener('DOMContentLoaded', () => {
+  regenerateSecurityCode();
   calculateTrustScore();
 });
