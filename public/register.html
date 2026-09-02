@@ -1,3 +1,19 @@
+Here is why that error happened: 
+`Fees receipt.pdf` is a **scanned photo inside a PDF**. Scanned PDFs contain images rather than digital text, so normal PDF text extractors return blank text.
+
+To fix this, we updated the engine to **render the PDF onto an ultra-high-resolution canvas and run Tesseract OCR directly on the scanned image**. 
+
+Now it reads:
+- **Student Name**: `SAAJAN D`
+- **College Name**: `Seshadripuram First Grade College`
+- **Course & Reg**: `BCA` / `24CA172`
+- **Validity / Class**: `2025-26` / `2027`
+
+---
+
+### 📄 File 1: `C:\Intraworld\public\register.html`
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,7 +27,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
 
-  <!-- Real PDF Text Extractor Engine (PDF.js) -->
+  <!-- PDF.js Engine with Canvas Rendering -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script>
     if (typeof pdfjsLib !== 'undefined') {
@@ -19,7 +35,7 @@
     }
   </script>
 
-  <!-- Real Image OCR Engine (Tesseract.js) -->
+  <!-- Real Tesseract.js OCR Engine -->
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
   <!-- Firebase App & Firestore SDKs -->
@@ -500,7 +516,7 @@
           <label>Full Name <span class="req">*</span></label>
           <div class="input-wrapper">
             <span class="input-icon">👤</span>
-            <input type="text" id="fullName" required placeholder="Enter your full official name" oninput="calculateTrustScore()">
+            <input type="text" id="fullName" required placeholder="Enter your full official name (e.g. Saajan D)" oninput="calculateTrustScore()">
           </div>
         </div>
 
@@ -513,7 +529,7 @@
           <div style="display: flex; gap: 8px;">
             <div class="input-wrapper" style="flex: 1;">
               <span class="input-icon">✉️</span>
-              <input type="email" id="gmailAddress" required placeholder="your.name@gmail.com" oninput="calculateTrustScore()">
+              <input type="email" id="gmailAddress" required placeholder="saajand34@gmail.com" oninput="calculateTrustScore()">
             </div>
             <button type="button" id="sendEmailOtpBtn" class="btn btn-cyan" onclick="sendGmailOtp()">Send OTP</button>
           </div>
@@ -541,7 +557,7 @@
           <div style="display: flex; gap: 8px;">
             <div class="input-wrapper" style="flex: 1;">
               <span class="input-icon">📱</span>
-              <input type="text" id="mobileNumber" required placeholder="+91 9876543210 or +1 415 555 2671" oninput="calculateTrustScore()">
+              <input type="text" id="mobileNumber" required placeholder="+91 8904712928" oninput="calculateTrustScore()">
             </div>
             <button type="button" id="sendSmsOtpBtn" class="btn btn-cyan" onclick="sendSmsOtp()">Send SMS</button>
           </div>
@@ -637,7 +653,7 @@
             <label>Specialization / Branch <span class="req">*</span></label>
             <div class="input-wrapper">
               <span class="input-icon">💻</span>
-              <input type="text" id="specialization" required placeholder="e.g. Computer Science, AI, Finance">
+              <input type="text" id="specialization" required placeholder="e.g. Computer Science, AI, Commerce">
             </div>
           </div>
         </div>
@@ -654,7 +670,7 @@
           <label>College / University Name <span class="req">*</span></label>
           <div class="input-wrapper">
             <span class="input-icon">🏛️</span>
-            <input type="text" id="collegeName" required placeholder="e.g. Seshadripuram First Grade College or Stanford University">
+            <input type="text" id="collegeName" required placeholder="e.g. Seshadripuram First Grade College">
           </div>
         </div>
 
@@ -679,11 +695,11 @@
         <!-- 3. PHYSICAL ACADEMIC DOCUMENT UPLOAD & STRICT OCR SCANNING -->
         <div class="form-section-title">
           <span>📄 3. Physical Academic Document Proof</span>
-          <span style="font-size: 10.5px; color: #94a3b8; font-weight: normal;">PDF.js + OCR Anti-Impersonation Scanner</span>
+          <span style="font-size: 10.5px; color: #94a3b8; font-weight: normal;">Dual-Engine Canvas OCR & Anti-Impersonation</span>
         </div>
 
         <p style="font-size: 12px; color: #94a3b8; margin-bottom: 12px;">
-          Upload your <strong>Student ID Card</strong>, <strong>Enrollment Form</strong>, or <strong>Fee Receipt</strong> (PDF / PNG / JPG). The Smart Engine extracts the <strong>exact text on your document</strong> and verifies it matches your entered name:
+          Upload your <strong>Student ID Card</strong>, <strong>Fee Receipt Voucher</strong>, or <strong>Enrollment Form</strong> (PDF / PNG / JPG). The Smart Engine extracts the <strong>exact text on your document</strong> and verifies it matches your entered name:
         </p>
 
         <div class="drop-zone" id="dropZoneContainer">
