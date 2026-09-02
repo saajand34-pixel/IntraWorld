@@ -1,15 +1,14 @@
 {
-  "name": "intraworld-register-api",
-  "version": "2.0.0",
-  "description": "IntraWorld Smart OCR Document Verification Engine",
-  "main": "server.js",
+  "name": "intraworld-backend",
+  "version": "1.0.0",
+  "main": "api/index.js",
   "scripts": {
-    "start": "node server.js",
-    "test": "node test-intraworld-server.js"
+    "start": "node api/index.js"
   },
   "dependencies": {
-    "axios": "^1.7.9",
+    "axios": "^1.6.8",
     "cors": "^2.8.5",
-    "express": "^4.21.2"
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2"
   }
 }

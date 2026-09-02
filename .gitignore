@@ -2,4 +2,3 @@
 *.env
 api.env
 node_modules/
-.firebase/

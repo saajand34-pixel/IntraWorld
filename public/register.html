@@ -1,616 +1,1023 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta http-equiv="Content-Security-Policy" content="
-        default-src 'self' * data: blob: 'unsafe-inline' 'unsafe-eval';
-        script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.gstatic.com https://challenges.cloudflare.com https://cdn.jsdelivr.net;
-        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com;
-        font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;
-        frame-src 'self' https://challenges.cloudflare.com https://*.cloudflare.com;
-        connect-src 'self' *;
-        img-src 'self' data: blob: https:;
-    ">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="IntraWorld Student Registration - Smart Document Verification">
-    <title>IntraWorld - Register (Smart OCR 2.0)</title>
-    
-    <!-- FontAwesome CDNs for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        html { scroll-behavior: smooth; }
-        body {
-            margin: 0;
-            min-height: 100vh;
-            font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
-            background: radial-gradient(circle at top, rgba(56, 189, 248, 0.12), transparent 35%), #061525;
-            color: #e5eef8;
-        }
-
-        .page-background {
-            min-height: 100vh;
-            padding: 15px 16px 50px;
-            background-image: radial-gradient(rgba(255,255,255,0.08) 1px, transparent 1px);
-            background-size: 24px 24px;
-        }
-
-        .register-header { text-align: center; margin-bottom: 12px; padding: 0; }
-        .register-logo { width: 250px; height: 250px; object-fit: contain; display: block; margin: 0 auto -45px; }
-        .register-header h1 { margin: 0; font-size: 30px; font-weight: 700; letter-spacing: 2px; line-height: 1.1; }
-        .register-header p { margin: 4px 0 0; color: #aebdcd; font-size: 14px; line-height: 1.2; }
-
-        .register-card {
-            width: 100%;
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 34px;
-            border: 1px solid rgba(255,255,255,0.10);
-            border-radius: 20px;
-            background: rgba(8, 24, 40, 0.94);
-            box-shadow: 0 25px 70px rgba(0,0,0,0.35);
-            backdrop-filter: blur(15px);
-        }
-
-        /* Test Scenario Bar */
-        .smart-demo-bar {
-            background: rgba(56, 189, 248, 0.06);
-            border: 1px solid rgba(56, 189, 248, 0.2);
-            border-radius: 12px;
-            padding: 14px 18px;
-            margin-bottom: 24px;
-        }
-        .demo-bar-title {
-            font-size: 13px;
-            font-weight: 700;
-            color: #38bdf8;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .demo-pills {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-        .demo-pill {
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            color: #e5eef8;
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .demo-pill:hover {
-            background: rgba(56, 189, 248, 0.15);
-            border-color: #38bdf8;
-            color: #fff;
-        }
-
-        .form-section { margin-bottom: 32px; }
-        .section-title { display: flex; align-items: center; gap: 10px; margin: 0 0 18px; font-size: 18px; font-weight: 700; color: #f1f7ff; }
-        .section-title i { color: #38bdf8; }
-
-        .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
-        .full-width { grid-column: 1 / -1; }
-
-        .form-group { display: flex; flex-direction: column; }
-        .form-group label { margin-bottom: 8px; font-size: 13px; font-weight: 600; color: #c9d7e5; }
-        .required { color: #f87171; }
-
-        .input-icon-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
-        .input-icon-wrapper i.input-icon {
-            position: absolute;
-            left: 14px;
-            color: #718296;
-            font-size: 14px;
-            pointer-events: none;
-        }
-
-        .password-toggle-icon {
-            position: absolute;
-            right: 14px;
-            color: #718296;
-            font-size: 14px;
-            cursor: pointer;
-            transition: color 0.2s;
-        }
-
-        .password-toggle-icon:hover { color: #38bdf8; }
-
-        input, select, textarea {
-            width: 100%;
-            border: 1px solid rgba(255,255,255,0.12);
-            border-radius: 10px;
-            padding: 13px 14px 13px 40px;
-            outline: none;
-            font-family: inherit;
-            font-size: 14px;
-            color: #f4f8fc;
-            background: rgba(255,255,255,0.05);
-            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
-        }
-
-        input[type="password"] { padding-right: 40px; }
-
-        select option {
-            background-color: #081828;
-            color: #f4f8fc;
-        }
-
-        input::placeholder, textarea::placeholder { color: #718296; }
-        input:focus, select:focus, textarea:focus {
-            border-color: #38bdf8;
-            background: rgba(56,189,248,0.06);
-            box-shadow: 0 0 0 3px rgba(56,189,248,0.10);
-        }
-
-        .upload-card {
-            grid-column: 1 / -1;
-            width: 100%;
-            border: 1px dashed rgba(56, 189, 248, 0.35);
-            border-radius: 14px;
-            padding: 24px;
-            background: rgba(56, 189, 248, 0.02);
-            margin-top: 10px;
-        }
-
-        .upload-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: #38bdf8;
-            font-size: 16px;
-            font-weight: 700;
-            margin-bottom: 6px;
-        }
-
-        .upload-desc {
-            font-size: 13px;
-            color: #aebdcd;
-            margin: 0 0 15px 0;
-            line-height: 1.4;
-        }
-
-        .custom-file-upload {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border: 1px solid rgba(255,255,255,0.12);
-            border-radius: 10px;
-            padding: 12px 16px;
-            background: rgba(255,255,255,0.05);
-            cursor: pointer;
-            width: 100%;
-            transition: background 0.2s, border-color 0.2s;
-        }
-
-        .custom-file-upload:hover {
-            background: rgba(56,189,248,0.08);
-            border-color: #38bdf8;
-        }
-
-        .custom-file-upload i { color: #38bdf8; font-size: 16px; }
-        .custom-file-upload span { font-size: 13px; color: #e5eef8; font-weight: 500; }
-        .file-name-display { margin-top: 8px; font-size: 12px; color: #38bdf8; font-weight: 500; }
-
-        input[type="file"] { display: none; }
-
-        .otp-box {
-            padding: 20px;
-            border: 1px solid rgba(56,189,248,0.18);
-            border-radius: 14px;
-            background: rgba(56,189,248,0.045);
-            margin-bottom: 15px;
-        }
-
-        .otp-label { display: block; margin-bottom: 8px; font-size: 13px; font-weight: 600; color: #dce9f6; }
-        .otp-row { display: grid; grid-template-columns: minmax(150px, 1fr) auto auto; gap: 10px; align-items: center; }
-        .otp-row input { padding-left: 14px; }
-        .otp-row button { white-space: nowrap; }
-
-        button {
-            border: none;
-            border-radius: 10px;
-            padding: 12px 18px;
-            font-family: inherit;
-            font-size: 13px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: transform 0.15s, opacity 0.15s, background 0.2s;
-        }
-
-        button:hover:not(:disabled) { transform: translateY(-1px); }
-        button:disabled { opacity: 0.5; cursor: not-allowed; }
-
-        .btn-primary { color: #061525; background: #38bdf8; }
-        .btn-primary:hover:not(:disabled) { background: #67cdf9; }
-        .btn-secondary { color: #e5eef8; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); }
-        .btn-secondary:hover:not(:disabled) { background: rgba(255,255,255,0.13); }
-
-        .status-msg { display: none; margin: 12px 0 0; font-size: 13px; line-height: 1.5; }
-
-        .turnstile-box {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 20px;
-            padding: 15px;
-            background: rgba(255, 255, 255, 0.02);
-            border-radius: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            min-height: 80px;
-        }
-
-        .terms-box { display: flex; align-items: flex-start; gap: 10px; margin-top: 5px; }
-        .terms-box input[type="checkbox"] { width: 17px; height: 17px; margin-top: 2px; accent-color: #38bdf8; }
-        .terms-box label { margin: 0; font-size: 12px; line-height: 1.6; color: #9eafc0; }
-
-        .submit-area { padding-top: 10px; text-align: center; }
-        .submit-button { width: 100%; max-width: 400px; padding: 15px 20px; font-size: 15px; color: #061525; background: #38bdf8; box-shadow: 0 8px 25px rgba(56,189,248,0.18); }
-        .submit-button:hover { background: #67cdf9; }
-
-        .login-link { margin-top: 20px; text-align: center; font-size: 13px; color: #8799ac; }
-        .login-link a { color: #38bdf8; text-decoration: none; font-weight: 600; }
-        .login-link a:hover { text-decoration: underline; }
-
-        @media (max-width: 700px) {
-            .page-background { padding: 24px 10px 50px; }
-            .register-card { padding: 22px 17px; border-radius: 16px; }
-            .form-grid { grid-template-columns: 1fr; }
-            .otp-row { grid-template-columns: 1fr; }
-            .otp-row button { width: 100%; }
-        }
-    </style>
-</head>
-
-<body>
-<div class="page-background">
-
-    <header class="register-header">
-        <img src="./logo.png" alt="IntraWorld Logo" class="register-logo" onerror="this.style.display='none';">
-        <h1>INTRAWORLD</h1>
-        <p>Stay Connected · Stay Informed · Stay Ahead <br><br></p>
-    </header>
-
-    <main class="register-card">
-
-        <!-- Smart OCR 2.0 Scenario Presets -->
-        <div class="smart-demo-bar">
-            <div class="demo-bar-title">
-                <i class="fa-solid fa-wand-magic-sparkles"></i> New Smart Approach Testing Presets
-            </div>
-            <div class="demo-pills">
-                <button type="button" class="demo-pill" id="btnTestClear">
-                    ✅ 1. Real Clear Doc (100 Pts)
-                </button>
-                <button type="button" class="demo-pill" id="btnTestBlurry">
-                    ⚠️ 2. Real Blurry Photo (67 Pts)
-                </button>
-                <button type="button" class="demo-pill" id="btnTestFake">
-                    ❌ 3. Fake / Random Doc (0 Pts)
-                </button>
-            </div>
-        </div>
-
-        <form id="registrationForm" novalidate>
-
-            <section class="form-section">
-                <h2 class="section-title"><i class="fa-solid fa-user"></i> Personal Information</h2>
-                <div class="form-grid">
-                    <div class="form-group full-width">
-                        <label for="full_name">Full Name <span class="required">*</span></label>
-                        <div class="input-icon-wrapper">
-                            <i class="fa-solid fa-user input-icon"></i>
-                            <input type="text" id="full_name" name="full_name" value="Alex Morgan" placeholder="Enter your full name" required>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="email">Gmail Address <span class="required">*</span></label>
-                        <div class="input-icon-wrapper">
-                            <i class="fa-solid fa-envelope input-icon"></i>
-                            <input type="email" id="email" name="email" value="alex.morgan@gmail.com" placeholder="yourname@gmail.com" required>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="mobile_number">Mobile Number (with Country Code) <span class="required">*</span></label>
-                        <div class="input-icon-wrapper">
-                            <i class="fa-solid fa-phone input-icon"></i>
-                            <input type="tel" id="mobile_number" name="mobile_number" value="+919876543210" placeholder="+919876543210" required>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section class="form-section">
-                <h2 class="section-title"><i class="fa-solid fa-graduation-cap"></i> Academic Details</h2>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="qualification">Qualification / Degree <span class="required">*</span></label>
-                        <div class="input-icon-wrapper">
-                            <i class="fa-solid fa-graduation-cap input-icon"></i>
-                            <select id="qualification" name="qualification" required>
-                                <option value="B.Tech / B.E." selected>Engineering & Tech (B.Tech)</option>
-                                <option value="BCA">Business & Management</option>
-                                <option value="B.Sc">Humanities & Science</option>
-                                <option value="MCA">Computers & IT</option>
-                                <option value="M.Tech">Medical & Allied</option>
-                                <option value="M.Sc">Law</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="specialization">Specialization <span class="required">*</span></label>
-                        <div class="input-icon-wrapper">
-                            <i class="fa-solid fa-book input-icon"></i>
-                            <input type="text" id="specialization" name="specialization" value="Computer Science" placeholder="e.g. Computer Science" required>
-                        </div>
-                    </div>
-
-                    <div class="form-group full-width">
-                        <label for="college_name">College / University Name <span class="required">*</span></label>
-                        <div class="input-icon-wrapper">
-                            <i class="fa-solid fa-building-columns input-icon"></i>
-                            <input type="text" id="college_name" name="college_name" value="Stanford University" placeholder="Your College Name" required>
-                        </div>
-                    </div>
-
-                    <div class="form-group full-width">
-                        <label for="skills">Skills (comma-separated) <span class="required">*</span></label>
-                        <div class="input-icon-wrapper">
-                            <i class="fa-solid fa-code input-icon"></i>
-                            <input type="text" id="skills" name="skills" value="Python, JavaScript, Security" placeholder="Python, JavaScript, Cyber Security" required>
-                        </div>
-                    </div>
-
-                    <div class="form-group full-width"> 
-                        <label for="passed_out_year">Passed Out Year <span class="required">*</span></label> 
-                        <div class="input-icon-wrapper"> 
-                            <i class="fa-solid fa-calendar-days input-icon"></i> 
-                            <input type="text" id="passed_out_year" name="passed_out_year" value="2026" placeholder="YYYY" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required> 
-                        </div> 
-                    </div>
-
-                    <div class="upload-card">
-                        <div class="upload-header">
-                            <i class="fa-solid fa-id-card"></i> Physical Academic Document Upload
-                        </div>
-                        <p class="upload-desc">
-                            Upload a clear image or PDF of your Student ID Card, Official Enrollment Form, or Fee Receipt. The Smart Engine extracts Name, Institution, and Dates with 4-factor scoring.
-                        </p>
-                        <label for="academic_doc" class="custom-file-upload">
-                            <i class="fa-solid fa-file-arrow-up"></i>
-                            <span>Choose File (PNG, JPG, WEBP, PDF)</span>
-                        </label>
-                        <input type="file" id="academic_doc" name="academic_doc" accept="image/*,.pdf" required>
-                        <div id="file-name-display" class="file-name-display"></div>
-                    </div>
-                </div>
-            </section>
-
-            <section class="form-section">
-                <h2 class="section-title"><i class="fa-solid fa-shield-halved"></i> Verification Controls</h2>
-                
-                <div class="otp-box">
-                    <label for="otp-code" class="otp-label">Gmail Verification (6-Digit OTP)</label>
-                    <div class="otp-row">
-                        <input type="text" id="otp-code" name="otp_code" inputmode="numeric" maxlength="6" placeholder="Enter Gmail OTP" disabled>
-                        <button type="button" id="send-otp-btn" class="btn-primary"><i class="fa-solid fa-paper-plane"></i> Send Email OTP</button>
-                        <button type="button" id="verify-otp-btn" class="btn-secondary" disabled><i class="fa-solid fa-check"></i> Verify Email</button>
-                    </div>
-                    <p id="otp-status" class="status-msg"></p>
-                </div>
-
-                <div class="otp-box">
-                    <label for="phone-otp-code" class="otp-label">Phone Verification (SMS OTP)</label>
-                    <div class="otp-row">
-                        <input type="text" id="phone-otp-code" name="phone_otp_code" inputmode="numeric" maxlength="6" placeholder="Enter SMS OTP" disabled>
-                        <button type="button" id="send-phone-otp-btn" class="btn-primary"><i class="fa-solid fa-mobile-screen"></i> Send SMS OTP</button>
-                        <button type="button" id="verify-phone-otp-btn" class="btn-secondary" disabled><i class="fa-solid fa-check"></i> Verify Phone</button>
-                    </div>
-                    <p id="phone-otp-status" class="status-msg"></p>
-                </div>
-            </section>
-
-            <section class="form-section">
-                <h2 class="section-title"><i class="fa-solid fa-lock"></i> Account Security</h2>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="password">Password <span class="required">*</span></label>
-                        <div class="input-icon-wrapper">
-                            <i class="fa-solid fa-key input-icon"></i>
-                            <input type="password" id="password" name="password" placeholder="Create a password" minlength="8" required>
-                            <i class="fa-solid fa-eye password-toggle-icon" id="togglePassword"></i>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="confirm_password">Confirm Password <span class="required">*</span></label>
-                        <div class="input-icon-wrapper">
-                            <i class="fa-solid fa-key input-icon"></i>
-                            <input type="password" id="confirm_password" name="confirm_password" placeholder="Re-enter password" minlength="8" required>
-                            <i class="fa-solid fa-eye password-toggle-icon" id="toggleConfirmPassword"></i>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section class="form-section">
-                <h2 class="section-title"><i class="fa-solid fa-robot"></i> Anti-Bot Security</h2>
-                <div class="turnstile-box">
-                    <div class="cf-turnstile" 
-                         data-sitekey="0x4AAAAAAEY6J12KOOGwNUJ-" 
-                         data-theme="dark">
-                    </div>
-                </div>
-            </section>
-
-            <section class="form-section">
-                <div class="terms-box">
-                    <input type="checkbox" id="terms" name="terms" required>
-                    <label for="terms">I confirm that all provided info is accurate and agree to terms. <span class="required">*</span></label>
-                </div>
-            </section>
-
-            <div class="submit-area">
-                <button type="submit" class="submit-button" id="submitRegBtn">
-                    <i class="fa-solid fa-user-plus"></i> Complete Registration
-                </button>
-            </div>
-
-        </form>
-
-        <div class="login-link">
-            Already have an account? <a href="./login.html">Login here</a>
-        </div>
-    </main>
-</div>
-
-<!-- Preset Simulation Canvas & Script -->
-<script src="./js/register.js"></script>
-
-<script>
-    // Test Scenario Helper Generators
-    function createSyntheticCard(title, name, college, year, isBlurry = false, isFake = false) {
-        const canvas = document.createElement('canvas');
-        canvas.width = 640;
-        canvas.height = 400;
-        const ctx = canvas.getContext('2d');
-
-        ctx.fillStyle = isFake ? '#1e1b4b' : '#ffffff';
-        ctx.fillRect(0, 0, 640, 400);
-
-        ctx.fillStyle = isFake ? '#4338ca' : '#8C1515';
-        ctx.fillRect(0, 0, 640, 75);
-
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 20px sans-serif';
-        ctx.fillText(isFake ? 'METRO ATHLETIC CLUB' : college.toUpperCase(), 30, 45);
-
-        ctx.fillStyle = isFake ? '#c7d2fe' : '#0f172a';
-        ctx.font = '600 14px sans-serif';
-        ctx.fillText('STUDENT NAME:', 40, 140);
-        ctx.font = 'bold 22px sans-serif';
-        ctx.fillText(isFake ? 'David K. Miller' : name, 40, 170);
-
-        ctx.font = '600 14px sans-serif';
-        ctx.fillText('INSTITUTION / ORG:', 40, 220);
-        ctx.font = 'bold 18px sans-serif';
-        ctx.fillText(isFake ? 'Metro Health Club' : college, 40, 250);
-
-        ctx.font = '600 14px sans-serif';
-        ctx.fillText('VALID THRU / YEAR:', 40, 300);
-        ctx.font = 'bold 18px sans-serif';
-        ctx.fillText(isFake ? '2018' : year, 40, 330);
-
-        if (isBlurry) {
-            ctx.filter = 'blur(4px)';
-            ctx.drawImage(canvas, 0, 0);
-        }
-
-        return canvas.toDataURL('image/jpeg', 0.9);
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IntraWorld - Student Registration & Anti-Fake Verification Portal</title>
+  
+  <!-- Fonts & Confetti -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+  <!-- Firebase App and Firestore SDKs (Compat Version for seamless standalone browser usage) -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+  <!-- INTERNAL CSS MATCHING EXACT INTRA-WORLD UI -->
+  <style>
+    :root {
+      --bg-color: #020614;
+      --card-bg: rgba(7, 16, 38, 0.92);
+      --card-border: rgba(30, 58, 110, 0.6);
+      --input-bg: #0c1630;
+      --input-border: #162a52;
+      --input-focus: #38bdf8;
+      --cyan-accent: #38bdf8;
+      --cyan-glow: rgba(56, 189, 248, 0.25);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-label: #cbd5e1;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-        const full_name = document.getElementById('full_name');
-        const college_name = document.getElementById('college_name');
-        const passed_out_year = document.getElementById('passed_out_year');
-        const fileNameDisplay = document.getElementById('file-name-display');
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-        // Preset 1: Real Clear Doc (100 Pts)
-        document.getElementById('btnTestClear')?.addEventListener('click', async () => {
-            full_name.value = 'Alex Morgan';
-            college_name.value = 'Stanford University';
-            passed_out_year.value = '2026';
-            const base64 = createSyntheticCard('ID', 'Alex Morgan', 'Stanford University', '2026', false, false);
-            
-            try {
-                const response = await fetch('/api/verify-document', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        documentBase64: base64,
-                        expectedName: 'Alex Morgan',
-                        expectedCollege: 'Stanford University',
-                        expectedYear: '2026',
-                        clientOcrText: 'STANFORD UNIVERSITY OFFICIAL STUDENT IDENTIFICATION CARD NAME: ALEX MORGAN YEAR: 2026',
-                        isBlurry: false
-                    })
-                });
-                const res = await response.json();
-                renderVerificationScore(res, 'Official_Stanford_ID.png');
-            } catch {
-                renderVerificationScore({ score: 100, confidence: 'high', breakdown: { nameMatch: { points: 40 }, collegeFound: { points: 35 }, documentQuality: { points: 15 }, dataPresent: { points: 10 } } }, 'Official_Stanford_ID.png');
-            }
-        });
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-color);
+      /* DOTTED GRID BACKGROUND EXACT MATCH */
+      background-image: radial-gradient(rgba(56, 189, 248, 0.12) 1.2px, transparent 1.2px);
+      background-size: 28px 28px;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 16px;
+      position: relative;
+    }
 
-        // Preset 2: Real Blurry Photo (67 Pts)
-        document.getElementById('btnTestBlurry')?.addEventListener('click', async () => {
-            full_name.value = 'Alex Morgan';
-            college_name.value = 'Stanford University';
-            passed_out_year.value = '2026';
-            const base64 = createSyntheticCard('ID', 'Alex Morgan', 'Stanford University', '2026', true, false);
+    /* Ambient Cyan/Navy Radial Glow */
+    .ambient-glow {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 650px;
+      height: 650px;
+      background: radial-gradient(circle, rgba(14, 165, 233, 0.08) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
 
-            try {
-                const response = await fetch('/api/verify-document', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        documentBase64: base64,
-                        expectedName: 'Alex Morgan',
-                        expectedCollege: 'Stanford University',
-                        expectedYear: '2026',
-                        clientOcrText: 'STANFORD UNIVERSITY STUDENT CARD NAME: ALEX MORGAN YEAR: 2026',
-                        isBlurry: true
-                    })
-                });
-                const res = await response.json();
-                renderVerificationScore(res, 'Blurry_Photo_ID.jpg');
-            } catch {
-                renderVerificationScore({ score: 67, confidence: 'medium', breakdown: { nameMatch: { points: 30 }, collegeFound: { points: 26 }, documentQuality: { points: 4 }, dataPresent: { points: 7 } } }, 'Blurry_Photo_ID.jpg');
-            }
-        });
+    /* Top Floating Trust Gauge Header */
+    .top-bar {
+      width: 100%;
+      max-width: 680px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 2;
+    }
 
-        // Preset 3: Fake / Random Doc (0 Pts)
-        document.getElementById('btnTestFake')?.addEventListener('click', async () => {
-            full_name.value = 'Alex Morgan';
-            college_name.value = 'Stanford University';
-            passed_out_year.value = '2026';
-            const base64 = createSyntheticCard('ID', 'David Miller', 'Metro Health Club', '2018', false, true);
+    .brand-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 14px;
+      border-radius: 9999px;
+      background: rgba(12, 22, 48, 0.8);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      font-size: 11px;
+      font-weight: 600;
+      color: #38bdf8;
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.15);
+    }
 
-            try {
-                const response = await fetch('/api/verify-document', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        documentBase64: base64,
-                        expectedName: 'Alex Morgan',
-                        expectedCollege: 'Stanford University',
-                        expectedYear: '2026',
-                        clientOcrText: 'METRO ATHLETIC CLUB MEMBER: DAVID MILLER EXPIRES: 2018',
-                        isBlurry: false
-                    })
-                });
-                const res = await response.json();
-                renderVerificationScore(res, 'Random_Gym_Card.jpg');
-            } catch {
-                renderVerificationScore({ score: 0, confidence: 'low', breakdown: { nameMatch: { points: 0 }, collegeFound: { points: 0 }, documentQuality: { points: 12 }, dataPresent: { points: 0 } } }, 'Random_Gym_Card.jpg');
-            }
-        });
-    });
-</script>
+    .trust-meter-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 5px 14px;
+      border-radius: 9999px;
+      background: rgba(12, 22, 48, 0.8);
+      border: 1px solid var(--card-border);
+      font-size: 11px;
+      font-weight: 600;
+    }
 
+    .meter-circle-wrap {
+      width: 22px;
+      height: 22px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .meter-circle-wrap svg {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+
+    .meter-circle-wrap circle.bg {
+      fill: none;
+      stroke: #1e293b;
+      stroke-width: 4;
+    }
+
+    .meter-circle-wrap circle.bar {
+      fill: none;
+      stroke: var(--cyan-accent);
+      stroke-width: 4;
+      stroke-linecap: round;
+      stroke-dasharray: 65, 100;
+      transition: stroke-dasharray 0.5s ease;
+    }
+
+    /* MAIN CONTAINER CARD */
+    .intra-card {
+      width: 100%;
+      max-width: 680px;
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--card-border);
+      border-radius: 28px;
+      padding: 44px 40px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(14, 165, 233, 0.08);
+      position: relative;
+      z-index: 1;
+    }
+
+    @media (max-width: 640px) {
+      .intra-card {
+        padding: 30px 20px;
+        border-radius: 22px;
+      }
+    }
+
+    /* Card Header & Medallion Logo */
+    .card-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .logo-container {
+      width: 90px;
+      height: 90px;
+      margin: 0 auto 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .logo-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 50%;
+      filter: drop-shadow(0 0 15px rgba(56, 189, 248, 0.3));
+    }
+
+    .medallion-fallback {
+      width: 82px;
+      height: 82px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #e2e8f0, #94a3b8 45%, #475569 85%, #1e293b 100%);
+      border: 3px solid #cbd5e1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 25px rgba(56, 189, 248, 0.25), inset 0 2px 4px rgba(255, 255, 255, 0.8);
+      color: #0f172a;
+      text-align: center;
+    }
+
+    .medallion-fallback .icon { font-size: 24px; line-height: 1; }
+    .medallion-fallback .text { font-size: 8px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; margin-top: 2px; }
+
+    /* Welcome Typography */
+    .welcome-title {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      background: linear-gradient(180deg, #ffffff 15%, #bae6fd 60%, #38bdf8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 6px;
+    }
+
+    .welcome-sub {
+      font-size: 13.5px;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    /* Section Titles */
+    .form-section-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--cyan-accent);
+      border-bottom: 1px solid rgba(30, 58, 110, 0.5);
+      padding-bottom: 8px;
+      margin-top: 24px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Form Fields */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    @media (max-width: 600px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-label);
+    }
+
+    label .req { color: #f43f5e; }
+    label .helper { font-size: 11px; color: #64748b; margin-left: 4px; }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 14px;
+      color: var(--cyan-accent);
+      font-size: 16px;
+      pointer-events: none;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="number"],
+    select {
+      width: 100%;
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-radius: 14px;
+      padding: 13px 16px 13px 44px;
+      font-size: 13.5px;
+      color: var(--text-main);
+      font-family: inherit;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .no-icon input, select {
+      padding-left: 16px;
+    }
+
+    input::placeholder { color: #475569; }
+
+    input:focus, select:focus {
+      border-color: var(--input-focus);
+      box-shadow: 0 0 0 3px var(--cyan-glow);
+    }
+
+    input:disabled {
+      opacity: 0.6;
+      border-color: rgba(16, 185, 129, 0.4);
+      color: #34d399;
+      cursor: not-allowed;
+    }
+
+    .toggle-pwd-btn {
+      position: absolute;
+      right: 14px;
+      background: none;
+      border: none;
+      color: #64748b;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .toggle-pwd-btn:hover { color: var(--cyan-accent); }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-size: 12.5px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+      white-space: nowrap;
+    }
+
+    .btn-cyan {
+      background: linear-gradient(135deg, #0284c7, #0ea5e9);
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(14, 165, 233, 0.35);
+    }
+
+    .btn-cyan:hover:not(:disabled) {
+      background: linear-gradient(135deg, #0369a1, #0284c7);
+      transform: translateY(-1px);
+    }
+
+    .btn-cyan:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-success { background: #059669; color: #fff; }
+
+    .btn-secondary {
+      background: #0f1c3f;
+      color: #cbd5e1;
+      border: 1px solid var(--input-border);
+    }
+
+    .btn-secondary:hover {
+      background: #152654;
+      border-color: rgba(56, 189, 248, 0.4);
+      color: #fff;
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 15px;
+      font-size: 14.5px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 50%, #2563eb 100%);
+      color: #ffffff;
+      border-radius: 14px;
+      box-shadow: 0 6px 25px rgba(14, 165, 233, 0.4);
+      margin-top: 14px;
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(14, 165, 233, 0.55);
+    }
+
+    /* OTP Card */
+    .otp-card {
+      margin-top: 8px;
+      padding: 12px 14px;
+      background: rgba(14, 165, 233, 0.08);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .otp-row { display: flex; gap: 8px; }
+    .otp-input {
+      width: 140px !important;
+      text-align: center;
+      font-family: 'JetBrains Mono', monospace !important;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+    }
+
+    .status-msg { font-size: 11px; margin-top: 4px; }
+    .status-msg.success { color: #34d399; font-weight: 600; }
+    .status-msg.info { color: #38bdf8; }
+    .status-msg.error { color: #fb7185; }
+
+    /* File Drop Zone */
+    .drop-zone {
+      border: 2px dashed rgba(56, 189, 248, 0.25);
+      border-radius: 16px;
+      padding: 22px;
+      text-align: center;
+      background: rgba(12, 22, 48, 0.6);
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .drop-zone:hover {
+      border-color: var(--cyan-accent);
+      background: rgba(14, 165, 233, 0.06);
+    }
+
+    .drop-zone input {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .drop-icon { font-size: 28px; color: var(--cyan-accent); margin-bottom: 6px; }
+
+    /* Deepfake 3-Tier Scoring Badges */
+    .tier-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .tier-100 {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      color: #34d399;
+    }
+
+    .tier-67 {
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      color: #fbbf24;
+    }
+
+    .tier-0 {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #fb7185;
+    }
+
+    /* OCR Factor Box */
+    .factor-container {
+      background: rgba(12, 22, 48, 0.9);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 16px;
+      padding: 16px;
+      margin-top: 14px;
+    }
+
+    .factor-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .factor-item {
+      background: rgba(7, 16, 38, 0.8);
+      border: 1px solid rgba(30, 58, 110, 0.6);
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 11px;
+    }
+
+    .factor-item .lbl { color: var(--text-muted); display: block; font-size: 10px; }
+    .factor-item .val { font-weight: 600; color: #34d399; margin-top: 2px; }
+
+    /* Cloudflare & Biometrics */
+    .cf-box {
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .cf-box:hover { border-color: rgba(56, 189, 248, 0.4); }
+    .cf-left { display: flex; align-items: center; gap: 12px; }
+
+    .cf-check {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      border: 2px solid #334155;
+      background: #071026;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    .cf-check.active { background: #10b981; border-color: #10b981; color: #fff; }
+
+    .camera-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-radius: 14px;
+      padding: 12px 16px;
+      margin-top: 10px;
+    }
+
+    /* Camera Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 100;
+    }
+
+    .modal-card {
+      width: 100%;
+      max-width: 400px;
+      background: #0a1329;
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 24px;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+    }
+
+    .video-viewport {
+      width: 190px;
+      height: 190px;
+      margin: 16px auto;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 4px solid var(--cyan-accent);
+      background: #020617;
+      box-shadow: 0 0 30px rgba(56, 189, 248, 0.3);
+    }
+
+    .video-viewport video { width: 100%; height: 100%; object-fit: cover; }
+
+    /* Holographic Success Card */
+    .success-panel { text-align: center; display: flex; flex-direction: column; gap: 20px; }
+    .holo-card {
+      background: linear-gradient(135deg, rgba(12, 22, 48, 0.95), rgba(15, 30, 66, 0.8));
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 20px;
+      padding: 24px;
+      text-align: left;
+      position: relative;
+    }
+
+    .holo-top { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+    .holo-avatar {
+      width: 58px;
+      height: 58px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #0284c7, #2563eb);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .holo-info h3 { font-size: 18px; font-weight: 800; color: #fff; }
+    .holo-info .college { font-size: 13px; color: var(--cyan-accent); font-weight: 600; }
+    .holo-info .degree { font-size: 11px; color: var(--text-muted); }
+
+    .holo-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(30, 58, 110, 0.5);
+      font-size: 11px;
+    }
+
+    .stat-label { color: var(--text-muted); display: block; font-size: 10px; }
+    .stat-val { font-weight: 600; color: #34d399; }
+
+    .chip-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(30, 58, 110, 0.5);
+    }
+
+    .skill-chip {
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      color: #bae6fd;
+      font-size: 11px;
+    }
+
+    .hidden { display: none !important; }
+
+    .alert-banner {
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 12px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(244, 63, 94, 0.12);
+      border: 1px solid rgba(244, 63, 94, 0.3);
+      color: #fda4af;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Ambient Glow -->
+  <div class="ambient-glow"></div>
+
+  <!-- Top Bar with Authenticity Score -->
+  <div class="top-bar">
+    <div class="brand-pill">
+      🛡️ Anti-Fake Security Guard
+    </div>
+    <div class="trust-meter-badge">
+      <div class="meter-circle-wrap">
+        <svg viewBox="0 0 36 36">
+          <circle class="bg" cx="18" cy="18" r="15.9155" />
+          <circle id="trustMeterCircle" class="bar" cx="18" cy="18" r="15.9155" />
+        </svg>
+      </div>
+      <span id="trustMeterText" style="color: #38bdf8;">Authenticity: 65%</span>
+    </div>
+  </div>
+
+  <!-- MAIN REGISTRATION CARD -->
+  <div class="intra-card">
+
+    <!-- SUCCESS VERIFIED DASHBOARD -->
+    <div id="successView" class="success-panel hidden">
+      <div style="font-size: 40px;">🏆</div>
+      <div>
+        <h2 style="font-size: 24px; font-weight: 800; color: #fff;">Student Profile Authenticated!</h2>
+        <p style="font-size: 13px; color: #94a3b8; margin-top: 4px;">
+          Zero-Trust Anti-Fake validation completed with <strong id="successScoreText" style="color: #34d399;">100% Trust Rating</strong>.
+        </p>
+      </div>
+
+      <!-- Holographic Badge -->
+      <div class="holo-card">
+        <div class="holo-top">
+          <div class="holo-avatar" id="holoAvatar">A</div>
+          <div class="holo-info">
+            <h3 id="holoName">Alex Henderson ✓</h3>
+            <div class="college" id="holoCollege">Stanford University</div>
+            <div class="degree" id="holoDegree">Bachelor of Technology • Computer Science</div>
+          </div>
+        </div>
+
+        <div class="holo-stats-grid">
+          <div>
+            <span class="stat-label">Class of:</span>
+            <span class="stat-val" id="holoYear" style="color: #f1f5f9;">2026</span>
+          </div>
+          <div>
+            <span class="stat-label">Gmail Auth:</span>
+            <span class="stat-val">✓ Web3Forms Pass</span>
+          </div>
+          <div>
+            <span class="stat-label">Phone Auth:</span>
+            <span class="stat-val">✓ 2Factor SMS Pass</span>
+          </div>
+          <div>
+            <span class="stat-label">Document OCR:</span>
+            <span class="stat-val" id="holoDocPoints">100 Pts Verified</span>
+          </div>
+          <div>
+            <span class="stat-label">Anti-Bot Shield:</span>
+            <span class="stat-val">Cloudflare Cleared</span>
+          </div>
+          <div>
+            <span class="stat-label">Biometrics:</span>
+            <span class="stat-val" id="holoBio">Human Verified</span>
+          </div>
+        </div>
+
+        <div class="chip-container" id="holoSkills"></div>
+      </div>
+
+      <div style="display: flex; justify-content: center; gap: 12px; margin-top: 10px;">
+        <button class="btn btn-secondary" onclick="window.location.reload()">🔄 Register Another Student</button>
+        <button class="btn btn-cyan" onclick="alert('Welcome to IntraWorld Student Network!')">✨ Enter IntraWorld Feed</button>
+      </div>
+    </div>
+
+    <!-- REGISTRATION FORM VIEW -->
+    <div id="formView">
+      
+      <!-- Card Header: Logo & Title (Exact Match) -->
+      <div class="card-header">
+        <div class="logo-container">
+          <img src="logo.png" alt="IntraWorld Logo" class="logo-img" onerror="this.style.display='none'; document.getElementById('fallbackLogo').style.display='flex';" />
+          <div id="fallbackLogo" class="medallion-fallback" style="display: none;">
+            <div class="icon">🤝</div>
+            <div class="text">IntraWorld</div>
+          </div>
+        </div>
+        <h1 class="welcome-title">Welcome</h1>
+        <p class="welcome-sub">Sign in to continue to IntraWorld</p>
+      </div>
+
+      <!-- Alert Banner -->
+      <div id="alertBox" class="alert-banner hidden">
+        <span>⚠️</span>
+        <span id="alertMsg"></span>
+      </div>
+
+      <form id="studentRegistrationForm" onsubmit="handleRegistrationSubmit(event)">
+        
+        <!-- Honeypot Bot Trap -->
+        <input type="text" id="honeypotTrap" style="display: none;" tabindex="-1" autocomplete="off">
+
+        <!-- 1. PERSONAL INFORMATION -->
+        <div class="form-section-title">
+          <span>👤 1. Personal Information</span>
+        </div>
+
+        <!-- Full Name -->
+        <div class="form-group">
+          <label>Full Name <span class="req">*</span></label>
+          <div class="input-wrapper">
+            <span class="input-icon">👤</span>
+            <input type="text" id="fullName" required placeholder="e.g. Alex Henderson" oninput="calculateTrustScore()">
+          </div>
+        </div>
+
+        <!-- Gmail Address + Real Web3Forms OTP -->
+        <div class="form-group">
+          <label>
+            Gmail Address <span class="req">*</span>
+            <span class="helper">(Real Web3Forms OTP)</span>
+          </label>
+          <div style="display: flex; gap: 8px;">
+            <div class="input-wrapper" style="flex: 1;">
+              <span class="input-icon">✉️</span>
+              <input type="email" id="gmailAddress" required placeholder="john@gmail.com" oninput="calculateTrustScore()">
+            </div>
+            <button type="button" id="sendEmailOtpBtn" class="btn btn-cyan" onclick="sendGmailOtp()">Send OTP</button>
+          </div>
+
+          <!-- Email OTP Box -->
+          <div id="emailOtpBox" class="otp-card hidden">
+            <div style="display: flex; justify-content: space-between; font-size: 11px; color: #38bdf8;">
+              <span>Enter 6-digit OTP received in Gmail:</span>
+              <span style="color: #94a3b8;">Web3Forms Dispatcher</span>
+            </div>
+            <div class="otp-row">
+              <input type="text" id="enteredEmailOtp" maxlength="6" placeholder="849201" class="otp-input">
+              <button type="button" class="btn btn-success" onclick="verifyGmailOtp()">Verify OTP</button>
+            </div>
+          </div>
+          <div id="emailStatusMsg" class="status-msg"></div>
+        </div>
+
+        <!-- Mobile Number + Real 2Factor SMS OTP -->
+        <div class="form-group">
+          <label>
+            Mobile Number (with Country Code) <span class="req">*</span>
+            <span class="helper">(Real 2Factor SMS OTP)</span>
+          </label>
+          <div style="display: flex; gap: 8px;">
+            <div class="input-wrapper" style="flex: 1;">
+              <span class="input-icon">📱</span>
+              <input type="text" id="mobileNumber" value="+1 " required placeholder="+1 415 555 2671 or +91 9876543210" oninput="calculateTrustScore()">
+            </div>
+            <button type="button" id="sendSmsOtpBtn" class="btn btn-cyan" onclick="sendSmsOtp()">Send SMS</button>
+          </div>
+
+          <!-- SMS OTP Box -->
+          <div id="smsOtpBox" class="otp-card hidden">
+            <div style="display: flex; justify-content: space-between; font-size: 11px; color: #38bdf8;">
+              <span>Enter 6-digit SMS OTP:</span>
+              <span style="color: #94a3b8;">2Factor Gateway</span>
+            </div>
+            <div class="otp-row">
+              <input type="text" id="enteredSmsOtp" maxlength="6" placeholder="529103" class="otp-input">
+              <button type="button" class="btn btn-success" onclick="verifySmsOtp()">Verify SMS</button>
+            </div>
+          </div>
+          <div id="smsStatusMsg" class="status-msg"></div>
+        </div>
+
+        <!-- 2. ACADEMIC DETAILS -->
+        <div class="form-section-title">
+          <span>📚 2. Academic Details</span>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group no-icon">
+            <label>Qualification / Degree <span class="req">*</span></label>
+            <select id="qualification">
+              <option value="Bachelor of Technology (B.Tech)">Bachelor of Technology (B.Tech)</option>
+              <option value="Bachelor of Science (B.S. / B.Sc)">Bachelor of Science (B.S. / B.Sc)</option>
+              <option value="Bachelor of Engineering (B.E.)">Bachelor of Engineering (B.E.)</option>
+              <option value="Bachelor of Computer Applications (BCA)">Bachelor of Computer Applications (BCA)</option>
+              <option value="Master of Technology (M.Tech)">Master of Technology (M.Tech)</option>
+              <option value="Master of Science (M.S. / M.Sc)">Master of Science (M.S. / M.Sc)</option>
+              <option value="Doctor of Philosophy (Ph.D.)">Doctor of Philosophy (Ph.D.)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Specialization <span class="req">*</span></label>
+            <div class="input-wrapper">
+              <span class="input-icon">💻</span>
+              <input type="text" id="specialization" required value="Computer Science" placeholder="Computer Science">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>College / University Name <span class="req">*</span></label>
+          <div class="input-wrapper">
+            <span class="input-icon">🏛️</span>
+            <input type="text" id="collegeName" required value="Stanford University" placeholder="Stanford University">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Skills (comma-separated) <span class="req">*</span></label>
+            <div class="input-wrapper">
+              <span class="input-icon">⚡</span>
+              <input type="text" id="skills" required value="Python, JavaScript, Security" placeholder="Python, JavaScript, Security">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Passed Out Year <span class="req">*</span></label>
+            <div class="input-wrapper">
+              <span class="input-icon">📅</span>
+              <input type="number" id="passedOutYear" required min="1990" max="2035" value="2026" placeholder="2026">
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. PHYSICAL ACADEMIC DOCUMENT UPLOAD & OCR DEEPFAKE SCANNING -->
+        <div class="form-section-title">
+          <span>📄 3. Physical Academic Document Proof</span>
+          <span style="font-size: 10.5px; color: #94a3b8; font-weight: normal;">ID Analyzer OCR & AI Guard</span>
+        </div>
+
+        <p style="font-size: 12px; color: #94a3b8; margin-bottom: 12px;">
+          Upload your <strong>Student ID Card</strong>, <strong>Official Enrollment Form</strong>, or <strong>Fee Receipt</strong>. ID Analyzer OCR performs <strong>AI Deepfake & Authenticity Analysis</strong>:
+        </p>
+
+        <div class="drop-zone">
+          <input type="file" id="academicProof" accept="image/png, image/jpeg, image/webp, application/pdf" onchange="handleDocumentAnalysis(event)">
+          <div class="drop-icon">☁️</div>
+          <div style="font-size: 13px; font-weight: 600; color: #f1f5f9;" id="dropLabel">
+            Choose File (PNG, JPG, WEBP, PDF) for academic proof
+          </div>
+          <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">Drag & drop or click to browse</div>
+        </div>
+
+        <!-- 3-Tier Deepfake OCR Result Display -->
+        <div id="factorBox" class="factor-container hidden">
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(30,58,110,0.5); padding-bottom: 8px;">
+            <span id="docScanStatus" style="font-size: 11px; font-weight: 700; color: #38bdf8;">
+              🔍 Scanning OCR & AI-Generation Signals...
+            </span>
+            <span id="docTierBadge" class="tier-badge tier-100">✅ 1. Real Clear Doc (100 Pts)</span>
+          </div>
+
+          <div class="factor-grid">
+            <div class="factor-item">
+              <span class="lbl">Factor 1: Student Identity</span>
+              <span class="val" id="f1Name">✓ Matched</span>
+            </div>
+            <div class="factor-item">
+              <span class="lbl">Factor 2: University Entity</span>
+              <span class="val" id="f2College">✓ Matched</span>
+            </div>
+            <div class="factor-item">
+              <span class="lbl">Factor 3: Academic Timeline</span>
+              <span class="val" id="f3Year">✓ Matched Class of 2026</span>
+            </div>
+            <div class="factor-item">
+              <span class="lbl">Factor 4: Deepfake / AI Scan</span>
+              <span class="val" id="f4AiScore" style="color: #38bdf8;">🛡️ Deepfake Prob: 0% Authentic</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. ANTI-BOT & BIOMETRIC AUTH -->
+        <div class="form-section-title">
+          <span>⚡ 4. Anti-Bot Security & Biometric Proof</span>
+        </div>
+
+        <!-- Cloudflare Turnstile Box -->
+        <div class="cf-box" id="cfBoxWrap" onclick="triggerCloudflareCheck()">
+          <div class="cf-left">
+            <div class="cf-check" id="cfCheck"></div>
+            <div>
+              <div style="font-size: 12.5px; font-weight: 600; color: #f1f5f9;" id="cfTitle">
+                Verify you are a real student (Cloudflare Turnstile)
+              </div>
+              <div style="font-size: 10.5px; color: #94a3b8;">Protects against automated bot registrations & farm spam</div>
+            </div>
+          </div>
+          <div style="font-size: 10px; font-family: 'JetBrains Mono', monospace; color: #64748b;">⚙️ Cloudflare</div>
+        </div>
+
+        <!-- Biometric Camera Verification -->
+        <div class="camera-row">
+          <div>
+            <div style="font-size: 12.5px; font-weight: 600; color: #f1f5f9;">
+              Biometric Face Liveness Check <span id="bioStatus" style="color: #94a3b8; font-size: 11px;">(Optional Extra Trust)</span>
+            </div>
+            <div style="font-size: 10.5px; color: #94a3b8;">Prevents photo replay & stolen student ID attacks</div>
+          </div>
+          <button type="button" class="btn btn-secondary" onclick="openCameraModal()">📷 Camera Check</button>
+        </div>
+
+        <!-- 5. PASSWORD -->
+        <div class="form-section-title">
+          <span>🔒 5. Password</span>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Password <span class="req">*</span></label>
+            <div class="input-wrapper">
+              <span class="input-icon">🔒</span>
+              <input type="password" id="password" required placeholder="••••••••" oninput="checkPasswordMatch()">
+              <button type="button" class="toggle-pwd-btn" onclick="togglePasswordVisibility('password', this)">👁️</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Re-enter password <span class="req">*</span></label>
+            <div class="input-wrapper">
+              <span class="input-icon">🔒</span>
+              <input type="password" id="confirmPassword" required placeholder="••••••••" oninput="checkPasswordMatch()">
+              <button type="button" class="toggle-pwd-btn" onclick="togglePasswordVisibility('confirmPassword', this)">👁️</button>
+            </div>
+            <span id="pwdMismatchNotice" class="status-msg error hidden">Passwords do not match.</span>
+          </div>
+        </div>
+
+        <!-- SUBMIT REGISTRATION BUTTON -->
+        <button type="submit" id="submitBtn" class="btn btn-submit">
+          🛡️ Create Account & Verify Student Status
+        </button>
+
+      </form>
+    </div>
+
+  </div>
+
+  <!-- BIOMETRIC WEBCAM MODAL -->
+  <div id="cameraModal" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(30, 58, 110, 0.5); padding-bottom: 10px;">
+        <h3 style="font-size: 14px; font-weight: 700; color: #fff;">📷 Biometric Face Liveness</h3>
+        <button onclick="closeCameraModal()" style="background: none; border: none; color: #94a3b8; font-size: 18px; cursor: pointer;">✕</button>
+      </div>
+      <p style="font-size: 12px; color: #94a3b8; margin-top: 10px;">
+        Position your face in the circle to verify you are a live human.
+      </p>
+
+      <div class="video-viewport">
+        <video id="cameraVideo" autoplay playsinline muted></video>
+      </div>
+
+      <div id="cameraActions">
+        <button type="button" class="btn btn-cyan" style="width: 100%;" onclick="captureAndVerifyBiometrics()">
+          Capture & Verify Liveness
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOGIC CONTROLLER -->
+  <script src="register.js"></script>
 </body>
 </html>
