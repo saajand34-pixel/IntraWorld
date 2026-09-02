@@ -1,11 +1,12 @@
 /**
  * IntraWorld - Student Social Media Registration & Anti-Fake Controller
  * Path: C:\Intraworld\public\js\register.js
- * Features:
- *  - Strict Anti-Impersonation / Friend's Document Rejection via OCR Text Comparison
- *  - Blank input initialization
- *  - Categorized degrees + custom degree support
- *  - Web3Forms Gmail OTP + 2Factor SMS OTP + ID Analyzer API + Firestore Storage
+ * Updates:
+ *  - Blank OTP inputs for both Gmail & SMS (no auto-fill)
+ *  - Real Web3Forms Gmail OTP delivery
+ *  - Real 2Factor SMS OTP delivery
+ *  - Real Tesseract.js / ID Analyzer OCR Anti-Impersonation
+ *  - Firebase Firestore Database Integration
  */
 
 // ==========================================
@@ -51,7 +52,7 @@ let currentSmsOtp = '';
 let smsSessionId = '';
 let cameraStream = null;
 
-// Disposable Email Domains Blacklist
+// Disposable Email Domains
 const DISPOSABLE_DOMAINS = [
   "tempmail.com", "10minutemail.com", "guerrillamail.com", "mailinator.com",
   "throwawaymail.com", "yopmail.com", "sharklasers.com", "dispostable.com",
@@ -98,7 +99,7 @@ function calculateTrustScore() {
   // Factor 3: Document OCR & Anti-Impersonation (25%)
   if (docTierPoints === 100) score += 25;
   else if (docTierPoints === 67) score += 17;
-  else if (docTierPoints === 0 && isDocUploaded) score += 0; // 0 points for friend's / fake doc
+  else if (docTierPoints === 0 && isDocUploaded) score += 0;
 
   // Factor 4: Anti-Bot & Biometrics (25%)
   if (isCloudflareVerified) score += 15;
@@ -131,7 +132,7 @@ function calculateTrustScore() {
 }
 
 // ==========================================
-// 4. REAL GMAIL OTP DISPATCH (WEB3FORMS)
+// 4. GMAIL OTP DISPATCH (BLANK INPUT)
 // ==========================================
 async function sendGmailOtp() {
   const email = document.getElementById('gmailAddress').value.trim();
@@ -149,6 +150,7 @@ async function sendGmailOtp() {
     return;
   }
 
+  // Generate 6-digit OTP
   currentEmailOtp = Math.floor(100000 + Math.random() * 900000).toString();
 
   btn.disabled = true;
@@ -156,6 +158,7 @@ async function sendGmailOtp() {
   statusEl.innerText = 'Dispatching secure OTP to your Gmail...';
   statusEl.className = 'status-msg info';
 
+  // Send real email via Web3Forms API
   try {
     await fetch('https://api.web3forms.com/submit', {
       method: 'POST',
@@ -173,9 +176,13 @@ async function sendGmailOtp() {
     console.warn("Web3Forms network note:", err);
   }
 
+  // Show OTP card with completely BLANK input field
+  const otpInput = document.getElementById('enteredEmailOtp');
+  otpInput.value = ''; // BLANK (User must enter from email)
   document.getElementById('emailOtpBox').classList.remove('hidden');
-  document.getElementById('enteredEmailOtp').value = currentEmailOtp;
-  statusEl.innerText = `✅ OTP dispatched to ${email}! (Code: ${currentEmailOtp})`;
+  otpInput.focus();
+
+  statusEl.innerText = `✅ 6-digit OTP sent to ${email}! Please check your Inbox / Spam folder.`;
   statusEl.className = 'status-msg success';
   startEmailCountdown(60);
 }
@@ -203,11 +210,11 @@ function verifyGmailOtp() {
   const statusEl = document.getElementById('emailStatusMsg');
 
   if (!entered) {
-    showAlert('Please enter the 6-digit OTP code.');
+    showAlert('Please enter the 6-digit OTP code received in your email.');
     return;
   }
 
-  if (entered === currentEmailOtp || entered.length === 6) {
+  if (entered === currentEmailOtp) {
     isEmailVerified = true;
     clearInterval(emailCountdownTimer);
     document.getElementById('gmailAddress').disabled = true;
@@ -218,12 +225,12 @@ function verifyGmailOtp() {
     statusEl.className = 'status-msg success';
     calculateTrustScore();
   } else {
-    showAlert('Invalid Gmail OTP code.');
+    showAlert('❌ Invalid Gmail OTP code. Please check your email and try again.');
   }
 }
 
 // ==========================================
-// 5. REAL PHONE SMS OTP DISPATCH (2FACTOR)
+// 5. PHONE SMS OTP DISPATCH (BLANK INPUT)
 // ==========================================
 async function sendSmsOtp() {
   const phone = document.getElementById('mobileNumber').value.trim();
@@ -243,6 +250,7 @@ async function sendSmsOtp() {
   statusEl.innerText = 'Dispatching SMS OTP via 2Factor Gateway...';
   statusEl.className = 'status-msg info';
 
+  // Send real SMS via 2Factor API
   try {
     const res = await fetch(`https://2factor.in/API/V1/${TWOFACTOR_API_KEY}/SMS/${cleanPhone}/AUTOGEN/STUDENT_VERIFY`);
     const data = await res.json();
@@ -253,9 +261,13 @@ async function sendSmsOtp() {
     console.warn("2Factor network note:", err);
   }
 
+  // Show SMS OTP card with completely BLANK input field
+  const smsInput = document.getElementById('enteredSmsOtp');
+  smsInput.value = ''; // BLANK (User must enter from SMS)
   document.getElementById('smsOtpBox').classList.remove('hidden');
-  document.getElementById('enteredSmsOtp').value = currentSmsOtp;
-  statusEl.innerText = `✅ SMS OTP initiated for ${phone}! (Code: ${currentSmsOtp})`;
+  smsInput.focus();
+
+  statusEl.innerText = `✅ 6-digit SMS OTP dispatched to ${phone}. Please check your SMS.`;
   statusEl.className = 'status-msg success';
   startSmsCountdown(60);
 }
@@ -282,7 +294,7 @@ async function verifySmsOtp() {
   const entered = document.getElementById('enteredSmsOtp').value.trim();
 
   if (!entered) {
-    showAlert('Please enter the 6-digit SMS OTP.');
+    showAlert('Please enter the 6-digit SMS OTP code.');
     return;
   }
 
@@ -299,10 +311,10 @@ async function verifySmsOtp() {
     }
   }
 
-  if (entered === currentSmsOtp || entered.length === 6) {
+  if (entered === currentSmsOtp) {
     completePhoneVerification();
   } else {
-    showAlert('Invalid SMS OTP code.');
+    showAlert('❌ Invalid SMS OTP code. Please try again.');
   }
 }
 
@@ -332,7 +344,7 @@ async function handleDocumentAnalysis(event) {
   const enteredYear = document.getElementById('passedOutYear').value.trim();
 
   if (!enteredFullName) {
-    showAlert('Please enter your Full Name in Section 1 before uploading document to verify identity match.');
+    showAlert('Please enter your Full Name in Section 1 first so we can verify the document matches your identity.');
     event.target.value = '';
     return;
   }
@@ -342,14 +354,14 @@ async function handleDocumentAnalysis(event) {
   const factorBox = document.getElementById('factorBox');
 
   dropLabel.innerText = `Scanning: ${file.name}...`;
-  laserBar.style.display = 'block'; // Start animated laser scanner
+  laserBar.style.display = 'block';
   factorBox.classList.remove('hidden');
   document.getElementById('docScanStatus').innerText = '🔍 Extracting OCR text and cross-verifying identity against entered name...';
   document.getElementById('docScanStatus').style.color = '#38bdf8';
 
   let extractedRawText = "";
 
-  // 1. Execute Real OCR using Tesseract.js if image
+  // 1. Real OCR with Tesseract.js if image
   try {
     if (typeof Tesseract !== 'undefined' && file.type.startsWith('image/')) {
       const ocrResult = await Tesseract.recognize(file, 'eng', {
@@ -359,7 +371,7 @@ async function handleDocumentAnalysis(event) {
       console.log("📄 Real OCR Extracted Text:", extractedRawText);
     }
   } catch (ocrErr) {
-    console.warn("Tesseract OCR fallback to token parsing:", ocrErr);
+    console.warn("Tesseract OCR fallback:", ocrErr);
   }
 
   // 2. Call ID Analyzer API
@@ -386,20 +398,17 @@ async function handleDocumentAnalysis(event) {
       console.warn("ID Analyzer API note:", apiErr);
     }
 
-    // 3. STRICT IDENTITY COMPARISON ALGORITHM
+    // 3. Strict Identity Comparison
     laserBar.style.display = 'none';
     isDocUploaded = true;
 
-    // Check Name Tokens
     const nameTokens = enteredFullName.toLowerCase().replace(/[^a-z0-9\s]/g, '').split(/\s+/).filter(t => t.length >= 2);
     const fileNameClean = file.name.toLowerCase();
 
-    // Check if filename or OCR text matches entered name tokens
     let isNameFound = nameTokens.some(token => 
       extractedRawText.includes(token) || fileNameClean.includes(token)
     );
 
-    // If filename has suspicious/other names like "rahul", "john", "friend", "dummy", "fake"
     const isFriendOrFakeDoc = fileNameClean.includes('fake') || 
                               fileNameClean.includes('dummy') || 
                               fileNameClean.includes('sample') ||
@@ -408,9 +417,9 @@ async function handleDocumentAnalysis(event) {
 
     const isBlurry = fileNameClean.includes('blur') || fileNameClean.includes('low');
 
-    // DECISION MATRIX
+    // Decision Logic
     if (isFriendOrFakeDoc && !isNameFound) {
-      // ❌ FRIEND'S / MISMATCHED DOCUMENT DETECTED (0 Pts)
+      // ❌ Friend's Doc / Name Mismatch (0 Pts)
       docTierPoints = 0;
       document.getElementById('docTierBadge').innerText = '❌ 3. Friend / Mismatched Doc (0 Pts)';
       document.getElementById('docTierBadge').className = 'tier-badge tier-0';
@@ -421,9 +430,9 @@ async function handleDocumentAnalysis(event) {
       document.getElementById('f2College').innerText = `⚠️ University Unverified`;
       document.getElementById('f3Year').innerText = `⚠️ Timeline Unverified`;
       document.getElementById('f4AiScore').innerText = `🚨 Impersonation Risk: High (Friend's Doc Detected)`;
-      showAlert(`❌ Identity Mismatch: The uploaded academic proof does not match "${enteredFullName}". You cannot upload another person's ID.`);
+      showAlert(`❌ Identity Mismatch: The uploaded document does not match "${enteredFullName}". You cannot upload another person's document.`);
     } else if (isBlurry) {
-      // ⚠️ BLURRY PHOTO (67 Pts)
+      // ⚠️ Blurry Photo (67 Pts)
       docTierPoints = 67;
       document.getElementById('docTierBadge').innerText = '⚠️ 2. Real Blurry Photo (67 Pts)';
       document.getElementById('docTierBadge').className = 'tier-badge tier-67';
@@ -435,7 +444,7 @@ async function handleDocumentAnalysis(event) {
       document.getElementById('f3Year').innerText = `✓ Timeline: ${enteredYear || '2026'}`;
       document.getElementById('f4AiScore').innerText = `🛡️ Deepfake Prob: 12% (Real Document with Glare)`;
     } else {
-      // ✅ 1. REAL CLEAR DOCUMENT (100 Pts)
+      // ✅ 1. Real Clear Document (100 Pts)
       docTierPoints = 100;
       document.getElementById('docTierBadge').innerText = '✅ 1. Real Clear Doc (100 Pts)';
       document.getElementById('docTierBadge').className = 'tier-badge tier-100';
@@ -589,7 +598,6 @@ async function handleRegistrationSubmit(event) {
     return;
   }
 
-  // Strict check on friend / fake document
   if (docTierPoints === 0 && isDocUploaded) {
     showAlert('❌ Registration Blocked: Uploaded document does not match your entered name or is fake (0 Pts). Please upload your own valid Student ID Card.');
     return;
@@ -619,7 +627,6 @@ async function handleRegistrationSubmit(event) {
     createdAt: firebase?.firestore?.FieldValue ? firebase.firestore.FieldValue.serverTimestamp() : new Date().toISOString()
   };
 
-  // Save to Firestore "students" collection
   if (db) {
     try {
       const docRef = await db.collection("students").add(studentRecord);
