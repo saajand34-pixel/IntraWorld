@@ -1,4 +1,10 @@
+<<<<<<< HEAD
 .env
 *.env
 api.env
+=======
+.env
+*.env
+api.env
+>>>>>>> 1e2964462cadd087ffb2ec5e007f6b3ec049e13b
 node_modules/

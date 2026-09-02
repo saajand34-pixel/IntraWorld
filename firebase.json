@@ -39,33 +39,10 @@
             "value": "geolocation=(), microphone=(), camera=(self)"
           }
         ]
-      },
-      {
-        "source": "/js/**",
-        "headers": [
-          {
-            "key": "Content-Type",
-            "value": "application/javascript; charset=utf-8"
-          }
-        ]
       }
     ]
   },
-  "functions": [
-    {
-      "source": "functions",
-      "codebase": "default",
-      "disallowLegacyRuntimeConfig": true,
-      "ignore": [
-        "node_modules",
-        ".git",
-        "firebase-debug.log",
-        "firebase-debug.*.log",
-        "*.local"
-      ],
-      "predeploy": [
-        "npm --prefix \"$RESOURCE_DIR\" run lint"
-      ]
-    }
-  ]
+  "firestore": {
+    "rules": "firestore.rules"
+  }
 }
