@@ -1,17 +1,16 @@
 {
   "hosting": {
-    "public": ".",
+    "public": "public",
+    "cleanUrls": true,
+    "trailingSlash": false,
     "ignore": [
       "firebase.json",
       "**/.*",
-      "**/node_modules/**",
-      "server.js",
-      "uploads/**",
-      "data/**"
+      "**/node_modules/**"
     ],
     "rewrites": [
       {
-        "source": "**",
+        "source": "/register",
         "destination": "/register.html"
       }
     ],
