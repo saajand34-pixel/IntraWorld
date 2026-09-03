@@ -1,7 +1,7 @@
 /**
  * IntraWorld - Student Social Media Registration Controller
  * Path: C:\Intraworld\public\js\register.js
- * Zero-Crash Native Buffer Stream Extractor & Strict Anti-Fake Name Match
+ * Saves Security Questions (favouriteSport & ambition) with Case-Insensitive Normalization
  */
 
 // ==========================================
@@ -82,7 +82,6 @@ function handleAcademicDocSelected(event) {
   statusEl.innerText = `📄 Document "${file.name}" loaded ready for verification.`;
   statusEl.className = 'status-msg info';
 
-  // Reset verification badge if a new file is chosen
   isDocVerified = false;
   document.getElementById('academicCertCard').classList.add('hidden');
   document.getElementById('verifyDocBtn').classList.remove('hidden');
@@ -91,12 +90,11 @@ function handleAcademicDocSelected(event) {
 }
 
 // =========================================================================
-// 3. ZERO-CRASH NATIVE BUFFER TEXT EXTRACTOR (100% RELIABLE)
+// 3. ZERO-CRASH NATIVE BUFFER TEXT EXTRACTOR
 // =========================================================================
 async function extractTextRobustly(file) {
   let extracted = "";
 
-  // Strategy 1: Direct Memory Buffer Scanning (Extracts text without WASM crashes)
   try {
     const buffer = await file.arrayBuffer();
     const bytes = new Uint8Array(buffer);
@@ -116,7 +114,6 @@ async function extractTextRobustly(file) {
     }
     if (current.trim().length >= 3) chunks.push(current.trim());
 
-    // Filter readable text strings
     const readable = chunks
       .filter(chunk => /[a-zA-Z0-9]/.test(chunk) && !chunk.startsWith('/'))
       .join(' ');
@@ -128,7 +125,6 @@ async function extractTextRobustly(file) {
     console.warn("Direct buffer scan note:", e);
   }
 
-  // Strategy 2: Mozilla PDF.js stream extraction (if PDF)
   if (extracted.length < 20 && typeof pdfjsLib !== 'undefined' && (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf'))) {
     try {
       const arrayBuffer = await file.arrayBuffer();
@@ -146,7 +142,7 @@ async function extractTextRobustly(file) {
   return extracted.trim();
 }
 
-// Main Document Verification Handler (Strict Name Matching, Friend ID Rejection)
+// Main Document Verification Handler
 async function runRealOcrVerification() {
   const fullName = document.getElementById('fullName').value.trim();
   const collegeName = document.getElementById('collegeName').value.trim();
@@ -188,7 +184,6 @@ async function runRealOcrVerification() {
     const textLower = rawText.toLowerCase();
     const fileNameLower = selectedAcademicFile.name.toLowerCase();
 
-    // 1. Check for Fake / Test Files
     if (fileNameLower.includes('fake') || fileNameLower.includes('dummy') || fileNameLower.includes('sample')) {
       btn.disabled = false;
       btn.innerText = 'Run Document Verification';
@@ -200,7 +195,7 @@ async function runRealOcrVerification() {
       return;
     }
 
-    // 2. Strict Friend's Document Rejection (e.g. Jamun.pdf when logged in as Saajan)
+    // Strict Friend's Document Rejection (e.g. Jamun.pdf when logged in as Saajan)
     if (fileNameLower.includes('jamun') && !fullName.toLowerCase().includes('jamun')) {
       btn.disabled = false;
       btn.innerText = 'Run Document Verification';
@@ -212,13 +207,11 @@ async function runRealOcrVerification() {
       return;
     }
 
-    // 3. Name & Identity Matching
     const firstName = fullName.toLowerCase().split(/\s+/)[0];
     const isNameFound = (firstName.length >= 3 && textLower.includes(firstName)) || fileNameLower.includes(firstName);
     const isRegIdFound = studentRegId.length >= 3 && textLower.includes(studentRegId.toLowerCase());
     const isOfficialDoc = fileNameLower.includes('fee') || fileNameLower.includes('receipt') || fileNameLower.includes('id') || textLower.includes('college') || textLower.includes('student');
 
-    // Strict Decision
     if (!isNameFound && !isRegIdFound && !isOfficialDoc) {
       btn.disabled = false;
       btn.innerText = 'Run Document Verification';
@@ -577,11 +570,21 @@ async function handleRegistrationSubmit(event) {
   const collegeName = document.getElementById('collegeName').value.trim();
   const skills = document.getElementById('skills').value.trim();
   const passedOutYear = document.getElementById('passedOutYear').value.trim();
+
+  // Security Questions (Case-Insensitive Normalization)
+  const favouriteSport = document.getElementById('favouriteSport').value.trim();
+  const ambition = document.getElementById('ambition').value.trim();
+
   const password = document.getElementById('password').value;
   const confirmPassword = document.getElementById('confirmPassword').value;
 
   if (password !== confirmPassword) {
     showAlert('Passwords do not match.');
+    return;
+  }
+
+  if (!favouriteSport || !ambition) {
+    showAlert('Please fill in both Security Questions (Favourite Sport & Ambition) for password recovery.');
     return;
   }
 
@@ -602,7 +605,7 @@ async function handleRegistrationSubmit(event) {
 
   const studentRecord = {
     fullName,
-    email,
+    email: email.toLowerCase(),
     phone,
     studentRegId,
     qualification,
@@ -610,6 +613,9 @@ async function handleRegistrationSubmit(event) {
     collegeName,
     skills: skills.split(',').map(s => s.trim()),
     passedOutYear,
+    favouriteSport: favouriteSport.toLowerCase(), // Normalized for Case-Insensitive Matching
+    ambition: ambition.toLowerCase(),             // Normalized for Case-Insensitive Matching
+    password,                                    // In production, hashed/Firebase Auth
     trustScore,
     isDocVerified: true,
     isEmailVerified: isEmailVerified,
@@ -621,8 +627,11 @@ async function handleRegistrationSubmit(event) {
 
   if (db) {
     try {
-      const docRef = await db.collection("students").add(studentRecord);
-      console.log("🔥 Student record written to Firestore with ID:", docRef.id);
+      // Save to students collection
+      await db.collection("students").add(studentRecord);
+      // Also save to users collection for auth synchronization
+      await db.collection("users").doc(email.toLowerCase()).set(studentRecord, { merge: true });
+      console.log("🔥 Student record written to Firestore!");
     } catch (firestoreErr) {
       console.warn("Firestore write note:", firestoreErr.message);
     }
