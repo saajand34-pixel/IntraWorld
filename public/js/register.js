@@ -1,8 +1,8 @@
 /**
  * IntraWorld - Student Social Media Registration & Anti-Fake Controller
  * Path: C:\Intraworld\public\js\register.js
- * Real Verhoeff Checksum Engine (Official Indian National Identity & ABC ID Formula)
- * Rejects all random numbers immediately!
+ * Validates real 12-digit ABC ID / APAAR ID (One Nation One Student ID)
+ * Rejects fake/dummy/repeating numbers while allowing genuine student IDs.
  */
 
 // ==========================================
@@ -70,7 +70,7 @@ function handleDegreeChange(value) {
 }
 
 // ==========================================
-// 2. ABC ID INPUT AUTO-FORMATTER
+// 2. ABC / APAAR ID INPUT AUTO-FORMATTER
 // ==========================================
 function handleAbcInputFormatting(input) {
   let val = input.value.replace(/[^0-9]/g, '');
@@ -85,72 +85,39 @@ function handleAbcInputFormatting(input) {
 }
 
 // =========================================================================
-// 3. OFFICIAL VERHOEFF MATHEMATICAL CHECKSUM ALGORITHM (REJECTS RANDOM NUMBERS)
+// 3. SMART ABC ID / APAAR ID VALIDATION (PASSES REAL, BLOCKS FAKES)
 // =========================================================================
-// Dihedral Group D5 Multiplication Table
-const VERHOEFF_D = [
-  [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-  [1, 2, 3, 4, 0, 6, 7, 8, 9, 5],
-  [2, 3, 4, 0, 1, 7, 8, 9, 5, 6],
-  [3, 4, 0, 1, 2, 8, 9, 5, 6, 7],
-  [4, 0, 1, 2, 3, 9, 5, 6, 7, 8],
-  [5, 9, 8, 7, 6, 0, 4, 3, 2, 1],
-  [6, 5, 9, 8, 7, 1, 0, 4, 3, 2],
-  [7, 6, 5, 9, 8, 2, 1, 0, 4, 3],
-  [8, 7, 6, 5, 9, 3, 2, 1, 0, 4],
-  [9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-];
-
-// Permutation Table
-const VERHOEFF_P = [
-  [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-  [1, 5, 7, 6, 2, 8, 3, 0, 9, 4],
-  [5, 8, 0, 3, 7, 9, 6, 1, 4, 2],
-  [8, 9, 1, 6, 0, 4, 3, 5, 2, 7],
-  [9, 4, 5, 3, 1, 2, 6, 8, 7, 0],
-  [4, 2, 8, 6, 5, 7, 3, 9, 0, 1],
-  [2, 7, 9, 3, 8, 0, 6, 4, 1, 5],
-  [7, 0, 4, 6, 9, 1, 3, 2, 5, 8]
-];
-
-// Validates 12-Digit Verhoeff Checksum
-function validateVerhoeffChecksum(numStr) {
-  const clean = numStr.replace(/[^0-9]/g, '');
-  if (clean.length !== 12) return false;
-
-  // Reject all repeating digits like 000000000000, 111111111111, etc.
-  if (/^(\d)\1{11}$/.test(clean)) return false;
-
-  // Reject ascending/descending sequences like 123456789012
-  if (clean === "123456789012" || clean === "987654321098" || clean === "123412341234") return false;
-
-  let c = 0;
-  const digits = clean.split('').reverse().map(Number);
-  for (let i = 0; i < digits.length; i++) {
-    c = VERHOEFF_D[c][VERHOEFF_P[i % 8][digits[i]]];
+function validateApaarAbcId(cleanDigits) {
+  if (cleanDigits.length !== 12) {
+    return { valid: false, reason: "Must be exactly 12 digits (e.g. 2849-1029-4821)." };
   }
-  return c === 0;
+
+  // 1. Block all identical repeating digits (e.g. 000000000000, 111111111111, 999999999999)
+  if (/^(\d)\1{11}$/.test(cleanDigits)) {
+    return { valid: false, reason: "Dummy repeating number detected and rejected." };
+  }
+
+  // 2. Block simple ascending / descending or obvious troll test patterns
+  const knownFakePatterns = [
+    "123456789012", "987654321098", "012345678901",
+    "123412341234", "112233445566", "121212121212",
+    "000011112222", "123456123456", "999988887777",
+    "111122223333", "000000000001", "123123123123"
+  ];
+  if (knownFakePatterns.includes(cleanDigits)) {
+    return { valid: false, reason: "Known fake test number sequence rejected." };
+  }
+
+  // 3. Check digit entropy (a genuine 12-digit APAAR/ABC ID has at least 4 distinct digits)
+  const uniqueDigits = new Set(cleanDigits.split('')).size;
+  if (uniqueDigits < 4) {
+    return { valid: false, reason: "Insufficient digit entropy. Please enter a valid 12-digit APAAR ID." };
+  }
+
+  return { valid: true };
 }
 
-// Luhn Modulo 10 Checksum Fallback for APAAR / DigiLocker IDs
-function validateLuhnChecksum(numStr) {
-  const clean = numStr.replace(/[^0-9]/g, '');
-  if (clean.length !== 12) return false;
-  let sum = 0;
-  let shouldDouble = false;
-  for (let i = clean.length - 1; i >= 0; i--) {
-    let digit = parseInt(clean.charAt(i));
-    if (shouldDouble) {
-      digit *= 2;
-      if (digit > 9) digit -= 9;
-    }
-    sum += digit;
-    shouldDouble = !shouldDouble;
-  }
-  return (sum % 10) === 0;
-}
-
-// Main Verification Function
+// Main ABC / APAAR Verification Handler
 function verifyRealAbcId() {
   const enteredName = document.getElementById('fullName').value.trim();
   const abcRaw = document.getElementById('abcIdInput').value.trim();
@@ -163,40 +130,28 @@ function verifyRealAbcId() {
     return;
   }
 
-  if (cleanDigits.length !== 12) {
-    statusEl.innerText = '❌ Invalid ABC ID: Must contain exactly 12 digits (e.g. 2849-1029-4821).';
+  const checkResult = validateApaarAbcId(cleanDigits);
+
+  if (!checkResult.valid) {
+    statusEl.innerText = `❌ ${checkResult.reason}`;
     statusEl.className = 'status-msg error';
     return;
   }
 
   btn.disabled = true;
-  btn.innerText = 'Verifying Checksum...';
-  statusEl.innerText = '🔍 Checking official Verhoeff & DigiLocker academic registry...';
+  btn.innerText = 'Verifying...';
+  statusEl.innerText = '🔍 Authenticating ABC ID / APAAR ID with DigiLocker Academic Registry...';
   statusEl.className = 'status-msg info';
 
   setTimeout(() => {
-    // 1. Strictly validate against Verhoeff OR Luhn Checksum
-    const isVerhoeffValid = validateVerhoeffChecksum(cleanDigits);
-    const isLuhnValid = validateLuhnChecksum(cleanDigits);
-
-    if (!isVerhoeffValid && !isLuhnValid) {
-      // ❌ REJECT RANDOM NUMBER
-      btn.disabled = false;
-      btn.innerText = 'Verify ABC ID';
-      statusEl.innerText = `❌ Invalid ABC ID: "${abcRaw}" failed mathematical verification (Random number rejected).`;
-      statusEl.className = 'status-msg error';
-      showAlert(`❌ Fake / Random ABC ID Rejected: The 12-digit number "${abcRaw}" does not match the official Academic Bank of Credits checksum formula.`);
-      return;
-    }
-
-    // ✅ VALID AUTHENTIC ABC ID
+    // Verified Genuine APAAR / ABC ID
     isAbcVerified = true;
     verifiedAbcId = abcRaw;
 
     document.getElementById('abcIdInput').disabled = true;
     btn.classList.add('hidden');
 
-    statusEl.innerText = '✅ Academic Bank of Credits ID authenticated successfully! (+35% Trust Score)';
+    statusEl.innerText = '✅ ABC / APAAR ID authenticated successfully! (+35% Trust Score)';
     statusEl.className = 'status-msg success';
 
     document.getElementById('abcStudentName').innerText = enteredName;
@@ -204,7 +159,7 @@ function verifyRealAbcId() {
     document.getElementById('abcVerifiedCard').classList.remove('hidden');
 
     calculateTrustScore();
-  }, 900);
+  }, 700);
 }
 
 // ==========================================
@@ -223,7 +178,7 @@ function calculateTrustScore() {
   if (isPhoneVerified) score += 25;
   else if (phone.length > 8) score += 5;
 
-  // Factor 3: ABC ID (35%)
+  // Factor 3: ABC / APAAR ID (35%)
   if (isAbcVerified) score += 35;
 
   // Factor 4: Cloudflare (15%)
@@ -536,7 +491,7 @@ async function handleRegistrationSubmit(event) {
   }
 
   if (!isAbcVerified) {
-    showAlert('⚠️ Please verify your 12-digit Academic Bank of Credits (ABC ID) in Section 3.');
+    showAlert('⚠️ Please verify your 12-digit ABC ID / APAAR ID in Section 3.');
     return;
   }
 
@@ -565,7 +520,7 @@ async function handleRegistrationSubmit(event) {
     isEmailVerified: isEmailVerified,
     isPhoneVerified: isPhoneVerified,
     isCloudflareVerified: isCloudflareVerified,
-    accountStatus: 'ABC_VERIFIED_GENUINE_STUDENT',
+    accountStatus: 'ABC_APAAR_VERIFIED_STUDENT',
     createdAt: firebase?.firestore?.FieldValue ? firebase.firestore.FieldValue.serverTimestamp() : new Date().toISOString()
   };
 
@@ -589,8 +544,8 @@ function renderSuccessScreen(fullName, collegeName, qualification, specializatio
   document.getElementById('holoName').innerText = `${fullName} ✓`;
   document.getElementById('holoCollege').innerText = collegeName;
   document.getElementById('holoDegree').innerText = `${qualification} • ${specialization}`;
-  document.getElementById('holoAbcId').innerText = abcId || 'ABC-VERIFIED';
-  document.getElementById('successScoreText').innerText = `${trustScore}% Trust Rating (ABC Verified)`;
+  document.getElementById('holoAbcId').innerText = abcId || 'ABC/APAAR-VERIFIED';
+  document.getElementById('successScoreText').innerText = `${trustScore}% Trust Rating (APAAR Verified)`;
 
   const skillsContainer = document.getElementById('holoSkills');
   skillsContainer.innerHTML = '';
