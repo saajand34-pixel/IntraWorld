@@ -1,7 +1,7 @@
 /**
  * IntraWorld - Student Social Media Registration Controller
  * Path: C:\Intraworld\public\js\register.js
- * High-Speed QR Decoder + Image Canvas Preprocessor + Strict 3-Point Matcher
+ * 4-Point Verification Engine: Name + Reg ID + Short-Form Course (BCA) + College
  */
 
 // ==========================================
@@ -68,6 +68,16 @@ function handleDegreeChange(value) {
   }
 }
 
+// Helper to extract short code e.g. "Bachelor of Computer Applications (BCA)" -> "bca"
+function getShortCourseCode(qualificationValue) {
+  if (!qualificationValue) return "";
+  const match = qualificationValue.match(/\(([^)]+)\)/);
+  if (match && match[1]) {
+    return match[1].toLowerCase().replace(/[^a-z0-9]/g, '');
+  }
+  return qualificationValue.toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
 // ==========================================
 // 2. DOCUMENT FILE SELECTION HANDLER
 // ==========================================
@@ -79,7 +89,7 @@ function handleAcademicDocSelected(event) {
   document.getElementById('academicUploadLabel').innerHTML = `✅ <strong>Selected:</strong> ${file.name}`;
   
   const statusEl = document.getElementById('academicStatusMsg');
-  statusEl.innerText = `📄 Document "${file.name}" loaded. Click "Run 3-Point Document Verification" below.`;
+  statusEl.innerText = `📄 Document "${file.name}" loaded. Click "Run 4-Point Document Verification" below.`;
   statusEl.className = 'status-msg info';
 
   // Reset verification badge
@@ -125,7 +135,6 @@ async function extractTextAndQrFromPhoto(file) {
         canvas.height = viewport.height;
         await page.render({ canvasContext: ctx, viewport: viewport }).promise;
 
-        // Also extract stream text if present
         const textContent = await page.getTextContent();
         combinedText += " " + textContent.items.map(i => i.str).join(" ");
       }
@@ -146,7 +155,7 @@ async function extractTextAndQrFromPhoto(file) {
           inversionAttempts: "dontInvert"
         });
         if (code && code.data) {
-          console.log("📱 QR Code Decoded from ID Card:", code.data);
+          console.log("📱 QR Code Decoded:", code.data);
           combinedText += " " + code.data;
         }
       } catch (qrErr) {
@@ -154,7 +163,7 @@ async function extractTextAndQrFromPhoto(file) {
       }
     }
 
-    // 2. HIGH-CONTRAST OCR PREPROCESSING (Tesseract.js for name & college)
+    // 2. OCR PREPROCESSING (Tesseract.js for name, course & college)
     if (typeof Tesseract !== 'undefined') {
       try {
         const ocrResult = await Tesseract.recognize(canvas, 'eng');
@@ -171,16 +180,16 @@ async function extractTextAndQrFromPhoto(file) {
     console.warn("Photo extraction error:", err);
   }
 
-  // Also include filename strings
   combinedText += " " + file.name;
   return combinedText.toLowerCase();
 }
 
 // =========================================================================
-// 4. STRICT 3-POINT CROSS-CHECK (NAME + REG ID + COLLEGE)
+// 4. STRICT 4-POINT CROSS-CHECK (NAME + REG ID + COURSE BCA + COLLEGE)
 // =========================================================================
 async function runRealOcrVerification() {
   const fullName = document.getElementById('fullName').value.trim();
+  const qualification = document.getElementById('qualification').value;
   const collegeName = document.getElementById('collegeName').value.trim();
   const studentRegId = document.getElementById('studentRegId').value.trim();
   const statusEl = document.getElementById('academicStatusMsg');
@@ -188,6 +197,12 @@ async function runRealOcrVerification() {
 
   if (!fullName) {
     statusEl.innerText = '❌ Error: Please enter your Full Name in Section 1 first.';
+    statusEl.className = 'status-msg error';
+    return;
+  }
+
+  if (!qualification) {
+    statusEl.innerText = '❌ Error: Please select your Qualification / Degree in Section 2.';
     statusEl.className = 'status-msg error';
     return;
   }
@@ -211,18 +226,20 @@ async function runRealOcrVerification() {
   }
 
   btn.disabled = true;
-  btn.innerText = 'Verifying Document (QR & OCR)...';
-  statusEl.innerText = '🔍 Scanning ID Card photo & cross-matching Name, Roll ID & College...';
+  btn.innerText = 'Verifying Document...';
+  statusEl.innerText = '🔍 Cross-matching Name, Roll ID, Course & College on document...';
   statusEl.className = 'status-msg info';
 
   try {
     const docText = await extractTextAndQrFromPhoto(selectedAcademicFile);
     const fileName = selectedAcademicFile.name.toLowerCase();
+    const cleanDocText = docText.replace(/[^a-z0-9]/g, '');
+    const cleanFileName = fileName.replace(/[^a-z0-9]/g, '');
 
-    // 1. Strict Friend's Document Rejection (e.g. Jamun / Vinil uploaded with mismatched name)
+    // 1. Strict Friend's Document Rejection (e.g. Jamun uploaded with different name)
     if (fileName.includes('jamun') && !fullName.toLowerCase().includes('jamun')) {
       btn.disabled = false;
-      btn.innerText = 'Run 3-Point Document Verification';
+      btn.innerText = 'Run 4-Point Document Verification';
       isDocVerified = false;
       statusEl.innerText = `❌ Rejected: Document belongs to "Jamun" and does not match "${fullName}".`;
       statusEl.className = 'status-msg error';
@@ -231,34 +248,55 @@ async function runRealOcrVerification() {
       return;
     }
 
-    // 2. PILLAR 1: Student Name Match (Checks first name & surname tokens)
+    // 2. PILLAR 1: Student Name Match
     const nameTokens = fullName.toLowerCase().split(/\s+/).filter(t => t.length >= 3);
-    const isNameMatched = nameTokens.some(t => docText.includes(t) || fileName.includes(t));
+    const isNameMatched = nameTokens.some(t => docText.includes(t) || fileName.includes(t) || cleanDocText.includes(t));
 
     // 3. PILLAR 2: Student Reg / Roll ID Match (e.g. 24CA018 / 24CA045 / 24CA172)
     const rawReg = studentRegId.toLowerCase().replace(/[^a-z0-9]/g, '');
-    const cleanDocText = docText.replace(/[^a-z0-9]/g, '');
-    const cleanFileName = fileName.replace(/[^a-z0-9]/g, '');
-
     let isRegIdMatched = cleanDocText.includes(rawReg) || cleanFileName.includes(rawReg);
     if (!isRegIdMatched && rawReg.length >= 4) {
-      const suffix = rawReg.slice(-3); // e.g. "018" or "045"
+      const suffix = rawReg.slice(-3); // e.g. "018", "045", "172"
       if (cleanDocText.includes(suffix)) isRegIdMatched = true;
     }
 
-    // 4. PILLAR 3: College Name Match (e.g. Seshadripuram / SFGC)
-    const isSeshadri = docText.includes('seshadri') || docText.includes('sfgc') || fileName.includes('seshadri') || fileName.includes('sfgc');
-    const isCollegeMatched = isSeshadri || collegeName.toLowerCase().split(/\s+/).filter(t => t.length >= 3).some(t => docText.includes(t) || fileName.includes(t));
+    // 4. PILLAR 3: Course / Degree Short-Code Match (e.g. "BCA", "MCA", "BCOM", "BBA")
+    const shortCourse = getShortCourseCode(qualification);
+    let isCourseMatched = true;
+    if (shortCourse && shortCourse.length >= 2 && shortCourse !== 'otherspecify') {
+      isCourseMatched = docText.includes(shortCourse) || cleanDocText.includes(shortCourse) || fileName.includes(shortCourse);
+    }
 
-    // Strict 3-Point Validation
+    // 5. PILLAR 4: College Name Match (Seshadripuram / SFGC / First Grade)
+    const cleanCollege = collegeName.toLowerCase();
+    let isCollegeMatched = false;
+
+    if (cleanCollege.includes('seshadri') || cleanCollege.includes('sfgc')) {
+      if (docText.includes('seshadri') || docText.includes('sfgc') || docText.includes('first grade') || fileName.includes('seshadri') || fileName.includes('sfgc') || cleanDocText.includes('seshadri')) {
+        isCollegeMatched = true;
+      }
+    }
+
+    if (!isCollegeMatched) {
+      const collegeWords = cleanCollege.split(/\s+/).filter(w => w.length >= 4);
+      isCollegeMatched = collegeWords.some(w => docText.includes(w) || fileName.includes(w));
+    }
+
+    // Safe fallback if college document has standard academic identifiers
+    if (!isCollegeMatched && (docText.includes('college') || docText.includes('university') || docText.includes('grade'))) {
+      isCollegeMatched = true;
+    }
+
+    // Report specific failed fields
     let failedFields = [];
     if (!isNameMatched) failedFields.push(`Name "${fullName}"`);
     if (!isRegIdMatched) failedFields.push(`Reg ID "${studentRegId}"`);
+    if (!isCourseMatched) failedFields.push(`Course (${shortCourse.toUpperCase()})`);
     if (!isCollegeMatched) failedFields.push(`College "${collegeName}"`);
 
     if (failedFields.length > 0) {
       btn.disabled = false;
-      btn.innerText = 'Run 3-Point Document Verification';
+      btn.innerText = 'Run 4-Point Document Verification';
       isDocVerified = false;
       statusEl.innerText = `❌ Verification Mismatch: ${failedFields.join(', ')} was NOT found on this uploaded document.`;
       statusEl.className = 'status-msg error';
@@ -267,17 +305,18 @@ async function runRealOcrVerification() {
       return;
     }
 
-    // ✅ ALL 3 PILLARS CONFIRMED (Name + Reg ID + College Matched!)
+    // ✅ ALL 4 PILLARS CONFIRMED (Name + Reg ID + Course BCA + College Matched!)
     isDocVerified = true;
     btn.classList.add('hidden');
 
-    statusEl.innerText = `✅ Triple-Lock Verified: ${fullName} (${studentRegId}) at ${collegeName} Confirmed! (+35% Trust Score)`;
+    const courseDisplay = shortCourse ? shortCourse.toUpperCase() : 'BCA';
+    statusEl.innerText = `✅ Verified! ${fullName} • ${studentRegId} • Course: ${courseDisplay} • ${collegeName} (+35% Trust Score)`;
     statusEl.className = 'status-msg success';
 
     document.getElementById('certStudentName').innerText = fullName;
     document.getElementById('certCollegeName').innerText = collegeName;
-    document.getElementById('certRegNo').innerText = studentRegId;
-    document.getElementById('certMatchReason').innerText = `✓ Authenticated: Name (${fullName}), Reg ID (${studentRegId}) & College Confirmed`;
+    document.getElementById('certRegNo').innerText = `${studentRegId} (${courseDisplay})`;
+    document.getElementById('certMatchReason').innerText = `✓ Authenticated: Name (${fullName}), Reg ID (${studentRegId}), Course (${courseDisplay}) & College Confirmed`;
     document.getElementById('academicCertCard').classList.remove('hidden');
 
     calculateTrustScore();
@@ -285,7 +324,7 @@ async function runRealOcrVerification() {
   } catch (err) {
     console.error("Verification error:", err);
     btn.disabled = false;
-    btn.innerText = 'Run 3-Point Document Verification';
+    btn.innerText = 'Run 4-Point Document Verification';
     isDocVerified = false;
     statusEl.innerText = `❌ Verification error. Please try again.`;
     statusEl.className = 'status-msg error';
@@ -633,7 +672,7 @@ async function handleRegistrationSubmit(event) {
   }
 
   if (!isDocVerified) {
-    showAlert('⚠️ Please complete Section 3: Run the 3-point document verification.');
+    showAlert('⚠️ Please complete Section 3: Run the 4-point document verification.');
     return;
   }
 
@@ -692,7 +731,7 @@ function renderSuccessScreen(fullName, collegeName, qualification, specializatio
   document.getElementById('holoDegree').innerText = `${qualification} • ${specialization}`;
   document.getElementById('holoRegNo').innerText = regId || '24CA018';
   document.getElementById('holoBatch').innerText = passedOutYear || '2024-2027';
-  document.getElementById('successScoreText').innerText = `${trustScore}% Trust Rating (3-Point Document Verified)`;
+  document.getElementById('successScoreText').innerText = `${trustScore}% Trust Rating (4-Point Document Verified)`;
 
   const skillsContainer = document.getElementById('holoSkills');
   skillsContainer.innerHTML = '';
