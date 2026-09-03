@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IntraWorld - Student Registration & SheerID Verification Portal</title>
+  <title>IntraWorld - Student Registration & GitHub Registry Verification</title>
   
   <!-- Fonts & Confetti -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -258,8 +258,8 @@
     .status-msg.info { color: #38bdf8; }
     .status-msg.error { color: #fb7185; }
 
-    /* SHEERID VERIFICATION MODULE */
-    .sheerid-container {
+    /* OPEN SOURCE GITHUB REGISTRY HUD */
+    .github-registry-box {
       background: rgba(12, 22, 48, 0.85);
       border: 1px solid rgba(56, 189, 248, 0.35);
       border-radius: 18px;
@@ -270,15 +270,7 @@
       gap: 16px;
     }
 
-    .sheerid-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid rgba(30, 58, 110, 0.5);
-      padding-bottom: 12px;
-    }
-
-    .sheerid-logo-pill {
+    .github-badge-pill {
       display: inline-flex;
       align-items: center;
       gap: 6px;
@@ -292,7 +284,7 @@
       letter-spacing: 0.05em;
     }
 
-    .sheerid-upload-box {
+    .upload-box-dash {
       border: 2px dashed rgba(56, 189, 248, 0.3);
       border-radius: 14px;
       padding: 18px;
@@ -302,10 +294,10 @@
       position: relative;
       transition: all 0.2s;
     }
-    .sheerid-upload-box:hover { border-color: var(--cyan-accent); background: rgba(14, 165, 233, 0.06); }
-    .sheerid-upload-box input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+    .upload-box-dash:hover { border-color: var(--cyan-accent); background: rgba(14, 165, 233, 0.06); }
+    .upload-box-dash input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
 
-    .sheerid-cert-badge {
+    .cert-badge-hud {
       background: linear-gradient(135deg, rgba(7, 16, 38, 0.95), rgba(12, 28, 66, 0.85));
       border: 1px solid rgba(16, 185, 129, 0.45);
       border-radius: 14px;
@@ -370,7 +362,7 @@
   <!-- Top Bar with Authenticity Score -->
   <div class="top-bar">
     <div class="brand-pill">
-      🛡️ SheerID Verified Academic Shield
+      🛡️ GitHub Academic Registry Verified
     </div>
     <div class="trust-meter-badge">
       <div class="meter-circle-wrap">
@@ -390,7 +382,7 @@
     <div id="successView" class="success-panel hidden">
       <div style="font-size: 40px;">🏆</div>
       <div>
-        <h2 style="font-size: 24px; font-weight: 800; color: #fff;">SheerID Student Verified!</h2>
+        <h2 style="font-size: 24px; font-weight: 800; color: #fff;">Student Profile Authenticated!</h2>
         <p style="font-size: 13px; color: #94a3b8; margin-top: 4px;">
           Academic verification completed with <strong id="successScoreText" style="color: #34d399;">100% Trust Rating</strong>.
         </p>
@@ -409,8 +401,8 @@
 
         <div class="holo-stats-grid">
           <div>
-            <span class="stat-label">SheerID Token:</span>
-            <span class="stat-val" id="holoSheerId" style="color: #38bdf8; font-family: 'JetBrains Mono', monospace;">SID-IND-VERIFIED</span>
+            <span class="stat-label">Student Reg ID:</span>
+            <span class="stat-val" id="holoRegNo" style="color: #38bdf8; font-family: 'JetBrains Mono', monospace;">24CA172</span>
           </div>
           <div>
             <span class="stat-label">Gmail Auth:</span>
@@ -422,7 +414,7 @@
           </div>
           <div>
             <span class="stat-label">Academic Proof:</span>
-            <span class="stat-val" style="color: #34d399;">✓ SheerID Verified</span>
+            <span class="stat-val" style="color: #34d399;">✓ GitHub Registry Verified</span>
           </div>
           <div>
             <span class="stat-label">Anti-Bot Shield:</span>
@@ -430,7 +422,7 @@
           </div>
           <div>
             <span class="stat-label">Student Status:</span>
-            <span class="stat-val" style="color: #38bdf8;">AUTHENTIC_STUDENT</span>
+            <span class="stat-val" style="color: #38bdf8;">GENUINE_STUDENT</span>
           </div>
         </div>
 
@@ -439,7 +431,7 @@
 
       <div style="display: flex; justify-content: center; gap: 12px; margin-top: 10px;">
         <button class="btn btn-secondary" onclick="window.location.reload()">🔄 Register Another Student</button>
-        <button class="btn btn-cyan" onclick="alert('Welcome to IntraWorld! Your SheerID-verified student profile is stored in Firestore.')">✨ Enter IntraWorld Feed</button>
+        <button class="btn btn-cyan" onclick="alert('Welcome to IntraWorld! Your verified student profile is stored in Firestore.')">✨ Enter IntraWorld Feed</button>
       </div>
     </div>
 
@@ -601,8 +593,9 @@
             <label>College / University Name <span class="req">*</span></label>
             <div class="input-wrapper">
               <span class="input-icon">🏛️</span>
-              <input type="text" id="collegeName" required placeholder="e.g. Seshadripuram First Grade College">
+              <input type="text" id="collegeName" required placeholder="e.g. Seshadripuram First Grade College" oninput="queryOpenSourceUniversity(this.value)">
             </div>
+            <div id="universityLookupBadge" class="status-msg info hidden"></div>
           </div>
 
           <div class="form-group">
@@ -632,56 +625,55 @@
           </div>
         </div>
 
-        <!-- 3. SHEERID ACADEMIC STUDENT VERIFICATION GATEWAY -->
+        <!-- 3. OPEN-SOURCE ACADEMIC PROOF ENGINE -->
         <div class="form-section-title">
-          <span>🎓 3. SheerID Academic Student Verification</span>
-          <span style="font-size: 10.5px; color: #34d399; font-weight: 700;">Global Student Standard</span>
+          <span>🎓 3. Academic Document Verification</span>
+          <span style="font-size: 10.5px; color: #34d399; font-weight: 700;">GitHub Open-Source Registry</span>
         </div>
 
-        <div class="sheerid-container">
-          <div class="sheerid-header">
+        <div class="github-registry-box">
+          <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(30, 58, 110, 0.5); padding-bottom: 10px;">
             <div>
-              <div style="font-size: 13px; font-weight: 700; color: #f1f5f9;">SheerID Student Identity Verification</div>
-              <div style="font-size: 11px; color: #94a3b8;">Official verification used by Spotify, Nike & GitHub Student Developer Pack</div>
+              <div style="font-size: 13px; font-weight: 700; color: #f1f5f9;">Academic Document Verification</div>
+              <div style="font-size: 11px; color: #94a3b8;">Validated via Hipo Global University Registry Database</div>
             </div>
-            <div class="sheerid-logo-pill">
-              🛡️ SheerID™
+            <div class="github-badge-pill">
+              ⭐ GitHub Registry
             </div>
           </div>
 
           <p style="font-size: 12px; color: #cbd5e1; line-height: 1.5;">
-            Upload your official <strong>College ID Card</strong>, <strong>Tuition Fee Receipt</strong>, or <strong>Enrollment Certificate</strong> (PDF, PNG, JPG). SheerID validates your institution and student status:
+            Upload your <strong>Student ID Card</strong> or <strong>Fee Receipt Voucher</strong> (PDF, PNG, JPG). Binds your identity and university:
           </p>
 
-          <!-- SheerID Document Upload Zone -->
-          <div class="sheerid-upload-box" id="sheerIdUploadWrap">
-            <input type="file" id="sheerIdDocInput" accept="image/png, image/jpeg, image/webp, application/pdf" onchange="handleSheerIdDocSelected(event)">
+          <div class="upload-box-dash">
+            <input type="file" id="academicDocInput" accept="image/png, image/jpeg, image/webp, application/pdf" onchange="handleAcademicDocSelected(event)">
             <div style="font-size: 26px; color: #38bdf8; margin-bottom: 4px;">📑</div>
-            <div id="sheerIdUploadLabel" style="font-size: 13px; font-weight: 600; color: #f1f5f9;">
+            <div id="academicUploadLabel" style="font-size: 13px; font-weight: 600; color: #f1f5f9;">
               Choose Student Document (ID Card, Fee Receipt, PDF)
             </div>
             <div style="font-size: 10.5px; color: #94a3b8; margin-top: 2px;">Click to browse from your device</div>
           </div>
 
-          <button type="button" id="sheerIdVerifyBtn" class="btn btn-cyan" style="width: 100%; padding: 13px;" onclick="runSheerIdVerification()">
-            🛡️ Verify Student Status via SheerID
+          <button type="button" id="verifyDocBtn" class="btn btn-cyan" style="width: 100%; padding: 13px;" onclick="verifyAcademicDocument()">
+            🛡️ Verify Student Credential
           </button>
 
-          <div id="sheerIdStatusMsg" class="status-msg"></div>
+          <div id="academicStatusMsg" class="status-msg"></div>
 
-          <!-- SheerID Verified Certificate HUD -->
-          <div id="sheerIdCertCard" class="sheerid-cert-badge hidden">
+          <!-- Verified Certificate HUD -->
+          <div id="academicCertCard" class="cert-badge-hud hidden">
             <div style="display: flex; justify-content: space-between; align-items: center;">
               <div style="font-size: 13px; font-weight: 700; color: #34d399;">
-                ✅ SheerID Student Verification Passed (100 Pts)
+                ✅ Student Credential Authenticated (100 Pts)
               </div>
-              <span style="font-size: 10px; font-family: 'JetBrains Mono', monospace; color: #38bdf8;" id="sheerIdTokenBadge">SID-IND-89412</span>
+              <span style="font-size: 10px; font-family: 'JetBrains Mono', monospace; color: #38bdf8;">VERIFIED_STUDENT</span>
             </div>
             <div style="font-size: 11.5px; color: #cbd5e1; margin-top: 4px;">
-              • Verified Student: <strong id="sheerIdStudentName">Student Name</strong><br>
-              • Institution: <strong id="sheerIdCollegeName">College Name</strong><br>
-              • Student Reg ID: <strong id="sheerIdRegNo" style="color: #38bdf8;">24CA172</strong><br>
-              • SheerID Eligibility: <span style="color: #34d399;">Active Enrolled Student Confirmed</span>
+              • Verified Student: <strong id="certStudentName">Student Name</strong><br>
+              • Institution: <strong id="certCollegeName">College Name</strong><br>
+              • Student Reg ID: <strong id="certRegNo" style="color: #38bdf8;">24CA172</strong><br>
+              • Academic Registry: <span style="color: #34d399;">Active Enrolled Student Confirmed</span>
             </div>
           </div>
         </div>
