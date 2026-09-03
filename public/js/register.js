@@ -85,7 +85,6 @@ function handleAcademicDocSelected(event) {
   // Reset verification badge if a new file is chosen
   isDocVerified = false;
   document.getElementById('academicCertCard').classList.add('hidden');
-  document.getElementById('ocrInspectorWrap').classList.add('hidden');
   document.getElementById('verifyDocBtn').classList.remove('hidden');
   document.getElementById('verifyDocBtn').disabled = false;
   calculateTrustScore();
@@ -154,8 +153,6 @@ async function runRealOcrVerification() {
   const studentRegId = document.getElementById('studentRegId').value.trim();
   const statusEl = document.getElementById('academicStatusMsg');
   const btn = document.getElementById('verifyDocBtn');
-  const ocrInspector = document.getElementById('ocrInspectorWrap');
-  const ocrLiveText = document.getElementById('ocrLiveText');
 
   if (!fullName) {
     statusEl.innerText = '❌ Error: Please enter your Full Name in Section 1 first.';
@@ -190,10 +187,6 @@ async function runRealOcrVerification() {
     const rawText = await extractTextRobustly(selectedAcademicFile);
     const textLower = rawText.toLowerCase();
     const fileNameLower = selectedAcademicFile.name.toLowerCase();
-
-    // Show extracted text in live inspector
-    ocrInspector.classList.remove('hidden');
-    ocrLiveText.innerText = rawText ? rawText.substring(0, 500) : `[Document loaded: ${selectedAcademicFile.name}]`;
 
     // 1. Check for Fake / Test Files
     if (fileNameLower.includes('fake') || fileNameLower.includes('dummy') || fileNameLower.includes('sample')) {
