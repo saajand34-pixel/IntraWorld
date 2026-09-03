@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IntraWorld - Student Registration & ID Verification</title>
+  <title>IntraWorld - Student Registration & Verification</title>
   
   <!-- Fonts & Confetti -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -374,7 +374,7 @@
   <!-- Top Bar with Authenticity Score -->
   <div class="top-bar">
     <div class="brand-pill">
-      🛡️ Strict 3-Point Document Verification Shield
+      🛡️ 4-Point Document Verification Shield
     </div>
     <div class="trust-meter-badge">
       <div class="meter-circle-wrap">
@@ -396,7 +396,7 @@
       <div>
         <h2 style="font-size: 24px; font-weight: 800; color: #fff;">Student Profile Authenticated!</h2>
         <p style="font-size: 13px; color: #94a3b8; margin-top: 4px;">
-          3-Point Verification completed with <strong id="successScoreText" style="color: #34d399;">100% Trust Rating</strong>.
+          4-Point Document Verification completed with <strong id="successScoreText" style="color: #34d399;">100% Trust Rating</strong>.
         </p>
       </div>
 
@@ -429,8 +429,8 @@
             <span class="stat-val">✓ 2Factor SMS Pass</span>
           </div>
           <div>
-            <span class="stat-label">3-Point Match:</span>
-            <span class="stat-val" style="color: #34d399;">✓ Name + Reg ID + College</span>
+            <span class="stat-label">4-Point Match:</span>
+            <span class="stat-val" style="color: #34d399;">✓ Name + Reg + BCA + College</span>
           </div>
           <div>
             <span class="stat-label">Student Status:</span>
@@ -639,12 +639,12 @@
         <!-- 3. REAL DOCUMENT VERIFICATION (NATIVE CLICKABLE FILE PICKER) -->
         <div class="form-section-title">
           <span>📄 3. Academic Document Verification</span>
-          <span style="font-size: 10.5px; color: #34d399; font-weight: 700;">QR & OCR Engine</span>
+          <span style="font-size: 10.5px; color: #34d399; font-weight: 700;">4-Point Verification Engine</span>
         </div>
 
         <div class="ocr-registry-box">
           <p style="font-size: 12px; color: #cbd5e1; line-height: 1.5;">
-            Upload your official <strong>Student ID Card</strong> or <strong>Fee Receipt Voucher</strong> (PNG, JPG, PDF). Cross-matches <strong>Name</strong>, <strong>Reg ID</strong>, and <strong>College Name</strong>:
+            Upload your official <strong>Student ID Card</strong> or <strong>Fee Receipt Voucher</strong> (PNG, JPG, PDF). Cross-matches <strong>Name</strong>, <strong>Reg ID</strong>, <strong>Course (BCA)</strong>, and <strong>College Name</strong>:
           </p>
 
           <input type="file" id="academicDocInput" style="display: none;" accept=".png, .jpg, .jpeg, .webp, .pdf" onchange="handleAcademicDocSelected(event)">
@@ -658,7 +658,7 @@
           </label>
 
           <button type="button" id="verifyDocBtn" class="btn btn-cyan" style="width: 100%; padding: 13px;" onclick="runRealOcrVerification()">
-            🔍 Run 3-Point Document Verification
+            🔍 Run 4-Point Document Verification
           </button>
 
           <div id="academicStatusMsg" class="status-msg"></div>
@@ -667,7 +667,7 @@
           <div id="academicCertCard" class="cert-badge-hud hidden">
             <div style="display: flex; justify-content: space-between; align-items: center;">
               <div style="font-size: 13px; font-weight: 700; color: #34d399;">
-                ✅ 3-Point Credential Authenticated (100 Pts)
+                ✅ 4-Point Credential Authenticated (100 Pts)
               </div>
               <span style="font-size: 10px; font-family: 'JetBrains Mono', monospace; color: #38bdf8;">TRIPLE_LOCK_MATCH</span>
             </div>
@@ -675,7 +675,7 @@
               • Verified Student: <strong id="certStudentName">Student Name</strong><br>
               • Institution: <strong id="certCollegeName">College Name</strong><br>
               • Student Reg ID: <strong id="certRegNo" style="color: #38bdf8;">24CA018</strong><br>
-              • Verification Result: <span style="color: #34d399;" id="certMatchReason">Name, Reg ID & College Confirmed on Document</span>
+              • Verification Result: <span style="color: #34d399;" id="certMatchReason">Name, Reg ID, Course & College Confirmed on Document</span>
             </div>
           </div>
         </div>
