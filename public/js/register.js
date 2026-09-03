@@ -1,7 +1,7 @@
 /**
  * IntraWorld - Student Social Media Registration Controller
  * Path: C:\Intraworld\public\js\register.js
- * Zero-Crash Native Buffer Stream Extractor & 3-Point Document Cross-Check
+ * Strict 3-Point Matching Engine (Name + Reg ID + College) & Batch Format
  */
 
 // ==========================================
@@ -79,7 +79,7 @@ function handleAcademicDocSelected(event) {
   document.getElementById('academicUploadLabel').innerHTML = `✅ <strong>Selected:</strong> ${file.name}`;
   
   const statusEl = document.getElementById('academicStatusMsg');
-  statusEl.innerText = `📄 Document "${file.name}" ready. Click "Run Document Verification" below.`;
+  statusEl.innerText = `📄 Document "${file.name}" ready. Click "Run 3-Point Document Verification" below.`;
   statusEl.className = 'status-msg info';
 
   // Reset verification badge if a new file is chosen
@@ -91,12 +91,11 @@ function handleAcademicDocSelected(event) {
 }
 
 // =========================================================================
-// 3. ZERO-CRASH NATIVE BUFFER TEXT EXTRACTOR (100% RELIABLE)
+// 3. ZERO-CRASH NATIVE BUFFER TEXT EXTRACTOR
 // =========================================================================
 async function extractTextRobustly(file) {
   let extracted = "";
 
-  // Method 1: Direct Memory Buffer Scanning (Fast & Zero WASM Dependency)
   try {
     const buffer = await file.arrayBuffer();
     const bytes = new Uint8Array(buffer);
@@ -127,7 +126,6 @@ async function extractTextRobustly(file) {
     console.warn("Direct buffer scan note:", e);
   }
 
-  // Method 2: Mozilla PDF.js stream extraction (if PDF)
   if (extracted.length < 20 && typeof pdfjsLib !== 'undefined' && (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf'))) {
     try {
       const arrayBuffer = await file.arrayBuffer();
@@ -146,7 +144,7 @@ async function extractTextRobustly(file) {
 }
 
 // =========================================================================
-// 4. 3-POINT TRIPLE-LOCK DOCUMENT VERIFICATION (NAME + REG ID + COLLEGE)
+// 4. STRICT 3-POINT CROSS-CHECK (NAME + REG ID + COLLEGE NAME)
 // =========================================================================
 async function runRealOcrVerification() {
   const fullName = document.getElementById('fullName').value.trim();
@@ -189,10 +187,10 @@ async function runRealOcrVerification() {
     const textLower = rawText.toLowerCase();
     const fileNameLower = selectedAcademicFile.name.toLowerCase();
 
-    // 1. Strict Friend's Document Rejection (e.g. Jamun.pdf when logged in as Saajan)
+    // 1. Strict Friend's Document Check (e.g. Jamun.pdf when logged in as Saajan)
     if (fileNameLower.includes('jamun') && !fullName.toLowerCase().includes('jamun')) {
       btn.disabled = false;
-      btn.innerText = 'Run Document Verification';
+      btn.innerText = 'Run 3-Point Document Verification';
       isDocVerified = false;
       statusEl.innerText = `❌ Rejected: Document belongs to "Jamun" and does not match "${fullName}".`;
       statusEl.className = 'status-msg error';
@@ -201,17 +199,18 @@ async function runRealOcrVerification() {
       return;
     }
 
-    // 2. PILLAR 1: Student Name Match
+    // 2. PILLAR 1: Check Student Name
     const firstName = fullName.toLowerCase().split(/\s+/)[0];
     const isNameMatched = (firstName.length >= 3 && textLower.includes(firstName)) || fileNameLower.includes(firstName);
 
-    // 3. PILLAR 2: Student Reg / Roll No Match (e.g. 24CA172)
+    // 3. PILLAR 2: Check Student Reg / Roll ID (Strict e.g. 24CA172)
     const cleanRegId = studentRegId.toLowerCase().replace(/[^a-z0-9]/g, '');
-    const cleanText = textLower.replace(/[^a-z0-9]/g, '');
-    const isRegIdMatched = cleanRegId.length >= 3 && cleanText.includes(cleanRegId);
+    const cleanDocText = textLower.replace(/[^a-z0-9]/g, '');
+    const cleanFileName = fileNameLower.replace(/[^a-z0-9]/g, '');
+    const isRegIdMatched = (cleanRegId.length >= 3 && (cleanDocText.includes(cleanRegId) || cleanFileName.includes(cleanRegId)));
 
-    // 4. PILLAR 3: College Name Match (e.g. Seshadripuram / SFGC)
-    const collegeTokens = collegeName.toLowerCase().split(/\s+/).filter(t => t.length > 3);
+    // 4. PILLAR 3: Check College / Institution Name (Strict e.g. Seshadripuram / SFGC)
+    const collegeTokens = collegeName.toLowerCase().split(/\s+/).filter(t => t.length >= 3);
     let isCollegeMatched = false;
     for (const token of collegeTokens) {
       if (textLower.includes(token) || fileNameLower.includes(token)) {
@@ -219,40 +218,40 @@ async function runRealOcrVerification() {
         break;
       }
     }
-    if (textLower.includes('seshadri') || textLower.includes('sfgc') || fileNameLower.includes('seshadri')) {
-      isCollegeMatched = true;
+    if (textLower.includes('seshadri') || textLower.includes('sfgc') || fileNameLower.includes('seshadri') || fileNameLower.includes('sfgc')) {
+      if (collegeName.toLowerCase().includes('seshadri') || collegeName.toLowerCase().includes('sfgc')) {
+        isCollegeMatched = true;
+      }
     }
 
-    const isOfficialDoc = fileNameLower.includes('fee') || fileNameLower.includes('receipt') || fileNameLower.includes('id') || textLower.includes('college') || textLower.includes('student');
+    // STRICT 3-POINT VALIDATION: Report exactly which field didn't match!
+    let failedFields = [];
+    if (!isNameMatched) failedFields.push(`Name "${fullName}"`);
+    if (!isRegIdMatched) failedFields.push(`Reg ID "${studentRegId}"`);
+    if (!isCollegeMatched) failedFields.push(`College "${collegeName}"`);
 
-    // Strict Decision: Name must match + at least Reg ID or College on document
-    if (!isNameMatched && !isRegIdMatched && !isOfficialDoc) {
+    if (failedFields.length > 0) {
       btn.disabled = false;
-      btn.innerText = 'Run Document Verification';
+      btn.innerText = 'Run 3-Point Document Verification';
       isDocVerified = false;
-      statusEl.innerText = `❌ Verification Failed: Student Name "${fullName}" was NOT found on this document.`;
+      statusEl.innerText = `❌ Verification Mismatch: ${failedFields.join(', ')} was NOT found on this uploaded document.`;
       statusEl.className = 'status-msg error';
-      showAlert(`❌ Verification Failed: The uploaded document does not match "${fullName}".`);
+      showAlert(`❌ Verification Failed: ${failedFields.join(', ')} does not match the uploaded document. Please check your entered details.`);
       calculateTrustScore();
       return;
     }
 
-    // ✅ TRIPLE-LOCK VERIFIED
+    // ✅ ALL 3 PILLARS MATCHED (Name + Reg ID + College Matched!)
     isDocVerified = true;
     btn.classList.add('hidden');
 
-    let matchDetails = [];
-    if (isNameMatched) matchDetails.push("👤 Name Confirmed");
-    if (isRegIdMatched) matchDetails.push(`🆔 Reg ID (${studentRegId}) Confirmed`);
-    if (isCollegeMatched) matchDetails.push("🏛️ College Confirmed");
-
-    statusEl.innerText = `✅ Verified! ${matchDetails.join(" • ")} (+35% Trust Score)`;
+    statusEl.innerText = `✅ Triple-Lock Verified: Name, Reg ID (${studentRegId}) & College (${collegeName}) Confirmed! (+35% Trust Score)`;
     statusEl.className = 'status-msg success';
 
     document.getElementById('certStudentName').innerText = fullName;
     document.getElementById('certCollegeName').innerText = collegeName;
     document.getElementById('certRegNo').innerText = studentRegId;
-    document.getElementById('certMatchReason').innerText = `✓ Authenticated: ${matchDetails.join(" • ")}`;
+    document.getElementById('certMatchReason').innerText = `✓ Authenticated: Name, Roll ID (${studentRegId}) & College Confirmed`;
     document.getElementById('academicCertCard').classList.remove('hidden');
 
     calculateTrustScore();
@@ -260,7 +259,7 @@ async function runRealOcrVerification() {
   } catch (err) {
     console.error("Verification error:", err);
     btn.disabled = false;
-    btn.innerText = 'Run Document Verification';
+    btn.innerText = 'Run 3-Point Document Verification';
     isDocVerified = false;
     statusEl.innerText = `❌ Verification error. Please try again.`;
     statusEl.className = 'status-msg error';
@@ -588,7 +587,7 @@ async function handleRegistrationSubmit(event) {
   const specialization = document.getElementById('specialization').value.trim();
   const collegeName = document.getElementById('collegeName').value.trim();
   const skills = document.getElementById('skills').value.trim();
-  const passedOutYear = document.getElementById('passedOutYear').value.trim();
+  const passedOutYear = document.getElementById('passedOutYear').value.trim(); // e.g. "2024-2027" or "2027"
 
   // Security Questions
   const favouriteSport = document.getElementById('favouriteSport').value.trim();
@@ -608,7 +607,7 @@ async function handleRegistrationSubmit(event) {
   }
 
   if (!isDocVerified) {
-    showAlert('⚠️ Please complete Section 3: Run the document verification.');
+    showAlert('⚠️ Please complete Section 3: Run the 3-point document verification.');
     return;
   }
 
@@ -666,7 +665,8 @@ function renderSuccessScreen(fullName, collegeName, qualification, specializatio
   document.getElementById('holoCollege').innerText = collegeName;
   document.getElementById('holoDegree').innerText = `${qualification} • ${specialization}`;
   document.getElementById('holoRegNo').innerText = regId || '24CA172';
-  document.getElementById('successScoreText').innerText = `${trustScore}% Trust Rating (Document Verified)`;
+  document.getElementById('holoBatch').innerText = passedOutYear || '2024-2027';
+  document.getElementById('successScoreText').innerText = `${trustScore}% Trust Rating (3-Point Document Verified)`;
 
   const skillsContainer = document.getElementById('holoSkills');
   skillsContainer.innerHTML = '';
