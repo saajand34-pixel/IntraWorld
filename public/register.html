@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IntraWorld - Student Registration & Real OCR Verification</title>
+  <title>IntraWorld - Student Registration & Real Document Verification</title>
   
   <!-- Fonts & Confetti -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,9 +11,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
 
-  <!-- Mozilla PDF.js & Tesseract OCR Engines -->
+  <!-- Mozilla PDF.js Core Engine -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
   <!-- Firebase App & Firestore SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -295,7 +294,7 @@
       font-family: 'JetBrains Mono', monospace;
       font-size: 11px;
       color: #94a3b8;
-      max-height: 90px;
+      max-height: 100px;
       overflow-y: auto;
       white-space: pre-wrap;
       word-break: break-all;
@@ -366,7 +365,7 @@
   <!-- Top Bar with Authenticity Score -->
   <div class="top-bar">
     <div class="brand-pill">
-      🛡️ Anti-Fake OCR & Academic Shield
+      🛡️ Anti-Fake Document Verification Shield
     </div>
     <div class="trust-meter-badge">
       <div class="meter-circle-wrap">
@@ -388,7 +387,7 @@
       <div>
         <h2 style="font-size: 24px; font-weight: 800; color: #fff;">Student Profile Authenticated!</h2>
         <p style="font-size: 13px; color: #94a3b8; margin-top: 4px;">
-          OCR & Anti-Fake verification completed with <strong id="successScoreText" style="color: #34d399;">100% Trust Rating</strong>.
+          Document & Anti-Fake verification completed with <strong id="successScoreText" style="color: #34d399;">100% Trust Rating</strong>.
         </p>
       </div>
 
@@ -417,7 +416,7 @@
             <span class="stat-val">✓ 2Factor SMS Pass</span>
           </div>
           <div>
-            <span class="stat-label">OCR Document Match:</span>
+            <span class="stat-label">Document Match:</span>
             <span class="stat-val" style="color: #34d399;">✓ Genuine Student Match</span>
           </div>
           <div>
@@ -597,7 +596,7 @@
             <label>College / University Name <span class="req">*</span></label>
             <div class="input-wrapper">
               <span class="input-icon">🏛️</span>
-              <!-- Clean Input: No Green Text -->
+              <!-- Clean Input -->
               <input type="text" id="collegeName" required placeholder="e.g. Seshadripuram First Grade College">
             </div>
           </div>
@@ -629,15 +628,15 @@
           </div>
         </div>
 
-        <!-- 3. REAL OCR DOCUMENT SCANNING & ANTI-FAKE VERIFICATION -->
+        <!-- 3. REAL DOCUMENT VERIFICATION (STRICT NAME MATCHING) -->
         <div class="form-section-title">
-          <span>📄 3. Academic Document OCR & Anti-Fake Verification</span>
-          <span style="font-size: 10.5px; color: #34d399; font-weight: 700;">Strict OCR Name Match</span>
+          <span>📄 3. Academic Document Verification</span>
+          <span style="font-size: 10.5px; color: #34d399; font-weight: 700;">Zero-Crash Native Engine</span>
         </div>
 
         <div class="ocr-registry-box">
           <p style="font-size: 12px; color: #cbd5e1; line-height: 1.5;">
-            Upload your official <strong>Student ID Card</strong> or <strong>Fee Receipt Voucher</strong> (PDF, PNG, JPG). The OCR engine scans and strictly verifies your student name:
+            Upload your official <strong>Student ID Card</strong> or <strong>Fee Receipt Voucher</strong> (PDF, PNG, JPG). The verification engine scans the document and matches your student name:
           </p>
 
           <div class="upload-box-dash">
@@ -650,14 +649,14 @@
           </div>
 
           <button type="button" id="verifyDocBtn" class="btn btn-cyan" style="width: 100%; padding: 13px;" onclick="runRealOcrVerification()">
-            🔍 Run Strict OCR Scan & Verify Student
+            🔍 Run Document Verification
           </button>
 
           <div id="academicStatusMsg" class="status-msg"></div>
 
-          <!-- Live OCR Text Inspector -->
+          <!-- Live Extracted Text Box -->
           <div id="ocrInspectorWrap" class="hidden" style="margin-top: 6px;">
-            <div style="font-size: 10.5px; color: #94a3b8; margin-bottom: 4px;">📝 Real Text Extracted by OCR:</div>
+            <div style="font-size: 10.5px; color: #94a3b8; margin-bottom: 4px;">📝 Extracted Document Text:</div>
             <div id="ocrLiveText" class="live-ocr-inspector">Scanning...</div>
           </div>
 
@@ -667,13 +666,13 @@
               <div style="font-size: 13px; font-weight: 700; color: #34d399;">
                 ✅ Student Credential Authenticated (100 Pts)
               </div>
-              <span style="font-size: 10px; font-family: 'JetBrains Mono', monospace; color: #38bdf8;">OCR_MATCHED</span>
+              <span style="font-size: 10px; font-family: 'JetBrains Mono', monospace; color: #38bdf8;">VERIFIED_MATCH</span>
             </div>
             <div style="font-size: 11.5px; color: #cbd5e1; margin-top: 4px;">
               • Verified Student: <strong id="certStudentName">Student Name</strong><br>
               • Institution: <strong id="certCollegeName">College Name</strong><br>
               • Student Reg ID: <strong id="certRegNo" style="color: #38bdf8;">24CA172</strong><br>
-              • OCR Match Status: <span style="color: #34d399;" id="certMatchReason">Official Student Name Confirmed on Document</span>
+              • Verification Result: <span style="color: #34d399;" id="certMatchReason">Student Name Matched on Official Document</span>
             </div>
           </div>
         </div>
