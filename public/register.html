@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IntraWorld - Student Registration & Real Document Verification</title>
+  <title>IntraWorld - Student Registration & Document Verification</title>
   
   <!-- Fonts & Confetti -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -261,7 +261,7 @@
     .status-msg.info { color: #38bdf8; }
     .status-msg.error { color: #fb7185; }
 
-    /* REAL OCR HUD & LIVE TEXT INSPECTOR */
+    /* DOCUMENT VERIFICATION BOX */
     .ocr-registry-box {
       background: rgba(12, 22, 48, 0.85);
       border: 1px solid rgba(56, 189, 248, 0.35);
@@ -285,20 +285,6 @@
     }
     .upload-box-dash:hover { border-color: var(--cyan-accent); background: rgba(14, 165, 233, 0.06); }
     .upload-box-dash input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
-
-    .live-ocr-inspector {
-      background: #050d1e;
-      border: 1px solid #162a52;
-      border-radius: 10px;
-      padding: 10px 12px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      color: #94a3b8;
-      max-height: 100px;
-      overflow-y: auto;
-      white-space: pre-wrap;
-      word-break: break-all;
-    }
 
     .cert-badge-hud {
       background: linear-gradient(135deg, rgba(7, 16, 38, 0.95), rgba(12, 28, 66, 0.85));
@@ -653,12 +639,6 @@
           </button>
 
           <div id="academicStatusMsg" class="status-msg"></div>
-
-          <!-- Live Extracted Text Box -->
-          <div id="ocrInspectorWrap" class="hidden" style="margin-top: 6px;">
-            <div style="font-size: 10.5px; color: #94a3b8; margin-bottom: 4px;">📝 Extracted Document Text:</div>
-            <div id="ocrLiveText" class="live-ocr-inspector">Scanning...</div>
-          </div>
 
           <!-- Verified Certificate HUD -->
           <div id="academicCertCard" class="cert-badge-hud hidden">
