@@ -11,7 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
 
-  <!-- High-Trust Open Source OCR Libraries: Mozilla PDF.js & Tesseract.js -->
+  <!-- Mozilla PDF.js & Tesseract OCR Engines -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
@@ -262,7 +262,7 @@
     .status-msg.info { color: #38bdf8; }
     .status-msg.error { color: #fb7185; }
 
-    /* OCR VERIFICATION HUD */
+    /* REAL OCR HUD & LIVE TEXT INSPECTOR */
     .ocr-registry-box {
       background: rgba(12, 22, 48, 0.85);
       border: 1px solid rgba(56, 189, 248, 0.35);
@@ -286,6 +286,20 @@
     }
     .upload-box-dash:hover { border-color: var(--cyan-accent); background: rgba(14, 165, 233, 0.06); }
     .upload-box-dash input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+
+    .live-ocr-inspector {
+      background: #050d1e;
+      border: 1px solid #162a52;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: #94a3b8;
+      max-height: 90px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
 
     .cert-badge-hud {
       background: linear-gradient(135deg, rgba(7, 16, 38, 0.95), rgba(12, 28, 66, 0.85));
@@ -583,7 +597,7 @@
             <label>College / University Name <span class="req">*</span></label>
             <div class="input-wrapper">
               <span class="input-icon">🏛️</span>
-              <!-- Clean Input with No Green Text -->
+              <!-- Clean Input: No Green Text -->
               <input type="text" id="collegeName" required placeholder="e.g. Seshadripuram First Grade College">
             </div>
           </div>
@@ -618,12 +632,12 @@
         <!-- 3. REAL OCR DOCUMENT SCANNING & ANTI-FAKE VERIFICATION -->
         <div class="form-section-title">
           <span>📄 3. Academic Document OCR & Anti-Fake Verification</span>
-          <span style="font-size: 10.5px; color: #34d399; font-weight: 700;">Name-Matching OCR</span>
+          <span style="font-size: 10.5px; color: #34d399; font-weight: 700;">Strict OCR Name Match</span>
         </div>
 
         <div class="ocr-registry-box">
           <p style="font-size: 12px; color: #cbd5e1; line-height: 1.5;">
-            Upload your official <strong>Student ID Card</strong> or <strong>Fee Receipt Voucher</strong> (PDF, PNG, JPG). The OCR engine scans and cross-checks the name on your document with your profile:
+            Upload your official <strong>Student ID Card</strong> or <strong>Fee Receipt Voucher</strong> (PDF, PNG, JPG). The OCR engine scans and strictly verifies your student name:
           </p>
 
           <div class="upload-box-dash">
@@ -636,24 +650,30 @@
           </div>
 
           <button type="button" id="verifyDocBtn" class="btn btn-cyan" style="width: 100%; padding: 13px;" onclick="runRealOcrVerification()">
-            🔍 Run OCR Scan & Verify Student Document
+            🔍 Run Strict OCR Scan & Verify Student
           </button>
 
           <div id="academicStatusMsg" class="status-msg"></div>
 
+          <!-- Live OCR Text Inspector -->
+          <div id="ocrInspectorWrap" class="hidden" style="margin-top: 6px;">
+            <div style="font-size: 10.5px; color: #94a3b8; margin-bottom: 4px;">📝 Real Text Extracted by OCR:</div>
+            <div id="ocrLiveText" class="live-ocr-inspector">Scanning...</div>
+          </div>
+
           <!-- Verified Certificate HUD -->
           <div id="academicCertCard" class="cert-badge-hud hidden">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-              <div style="font-size: 13px; font-weight: 700; color: #34d399;" id="certTitleStatus">
+              <div style="font-size: 13px; font-weight: 700; color: #34d399;">
                 ✅ Student Credential Authenticated (100 Pts)
               </div>
-              <span style="font-size: 10px; font-family: 'JetBrains Mono', monospace; color: #38bdf8;" id="certBadgeText">OCR_VERIFIED</span>
+              <span style="font-size: 10px; font-family: 'JetBrains Mono', monospace; color: #38bdf8;">OCR_MATCHED</span>
             </div>
             <div style="font-size: 11.5px; color: #cbd5e1; margin-top: 4px;">
               • Verified Student: <strong id="certStudentName">Student Name</strong><br>
               • Institution: <strong id="certCollegeName">College Name</strong><br>
               • Student Reg ID: <strong id="certRegNo" style="color: #38bdf8;">24CA172</strong><br>
-              • OCR Match Status: <span style="color: #34d399;" id="certMatchReason">Official Document & Name Confirmed</span>
+              • OCR Match Status: <span style="color: #34d399;" id="certMatchReason">Official Student Name Confirmed on Document</span>
             </div>
           </div>
         </div>
