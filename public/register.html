@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IntraWorld - Student Registration & ABC / APAAR Verification</title>
+  <title>IntraWorld - Student Registration & SheerID Verification Portal</title>
   
   <!-- Fonts & Confetti -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -258,46 +258,62 @@
     .status-msg.info { color: #38bdf8; }
     .status-msg.error { color: #fb7185; }
 
-    /* ABC / APAAR ID VERIFICATION HUD */
-    .abc-verification-box {
+    /* SHEERID VERIFICATION MODULE */
+    .sheerid-container {
       background: rgba(12, 22, 48, 0.85);
       border: 1px solid rgba(56, 189, 248, 0.35);
       border-radius: 18px;
-      padding: 20px;
+      padding: 22px;
       margin-top: 8px;
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 16px;
     }
 
-    .abc-header-badge {
+    .sheerid-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
       border-bottom: 1px solid rgba(30, 58, 110, 0.5);
-      padding-bottom: 10px;
+      padding-bottom: 12px;
     }
 
-    .abc-badge-pill {
-      background: rgba(56, 189, 248, 0.15);
-      border: 1px solid rgba(56, 189, 248, 0.35);
-      color: #38bdf8;
-      border-radius: 9999px;
+    .sheerid-logo-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #091a3e;
+      border: 1px solid #38bdf8;
+      border-radius: 8px;
       padding: 4px 10px;
-      font-size: 10.5px;
-      font-weight: 700;
-      letter-spacing: 0.04em;
+      font-size: 11px;
+      font-weight: 800;
+      color: #38bdf8;
+      letter-spacing: 0.05em;
     }
 
-    .abc-verified-card {
+    .sheerid-upload-box {
+      border: 2px dashed rgba(56, 189, 248, 0.3);
+      border-radius: 14px;
+      padding: 18px;
+      text-align: center;
+      background: rgba(7, 16, 38, 0.6);
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s;
+    }
+    .sheerid-upload-box:hover { border-color: var(--cyan-accent); background: rgba(14, 165, 233, 0.06); }
+    .sheerid-upload-box input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+
+    .sheerid-cert-badge {
       background: linear-gradient(135deg, rgba(7, 16, 38, 0.95), rgba(12, 28, 66, 0.85));
-      border: 1px solid rgba(16, 185, 129, 0.4);
+      border: 1px solid rgba(16, 185, 129, 0.45);
       border-radius: 14px;
       padding: 16px;
       display: flex;
       flex-direction: column;
       gap: 8px;
-      box-shadow: 0 0 20px rgba(16, 185, 129, 0.15);
+      box-shadow: 0 0 25px rgba(16, 185, 129, 0.15);
     }
 
     .cloud-flare-box {
@@ -354,7 +370,7 @@
   <!-- Top Bar with Authenticity Score -->
   <div class="top-bar">
     <div class="brand-pill">
-      🛡️ Academic Zero-Trust Portal
+      🛡️ SheerID Verified Academic Shield
     </div>
     <div class="trust-meter-badge">
       <div class="meter-circle-wrap">
@@ -374,9 +390,9 @@
     <div id="successView" class="success-panel hidden">
       <div style="font-size: 40px;">🏆</div>
       <div>
-        <h2 style="font-size: 24px; font-weight: 800; color: #fff;">Student Profile Authenticated!</h2>
+        <h2 style="font-size: 24px; font-weight: 800; color: #fff;">SheerID Student Verified!</h2>
         <p style="font-size: 13px; color: #94a3b8; margin-top: 4px;">
-          Zero-Trust verification completed with <strong id="successScoreText" style="color: #34d399;">100% Trust Rating</strong>.
+          Academic verification completed with <strong id="successScoreText" style="color: #34d399;">100% Trust Rating</strong>.
         </p>
       </div>
 
@@ -393,8 +409,8 @@
 
         <div class="holo-stats-grid">
           <div>
-            <span class="stat-label">ABC / APAAR ID:</span>
-            <span class="stat-val" id="holoAbcId" style="color: #f1f5f9;">VERIFIED</span>
+            <span class="stat-label">SheerID Token:</span>
+            <span class="stat-val" id="holoSheerId" style="color: #38bdf8; font-family: 'JetBrains Mono', monospace;">SID-IND-VERIFIED</span>
           </div>
           <div>
             <span class="stat-label">Gmail Auth:</span>
@@ -405,15 +421,15 @@
             <span class="stat-val">✓ 2Factor SMS Pass</span>
           </div>
           <div>
-            <span class="stat-label">Academic Registry:</span>
-            <span class="stat-val" style="color: #34d399;">✓ MoE / DigiLocker Pass</span>
+            <span class="stat-label">Academic Proof:</span>
+            <span class="stat-val" style="color: #34d399;">✓ SheerID Verified</span>
           </div>
           <div>
             <span class="stat-label">Anti-Bot Shield:</span>
             <span class="stat-val">Cloudflare Cleared</span>
           </div>
           <div>
-            <span class="stat-label">Status:</span>
+            <span class="stat-label">Student Status:</span>
             <span class="stat-val" style="color: #38bdf8;">AUTHENTIC_STUDENT</span>
           </div>
         </div>
@@ -423,7 +439,7 @@
 
       <div style="display: flex; justify-content: center; gap: 12px; margin-top: 10px;">
         <button class="btn btn-secondary" onclick="window.location.reload()">🔄 Register Another Student</button>
-        <button class="btn btn-cyan" onclick="alert('Welcome to IntraWorld! Your ABC/APAAR-verified student profile is stored in Firestore.')">✨ Enter IntraWorld Feed</button>
+        <button class="btn btn-cyan" onclick="alert('Welcome to IntraWorld! Your SheerID-verified student profile is stored in Firestore.')">✨ Enter IntraWorld Feed</button>
       </div>
     </div>
 
@@ -580,11 +596,21 @@
           </div>
         </div>
 
-        <div class="form-group">
-          <label>College / University Name <span class="req">*</span></label>
-          <div class="input-wrapper">
-            <span class="input-icon">🏛️</span>
-            <input type="text" id="collegeName" required placeholder="e.g. Seshadripuram First Grade College">
+        <div class="form-row">
+          <div class="form-group">
+            <label>College / University Name <span class="req">*</span></label>
+            <div class="input-wrapper">
+              <span class="input-icon">🏛️</span>
+              <input type="text" id="collegeName" required placeholder="e.g. Seshadripuram First Grade College">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Student Roll No / Reg ID <span class="req">*</span> <span class="helper">(e.g. 24CA172)</span></label>
+            <div class="input-wrapper">
+              <span class="input-icon">🆔</span>
+              <input type="text" id="studentRegId" required placeholder="e.g. 24CA172" oninput="calculateTrustScore()">
+            </div>
           </div>
         </div>
 
@@ -606,46 +632,56 @@
           </div>
         </div>
 
-        <!-- 3. ABC ID / APAAR ID VERIFICATION (ONE NATION ONE STUDENT ID) -->
+        <!-- 3. SHEERID ACADEMIC STUDENT VERIFICATION GATEWAY -->
         <div class="form-section-title">
-          <span>🎓 3. ABC ID / APAAR ID (Academic Bank of Credits)</span>
-          <span style="font-size: 10.5px; color: #34d399; font-weight: 700;">One Nation, One Student ID</span>
+          <span>🎓 3. SheerID Academic Student Verification</span>
+          <span style="font-size: 10.5px; color: #34d399; font-weight: 700;">Global Student Standard</span>
         </div>
 
-        <div class="abc-verification-box">
-          <div class="abc-header-badge">
-            <span style="font-size: 12px; font-weight: 600; color: #f1f5f9;">Official 12-Digit ABC / APAAR ID (DigiLocker)</span>
-            <span class="abc-badge-pill">MoE & DigiLocker</span>
+        <div class="sheerid-container">
+          <div class="sheerid-header">
+            <div>
+              <div style="font-size: 13px; font-weight: 700; color: #f1f5f9;">SheerID Student Identity Verification</div>
+              <div style="font-size: 11px; color: #94a3b8;">Official verification used by Spotify, Nike & GitHub Student Developer Pack</div>
+            </div>
+            <div class="sheerid-logo-pill">
+              🛡️ SheerID™
+            </div>
           </div>
 
-          <p style="font-size: 12px; color: #94a3b8; line-height: 1.5;">
-            Enter your official <strong>12-digit ABC Code / APAAR ID</strong>. Verified via academic registry — <strong>random spam/troll numbers are rejected</strong>:
+          <p style="font-size: 12px; color: #cbd5e1; line-height: 1.5;">
+            Upload your official <strong>College ID Card</strong>, <strong>Tuition Fee Receipt</strong>, or <strong>Enrollment Certificate</strong> (PDF, PNG, JPG). SheerID validates your institution and student status:
           </p>
 
-          <div style="display: flex; gap: 8px;">
-            <div class="input-wrapper" style="flex: 1;">
-              <span class="input-icon">🆔</span>
-              <input type="text" id="abcIdInput" maxlength="14" required placeholder="XXXX-XXXX-XXXX (12 digits)" oninput="handleAbcInputFormatting(this)">
+          <!-- SheerID Document Upload Zone -->
+          <div class="sheerid-upload-box" id="sheerIdUploadWrap">
+            <input type="file" id="sheerIdDocInput" accept="image/png, image/jpeg, image/webp, application/pdf" onchange="handleSheerIdDocSelected(event)">
+            <div style="font-size: 26px; color: #38bdf8; margin-bottom: 4px;">📑</div>
+            <div id="sheerIdUploadLabel" style="font-size: 13px; font-weight: 600; color: #f1f5f9;">
+              Choose Student Document (ID Card, Fee Receipt, PDF)
             </div>
-            <button type="button" id="verifyAbcBtn" class="btn btn-cyan" onclick="verifyRealAbcId()">
-              Verify ABC / APAAR ID
-            </button>
+            <div style="font-size: 10.5px; color: #94a3b8; margin-top: 2px;">Click to browse from your device</div>
           </div>
 
-          <div id="abcStatusMsg" class="status-msg"></div>
+          <button type="button" id="sheerIdVerifyBtn" class="btn btn-cyan" style="width: 100%; padding: 13px;" onclick="runSheerIdVerification()">
+            🛡️ Verify Student Status via SheerID
+          </button>
 
-          <!-- Verified ABC / APAAR ID Card HUD -->
-          <div id="abcVerifiedCard" class="abc-verified-card hidden">
+          <div id="sheerIdStatusMsg" class="status-msg"></div>
+
+          <!-- SheerID Verified Certificate HUD -->
+          <div id="sheerIdCertCard" class="sheerid-cert-badge hidden">
             <div style="display: flex; justify-content: space-between; align-items: center;">
               <div style="font-size: 13px; font-weight: 700; color: #34d399;">
-                ✅ ABC / APAAR ID Verified (100 Pts)
+                ✅ SheerID Student Verification Passed (100 Pts)
               </div>
-              <span style="font-size: 10px; font-family: 'JetBrains Mono', monospace; color: #38bdf8;">AUTHENTIC</span>
+              <span style="font-size: 10px; font-family: 'JetBrains Mono', monospace; color: #38bdf8;" id="sheerIdTokenBadge">SID-IND-89412</span>
             </div>
             <div style="font-size: 11.5px; color: #cbd5e1; margin-top: 4px;">
-              • Student Entity: <strong id="abcStudentName">Saajan D</strong><br>
-              • APAAR / ABC ID: <strong id="abcDisplayId" style="color: #38bdf8; font-family: 'JetBrains Mono', monospace;">2849-1029-4821</strong><br>
-              • Ministry of Education Registry: <span style="color: #34d399;">Active Academic Account Confirmed</span>
+              • Verified Student: <strong id="sheerIdStudentName">Student Name</strong><br>
+              • Institution: <strong id="sheerIdCollegeName">College Name</strong><br>
+              • Student Reg ID: <strong id="sheerIdRegNo" style="color: #38bdf8;">24CA172</strong><br>
+              • SheerID Eligibility: <span style="color: #34d399;">Active Enrolled Student Confirmed</span>
             </div>
           </div>
         </div>
