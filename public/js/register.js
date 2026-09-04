@@ -137,64 +137,94 @@ function fileToBase64(file) {
 }
 
 // =========================================================================
-// 3. OCR TEXT EXTRACTION VIA GEMINI API & DIRECT PDF PARSING
+// =========================================================================
+// 3. MULTI-LAYER OCR & AI DOCUMENT TEXT EXTRACTION
 // =========================================================================
 async function extractDocumentTextViaOCR(file) {
-  let directPdfText = "";
+  let combinedExtractedText = "";
+  const statusEl = document.getElementById('academicStatusMsg');
+
+  // LAYER 1: Direct PDF Text Extraction (for PDF files)
   if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
     try {
       if (typeof pdfjsLib !== 'undefined') {
+        if (statusEl) statusEl.innerText = '📄 Reading PDF document layers...';
         const arrayBuffer = await file.arrayBuffer();
         const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-        for (let i = 1; i <= Math.min(pdf.numPages, 3); i++) {
+        for (let i = 1; i <= Math.min(pdf.numPages, 5); i++) {
           const page = await pdf.getPage(i);
           const textContent = await page.getTextContent();
-          directPdfText += " " + textContent.items.map(item => item.str).join(" ");
+          combinedExtractedText += " " + textContent.items.map(item => item.str).join(" ");
         }
       }
     } catch (pdfErr) {
-      console.warn("PDF direct text extraction note:", pdfErr);
+      console.warn("PDF native layer note:", pdfErr);
     }
   }
 
-  const geminiApiKey = await getGeminiKey();
-  const { base64, mimeType } = await fileToBase64(file);
-
-  const prompt = `Perform complete Optical Character Recognition (OCR) on this uploaded document/ID card.
-Read and extract ALL visible text, student names, registration numbers, degrees, college names, headers, and footer details.
-Return ONLY the raw extracted text in plaintext.`;
-
-  const payload = {
-    contents: [{
-      parts: [
-        { text: prompt },
-        { inline_data: { mime_type: mimeType, data: base64 } }
-      ]
-    }]
-  };
-
-  const models = ['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash-latest', 'gemini-1.5-pro', 'gemini-2.5-flash'];
-  for (const model of models) {
-    try {
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiApiKey}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+  // LAYER 2: Client-Side Tesseract OCR (High-Precision OCR for Images)
+  try {
+    if (typeof Tesseract !== 'undefined') {
+      if (statusEl) statusEl.innerText = '🔍 Optical Character Recognition (OCR) running...';
+      const tesseractResult = await Tesseract.recognize(file, 'eng', {
+        logger: (m) => {
+          if (m.status === 'recognizing text' && statusEl) {
+            const pct = Math.round(m.progress * 100);
+            statusEl.innerText = `🔍 Optical Character Recognition (OCR) Scanning: ${pct}%...`;
+          }
+        }
       });
-      const result = await response.json();
-      if (response.ok && result.candidates && result.candidates[0]?.content?.parts[0]?.text) {
-        return (directPdfText + " " + result.candidates[0].content.parts[0].text).trim();
+      if (tesseractResult && tesseractResult.data && tesseractResult.data.text) {
+        combinedExtractedText += " " + tesseractResult.data.text;
       }
-    } catch (e) {
-      console.warn(`Model ${model} try note:`, e.message);
     }
+  } catch (tessErr) {
+    console.warn("Tesseract OCR note:", tessErr);
   }
 
-  if (directPdfText && directPdfText.trim().length > 5) {
-    return directPdfText.trim();
+  // LAYER 3: Gemini Vision AI (if API key is available & online)
+  try {
+    const geminiApiKey = await getGeminiKey();
+    if (geminiApiKey) {
+      const { base64, mimeType } = await fileToBase64(file);
+      const prompt = `Perform complete Optical Character Recognition (OCR) on this student document. Extract student name, registration number, course, degree, and college name. Return plain text only.`;
+
+      const payload = {
+        contents: [{
+          parts: [
+            { text: prompt },
+            { inline_data: { mime_type: mimeType, data: base64 } }
+          ]
+        }]
+      };
+
+      const models = ['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash-latest', 'gemini-1.5-pro'];
+      for (const model of models) {
+        try {
+          const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiApiKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          if (response.ok) {
+            const result = await response.json();
+            if (result.candidates && result.candidates[0]?.content?.parts[0]?.text) {
+              combinedExtractedText += " " + result.candidates[0].content.parts[0].text;
+              break;
+            }
+          }
+        } catch (mErr) {
+          // Fallback to client-side OCR
+        }
+      }
+    }
+  } catch (geminiErr) {
+    console.warn("Gemini Vision API note:", geminiErr);
   }
 
-  return directPdfText + " " + file.name;
+  // Append file name and sanitize
+  combinedExtractedText = (combinedExtractedText + " " + file.name).trim();
+  return combinedExtractedText;
 }
 
 // =========================================================================
