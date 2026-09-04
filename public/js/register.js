@@ -221,8 +221,7 @@ async function runRealOcrVerification() {
 
   try {
     const rawOcrText = await extractDocumentTextViaOCR(selectedAcademicFile);
-    console.log("📝 OCR Extracted Text:
-", rawOcrText);
+    console.log("📝 OCR Extracted Text:", rawOcrText);
 
     // 100% Case-Insensitive Normalization
     const docLower = (rawOcrText + " " + selectedAcademicFile.name).toLowerCase();
