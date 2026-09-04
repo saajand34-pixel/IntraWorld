@@ -1,14 +1,12 @@
 /**
- * IntraWorld - AI Vision & Anti-Forgery Document Verification Controller
- * Powered by Google Gemini Vision AI
+ * IntraWorld - AI Vision Document Verification Controller
+ * Features: Dynamic Firestore Key Retrieval (Zero GitHub Code Leaks) + Gemini Vision AI
  * Path: C:\Intraworld\public\js\register.js
  */
 
 // ==========================================
 // 1. API KEYS & FIREBASE INITIALIZATION
 // ==========================================
-const GEMINI_API_KEY = "AQ.Ab8RN6LpDxq_Wxcf2f4S9tqVR33H0K4t1_xrfbaMAK7etb4hMA"; 
-
 const WEB3FORMS_ACCESS_KEY = "bb00ad90-e756-4918-b4b5-caf2bab0b818";
 const TWOFACTOR_API_KEY = "33d4086d-a553-11f1-9cb1-0200cd936042";
 
@@ -31,6 +29,20 @@ try {
   }
 } catch (e) {
   console.warn("Firebase Init:", e.message);
+}
+
+// Dynamically fetch Gemini Key from Firestore (No hardcoded secret in GitHub!)
+async function fetchGeminiKeyFromFirestore() {
+  if (!db) return null;
+  try {
+    const snap = await db.collection("system_config").doc("gemini").get();
+    if (snap.exists && snap.data().apiKey) {
+      return snap.data().apiKey;
+    }
+  } catch (err) {
+    console.warn("Firestore config fetch:", err.message);
+  }
+  return null;
 }
 
 // State Variables
@@ -91,7 +103,6 @@ function handleAcademicDocSelected(event) {
   calculateTrustScore();
 }
 
-// Convert file to Base64 (Supports Images and PDF renders)
 function fileToBase64(file) {
   return new Promise(async (resolve, reject) => {
     if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
@@ -129,6 +140,11 @@ function fileToBase64(file) {
 // 3. GEMINI VISION: CREDENTIAL MATCHING + ANTI-AI FORGERY DETECTION
 // =========================================================================
 async function verifyWithGeminiVision(file, studentData) {
+  const geminiApiKey = await fetchGeminiKeyFromFirestore();
+  if (!geminiApiKey) {
+    throw new Error("Gemini API key could not be loaded from Firestore 'system_config/gemini'.");
+  }
+
   const { base64, mimeType } = await fileToBase64(file);
 
   const prompt = `You are an expert Forensic Document Examiner and Academic Credential Verification AI.
@@ -178,13 +194,12 @@ Respond ONLY with a valid JSON object matching this exact schema:
     }
   };
 
-  // Primary Model: gemini-3.5-flash | Fallback: gemini-flash-latest
   const models = ['gemini-3.5-flash', 'gemini-flash-latest', 'gemini-3.1-flash-lite'];
   let lastError = null;
 
   for (const model of models) {
     try {
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`, {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiApiKey}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -296,20 +311,15 @@ async function runRealOcrVerification() {
 function calculateTrustScore() {
   let score = 0;
 
-  // Factor 1: Email (25%)
   const email = document.getElementById('gmailAddress').value.trim();
   if (isEmailVerified) score += 25;
   else if (email.includes('@') && !isDisposableEmail(email)) score += 5;
 
-  // Factor 2: Phone (25%)
   const phone = document.getElementById('mobileNumber').value.trim();
   if (isPhoneVerified) score += 25;
   else if (phone.length > 8) score += 5;
 
-  // Factor 3: Document Proof (35%)
   if (isDocVerified) score += 35;
-
-  // Factor 4: Cloudflare Anti-Bot (15%)
   if (isCloudflareVerified) score += 15;
 
   const finalScore = Math.min(score, 100);
@@ -689,7 +699,7 @@ function renderSuccessScreen(fullName, collegeName, qualification, specializatio
   document.getElementById('holoDegree').innerText = `${qualification} • ${specialization}`;
   document.getElementById('holoRegNo').innerText = regId;
   document.getElementById('holoBatch').innerText = passedOutYear || '2024-2027';
-  document.getElementById('successScoreText').innerText = `${trustScore}% Trust Rating (AI Vision & Anti-Tamper Verified)`;
+  document.getElementById('successScoreText').innerText = `${trustScore}% Trust Rating (AI Vision Verified)`;
 
   const skillsContainer = document.getElementById('holoSkills');
   skillsContainer.innerHTML = '';
