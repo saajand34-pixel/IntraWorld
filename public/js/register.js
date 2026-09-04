@@ -248,7 +248,7 @@ Return ONLY in this clean format without any introductory or conversational text
 }
 
 // =========================================================================
-// 4. STRICT FEE RECEIPT MATCHER: NAME, COLLEGE, COURSE & BATCH VALIDATOR
+// 4. STRICT 4-GUARD FEE RECEIPT VALIDATION ENGINE
 // =========================================================================
 async function runRealOcrVerification() {
   const fullName = document.getElementById('fullName').value.trim();
@@ -308,7 +308,7 @@ async function runRealOcrVerification() {
     const cleanDoc = docLower.replace(/[^a-z0-9]/g, '');
 
     // -------------------------------------------------------------
-    // 2. CHECK FULL NAME (Strict Case-Insensitive Verification)
+    // GUARD 1: STUDENT FULL NAME VERIFICATION
     // -------------------------------------------------------------
     const nameParts = fullName.toLowerCase().split(/\s+/).filter(p => p.length >= 2);
     const cleanFullName = fullName.toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -331,50 +331,91 @@ async function runRealOcrVerification() {
     }
 
     // -------------------------------------------------------------
-    // 3. CHECK COLLEGE NAME (Strict Case-Insensitive & Alias Verification)
+    // GUARD 2: COLLEGE NAME & INSTITUTION ALIAS VERIFICATION
     // -------------------------------------------------------------
     const collegeLower = collegeName.toLowerCase().trim();
     const cleanCollege = collegeLower.replace(/[^a-z0-9]/g, '');
     
+    let isCollegeMatched = false;
+
+    // Check 2.1: Clean Substring or Token Match
+    if (cleanCollege.length >= 3 && cleanDoc.includes(cleanCollege)) {
+      isCollegeMatched = true;
+    }
+
     const stopWords = new Set(['college', 'university', 'institute', 'institution', 'first', 'grade', 'the', 'and', 'for', 'of', 'in', 'at', 'campus', 'degree', 'education', 'educational', 'trust', 'academy', 'school', 'department']);
     const collegeWords = collegeLower.replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(w => w.length >= 3 && !stopWords.has(w));
     
-    const inputAcronym = collegeName.replace(/[^a-zA-Z\s]/g, '').split(/\s+/).filter(w => w.length > 0).map(w => w[0].toLowerCase()).join('');
-
-    let docAcronyms = [];
-    const lines = docLower.split(/[\r\n]+/);
-    lines.forEach(line => {
-      const words = line.replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(w => w.length > 0);
-      if (words.length >= 2) {
-        docAcronyms.push(words.map(w => w[0]).join(''));
-      }
-    });
-
-    let isCollegeMatched = false;
-    if (collegeWords.length > 0) {
+    if (!isCollegeMatched && collegeWords.length > 0) {
       isCollegeMatched = collegeWords.some(w => {
         const cleanW = w.replace(/[^a-z0-9]/g, '');
         return docLower.includes(w) || cleanDoc.includes(cleanW);
       });
     }
-    
+
+    // Check 2.2: Institutional Knowledge Base (Bidirectional Aliases & Acronyms)
+    const institutionAliases = [
+      {
+        acronyms: ['sfgc', 'sfg', 'set'],
+        keywords: ['seshadri', 'seshadripuram', 'seshadnpuram', 'first grade', 'firstgrade', 'yelahanka', 'bangalore 64', '560064', 'sfgc.ac.in']
+      },
+      {
+        acronyms: ['bmsce', 'bms'],
+        keywords: ['bms', 'b.m.s.', 'bmsce', 'bull temple']
+      },
+      {
+        acronyms: ['rvce', 'rv'],
+        keywords: ['rv college', 'rvce', 'mysore road']
+      },
+      {
+        acronyms: ['pesit', 'pesu', 'pes'],
+        keywords: ['pes university', 'pesit', 'ring road', 'electronic city']
+      },
+      {
+        acronyms: ['msrit', 'msr', 'rit'],
+        keywords: ['ramaiah', 'm.s. ramaiah', 'msrit']
+      },
+      {
+        acronyms: ['christ', 'cu'],
+        keywords: ['christ university', 'christ', 'hosur road']
+      },
+      {
+        acronyms: ['sjcc', 'sjc', 'sju'],
+        keywords: ['st joseph', 'st. joseph', 'josephs', 'sjcc', 'sju']
+      }
+    ];
+
     if (!isCollegeMatched) {
-      if (inputAcronym.length >= 3 && (docLower.includes(inputAcronym) || cleanDoc.includes(inputAcronym))) {
-        isCollegeMatched = true;
-      } else if (cleanCollege.length <= 6 && docAcronyms.some(da => da.includes(cleanCollege) || cleanCollege.includes(da))) {
-        isCollegeMatched = true;
+      for (const inst of institutionAliases) {
+        const isEnteredMatch = inst.acronyms.includes(cleanCollege) || inst.keywords.some(k => collegeLower.includes(k) || cleanCollege.includes(k.replace(/[^a-z0-9]/g, '')));
+        if (isEnteredMatch) {
+          const isDocMatch = inst.acronyms.some(a => docLower.includes(a) || cleanDoc.includes(a)) ||
+                             inst.keywords.some(k => docLower.includes(k) || cleanDoc.includes(k.replace(/[^a-z0-9]/g, '')));
+          if (isDocMatch) {
+            isCollegeMatched = true;
+            break;
+          }
+        }
       }
     }
 
+    // Check 2.3: Document Sliding Window Acronym Check
     if (!isCollegeMatched) {
-      if ((collegeLower.includes('seshadri') || cleanCollege.includes('sfgc')) && 
-          (docLower.includes('seshadri') || cleanDoc.includes('seshadri') || docLower.includes('sfgc') || cleanDoc.includes('sfgc') || docLower.includes('first grade'))) {
-        isCollegeMatched = true;
+      const rawWords = docLower.replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(w => w.length > 0);
+      for (let windowSize = 2; windowSize <= 6; windowSize++) {
+        for (let i = 0; i <= rawWords.length - windowSize; i++) {
+          const acronym = rawWords.slice(i, i + windowSize).map(w => w[0]).join('');
+          if (acronym === cleanCollege || (cleanCollege.length >= 3 && acronym.includes(cleanCollege))) {
+            isCollegeMatched = true;
+            break;
+          }
+        }
+        if (isCollegeMatched) break;
       }
     }
 
     // -------------------------------------------------------------
-    // 4. CHECK QUALIFICATION / DEGREE / COURSE (Strict Disambiguated Verification)
+    // GUARD 3: QUALIFICATION / DEGREE DISAMBIGUATED VERIFICATION
     // -------------------------------------------------------------
     const degreeLower = qualification.toLowerCase().trim();
     const cleanDegree = degreeLower.replace(/[^a-z0-9]/g, '');
@@ -423,7 +464,7 @@ async function runRealOcrVerification() {
     }
 
     // -------------------------------------------------------------
-    // 5. CHECK ACADEMIC BATCH vs FEE PAYMENT DATE (Reject if < or >)
+    // GUARD 4: ACADEMIC BATCH vs FEE PAYMENT DATE VERIFICATION
     // -------------------------------------------------------------
     let batchStartYear = 0;
     let batchEndYear = 0;
@@ -492,10 +533,10 @@ async function runRealOcrVerification() {
     });
 
     // -------------------------------------------------------------
-    // 6. STRICT EVALUATION: INDIVIDUAL FIELD MISMATCH GUARDS
+    // STRICT EVALUATION IN ORDER: GUARDS 1, 2, 3, 4
     // -------------------------------------------------------------
     
-    // Check 1: Student Name Match Guard
+    // Guard 1: Student Name
     if (!isNameMatched) {
       btn.disabled = false;
       btn.innerText = 'Run Fee Receipt OCR Verification';
@@ -507,7 +548,7 @@ async function runRealOcrVerification() {
       return;
     }
 
-    // Check 2: College Match Guard
+    // Guard 2: College Name / Alias
     if (!isCollegeMatched) {
       btn.disabled = false;
       btn.innerText = 'Run Fee Receipt OCR Verification';
@@ -519,7 +560,7 @@ async function runRealOcrVerification() {
       return;
     }
 
-    // Check 3: Qualification / Course Match Guard
+    // Guard 3: Qualification / Course
     if (!isCourseMatched) {
       btn.disabled = false;
       btn.innerText = 'Run Fee Receipt OCR Verification';
@@ -531,7 +572,7 @@ async function runRealOcrVerification() {
       return;
     }
 
-    // Check 4: Academic Batch Date Guard
+    // Guard 4: Academic Batch Date
     if (!isBatchValid) {
       btn.disabled = false;
       btn.innerText = 'Run Fee Receipt OCR Verification';
@@ -553,7 +594,7 @@ async function runRealOcrVerification() {
     const displayDate = extractedDate || (feePaymentYear ? `Payment Year: ${feePaymentYear}` : '2025-26');
     const displayNo = extractedReceiptNo ? `No. ${extractedReceiptNo}` : 'Voucher Verified';
 
-    statusEl.innerText = `✅ Fee Receipt Verified: ${displayStudent} • ${displayCourse} • Paid on ${displayDate} • Batch (${passedOutYear}) Validated! (+35% Trust Score)`;
+    statusEl.innerText = `✅ Fee Receipt Verified: ${displayStudent} • ${displayCollege} • ${displayCourse} • Batch (${passedOutYear}) Validated! (+35% Trust Score)`;
     statusEl.className = 'status-msg success';
 
     document.getElementById('certStudentName').innerText = displayStudent;
