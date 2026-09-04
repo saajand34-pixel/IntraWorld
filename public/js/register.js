@@ -248,11 +248,14 @@ Return ONLY in this clean format without any introductory or conversational text
 }
 
 // =========================================================================
-// 4. STRICT FEE RECEIPT MATCHER & ACADEMIC BATCH VALIDATOR
+// 4. STRICT FEE RECEIPT MATCHER: NAME, COLLEGE, COURSE & BATCH VALIDATOR
 // =========================================================================
 async function runRealOcrVerification() {
   const fullName = document.getElementById('fullName').value.trim();
-  const qualification = document.getElementById('qualification').value;
+  const rawQualification = document.getElementById('qualification').value;
+  const customDegree = document.getElementById('customDegreeInput') ? document.getElementById('customDegreeInput').value.trim() : '';
+  const qualification = (rawQualification === 'OTHER_SPECIFY' ? customDegree : rawQualification) || '';
+  
   const collegeName = document.getElementById('collegeName').value.trim();
   const passedOutYear = document.getElementById('passedOutYear').value.trim();
   const studentRegId = document.getElementById('studentRegId').value.trim();
@@ -260,14 +263,14 @@ async function runRealOcrVerification() {
   const btn = document.getElementById('verifyDocBtn');
 
   if (!fullName || !qualification || !collegeName || !passedOutYear || !selectedAcademicFile) {
-    statusEl.innerText = '❌ Error: Please enter your Name, College, Course, and Academic Batch first.';
+    statusEl.innerText = '❌ Error: Please enter your Name, College, Qualification / Degree, and Academic Batch first.';
     statusEl.className = 'status-msg error';
     return;
   }
 
   btn.disabled = true;
   btn.innerText = 'Scanning Fee Receipt Voucher...';
-  statusEl.innerText = '🔍 OCR scanning fee receipt and validating payment date vs batch...';
+  statusEl.innerText = '🔍 OCR scanning fee receipt and validating details...';
   statusEl.className = 'status-msg info';
 
   try {
@@ -371,7 +374,56 @@ async function runRealOcrVerification() {
     }
 
     // -------------------------------------------------------------
-    // 4. CHECK ACADEMIC BATCH vs FEE PAYMENT DATE (Reject if < or >)
+    // 4. CHECK QUALIFICATION / DEGREE / COURSE (Strict Disambiguated Verification)
+    // -------------------------------------------------------------
+    const degreeLower = qualification.toLowerCase().trim();
+    const cleanDegree = degreeLower.replace(/[^a-z0-9]/g, '');
+
+    let degreeCodes = [];
+    if (degreeLower.includes('mca') || degreeLower.includes('master of computer applications')) {
+      degreeCodes = ['mca'];
+    } else if (degreeLower.includes('bca') || degreeLower.includes('bachelor of computer applications')) {
+      degreeCodes = ['bca'];
+    } else if (degreeLower.includes('m.tech') || degreeLower.includes('mtech') || degreeLower.includes('master of technology')) {
+      degreeCodes = ['mtech', 'm.tech'];
+    } else if (degreeLower.includes('b.tech') || degreeLower.includes('btech') || degreeLower.includes('bachelor of technology')) {
+      degreeCodes = ['btech', 'b.tech'];
+    } else if (degreeLower.includes('b.e.') || degreeLower.includes('bachelor of engineering')) {
+      degreeCodes = ['be', 'b.e.'];
+    } else if (degreeLower.includes('mba') || degreeLower.includes('master of business administration')) {
+      degreeCodes = ['mba'];
+    } else if (degreeLower.includes('bba') || degreeLower.includes('bachelor of business administration')) {
+      degreeCodes = ['bba'];
+    } else if (degreeLower.includes('m.sc') || degreeLower.includes('msc') || degreeLower.includes('master of science')) {
+      degreeCodes = ['msc', 'm.sc'];
+    } else if (degreeLower.includes('b.sc') || degreeLower.includes('bsc') || degreeLower.includes('bachelor of science')) {
+      degreeCodes = ['bsc', 'b.sc'];
+    } else if (degreeLower.includes('b.com') || degreeLower.includes('bcom') || degreeLower.includes('bachelor of commerce')) {
+      degreeCodes = ['bcom', 'b.com', 'commerce'];
+    } else if (degreeLower.includes('m.a.') || degreeLower.includes('master of arts')) {
+      degreeCodes = ['ma', 'm.a.'];
+    } else if (degreeLower.includes('b.a.') || degreeLower.includes('bachelor of arts')) {
+      degreeCodes = ['ba', 'b.a.'];
+    } else {
+      const customCodes = qualification.match(/\b([A-Z]{2,6})\b/g);
+      if (customCodes) {
+        degreeCodes = customCodes.map(c => c.toLowerCase());
+      } else {
+        degreeCodes = [cleanDegree];
+      }
+    }
+
+    let isCourseMatched = false;
+    if (degreeCodes.length > 0) {
+      isCourseMatched = degreeCodes.some(code => {
+        const cleanCode = code.replace(/[^a-z0-9]/g, '');
+        const wordRegex = new RegExp(`\\b${code.replace('.', '\\.')}\\b`, 'i');
+        return wordRegex.test(docLower) || cleanDoc.includes(cleanCode);
+      });
+    }
+
+    // -------------------------------------------------------------
+    // 5. CHECK ACADEMIC BATCH vs FEE PAYMENT DATE (Reject if < or >)
     // -------------------------------------------------------------
     let batchStartYear = 0;
     let batchEndYear = 0;
@@ -381,19 +433,34 @@ async function runRealOcrVerification() {
       batchStartYear = parseInt(batchYears[0], 10);
       batchEndYear = parseInt(batchYears[1], 10);
     } else if (batchYears && batchYears.length === 1) {
-      batchEndYear = parseInt(batchYears[0], 10);
-      batchStartYear = batchEndYear - 3;
+      const singleYear = parseInt(batchYears[0], 10);
+      const shortEnd = passedOutYear.match(/20(\d{2})\s*[-–/]\s*(\d{2})\b/);
+      if (shortEnd) {
+        batchStartYear = singleYear;
+        batchEndYear = parseInt('20' + shortEnd[2], 10);
+      } else {
+        batchEndYear = singleYear;
+        batchStartYear = batchEndYear - 3;
+      }
     } else {
       batchStartYear = 2020;
       batchEndYear = 2030;
     }
 
     let feePaymentYear = 0;
-    const allDocYears = rawOcrText.match(/\b(20\d{2})\b/g);
-    if (allDocYears && allDocYears.length > 0) {
-      const validYears = allDocYears.map(y => parseInt(y, 10)).filter(y => y >= 2020 && y <= 2035);
-      if (validYears.length > 0) {
-        feePaymentYear = validYears[0];
+    const dateFormatted = rawOcrText.match(/\b\d{1,2}[-/.]\d{1,2}[-/.](20\d{2})\b/);
+    if (dateFormatted) {
+      feePaymentYear = parseInt(dateFormatted[1], 10);
+    } else {
+      const sessionMatch = rawOcrText.match(/\b(20\d{2})\s*[-–/]\s*\d{2,4}\b/);
+      if (sessionMatch) {
+        feePaymentYear = parseInt(sessionMatch[1], 10);
+      } else {
+        const allDocYears = rawOcrText.match(/\b(20\d{2})\b/g);
+        if (allDocYears && allDocYears.length > 0) {
+          const validYears = allDocYears.map(y => parseInt(y, 10)).filter(y => y >= 2020 && y <= 2035);
+          if (validYears.length > 0) feePaymentYear = validYears[0];
+        }
       }
     }
 
@@ -413,6 +480,7 @@ async function runRealOcrVerification() {
     console.log("🔍 Strict Verification Diagnostics:", {
       isNameMatched,
       isCollegeMatched,
+      isCourseMatched,
       isBatchValid,
       extractedName,
       extractedCollege,
@@ -424,7 +492,7 @@ async function runRealOcrVerification() {
     });
 
     // -------------------------------------------------------------
-    // 5. STRICT EVALUATION: INDIVIDUAL FIELD MISMATCH GUARDS
+    // 6. STRICT EVALUATION: INDIVIDUAL FIELD MISMATCH GUARDS
     // -------------------------------------------------------------
     
     // Check 1: Student Name Match Guard
@@ -451,7 +519,19 @@ async function runRealOcrVerification() {
       return;
     }
 
-    // Check 3: Academic Batch Date Guard
+    // Check 3: Qualification / Course Match Guard
+    if (!isCourseMatched) {
+      btn.disabled = false;
+      btn.innerText = 'Run Fee Receipt OCR Verification';
+      isDocVerified = false;
+      statusEl.innerText = `❌ Course / Degree Mismatch: "${qualification}" was not found on the uploaded Fee Receipt.`;
+      statusEl.className = 'status-msg error';
+      showAlert(`❌ Course / Degree Mismatch: The uploaded fee receipt does not match course "${qualification}".`);
+      calculateTrustScore();
+      return;
+    }
+
+    // Check 4: Academic Batch Date Guard
     if (!isBatchValid) {
       btn.disabled = false;
       btn.innerText = 'Run Fee Receipt OCR Verification';
@@ -473,7 +553,7 @@ async function runRealOcrVerification() {
     const displayDate = extractedDate || (feePaymentYear ? `Payment Year: ${feePaymentYear}` : '2025-26');
     const displayNo = extractedReceiptNo ? `No. ${extractedReceiptNo}` : 'Voucher Verified';
 
-    statusEl.innerText = `✅ Fee Receipt Verified: ${displayStudent} • Paid on ${displayDate} • Batch (${passedOutYear}) Validated! (+35% Trust Score)`;
+    statusEl.innerText = `✅ Fee Receipt Verified: ${displayStudent} • ${displayCourse} • Paid on ${displayDate} • Batch (${passedOutYear}) Validated! (+35% Trust Score)`;
     statusEl.className = 'status-msg success';
 
     document.getElementById('certStudentName').innerText = displayStudent;
