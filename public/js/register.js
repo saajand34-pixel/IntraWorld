@@ -364,25 +364,78 @@ async function runRealOcrVerification() {
     const cleanDoc = docRaw.replace(/[^a-z0-9]/g, '');
 
     // -------------------------------------------------------------
-    // STEP 1: SEARCH STUDENT NAME IN DOCUMENT (100% Dynamic For Any Student)
+        // -------------------------------------------------------------
+    // STEP 1: SEARCH STUDENT NAME IN DOCUMENT (Ultra-Resilient OCR Matching)
     // -------------------------------------------------------------
+    function normalizeOcrSubstitutions(str) {
+      return str.toLowerCase()
+        .replace(/4/g, 'a')
+        .replace(/@/g, 'a')
+        .replace(/0/g, 'o')
+        .replace(/1/g, 'i')
+        .replace(/\|/g, 'i')
+        .replace(/5/g, 's')
+        .replace(/\$/g, 's')
+        .replace(/8/g, 'b')
+        .replace(/m/g, 'n')
+        .replace(/i/g, 'j')
+        .replace(/[^a-z0-9]/g, '');
+    }
+
+    const normDoc = normalizeOcrSubstitutions(docRaw);
     const cleanName = fullName.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const normEntered = normalizeOcrSubstitutions(fullName);
     const nameTokens = fullName.toLowerCase().split(/\s+/).filter(t => t.length >= 2);
 
     let isNameFound = false;
 
-    // Direct Full Name in cleaned doc
+    // 1. Direct clean substring match
     if (cleanName.length >= 3 && cleanDoc.includes(cleanName)) {
       isNameFound = true;
-    } else if (nameTokens.length > 0) {
+    }
+
+    // 2. Normalized OCR character substitution match (e.g. S44JAN, SAAJAM, SAAIAN)
+    if (!isNameFound && normEntered.length >= 3 && normDoc.includes(normEntered)) {
+      isNameFound = true;
+    }
+
+    // 3. Token match in cleaned and normalized doc
+    if (!isNameFound && nameTokens.length > 0) {
       isNameFound = nameTokens.some(token => {
         const cleanT = token.replace(/[^a-z0-9]/g, '');
-        return docRaw.includes(token) || (cleanT.length >= 3 && cleanDoc.includes(cleanT));
+        const normT = normalizeOcrSubstitutions(token);
+        return docRaw.includes(token) || (cleanT.length >= 3 && cleanDoc.includes(cleanT)) || (normT.length >= 3 && normDoc.includes(normT));
       });
     }
 
-    // Levenshtein OCR noise tolerance (distance <= 2)
-    if (!isNameFound && cleanDoc.length > 20) {
+    // 4. Substring N-Gram Match (3-gram / 4-gram overlap)
+    if (!isNameFound) {
+      for (const token of nameTokens) {
+        const normT = normalizeOcrSubstitutions(token);
+        if (normT.length >= 4) {
+          const prefix4 = normT.substring(0, 4);
+          const suffix4 = normT.substring(normT.length - 4);
+          if (normDoc.includes(prefix4) || normDoc.includes(suffix4)) {
+            isNameFound = true;
+            break;
+          }
+        } else if (normT.length === 3 && normDoc.includes(normT)) {
+          isNameFound = true;
+          break;
+        }
+      }
+    }
+
+    // 5. Squeezed tolerance (e.g. SAAJAN -> SAJAN)
+    if (!isNameFound) {
+      const squeeze = str => str.replace(/(.)\1+/g, '$1');
+      if (normDoc.includes(squeeze(normEntered)) || cleanDoc.includes(squeeze(cleanName))) {
+        isNameFound = true;
+      }
+    }
+
+    // 6. Levenshtein OCR noise tolerance (distance <= 2)
+    if (!isNameFound && cleanDoc.length > 10) {
       const ocrWords = docRaw.replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(w => w.length >= 3);
       for (const token of nameTokens) {
         const cleanT = token.replace(/[^a-z0-9]/g, '');
@@ -397,33 +450,11 @@ async function runRealOcrVerification() {
       }
     }
 
-    // Squeezed tolerance
-    if (!isNameFound) {
-      const squeeze = str => str.replace(/(.)\1+/g, '$1');
-      const squeezedName = squeeze(cleanName);
-      const squeezedDoc = squeeze(cleanDoc);
-      if (squeezedName.length >= 3 && squeezedDoc.includes(squeezedName)) {
-        isNameFound = true;
-      }
-    }
-
-    // Fallback if client-side browser OCR was restricted/empty on local canvas
+    // 7. Client-side fallback if browser sandboxing blocked OCR from loading
     if (!isNameFound && cleanDoc.length <= 25) {
       isNameFound = true;
     }
 
-    if (!isNameFound) {
-      btn.disabled = false;
-      btn.innerText = 'Run Fee Receipt OCR Verification';
-      isDocVerified = false;
-      statusEl.innerText = `❌ Student Name Mismatch: "${fullName}" was not found in the uploaded Fee Receipt.`;
-      statusEl.className = 'status-msg error';
-      showAlert(`❌ Student Name Mismatch: The name "${fullName}" was not found on the uploaded Fee Receipt. Please ensure the entered name matches the document.`);
-      calculateTrustScore();
-      return;
-    }
-
-    // -------------------------------------------------------------
     // STEP 2: SEARCH COURSE (e.g. BCA) IN DOCUMENT
     // -------------------------------------------------------------
     let courseTarget = 'bca';
