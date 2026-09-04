@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IntraWorld - Student Registration & AI Verification</title>
+  <title>IntraWorld - Student Registration & OCR Verification</title>
   
   <!-- Fonts & Confetti -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,7 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
 
-  <!-- Mozilla PDF.js Engine (for PDF rendering) -->
+  <!-- Mozilla PDF.js Engine -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
   <!-- Firebase App & Firestore SDKs -->
@@ -372,7 +372,7 @@
   <!-- Top Bar with Authenticity Score -->
   <div class="top-bar">
     <div class="brand-pill">
-      🛡️ AI Vision & Anti-Forgery Verification Shield
+      🛡️ Case-Insensitive Document OCR Verification Shield
     </div>
     <div class="trust-meter-badge">
       <div class="meter-circle-wrap">
@@ -394,7 +394,7 @@
       <div>
         <h2 style="font-size: 24px; font-weight: 800; color: #fff;">Student Profile Authenticated!</h2>
         <p style="font-size: 13px; color: #94a3b8; margin-top: 4px;">
-          AI Document Verification completed with <strong id="successScoreText" style="color: #34d399;">100% Trust Rating</strong>.
+          Document OCR Verification completed with <strong id="successScoreText" style="color: #34d399;">100% Trust Rating</strong>.
         </p>
       </div>
 
@@ -427,8 +427,8 @@
             <span class="stat-val">✓ 2Factor SMS Pass</span>
           </div>
           <div>
-            <span class="stat-label">AI Vision Match:</span>
-            <span class="stat-val" style="color: #34d399;">✓ Genuine Physical Doc</span>
+            <span class="stat-label">OCR Match:</span>
+            <span class="stat-val" style="color: #34d399;">✓ Name + Reg + Degree + College</span>
           </div>
           <div>
             <span class="stat-label">Student Status:</span>
@@ -634,15 +634,15 @@
           </div>
         </div>
 
-        <!-- 3. AI DOCUMENT VERIFICATION -->
+        <!-- 3. DOCUMENT OCR VERIFICATION -->
         <div class="form-section-title">
           <span>📄 3. Academic Document Verification</span>
-          <span style="font-size: 10.5px; color: #34d399; font-weight: 700;">AI Vision & Anti-Forgery</span>
+          <span style="font-size: 10.5px; color: #34d399; font-weight: 700;">OCR Text Matcher</span>
         </div>
 
         <div class="ocr-registry-box">
           <p style="font-size: 12px; color: #cbd5e1; line-height: 1.5;">
-            Upload your official <strong>Student ID Card</strong> or <strong>Fee Receipt Voucher</strong> (PNG, JPG, PDF). Google Gemini Vision AI verifies Name, Reg ID, Course, College, and checks for AI/Photoshop tampering:
+            Upload your official <strong>Student ID Card</strong> or <strong>Fee Receipt Voucher</strong> (PNG, JPG, PDF). Extracts text and matches Name, Reg ID, Degree (Short/Full), and College (Case-Insensitive):
           </p>
 
           <input type="file" id="academicDocInput" style="display: none;" accept=".png, .jpg, .jpeg, .webp, .pdf" onchange="handleAcademicDocSelected(event)">
@@ -656,7 +656,7 @@
           </label>
 
           <button type="button" id="verifyDocBtn" class="btn btn-cyan" style="width: 100%; padding: 13px;" onclick="runRealOcrVerification()">
-            🤖 Run AI Document Verification
+            🔍 Run Document OCR Verification
           </button>
 
           <div id="academicStatusMsg" class="status-msg"></div>
@@ -665,9 +665,9 @@
           <div id="academicCertCard" class="cert-badge-hud hidden">
             <div style="display: flex; justify-content: space-between; align-items: center;">
               <div style="font-size: 13px; font-weight: 700; color: #34d399;">
-                ✅ AI Vision Authenticated (100 Pts)
+                ✅ Document Credential Authenticated (100 Pts)
               </div>
-              <span style="font-size: 10px; font-family: 'JetBrains Mono', monospace; color: #38bdf8;">ORIGINAL_VERIFIED</span>
+              <span style="font-size: 10px; font-family: 'JetBrains Mono', monospace; color: #38bdf8;">OCR_MATCHED</span>
             </div>
             <div style="font-size: 11.5px; color: #cbd5e1; margin-top: 4px;">
               • Verified Student: <strong id="certStudentName">Student Name</strong><br>
