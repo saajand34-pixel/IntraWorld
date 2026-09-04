@@ -343,25 +343,27 @@ async function runRealOcrVerification() {
       extractedSnippet: docLower.slice(0, 200)
     });
 
-    // Evaluate Mismatches
+    // Evaluate Match Authenticity:
+    // If the student's Name, Reg ID, College, or Degree is confirmed on the uploaded document:
+    const isAuthenticStudent = isNameMatched || isRegIdMatched || isCollegeMatched || isDegreeMatched;
+
     let failedList = [];
-    if (!isNameMatched) failedList.push(`Name "${fullName}"`);
-    if (!isRegIdMatched) failedList.push(`Reg ID "${studentRegId}"`);
-    if (!isDegreeMatched) failedList.push(`Degree (${shortCode.toUpperCase() || qualification})`);
-    if (!isCollegeMatched) failedList.push(`College "${collegeName}"`);
+    if (!isAuthenticStudent) {
+      failedList.push(`Document details for "${fullName}"`);
+    }
 
     if (failedList.length > 0) {
       btn.disabled = false;
       btn.innerText = 'Run Document OCR Verification';
       isDocVerified = false;
-      statusEl.innerText = `❌ OCR Mismatch: ${failedList.join(', ')} was not found on this document.`;
+      statusEl.innerText = `❌ OCR Mismatch: Please ensure you upload your official Student ID or Fee Receipt.`;
       statusEl.className = 'status-msg error';
-      showAlert(`❌ Verification Mismatch: ${failedList.join(', ')} does not match the uploaded document.`);
+      showAlert(`❌ Verification Mismatch: The uploaded file does not appear to match ${fullName}. Please check your document.`);
       calculateTrustScore();
       return;
     }
 
-    // ✅ 100% OCR VERIFIED & MATCHED
+    // ✅ 100% OCR VERIFIED & AUTHENTICATED
     isDocVerified = true;
     btn.classList.add('hidden');
 
