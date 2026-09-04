@@ -1,765 +1,114 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IntraWorld - Student Registration & Document Verification</title>
-  
-  <!-- Fonts & Confetti -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INTRAWORLD — Welcome</title>
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', 'Poppins', sans-serif; }
+        body { 
+    display: flex; 
+    flex-direction: column; 
+    min-height: 100vh; 
+    background-color: #030712; 
+    /* Adds the subtle dotted grid background matching your screenshot */
+    background-image: radial-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px);
+    background-size: 24px 24px;
+    color: #ffffff; 
+}
+        .main { flex: 1; display: flex; flex-direction: column; width: 100%; max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+        .content { display: flex; flex-direction: column; gap: 40px; }
 
-  <!-- Mozilla PDF.js Engine -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+        .hero { text-align: center; display: flex; flex-direction: column; align-items: center; max-width: 800px; margin: 0 auto; }
+        .hero-logo img { width: 250px; height: 250px; object-fit: contain; margin-bottom: -45px; }
+        .hero-title { font-size: 38px; font-weight: 800; letter-spacing: 1.5px; margin-bottom: 10px; background: linear-gradient(135deg, #ffffff, #38bdf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero-tagline { font-size: 16px; color: #38bdf8; font-weight: 600; margin-bottom: 18px; text-transform: uppercase; letter-spacing: 1px; }
+        .hero-description { font-size: 15px; color: #94a3b8; line-height: 1.6; margin-bottom: 25px; }
 
-  <!-- Firebase App & Firestore SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+        .hero-actions { display: flex; gap: 16px; margin-top: 10px; }
+        .btn-primary { background: #0066ff; color: #ffffff; padding: 12px 28px; border-radius: 10px; text-decoration: none; font-weight: 600; font-size: 15px; transition: background 0.2s ease; }
+        .btn-primary:hover { background: #0f3f8c; }
+        .btn-secondary { background: rgba(255, 255, 255, 0.08); color: #ffffff; padding: 12px 28px; border-radius: 10px; text-decoration: none; font-weight: 600; font-size: 15px; border: 1px solid rgba(255, 255, 255, 0.15); transition: background 0.2s ease; }
+        .btn-secondary:hover { background: rgba(255, 255, 255, 0.15); }
 
-  <!-- INTERNAL CSS (IntraWorld Theme) -->
-  <style>
-    :root {
-      --bg-color: #020614;
-      --card-bg: rgba(7, 16, 38, 0.94);
-      --card-border: rgba(30, 58, 110, 0.65);
-      --input-bg: #0c1630;
-      --input-border: #162a52;
-      --input-focus: #38bdf8;
-      --cyan-accent: #38bdf8;
-      --cyan-glow: rgba(56, 189, 248, 0.25);
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
-      --text-label: #cbd5e1;
-      --success: #10b981;
-      --danger: #ef4444;
-      --warning: #f59e0b;
-    }
+        .features-section { width: 100%; margin-top: 40px; }
+        .section-title { font-size: 24px; font-weight: 700; margin-bottom: 24px; color: #ffffff; text-align: center; }
+        .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+        .card { background: rgba(8, 27, 46, 0.8); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 25px; transition: transform 0.2s; }
+        .card:hover { transform: translateY(-4px); border-color: rgba(56, 189, 248, 0.3); }
+        .card-icon { font-size: 26px; color: #38bdf8; margin-bottom: 14px; }
+        .card h2 { font-size: 18px; font-weight: 600; margin-bottom: 8px; color: #ffffff; }
+        .card p { font-size: 13px; color: #94a3b8; line-height: 1.5; }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      background-color: var(--bg-color);
-      background-image: radial-gradient(rgba(56, 189, 248, 0.12) 1.2px, transparent 1.2px);
-      background-size: 28px 28px;
-      color: var(--text-main);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 40px 16px;
-      position: relative;
-    }
-
-    .ambient-glow {
-      position: fixed;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      width: 650px; height: 650px;
-      background: radial-gradient(circle, rgba(14, 165, 233, 0.08) 0%, transparent 70%);
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    .top-bar {
-      width: 100%;
-      max-width: 680px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 20px;
-      position: relative;
-      z-index: 2;
-    }
-
-    .brand-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 5px 14px;
-      border-radius: 9999px;
-      background: rgba(12, 22, 48, 0.85);
-      border: 1px solid rgba(56, 189, 248, 0.3);
-      font-size: 11px;
-      font-weight: 600;
-      color: #38bdf8;
-      box-shadow: 0 0 15px rgba(56, 189, 248, 0.15);
-    }
-
-    .trust-meter-badge {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 5px 14px;
-      border-radius: 9999px;
-      background: rgba(12, 22, 48, 0.85);
-      border: 1px solid var(--card-border);
-      font-size: 11px;
-      font-weight: 600;
-    }
-
-    .meter-circle-wrap {
-      width: 22px; height: 22px; position: relative;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .meter-circle-wrap svg { width: 100%; height: 100%; transform: rotate(-90deg); }
-    .meter-circle-wrap circle.bg { fill: none; stroke: #1e293b; stroke-width: 4; }
-    .meter-circle-wrap circle.bar {
-      fill: none; stroke: var(--cyan-accent); stroke-width: 4;
-      stroke-linecap: round; stroke-dasharray: 0, 100;
-      transition: stroke-dasharray 0.5s ease, stroke 0.5s ease;
-    }
-
-    .intra-card {
-      width: 100%;
-      max-width: 680px;
-      background: var(--card-bg);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid var(--card-border);
-      border-radius: 28px;
-      padding: 44px 40px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(14, 165, 233, 0.08);
-      position: relative;
-      z-index: 1;
-    }
-
-    @media (max-width: 640px) {
-      .intra-card { padding: 30px 20px; border-radius: 22px; }
-    }
-
-    .card-header { text-align: center; margin-bottom: 32px; }
-
-    .logo-container {
-      width: 90px; height: 90px; margin: 0 auto 18px;
-      display: flex; align-items: center; justify-content: center;
-      position: relative;
-    }
-
-    .logo-img {
-      width: 100%; height: 100%; object-fit: contain;
-      border-radius: 50%; filter: drop-shadow(0 0 15px rgba(56, 189, 248, 0.3));
-    }
-
-    .medallion-fallback {
-      width: 82px; height: 82px; border-radius: 50%;
-      background: radial-gradient(circle at 35% 35%, #e2e8f0, #94a3b8 45%, #475569 85%, #1e293b 100%);
-      border: 3px solid #cbd5e1; display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      box-shadow: 0 0 25px rgba(56, 189, 248, 0.25);
-      color: #0f172a;
-    }
-
-    .welcome-title {
-      font-size: 32px; font-weight: 800; letter-spacing: -0.02em;
-      background: linear-gradient(180deg, #ffffff 15%, #bae6fd 60%, #38bdf8 100%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      margin-bottom: 6px;
-    }
-
-    .welcome-sub { font-size: 13.5px; color: var(--text-muted); }
-
-    .form-section-title {
-      font-size: 12px; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 0.08em; color: var(--cyan-accent);
-      border-bottom: 1px solid rgba(30, 58, 110, 0.5);
-      padding-bottom: 8px; margin-top: 24px; margin-bottom: 16px;
-      display: flex; align-items: center; justify-content: space-between;
-    }
-
-    .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-    @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
-
-    label { font-size: 13px; font-weight: 500; color: var(--text-label); }
-    label .req { color: #f43f5e; }
-    label .helper { font-size: 11px; color: #64748b; margin-left: 4px; }
-
-    .input-wrapper { position: relative; display: flex; align-items: center; }
-    .input-icon { position: absolute; left: 14px; color: var(--cyan-accent); font-size: 16px; pointer-events: none; }
-
-    input[type="text"], input[type="email"], input[type="password"], select {
-      width: 100%;
-      background: var(--input-bg);
-      border: 1px solid var(--input-border);
-      border-radius: 14px;
-      padding: 13px 16px 13px 44px;
-      font-size: 13.5px;
-      color: var(--text-main);
-      font-family: inherit;
-      outline: none;
-      transition: all 0.2s ease;
-    }
-
-    select {
-      cursor: pointer;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2338bdf8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 14px center;
-      background-size: 18px;
-      appearance: none;
-      -webkit-appearance: none;
-    }
-
-    select optgroup {
-      background: #091226;
-      color: var(--cyan-accent);
-      font-weight: 700;
-    }
-
-    select option {
-      background: #0c1630;
-      color: #f8fafc;
-      padding: 8px;
-    }
-
-    .no-icon input, select { padding-left: 16px; }
-    input::placeholder { color: #475569; }
-    input:focus, select:focus { border-color: var(--input-focus); box-shadow: 0 0 0 3px var(--cyan-glow); }
-    input:disabled { opacity: 0.6; border-color: rgba(16, 185, 129, 0.4); color: #34d399; cursor: not-allowed; }
-
-    .toggle-pwd-btn { position: absolute; right: 14px; background: none; border: none; color: #64748b; cursor: pointer; font-size: 16px; }
-    .toggle-pwd-btn:hover { color: var(--cyan-accent); }
-
-    .btn {
-      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-      padding: 12px 20px; border-radius: 12px; font-size: 12.5px; font-weight: 600;
-      border: none; cursor: pointer; transition: all 0.2s; font-family: inherit; white-space: nowrap;
-    }
-
-    .btn-cyan {
-      background: linear-gradient(135deg, #0284c7, #0ea5e9);
-      color: #ffffff; box-shadow: 0 4px 14px rgba(14, 165, 233, 0.35);
-    }
-    .btn-cyan:hover:not(:disabled) { background: linear-gradient(135deg, #0369a1, #0284c7); transform: translateY(-1px); }
-    .btn-cyan:disabled { opacity: 0.5; cursor: not-allowed; }
-    .btn-success { background: #059669; color: #fff; }
-    .btn-secondary { background: #0f1c3f; color: #cbd5e1; border: 1px solid var(--input-border); }
-    .btn-secondary:hover { background: #152654; border-color: rgba(56, 189, 248, 0.4); color: #fff; }
-
-    .btn-submit {
-      width: 100%; padding: 15px; font-size: 14.5px; font-weight: 700;
-      background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 50%, #2563eb 100%);
-      color: #ffffff; border-radius: 14px; box-shadow: 0 6px 25px rgba(14, 165, 233, 0.4);
-      margin-top: 14px;
-    }
-    .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(14, 165, 233, 0.55); }
-
-    .otp-card {
-      margin-top: 8px; padding: 12px 14px;
-      background: rgba(14, 165, 233, 0.08); border: 1px solid rgba(56, 189, 248, 0.3);
-      border-radius: 12px; display: flex; flex-direction: column; gap: 8px;
-    }
-    .otp-row { display: flex; gap: 8px; }
-    .otp-input { width: 140px !important; text-align: center; font-family: 'JetBrains Mono', monospace !important; font-weight: 700; letter-spacing: 0.2em; }
-
-    .status-msg { font-size: 11px; margin-top: 4px; }
-    .status-msg.success { color: #34d399; font-weight: 600; }
-    .status-msg.info { color: #38bdf8; }
-    .status-msg.error { color: #fb7185; }
-
-    /* DOCUMENT UPLOAD (NATIVE LABEL CLICKABLE) */
-    .ocr-registry-box {
-      background: rgba(12, 22, 48, 0.85);
-      border: 1px solid rgba(56, 189, 248, 0.35);
-      border-radius: 18px;
-      padding: 22px;
-      margin-top: 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .upload-box-dash {
-      display: block;
-      border: 2px dashed rgba(56, 189, 248, 0.4);
-      border-radius: 14px;
-      padding: 22px;
-      text-align: center;
-      background: rgba(7, 16, 38, 0.7);
-      cursor: pointer;
-      transition: all 0.2s ease;
-      user-select: none;
-    }
-    .upload-box-dash:hover {
-      border-color: var(--cyan-accent);
-      background: rgba(14, 165, 233, 0.1);
-      box-shadow: 0 0 20px rgba(56, 189, 248, 0.15);
-    }
-
-    .cert-badge-hud {
-      background: linear-gradient(135deg, rgba(7, 16, 38, 0.95), rgba(12, 28, 66, 0.85));
-      border: 1px solid rgba(16, 185, 129, 0.45);
-      border-radius: 14px;
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      box-shadow: 0 0 25px rgba(16, 185, 129, 0.15);
-    }
-
-    .cloud-flare-box {
-      background: var(--input-bg); border: 1px solid var(--input-border);
-      border-radius: 14px; padding: 14px 16px; display: flex; align-items: center;
-      justify-content: space-between; cursor: pointer; transition: all 0.2s;
-    }
-    .cloud-flare-box:hover { border-color: rgba(56, 189, 248, 0.4); }
-    .cf-left { display: flex; align-items: center; gap: 12px; }
-    .cf-check {
-      width: 24px; height: 24px; border-radius: 6px; border: 2px solid #334155;
-      background: #071026; display: flex; align-items: center; justify-content: center;
-      font-size: 13px; font-weight: bold;
-    }
-    .cf-check.active { background: #10b981; border-color: #10b981; color: #fff; }
-
-    /* Success Card */
-    .success-panel { text-align: center; display: flex; flex-direction: column; gap: 20px; }
-    .holo-card {
-      background: linear-gradient(135deg, rgba(12, 22, 48, 0.95), rgba(15, 30, 66, 0.8));
-      border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 20px; padding: 24px; text-align: left;
-    }
-    .holo-top { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
-    .holo-avatar {
-      width: 58px; height: 58px; border-radius: 14px;
-      background: linear-gradient(135deg, #0284c7, #2563eb);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 24px; font-weight: 800; color: #fff;
-    }
-    .holo-info h3 { font-size: 18px; font-weight: 800; color: #fff; }
-    .holo-info .college { font-size: 13px; color: var(--cyan-accent); font-weight: 600; }
-    .holo-info .degree { font-size: 11px; color: var(--text-muted); }
-    .holo-stats-grid {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
-      padding-top: 14px; border-top: 1px solid rgba(30, 58, 110, 0.5); font-size: 11px;
-    }
-    .stat-label { color: var(--text-muted); display: block; font-size: 10px; }
-    .stat-val { font-weight: 600; color: #34d399; }
-    .chip-container { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(30, 58, 110, 0.5); }
-    .skill-chip { padding: 3px 8px; border-radius: 6px; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.25); color: #bae6fd; font-size: 11px; }
-
-    .signin-footer {
-      text-align: center;
-      margin-top: 22px;
-      font-size: 13.5px;
-      color: #94a3b8;
-    }
-    .signin-footer a {
-      color: #38bdf8;
-      font-weight: 600;
-      text-decoration: none;
-      transition: all 0.2s;
-    }
-    .signin-footer a:hover {
-      text-decoration: underline;
-      color: #7dd3fc;
-    }
-
-    .hidden { display: none !important; }
-    .alert-banner {
-      padding: 12px 16px; border-radius: 12px; font-size: 12px; margin-bottom: 20px;
-      display: flex; align-items: center; gap: 8px;
-      background: rgba(244, 63, 94, 0.12); border: 1px solid rgba(244, 63, 94, 0.3); color: #fda4af;
-    }
-  </style>
+        .site-footer { text-align: center; padding: 30px 0 10px; border-top: 1px solid rgba(255, 255, 255, 0.08); margin-top: 50px; color: #64748b; font-size: 13px; }
+    </style>
 </head>
 <body>
 
-  <div class="ambient-glow"></div>
+    <main class="main">
+        <div class="content">
+            
+            <section class="hero">
+                <div class="hero-logo">
+                    <img src="logo.png" alt="INTRAWORLD Circular Logo">
+                </div>
+                <h1 class="hero-title">INTRAWORLD</h1>
+                <p class="hero-tagline">Stay Connected • Stay Informed • Stay Ahead</p>
+                <p class="hero-description">
+                    A highly curated digital environment engineered for academic professionals and high-achieving students. Foster structural clarity in your networking, research collaboration, and career development within an intellectually safe space.
+                </p>
+                
+                <div class="hero-actions">
+                    <a href="register.html" class="btn-primary">Register Now</a>
+                    <a href="login.html" class="btn-secondary">Login</a>
+                </div>
+            </section>
 
-  <!-- Top Bar with Authenticity Score -->
-  <div class="top-bar">
-    <div class="brand-pill">
-      🛡️ Document OCR Verification Shield
-    </div>
-    <div class="trust-meter-badge">
-      <div class="meter-circle-wrap">
-        <svg viewBox="0 0 36 36">
-          <circle class="bg" cx="18" cy="18" r="15.9155" />
-          <circle id="trustMeterCircle" class="bar" cx="18" cy="18" r="15.9155" />
-        </svg>
-      </div>
-      <span id="trustMeterText" style="color: #94a3b8;">Authenticity: 0%</span>
-    </div>
-  </div>
+            <section class="features-section">
+                <h2 class="section-title">Ecosystem Features</h2>
+                <div class="cards">
+                    
+                    <div class="card">
+                        <div class="card-icon"><i class="fa-solid fa-diagram-project"></i></div>
+                        <h2>Academic Networking</h2>
+                        <p>Connect with students, faculty, alumni, and professionals across institutions. Build a verified profile that showcases your education, skills, achievements, certifications, and interests.</p>
+                    </div>
 
-  <!-- MAIN REGISTRATION CARD -->
-  <div class="intra-card">
+                    <div class="card">
+                        <div class="card-icon"><i class="fa-solid fa-compass-drafting"></i></div>
+                        <h2>Project Collaboration</h2>
+                        <p>Collaborate with peers on academic projects, research initiatives, and innovative ventures. Create project spaces, share resources, manage timelines, and track progress seamlessly.</p>
+                    </div>
 
-    <!-- SUCCESS VERIFIED DASHBOARD -->
-    <div id="successView" class="success-panel hidden">
-      <div style="font-size: 40px;">🏆</div>
-      <div>
-        <h2 style="font-size: 24px; font-weight: 800; color: #fff;">Student Profile Authenticated!</h2>
-        <p style="font-size: 13px; color: #94a3b8; margin-top: 4px;">
-          Document OCR Verification completed with <strong id="successScoreText" style="color: #34d399;">100% Trust Rating</strong>.
-        </p>
-      </div>
+                    <div class="card">
+                        <div class="card-icon"><i class="fa-solid fa-flask"></i></div>
+                        <h2>Research & Publications</h2>
+                        <p>Publish research papers, technical articles, case studies, project reports, and innovative ideas while building a knowledge repository for innovation.</p>
+                    </div>
 
-      <!-- Holographic Badge -->
-      <div class="holo-card">
-        <div class="holo-top">
-          <div class="holo-avatar" id="holoAvatar">S</div>
-          <div class="holo-info">
-            <h3 id="holoName">Student Name ✓</h3>
-            <div class="college" id="holoCollege">University Name</div>
-            <div class="degree" id="holoDegree">Degree • Specialization</div>
-          </div>
+                    <div class="card">
+                        <div class="card-icon"><i class="fa-solid fa-briefcase"></i></div>
+                        <h2>Internships & Alumni</h2>
+                        <p>Discover internship opportunities, career pathways, and alumni networks. Connect with industry professionals and explore curated job postings.</p>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-icon"><i class="fa-solid fa-user-graduate"></i></div>
+                        <h2>Mentorship</h2>
+                        <p>Learn from experienced alumni, faculty, industry professionals, and senior students through structured mentorship programs.</p>
+                    </div>
+
+                </div>
+            </section>
+
+            <footer class="site-footer">
+                <p>&copy; 2026 INTRAWORLD. All Rights Reserved to Team Saajan</p>
+            </footer>
+
         </div>
+    </main>
 
-        <div class="holo-stats-grid">
-          <div>
-            <span class="stat-label">Student Reg ID:</span>
-            <span class="stat-val" id="holoRegNo" style="color: #38bdf8; font-family: 'JetBrains Mono', monospace;">24CA018</span>
-          </div>
-          <div>
-            <span class="stat-label">Academic Batch:</span>
-            <span class="stat-val" id="holoBatch" style="color: #38bdf8;">2024-2027</span>
-          </div>
-          <div>
-            <span class="stat-label">Gmail Auth:</span>
-            <span class="stat-val">✓ Web3Forms Pass</span>
-          </div>
-          <div>
-            <span class="stat-label">Phone Auth:</span>
-            <span class="stat-val">✓ 2Factor SMS Pass</span>
-          </div>
-          <div>
-            <span class="stat-label">OCR Match:</span>
-            <span class="stat-val" style="color: #34d399;">✓ Name + Reg + Degree + College</span>
-          </div>
-          <div>
-            <span class="stat-label">Student Status:</span>
-            <span class="stat-val" style="color: #38bdf8;">GENUINE_STUDENT</span>
-          </div>
-        </div>
-
-        <div class="chip-container" id="holoSkills"></div>
-      </div>
-
-      <div style="display: flex; justify-content: center; gap: 12px; margin-top: 10px;">
-        <button class="btn btn-secondary" onclick="window.location.reload()">🔄 Register Another Student</button>
-        <button class="btn btn-cyan" onclick="window.location.href='login.html'">✨ Proceed to Sign In</button>
-      </div>
-    </div>
-
-    <!-- REGISTRATION FORM VIEW -->
-    <div id="formView">
-      
-      <div class="card-header">
-        <div class="logo-container">
-          <img src="logo.png" alt="IntraWorld Logo" class="logo-img" onerror="this.style.display='none'; document.getElementById('fallbackLogo').style.display='flex';" />
-          <div id="fallbackLogo" class="medallion-fallback" style="display: none;">
-            <div style="font-size: 24px;">🤝</div>
-            <div style="font-size: 8px; font-weight: 800; margin-top: 2px;">IntraWorld</div>
-          </div>
-        </div>
-        <h1 class="welcome-title">Welcome</h1>
-        <p class="welcome-sub">Sign in to continue to IntraWorld</p>
-      </div>
-
-      <div id="alertBox" class="alert-banner hidden">
-        <span>⚠️</span>
-        <span id="alertMsg"></span>
-      </div>
-
-      <form id="studentRegistrationForm" onsubmit="handleRegistrationSubmit(event)">
-        
-        <input type="text" id="honeypotTrap" style="display: none;" tabindex="-1" autocomplete="off">
-
-        <!-- 1. PERSONAL INFORMATION -->
-        <div class="form-section-title">
-          <span>👤 1. Personal Information</span>
-        </div>
-
-        <div class="form-group">
-          <label>Full Name <span class="req">*</span></label>
-          <div class="input-wrapper">
-            <span class="input-icon">👤</span>
-            <input type="text" id="fullName" required placeholder="Enter your full official name" oninput="calculateTrustScore()">
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label>
-            Gmail Address <span class="req">*</span>
-            <span class="helper">(Real Web3Forms OTP)</span>
-          </label>
-          <div style="display: flex; gap: 8px;">
-            <div class="input-wrapper" style="flex: 1;">
-              <span class="input-icon">✉️</span>
-              <input type="email" id="gmailAddress" required placeholder="your.name@gmail.com" oninput="calculateTrustScore()">
-            </div>
-            <button type="button" id="sendEmailOtpBtn" class="btn btn-cyan" onclick="sendGmailOtp()">Send OTP</button>
-          </div>
-
-          <div id="emailOtpBox" class="otp-card hidden">
-            <div style="display: flex; justify-content: space-between; font-size: 11px; color: #38bdf8;">
-              <span>Enter 6-digit OTP received in Gmail:</span>
-              <span style="color: #94a3b8;">Web3Forms Dispatcher</span>
-            </div>
-            <div class="otp-row">
-              <input type="text" id="enteredEmailOtp" maxlength="6" placeholder="------" class="otp-input">
-              <button type="button" class="btn btn-success" onclick="verifyGmailOtp()">Verify OTP</button>
-            </div>
-          </div>
-          <div id="emailStatusMsg" class="status-msg"></div>
-        </div>
-
-        <div class="form-group">
-          <label>
-            Mobile Number (with Country Code) <span class="req">*</span>
-            <span class="helper">(Real 2Factor SMS OTP)</span>
-          </label>
-          <div style="display: flex; gap: 8px;">
-            <div class="input-wrapper" style="flex: 1;">
-              <span class="input-icon">📱</span>
-              <input type="text" id="mobileNumber" required placeholder="+91 8904712928" oninput="calculateTrustScore()">
-            </div>
-            <button type="button" id="sendSmsOtpBtn" class="btn btn-cyan" onclick="sendSmsOtp()">Send SMS</button>
-          </div>
-
-          <div id="smsOtpBox" class="otp-card hidden">
-            <div style="display: flex; justify-content: space-between; font-size: 11px; color: #38bdf8;">
-              <span>Enter 6-digit SMS OTP:</span>
-              <span style="color: #94a3b8;">2Factor Gateway</span>
-            </div>
-            <div class="otp-row">
-              <input type="text" id="enteredSmsOtp" maxlength="6" placeholder="------" class="otp-input">
-              <button type="button" class="btn btn-success" onclick="verifySmsOtp()">Verify SMS</button>
-            </div>
-          </div>
-          <div id="smsStatusMsg" class="status-msg"></div>
-        </div>
-
-        <!-- 2. ACADEMIC DETAILS -->
-        <div class="form-section-title">
-          <span>📚 2. Academic Details</span>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group no-icon">
-            <label>Qualification / Degree <span class="req">*</span></label>
-            <select id="qualification" onchange="handleDegreeChange(this.value)">
-              <option value="" disabled selected>-- Select Your Degree / Course --</option>
-              
-              <optgroup label="💻 Computer & Information Technology">
-                <option value="Bachelor of Computer Applications (BCA)">Bachelor of Computer Applications (BCA)</option>
-                <option value="Master of Computer Applications (MCA)">Master of Computer Applications (MCA)</option>
-                <option value="B.Sc in Computer Science / IT">B.Sc in Computer Science / IT</option>
-                <option value="M.Sc in Computer Science / IT">M.Sc in Computer Science / IT</option>
-              </optgroup>
-
-              <optgroup label="⚙️ Engineering & Technology">
-                <option value="Bachelor of Technology (B.Tech)">Bachelor of Technology (B.Tech)</option>
-                <option value="Bachelor of Engineering (B.E.)">Bachelor of Engineering (B.E.)</option>
-                <option value="Master of Technology (M.Tech)">Master of Technology (M.Tech)</option>
-                <option value="Diploma in Engineering">Diploma in Engineering</option>
-              </optgroup>
-
-              <optgroup label="📊 Commerce & Business Management">
-                <option value="Bachelor of Commerce (B.Com)">Bachelor of Commerce (B.Com)</option>
-                <option value="Bachelor of Business Administration (BBA)">Bachelor of Business Administration (BBA)</option>
-                <option value="Master of Business Administration (MBA)">Master of Business Administration (MBA)</option>
-              </optgroup>
-
-              <optgroup label="🔬 Science & Mathematics">
-                <option value="Bachelor of Science (B.Sc)">Bachelor of Science (B.Sc)</option>
-                <option value="Master of Science (M.Sc)">Master of Science (M.Sc)</option>
-              </optgroup>
-
-              <optgroup label="🎨 Arts & Humanities">
-                <option value="Bachelor of Arts (B.A.)">Bachelor of Arts (B.A.)</option>
-                <option value="Master of Arts (M.A.)">Master of Arts (M.A.)</option>
-              </optgroup>
-
-              <optgroup label="✨ Other Courses">
-                <option value="OTHER_SPECIFY">Other (Specify Custom Degree Below)</option>
-              </optgroup>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label>Specialization / Branch <span class="req">*</span></label>
-            <div class="input-wrapper">
-              <span class="input-icon">💻</span>
-              <input type="text" id="specialization" required placeholder="e.g. Computer Science, AI, Commerce">
-            </div>
-          </div>
-        </div>
-
-        <div id="customDegreeContainer" class="form-group hidden">
-          <label>Specify Your Degree Name <span class="req">*</span></label>
-          <div class="input-wrapper">
-            <span class="input-icon">🎓</span>
-            <input type="text" id="customDegreeInput" placeholder="Enter your official degree name">
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label>College / University Name <span class="req">*</span></label>
-            <div class="input-wrapper">
-              <span class="input-icon">🏛️</span>
-              <input type="text" id="collegeName" required placeholder="e.g. Seshadripuram First Grade College">
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>Student Roll No / Reg ID <span class="req">*</span> <span class="helper">(e.g. 24CA018)</span></label>
-            <div class="input-wrapper">
-              <span class="input-icon">🆔</span>
-              <input type="text" id="studentRegId" required placeholder="e.g. 24CA018" oninput="calculateTrustScore()">
-            </div>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label>Skills (comma-separated) <span class="req">*</span></label>
-            <div class="input-wrapper">
-              <span class="input-icon">⚡</span>
-              <input type="text" id="skills" required placeholder="e.g. Python, Java, Web Development">
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>Academic Batch / Graduation Year <span class="req">*</span></label>
-            <div class="input-wrapper">
-              <span class="input-icon">📅</span>
-              <input type="text" id="passedOutYear" required placeholder="e.g. 2024-2027 or 2027">
-            </div>
-          </div>
-        </div>
-
-        <!-- 3. REAL DOCUMENT UPLOAD & OCR VERIFICATION -->
-        <div class="form-section-title">
-          <span>📄 3. Academic Document Verification</span>
-          <span style="font-size: 10.5px; color: #34d399; font-weight: 700;">Document OCR Matcher</span>
-        </div>
-
-        <div class="ocr-registry-box">
-          <p style="font-size: 12px; color: #cbd5e1; line-height: 1.5;">
-            Upload your official <strong>Student ID Card</strong> or <strong>Fee Receipt Voucher</strong> (PNG, JPG, PDF). Extracts text and matches Name, Reg ID, Degree (Short/Full), and College (Case-Insensitive):
-          </p>
-
-          <input type="file" id="academicDocInput" style="display: none;" accept=".png, .jpg, .jpeg, .webp, .pdf" onchange="handleAcademicDocSelected(event)">
-
-          <label for="academicDocInput" class="upload-box-dash" id="uploadLabelCard">
-            <div style="font-size: 28px; color: #38bdf8; margin-bottom: 6px;">📑</div>
-            <div id="academicUploadLabel" style="font-size: 13.5px; font-weight: 600; color: #f1f5f9;">
-              Click here to choose Student Document (ID Card, Fee Receipt, PDF)
-            </div>
-            <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;">Supports PNG, JPG, JPEG, PDF files</div>
-          </label>
-
-          <button type="button" id="verifyDocBtn" class="btn btn-cyan" style="width: 100%; padding: 13px;" onclick="runRealOcrVerification()">
-            🔍 Run Document OCR Verification
-          </button>
-
-          <div id="academicStatusMsg" class="status-msg"></div>
-
-          <!-- Verified Certificate HUD -->
-          <div id="academicCertCard" class="cert-badge-hud hidden">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <div style="font-size: 13px; font-weight: 700; color: #34d399;">
-                ✅ Document Credential Authenticated (100 Pts)
-              </div>
-              <span style="font-size: 10px; font-family: 'JetBrains Mono', monospace; color: #38bdf8;">OCR_MATCHED</span>
-            </div>
-            <div style="font-size: 11.5px; color: #cbd5e1; margin-top: 4px;">
-              • Verified Student: <strong id="certStudentName">Student Name</strong><br>
-              • Institution: <strong id="certCollegeName">College Name</strong><br>
-              • Student Reg ID: <strong id="certRegNo" style="color: #38bdf8;">24CA018</strong><br>
-              • Verification Status: <span style="color: #34d399;" id="certMatchReason">Identity Bound to Official Document</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- 4. SECURITY PURPOSE QUESTIONS (FOR ACCOUNT RECOVERY) -->
-        <div class="form-section-title">
-          <span>🛡️ 4. Security Questions (For Password Recovery)</span>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label>Favourite Sport <span class="req">*</span> <span class="helper">(Case-Insensitive)</span></label>
-            <div class="input-wrapper">
-              <span class="input-icon">⚽</span>
-              <input type="text" id="favouriteSport" required placeholder="e.g. Cricket, Football, Chess">
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>Primary Ambition <span class="req">*</span> <span class="helper">(Case-Insensitive)</span></label>
-            <div class="input-wrapper">
-              <span class="input-icon">🎯</span>
-              <input type="text" id="ambition" required placeholder="e.g. Software Engineer, IAS, Entrepreneur">
-            </div>
-          </div>
-        </div>
-
-        <!-- 5. ANTI-BOT SECURITY -->
-        <div class="form-section-title">
-          <span>⚡ 5. Anti-Bot Security Challenge</span>
-        </div>
-
-        <div class="cloud-flare-box" id="cfBoxWrap" onclick="triggerCloudflareCheck()">
-          <div class="cf-left">
-            <div class="cf-check" id="cfCheck"></div>
-            <div>
-              <div style="font-size: 12.5px; font-weight: 600; color: #f1f5f9;" id="cfTitle">
-                Verify you are a real student (Cloudflare Turnstile)
-              </div>
-              <div style="font-size: 10.5px; color: #94a3b8;">Protects against automated bot registrations & farm spam</div>
-            </div>
-          </div>
-          <div style="font-size: 10px; font-family: 'JetBrains Mono', monospace; color: #64748b;">⚙️ Cloudflare</div>
-        </div>
-
-        <!-- 6. PASSWORD -->
-        <div class="form-section-title">
-          <span>🔒 6. Password</span>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label>Password <span class="req">*</span></label>
-            <div class="input-wrapper">
-              <span class="input-icon">🔒</span>
-              <input type="password" id="password" required placeholder="••••••••" oninput="checkPasswordMatch()">
-              <button type="button" class="toggle-pwd-btn" onclick="togglePasswordVisibility('password', this)">👁️</button>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>Re-enter password <span class="req">*</span></label>
-            <div class="input-wrapper">
-              <span class="input-icon">🔒</span>
-              <input type="password" id="confirmPassword" required placeholder="••••••••" oninput="checkPasswordMatch()">
-              <button type="button" class="toggle-pwd-btn" onclick="togglePasswordVisibility('confirmPassword', this)">👁️</button>
-            </div>
-            <span id="pwdMismatchNotice" class="status-msg error hidden">Passwords do not match.</span>
-          </div>
-        </div>
-
-        <!-- SUBMIT BUTTON -->
-        <button type="submit" id="submitBtn" class="btn btn-submit">
-          🛡️ Create Account & Verify Student Status
-        </button>
-
-        <!-- SIGN IN LINK -->
-        <div class="signin-footer">
-          Already have an account? <a href="login.html">Sign In</a>
-        </div>
-
-      </form>
-    </div>
-
-  </div>
-
-  <script src="js/register.js?v=2.5"></script>
 </body>
 </html>
