@@ -548,8 +548,8 @@ async function runRealOcrVerification() {
     document.getElementById('certStudentName').innerText = displayStudent;
     document.getElementById('certCollegeName').innerText = displayCollege;
     document.getElementById('certCourseName').innerText = displayCourse;
-    document.getElementById('certReceiptNo').innerText = 'No. 4,213';
-    document.getElementById('certReceiptDate').innerText = displayDate;
+    if (document.getElementById('certReceiptNo')) document.getElementById('certReceiptNo').innerText = 'No. 4,213';
+    if (document.getElementById('certReceiptDate')) document.getElementById('certReceiptDate').innerText = displayDate;
     document.getElementById('certBatchStatus').innerText = `✓ Fee Paid in ${feePaymentYear || '2025'} is within Academic Batch (${passedOutYear})`;
     document.getElementById('certMatchReason').innerText = `✓ Authentic Fee Receipt: Active Enrolled Student in Good Standing`;
     document.getElementById('academicCertCard').classList.remove('hidden');
