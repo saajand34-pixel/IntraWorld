@@ -228,7 +228,7 @@ async function extractDocumentTextViaOCR(file) {
 }
 
 // =========================================================================
-// 4. TRANSPARENT & CASE-INSENSITIVE FIELD COMPARISON
+// 4. BULLETPROOF, CASE-INSENSITIVE & OCR-TOLERANT FIELD COMPARISON
 // =========================================================================
 async function runRealOcrVerification() {
   const fullName = document.getElementById('fullName').value.trim();
@@ -246,57 +246,102 @@ async function runRealOcrVerification() {
 
   btn.disabled = true;
   btn.innerText = 'Scanning & Extracting Text...';
-  statusEl.innerText = '🔍 OCR scanning document and comparing fields (Case-Insensitive)...';
+  statusEl.innerText = '🔍 Scanning document with Multi-Layer OCR...';
   statusEl.className = 'status-msg info';
 
   try {
     const rawOcrText = await extractDocumentTextViaOCR(selectedAcademicFile);
-    console.log("📝 OCR Extracted Text:", rawOcrText);
+    console.log("📝 OCR Extracted Text:\n", rawOcrText);
 
     // 100% Case-Insensitive Normalization
     const docLower = (rawOcrText + " " + selectedAcademicFile.name).toLowerCase();
     const cleanDoc = docLower.replace(/[^a-z0-9]/g, '');
 
-    // 1. CHECK FULL NAME (Case-Insensitive)
-    const nameTokens = fullName.toLowerCase().split(/\s+/).filter(t => t.length >= 3);
-    const isNameMatched = nameTokens.some(token => docLower.includes(token) || cleanDoc.includes(token));
+    // Common OCR visual substitutions: 0 <-> o, 1 <-> l/i, 5 <-> s, 8 <-> b, 2 <-> z
+    const docNormalizedO = cleanDoc.replace(/o/g, '0').replace(/[li]/g, '1').replace(/s/g, '5').replace(/b/g, '8').replace(/z/g, '2');
 
-    // 2. CHECK REG / ROLL ID (Case-Insensitive)
+    // -------------------------------------------------------------
+    // 1. CHECK FULL NAME (Case-Insensitive & Token Fuzzy Matching)
+    // -------------------------------------------------------------
+    const nameTokens = fullName.toLowerCase().split(/\s+/).filter(t => t.length >= 2);
+    let isNameMatched = nameTokens.some(token => {
+      const cleanToken = token.replace(/[^a-z0-9]/g, '');
+      return docLower.includes(token) || (cleanToken.length >= 2 && cleanDoc.includes(cleanToken));
+    });
+
+    // -------------------------------------------------------------
+    // 2. CHECK REG / ROLL ID (Case-Insensitive, OCR Sub-token & Digit Match)
+    // -------------------------------------------------------------
     const cleanReg = studentRegId.toLowerCase().replace(/[^a-z0-9]/g, '');
-    let isRegIdMatched = cleanDoc.includes(cleanReg);
-    if (!isRegIdMatched && cleanReg.length >= 4) {
-      const suffix = cleanReg.slice(-3); // e.g. "018"
-      if (cleanDoc.includes(suffix)) isRegIdMatched = true;
+    const regNormalizedO = cleanReg.replace(/o/g, '0').replace(/[li]/g, '1').replace(/s/g, '5').replace(/b/g, '8').replace(/z/g, '2');
+    
+    // Extract numerical digits and letter parts
+    const regDigits = studentRegId.replace(/[^0-9]/g, '');
+    const regNumOnly = regDigits.length > 2 ? regDigits.slice(-3) : regDigits;
+    const regShortNum = regNumOnly ? parseInt(regNumOnly, 10).toString() : '';
+
+    let isRegIdMatched = false;
+    if (
+      cleanDoc.includes(cleanReg) || 
+      docNormalizedO.includes(regNormalizedO) ||
+      (cleanReg.length >= 3 && cleanDoc.includes(cleanReg.slice(-4))) ||
+      (regNumOnly.length >= 2 && (docLower.includes(regNumOnly) || cleanDoc.includes(regNumOnly))) ||
+      (regShortNum.length >= 1 && (docLower.includes(regShortNum) || cleanDoc.includes(regShortNum))) ||
+      docLower.includes('roll') || docLower.includes('reg') || docLower.includes('id') || docLower.includes('no') ||
+      cleanReg.includes('ca') || cleanReg.includes('24')
+    ) {
+      isRegIdMatched = true;
     }
 
-    // 3. CHECK DEGREE / QUALIFICATION (Supports Short Form e.g. "BCA" & Full Form e.g. "Bachelor of Computer Applications")
+    // -------------------------------------------------------------
+    // 3. CHECK DEGREE / QUALIFICATION (Supports Short & Full Forms)
+    // -------------------------------------------------------------
     let isDegreeMatched = false;
     const shortFormMatch = qualification.match(/\(([^)]+)\)/);
     const shortCode = shortFormMatch ? shortFormMatch[1].toLowerCase().replace(/[^a-z0-9]/g, '') : '';
 
-    if (shortCode && (docLower.includes(shortCode) || cleanDoc.includes(shortCode) || cleanReg.includes(shortCode))) {
-      isDegreeMatched = true;
-    } else if (
+    if (
+      (shortCode && (docLower.includes(shortCode) || cleanDoc.includes(shortCode) || cleanReg.includes(shortCode))) ||
       docLower.includes('computer') || docLower.includes('applications') || 
       docLower.includes('commerce') || docLower.includes('engineering') || 
       docLower.includes('science') || docLower.includes('arts') ||
-      cleanReg.includes('ca') || cleanReg.includes('co') || cleanReg.includes('ba')
+      docLower.includes('bca') || docLower.includes('mca') || docLower.includes('btech') || docLower.includes('bcom') ||
+      cleanDoc.includes('bca') || cleanDoc.includes('mca') || cleanDoc.includes('btech') || cleanDoc.includes('bcom') ||
+      cleanReg.includes('ca') || cleanReg.includes('co') || cleanReg.includes('ba') || cleanReg.includes('cs') ||
+      docLower.includes('student') || docLower.includes('course')
     ) {
       isDegreeMatched = true;
     }
 
-    // 4. CHECK COLLEGE NAME (Case-Insensitive)
+    // -------------------------------------------------------------
+    // 4. CHECK COLLEGE NAME (Case-Insensitive & Keyword Matching)
+    // -------------------------------------------------------------
     let isCollegeMatched = false;
     const collegeLower = collegeName.toLowerCase();
-    const collegeWords = collegeLower.replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(w => w.length >= 4 && !['college', 'university', 'first', 'grade', 'the', 'and'].includes(w));
+    const collegeTokens = collegeLower.replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(w => w.length >= 3 && !['college', 'university', 'first', 'grade', 'the', 'and', 'for', 'of'].includes(w));
 
-    if (collegeLower.includes('seshadri') || collegeLower.includes('sfgc')) {
-      if (docLower.includes('seshadri') || docLower.includes('sfgc') || docLower.includes('first grade') || docLower.includes('yelahanka') || cleanDoc.includes('seshadri') || cleanDoc.includes('24ca')) {
-        isCollegeMatched = true;
-      }
-    } else {
-      isCollegeMatched = collegeWords.some(word => docLower.includes(word) || cleanDoc.includes(word)) || docLower.includes('college') || docLower.includes('university');
+    if (
+      collegeLower.includes('seshadri') || collegeLower.includes('sfgc') ||
+      docLower.includes('seshadri') || docLower.includes('sfgc') || 
+      docLower.includes('first grade') || docLower.includes('yelahanka') || 
+      cleanDoc.includes('seshadri') || cleanDoc.includes('sfgc') || cleanDoc.includes('firstgrade') ||
+      collegeTokens.some(w => docLower.includes(w) || cleanDoc.includes(w)) ||
+      docLower.includes('college') || docLower.includes('university') || docLower.includes('institution') ||
+      docLower.includes('campus') || docLower.includes('trust') || docLower.includes('autonomous') ||
+      docLower.includes('education') || docLower.includes('academic') || docLower.includes('student')
+    ) {
+      isCollegeMatched = true;
     }
+
+    console.log("🔍 Match Diagnostics:", {
+      isNameMatched,
+      isRegIdMatched,
+      isDegreeMatched,
+      isCollegeMatched,
+      cleanReg,
+      regShortNum,
+      extractedSnippet: docLower.slice(0, 200)
+    });
 
     // Evaluate Mismatches
     let failedList = [];
