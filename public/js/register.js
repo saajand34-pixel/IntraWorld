@@ -266,7 +266,7 @@ Return ONLY in this clean format without any introductory or conversational text
 }
 
 // =========================================================================
-// 4. STRICT 4-GUARD FEE RECEIPT VALIDATION ENGINE
+// 4. ENTERPRISE STRICT 4-GUARD FEE RECEIPT VALIDATION ENGINE
 // =========================================================================
 async function runRealOcrVerification() {
   const fullName = document.getElementById('fullName').value.trim();
@@ -401,34 +401,43 @@ async function runRealOcrVerification() {
     
     let isCollegeMatched = false;
 
-    // Check 2.1: Clean Substring or Token Match
+    // Check 2.1: Clean Substring Match
     if (cleanCollege.length >= 3 && cleanDoc.includes(cleanCollege)) {
       isCollegeMatched = true;
     }
 
-    const stopWords = new Set(['college', 'university', 'institute', 'institution', 'first', 'grade', 'the', 'and', 'for', 'of', 'in', 'at', 'campus', 'degree', 'education', 'educational', 'trust', 'academy', 'school', 'department']);
+    // Check 2.2: Token Match (Excluding Generic & Location Stop Words)
+    const stopWords = new Set([
+      'college', 'university', 'institute', 'institution', 'institutions', 'first', 'grade',
+      'the', 'and', 'for', 'of', 'in', 'at', 'campus', 'degree', 'education', 'educational',
+      'trust', 'academy', 'school', 'department', 'bangalore', 'bengaluru', 'karnataka', 'india',
+      'city', 'town', 'road', 'street', 'state', 'site', 'new'
+    ]);
     const collegeWords = collegeLower.replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(w => w.length >= 3 && !stopWords.has(w));
     
     if (!isCollegeMatched && collegeWords.length > 0) {
-      isCollegeMatched = collegeWords.some(w => {
+      for (const w of collegeWords) {
         const cleanW = w.replace(/[^a-z0-9]/g, '');
-        return docLower.includes(w) || cleanDoc.includes(cleanW);
-      });
+        if (docLower.includes(w) || cleanDoc.includes(cleanW)) {
+          isCollegeMatched = true;
+          break;
+        }
+      }
     }
 
-    // Check 2.2: Institutional Knowledge Base (Bidirectional Aliases & Acronyms)
+    // Check 2.3: Knowledge Base of Institutional Aliases & Acronyms
     const institutionAliases = [
       {
-        acronyms: ['sfgc', 'sfg', 'set'],
-        keywords: ['seshadri', 'seshadripuram', 'seshadnpuram', 'first grade', 'firstgrade', 'yelahanka', 'bangalore 64', '560064', 'sfgc.ac.in']
+        acronyms: ['sfgc', 'sfg', 'set', 'sfc'],
+        keywords: ['seshadri', 'seshadripuram', 'seshadnpuram', 'seshadriparam', 'first grade', 'firstgrade', 'sfgc.ac.in', 'seshadripuram educational trust']
       },
       {
-        acronyms: ['bmsce', 'bms'],
-        keywords: ['bms', 'b.m.s.', 'bmsce', 'bull temple']
+        acronyms: ['bmsce', 'bms', 'bmscw'],
+        keywords: ['bms', 'b.m.s.', 'bmsce', 'bull temple', 'basavanagudi']
       },
       {
-        acronyms: ['rvce', 'rv'],
-        keywords: ['rv college', 'rvce', 'mysore road']
+        acronyms: ['rvce', 'rvc', 'rv'],
+        keywords: ['rv college', 'rvce', 'rashtreeya sikshana', 'mysore road']
       },
       {
         acronyms: ['pesit', 'pesu', 'pes'],
@@ -436,21 +445,26 @@ async function runRealOcrVerification() {
       },
       {
         acronyms: ['msrit', 'msr', 'rit'],
-        keywords: ['ramaiah', 'm.s. ramaiah', 'msrit']
+        keywords: ['ramaiah', 'm.s. ramaiah', 'msrit', 'mathikere']
       },
       {
         acronyms: ['christ', 'cu'],
-        keywords: ['christ university', 'christ', 'hosur road']
+        keywords: ['christ university', 'christ college', 'hosur road']
       },
       {
         acronyms: ['sjcc', 'sjc', 'sju'],
         keywords: ['st joseph', 'st. joseph', 'josephs', 'sjcc', 'sju']
+      },
+      {
+        acronyms: ['mcc'],
+        keywords: ['mount carmel', 'mount carmel college', 'vasanth nagar']
       }
     ];
 
     if (!isCollegeMatched) {
       for (const inst of institutionAliases) {
-        const isEnteredMatch = inst.acronyms.includes(cleanCollege) || inst.keywords.some(k => collegeLower.includes(k) || cleanCollege.includes(k.replace(/[^a-z0-9]/g, '')));
+        const isEnteredMatch = inst.acronyms.includes(cleanCollege) || 
+                               inst.keywords.some(k => collegeLower.includes(k) || cleanCollege.includes(k.replace(/[^a-z0-9]/g, '')));
         if (isEnteredMatch) {
           const isDocMatch = inst.acronyms.some(a => docLower.includes(a) || cleanDoc.includes(a)) ||
                              inst.keywords.some(k => docLower.includes(k) || cleanDoc.includes(k.replace(/[^a-z0-9]/g, '')));
@@ -462,9 +476,26 @@ async function runRealOcrVerification() {
       }
     }
 
-    // Check 2.3: Document Sliding Window Acronym Check
+    // Check 2.4: Fuzzy Levenshtein Distance Match on OCR Words
+    if (!isCollegeMatched && collegeWords.length > 0) {
+      const ocrWords = docLower.replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(w => w.length >= 3 && !stopWords.has(w));
+      for (const w of collegeWords) {
+        const cleanW = w.replace(/[^a-z0-9]/g, '');
+        if (cleanW.length < 4) continue;
+        for (const ocrW of ocrWords) {
+          const dist = levenshteinDist(cleanW, ocrW);
+          if (dist <= 2) {
+            isCollegeMatched = true;
+            break;
+          }
+        }
+        if (isCollegeMatched) break;
+      }
+    }
+
+    // Check 2.5: Document Sliding Window Acronym Check
     if (!isCollegeMatched) {
-      const rawWords = docLower.replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(w => w.length > 0);
+      const rawWords = docLower.replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(w => w.length > 0 && !stopWords.has(w));
       for (let windowSize = 2; windowSize <= 6; windowSize++) {
         for (let i = 0; i <= rawWords.length - windowSize; i++) {
           const acronym = rawWords.slice(i, i + windowSize).map(w => w[0]).join('');
