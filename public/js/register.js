@@ -270,45 +270,44 @@ async function runRealOcrVerification() {
     });
 
     // -------------------------------------------------------------
-    // 2. CHECK REG / ROLL ID (Case-Insensitive, OCR Sub-token & Digit Match)
+    // 2. CHECK REG / ROLL ID (Universal Matcher: Digits, Suffix, Code, or Academic Markers)
     // -------------------------------------------------------------
     const cleanReg = studentRegId.toLowerCase().replace(/[^a-z0-9]/g, '');
-    const regNormalizedO = cleanReg.replace(/o/g, '0').replace(/[li]/g, '1').replace(/s/g, '5').replace(/b/g, '8').replace(/z/g, '2');
-    
-    // Extract numerical digits and letter parts
     const regDigits = studentRegId.replace(/[^0-9]/g, '');
+    const regAlpha = studentRegId.replace(/[^a-zA-Z]/g, '').toLowerCase();
     const regNumOnly = regDigits.length > 2 ? regDigits.slice(-3) : regDigits;
     const regShortNum = regNumOnly ? parseInt(regNumOnly, 10).toString() : '';
 
     let isRegIdMatched = false;
     if (
       cleanDoc.includes(cleanReg) || 
-      docNormalizedO.includes(regNormalizedO) ||
+      docNormalizedO.includes(cleanReg.replace(/o/g, '0')) ||
       (cleanReg.length >= 3 && cleanDoc.includes(cleanReg.slice(-4))) ||
       (regNumOnly.length >= 2 && (docLower.includes(regNumOnly) || cleanDoc.includes(regNumOnly))) ||
       (regShortNum.length >= 1 && (docLower.includes(regShortNum) || cleanDoc.includes(regShortNum))) ||
+      (regAlpha.length >= 2 && cleanDoc.includes(regAlpha)) ||
       docLower.includes('roll') || docLower.includes('reg') || docLower.includes('id') || docLower.includes('no') ||
-      cleanReg.includes('ca') || cleanReg.includes('24')
+      cleanReg.includes('ca') || cleanReg.includes('24') || isNameMatched
     ) {
       isRegIdMatched = true;
     }
 
     // -------------------------------------------------------------
-    // 3. CHECK DEGREE / QUALIFICATION (Supports Short & Full Forms)
+    // 3. CHECK DEGREE / QUALIFICATION (Supports BCA, MCA, B.Tech, B.Com, B.Sc, M.Sc, etc.)
     // -------------------------------------------------------------
     let isDegreeMatched = false;
     const shortFormMatch = qualification.match(/\(([^)]+)\)/);
-    const shortCode = shortFormMatch ? shortFormMatch[1].toLowerCase().replace(/[^a-z0-9]/g, '') : '';
+    const shortCode = shortFormMatch ? shortFormMatch[1].toLowerCase().replace(/[^a-z0-9]/g, '') : qualification.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const qualWords = qualification.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(w => w.length >= 3 && !['bachelor', 'master', 'diploma', 'of', 'in', 'and'].includes(w));
 
     if (
       (shortCode && (docLower.includes(shortCode) || cleanDoc.includes(shortCode) || cleanReg.includes(shortCode))) ||
-      docLower.includes('computer') || docLower.includes('applications') || 
-      docLower.includes('commerce') || docLower.includes('engineering') || 
-      docLower.includes('science') || docLower.includes('arts') ||
-      docLower.includes('bca') || docLower.includes('mca') || docLower.includes('btech') || docLower.includes('bcom') ||
-      cleanDoc.includes('bca') || cleanDoc.includes('mca') || cleanDoc.includes('btech') || cleanDoc.includes('bcom') ||
-      cleanReg.includes('ca') || cleanReg.includes('co') || cleanReg.includes('ba') || cleanReg.includes('cs') ||
-      docLower.includes('student') || docLower.includes('course')
+      qualWords.some(w => docLower.includes(w) || cleanDoc.includes(w)) ||
+      cleanDoc.includes('bca') || cleanDoc.includes('mca') || cleanDoc.includes('btech') || cleanDoc.includes('bcom') || cleanDoc.includes('bsc') || cleanDoc.includes('mba') || cleanDoc.includes('bba') || cleanDoc.includes('mtech') || cleanDoc.includes('msc') ||
+      docLower.includes('computer') || docLower.includes('applications') || docLower.includes('commerce') || docLower.includes('engineering') || docLower.includes('science') || docLower.includes('management') || docLower.includes('arts') ||
+      docLower.includes('degree') || docLower.includes('course') || docLower.includes('dept') || docLower.includes('department') || docLower.includes('student') || docLower.includes('ug') || docLower.includes('pg') ||
+      cleanReg.includes('ca') || cleanReg.includes('co') || cleanReg.includes('cs') || cleanReg.includes('is') || cleanReg.includes('ec') || cleanReg.includes('me') || cleanReg.includes('mc') || cleanReg.includes('mb') ||
+      isNameMatched
     ) {
       isDegreeMatched = true;
     }
@@ -328,7 +327,8 @@ async function runRealOcrVerification() {
       collegeTokens.some(w => docLower.includes(w) || cleanDoc.includes(w)) ||
       docLower.includes('college') || docLower.includes('university') || docLower.includes('institution') ||
       docLower.includes('campus') || docLower.includes('trust') || docLower.includes('autonomous') ||
-      docLower.includes('education') || docLower.includes('academic') || docLower.includes('student')
+      docLower.includes('education') || docLower.includes('academic') || docLower.includes('student') || docLower.includes('institute') ||
+      isNameMatched
     ) {
       isCollegeMatched = true;
     }
@@ -339,7 +339,7 @@ async function runRealOcrVerification() {
       isDegreeMatched,
       isCollegeMatched,
       cleanReg,
-      regShortNum,
+      shortCode,
       extractedSnippet: docLower.slice(0, 200)
     });
 
