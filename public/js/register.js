@@ -106,6 +106,24 @@ function handleAcademicDocSelected(event) {
 // =========================================================================
 // 3. MULTI-LAYER OCR & AI DOCUMENT TEXT EXTRACTION (PDF & IMAGE SUPPORT)
 // =========================================================================
+function levenshteinDist(s1, s2) {
+  const m = s1.length, n = s2.length;
+  const dp = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
+  for (let i = 0; i <= m; i++) dp[i][0] = i;
+  for (let j = 0; j <= n; j++) dp[0][j] = j;
+
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      if (s1[i - 1] === s2[j - 1]) {
+        dp[i][j] = dp[i - 1][j - 1];
+      } else {
+        dp[i][j] = 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
+      }
+    }
+  }
+  return dp[m][n];
+}
+
 async function fileToOcrTarget(file) {
   // If PDF, render first page to high-resolution canvas for OCR
   if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
@@ -303,29 +321,74 @@ async function runRealOcrVerification() {
     const amountMatch = rawOcrText.match(/(?:-\s*Amount\s*Paid:\s*|Total\s*[:\s]*)([\d,]+(?:\.\d{2})?)/i);
     if (amountMatch) extractedAmount = amountMatch[1].trim();
 
-    // Cleaned Document Texts for Matching
+    // Cleaned Document Texts for 100% Case-Insensitive Matching
     const docLower = (rawOcrText + " " + selectedAcademicFile.name).toLowerCase();
     const cleanDoc = docLower.replace(/[^a-z0-9]/g, '');
 
     // -------------------------------------------------------------
-    // GUARD 1: STUDENT FULL NAME VERIFICATION
+    // GUARD 1: STUDENT FULL NAME (Case-Insensitive & Fuzzy OCR Normalization)
     // -------------------------------------------------------------
-    const nameParts = fullName.toLowerCase().split(/\s+/).filter(p => p.length >= 2);
-    const cleanFullName = fullName.toLowerCase().replace(/[^a-z0-9]/g, '');
-    
+    const enteredLower = fullName.toLowerCase().trim();
+    const cleanEntered = enteredLower.replace(/[^a-z0-9]/g, '');
+    const enteredTokens = enteredLower.split(/\s+/).filter(t => t.length >= 2);
+
     let isNameMatched = false;
-    if (nameParts.length > 0) {
-      if (cleanFullName.length >= 3 && cleanDoc.includes(cleanFullName)) {
+
+    // Check 1.1: Direct Full Substring in Cleaned Document
+    if (cleanEntered.length >= 3 && cleanDoc.includes(cleanEntered)) {
+      isNameMatched = true;
+    }
+
+    // Check 1.2: Direct Token Match
+    if (!isNameMatched) {
+      for (const token of enteredTokens) {
+        const cleanT = token.replace(/[^a-z0-9]/g, '');
+        if (cleanT.length >= 3 && (docLower.includes(token) || cleanDoc.includes(cleanT))) {
+          isNameMatched = true;
+          break;
+        }
+      }
+    }
+
+    // Check 1.3: Squeezed String Match (e.g. SAAJAN vs SAJAN)
+    if (!isNameMatched) {
+      const squeeze = str => str.replace(/(.)\1+/g, '$1');
+      const squeezedEntered = squeeze(cleanEntered);
+      const squeezedDoc = squeeze(cleanDoc);
+      if (squeezedEntered.length >= 3 && squeezedDoc.includes(squeezedEntered)) {
         isNameMatched = true;
-      } else {
-        const primaryTokens = nameParts.filter(p => p.length >= 3);
-        if (primaryTokens.length > 0) {
-          isNameMatched = primaryTokens.some(t => {
-            const cleanT = t.replace(/[^a-z0-9]/g, '');
-            return docLower.includes(t) || cleanDoc.includes(cleanT);
-          });
-        } else {
-          isNameMatched = nameParts.some(t => docLower.includes(t) || cleanDoc.includes(t));
+      }
+    }
+
+    // Check 1.4: Fuzzy Levenshtein Distance Match on OCR Words
+    if (!isNameMatched) {
+      const ocrWords = docLower.replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(w => w.length >= 3);
+      for (const token of enteredTokens) {
+        const cleanT = token.replace(/[^a-z0-9]/g, '');
+        if (cleanT.length < 3) continue;
+
+        const maxAllowedDist = cleanT.length <= 4 ? 1 : 2;
+        for (const word of ocrWords) {
+          const dist = levenshteinDist(cleanT, word);
+          if (dist <= maxAllowedDist) {
+            isNameMatched = true;
+            break;
+          }
+        }
+        if (isNameMatched) break;
+      }
+    }
+
+    // Check 1.5: 4-Gram Prefix Substring Overlap
+    if (!isNameMatched) {
+      for (const token of enteredTokens) {
+        const cleanT = token.replace(/[^a-z0-9]/g, '');
+        if (cleanT.length >= 4) {
+          const prefix4 = cleanT.substring(0, 4);
+          if (cleanDoc.includes(prefix4)) {
+            isNameMatched = true;
+            break;
+          }
         }
       }
     }
