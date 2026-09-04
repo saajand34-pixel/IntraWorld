@@ -236,13 +236,13 @@ async function extractDocumentTextViaOCR(file) {
     combinedExtractedText += " " + directText;
   }
 
-  // LAYER 1: Client-Side Tesseract OCR
+  // LAYER 1: Client-Side Tesseract OCR Engine
   try {
     if (typeof Tesseract !== 'undefined') {
       if (statusEl) statusEl.innerText = '🔍 Scanning Fee Receipt Voucher with OCR...';
 
       let ocrInput = ocrTarget;
-      if (base64) {
+      if (base64 && (!ocrInput || typeof ocrInput === 'string')) {
         const img = new Image();
         img.src = 'data:image/jpeg;base64,' + base64;
         await new Promise((res) => { img.onload = res; img.onerror = res; });
@@ -263,36 +263,18 @@ async function extractDocumentTextViaOCR(file) {
         }
       });
       if (tesseractResult && tesseractResult.data && tesseractResult.data.text) {
-        combinedExtractedText += " " + tesseractResult.data.text;
+        combinedExtractedText += "\n" + tesseractResult.data.text;
       }
     }
   } catch (tessErr) {
     console.warn("Tesseract OCR note:", tessErr);
   }
 
-  // LAYER 2: Gemini Vision AI (Specialized Fee Receipt Parser)
+  // LAYER 2: Gemini Vision AI (Fallback if API configured)
   try {
     const geminiApiKey = await getGeminiKey();
-    if (geminiApiKey && base64) {
-      const prompt = `You are an expert College Fee Receipt and Academic Voucher OCR system. Analyze this uploaded official college fee receipt voucher and extract the following fields with 100% accuracy. If a field is missing, write "Not Found".
-
-### Required Fields:
-1. Student Name: [Extract student name after 'Name:']
-2. College Name: [Extract institution/college banner name at the top]
-3. Class / Course: [Extract class, degree, or course, e.g. II BCA 2025-26]
-4. Fee Payment Date: [Extract receipt date / DD date, e.g. 24-10-2025 or DD-MM-YYYY]
-5. Receipt / Voucher No: [Extract receipt voucher number]
-6. Total Amount Paid: [Extract total fee amount]
-
-### Output Format:
-Return ONLY in this clean format without any introductory or conversational text:
-- Name: 
-- College Name: 
-- Class / Course: 
-- Fee Payment Date: 
-- Receipt No: 
-- Amount Paid: `;
-
+    if (geminiApiKey && base64 && geminiApiKey.length > 20 && !geminiApiKey.startsWith('AQ.')) {
+      const prompt = `Analyze this college fee receipt voucher and extract the student name, college name, course/class, and fee payment date.`;
       const payload = {
         contents: [{
           parts: [
@@ -302,29 +284,23 @@ Return ONLY in this clean format without any introductory or conversational text
         }]
       };
 
-      const models = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-flash-latest', 'gemini-1.5-pro'];
-      for (const model of models) {
-        try {
-          const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiApiKey}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-          });
-          if (response.ok) {
-            const result = await response.json();
-            if (result.candidates && result.candidates[0]?.content?.parts[0]?.text) {
-              combinedExtractedText += "\n" + result.candidates[0].content.parts[0].text;
-              break;
-            }
-          }
-        } catch (mErr) {}
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (response.ok) {
+        const result = await response.json();
+        if (result.candidates && result.candidates[0]?.content?.parts[0]?.text) {
+          combinedExtractedText += "\n" + result.candidates[0].content.parts[0].text;
+        }
       }
     }
   } catch (geminiErr) {
     console.warn("Gemini Vision API note:", geminiErr);
   }
 
-  // Append original file name
+  // Append original file name for search context
   combinedExtractedText = (combinedExtractedText + " " + file.name).trim();
   return combinedExtractedText;
 }
@@ -364,8 +340,7 @@ async function runRealOcrVerification() {
     const cleanDoc = docRaw.replace(/[^a-z0-9]/g, '');
 
     // -------------------------------------------------------------
-        // -------------------------------------------------------------
-    // STEP 1: SEARCH STUDENT NAME IN DOCUMENT (Ultra-Resilient OCR Matching)
+    // STEP 1: SEARCH STUDENT NAME IN DOCUMENT (Universal Dynamic Matching)
     // -------------------------------------------------------------
     function normalizeOcrSubstitutions(str) {
       return str.toLowerCase()
@@ -377,8 +352,7 @@ async function runRealOcrVerification() {
         .replace(/5/g, 's')
         .replace(/\$/g, 's')
         .replace(/8/g, 'b')
-        .replace(/m/g, 'n')
-        .replace(/i/g, 'j')
+        .replace(/rn/g, 'm')
         .replace(/[^a-z0-9]/g, '');
     }
 
@@ -386,47 +360,32 @@ async function runRealOcrVerification() {
     const cleanName = fullName.toLowerCase().replace(/[^a-z0-9]/g, '');
     const normEntered = normalizeOcrSubstitutions(fullName);
     const nameTokens = fullName.toLowerCase().split(/\s+/).filter(t => t.length >= 2);
+    const docWords = docRaw.replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(w => w.length >= 2);
 
     let isNameFound = false;
 
-    // 1. Direct clean substring match
+    // 1. Direct clean substring match (e.g. 'saajand', 'mandapativinil', 'priyasharma')
     if (cleanName.length >= 3 && cleanDoc.includes(cleanName)) {
       isNameFound = true;
     }
 
-    // 2. Normalized OCR character substitution match (e.g. S44JAN, SAAJAM, SAAIAN)
+    // 2. Normalized OCR substitution match (e.g. 4->A, 5->S, 1->I)
     if (!isNameFound && normEntered.length >= 3 && normDoc.includes(normEntered)) {
       isNameFound = true;
     }
 
-    // 3. Token match in cleaned and normalized doc
+    // 3. Token match in document
     if (!isNameFound && nameTokens.length > 0) {
       isNameFound = nameTokens.some(token => {
         const cleanT = token.replace(/[^a-z0-9]/g, '');
         const normT = normalizeOcrSubstitutions(token);
-        return docRaw.includes(token) || (cleanT.length >= 3 && cleanDoc.includes(cleanT)) || (normT.length >= 3 && normDoc.includes(normT));
+        return (cleanT.length >= 3 && cleanDoc.includes(cleanT)) ||
+               (normT.length >= 3 && normDoc.includes(normT)) ||
+               docWords.some(w => w === cleanT || (cleanT.length >= 4 && levenshteinDist(cleanT, w) <= 1));
       });
     }
 
-    // 4. Substring N-Gram Match (3-gram / 4-gram overlap)
-    if (!isNameFound) {
-      for (const token of nameTokens) {
-        const normT = normalizeOcrSubstitutions(token);
-        if (normT.length >= 4) {
-          const prefix4 = normT.substring(0, 4);
-          const suffix4 = normT.substring(normT.length - 4);
-          if (normDoc.includes(prefix4) || normDoc.includes(suffix4)) {
-            isNameFound = true;
-            break;
-          }
-        } else if (normT.length === 3 && normDoc.includes(normT)) {
-          isNameFound = true;
-          break;
-        }
-      }
-    }
-
-    // 5. Squeezed tolerance (e.g. SAAJAN -> SAJAN)
+    // 4. Squeezed tolerance
     if (!isNameFound) {
       const squeeze = str => str.replace(/(.)\1+/g, '$1');
       if (normDoc.includes(squeeze(normEntered)) || cleanDoc.includes(squeeze(cleanName))) {
@@ -434,13 +393,12 @@ async function runRealOcrVerification() {
       }
     }
 
-    // 6. Levenshtein OCR noise tolerance (distance <= 2)
+    // 5. Levenshtein fuzzy match across document words
     if (!isNameFound && cleanDoc.length > 10) {
-      const ocrWords = docRaw.replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(w => w.length >= 3);
       for (const token of nameTokens) {
         const cleanT = token.replace(/[^a-z0-9]/g, '');
         if (cleanT.length < 3) continue;
-        for (const word of ocrWords) {
+        for (const word of docWords) {
           if (levenshteinDist(cleanT, word) <= 2) {
             isNameFound = true;
             break;
@@ -450,33 +408,36 @@ async function runRealOcrVerification() {
       }
     }
 
-    // 7. Client-side fallback if browser sandboxing blocked OCR from loading
-    if (!isNameFound && cleanDoc.length <= 25) {
-      isNameFound = true;
+    if (!isNameFound) {
+      btn.disabled = false;
+      btn.innerText = 'Run Fee Receipt OCR Verification';
+      isDocVerified = false;
+      statusEl.innerText = `❌ Student Name Mismatch: The name "${fullName}" was not found on the uploaded Fee Receipt.`;
+      statusEl.className = 'status-msg error';
+      showAlert(`❌ Student Name Mismatch: The name "${fullName}" was not found on the uploaded Fee Receipt. Please ensure the entered name matches the document.`);
+      calculateTrustScore();
+      return;
     }
 
-    // STEP 2: SEARCH COURSE (e.g. BCA) IN DOCUMENT
     // -------------------------------------------------------------
-    let courseTarget = 'bca';
+    // STEP 2: SEARCH COURSE (e.g. BCA, MCA, B.Tech, B.Com, BBA) IN DOCUMENT
+    // -------------------------------------------------------------
     const qualLower = qualification.toLowerCase().trim();
-    if (qualLower.includes('mca')) courseTarget = 'mca';
-    else if (qualLower.includes('bca')) courseTarget = 'bca';
-    else if (qualLower.includes('b.tech') || qualLower.includes('btech')) courseTarget = 'btech';
-    else if (qualLower.includes('m.tech') || qualLower.includes('mtech')) courseTarget = 'mtech';
-    else if (qualLower.includes('b.com') || qualLower.includes('bcom') || qualLower.includes('commerce')) courseTarget = 'bcom';
-    else if (qualLower.includes('bba')) courseTarget = 'bba';
-    else if (qualLower.includes('mba')) courseTarget = 'mba';
-    else if (qualLower.includes('b.sc') || qualLower.includes('bsc')) courseTarget = 'bsc';
-    else if (qualLower.includes('m.sc') || qualLower.includes('msc')) courseTarget = 'msc';
-    else if (qualLower.includes('b.e.')) courseTarget = 'be';
-    else if (qualLower.includes('b.a.')) courseTarget = 'ba';
-    else if (qualLower.includes('m.a.')) courseTarget = 'ma';
-    else courseTarget = qualLower.replace(/[^a-z0-9]/g, '');
+    let courseTokens = [qualLower.replace(/[^a-z0-9]/g, '')];
+    if (qualLower.includes('bca')) courseTokens.push('bca', '1 bca', 'ii bca', 'i bca', '2 bca', 'computer application');
+    if (qualLower.includes('mca')) courseTokens.push('mca', '1 mca', 'ii mca', 'master of computer application');
+    if (qualLower.includes('b.tech') || qualLower.includes('btech') || qualLower.includes('b.e.')) courseTokens.push('btech', 'b.tech', 'be', 'engineering', 'technology');
+    if (qualLower.includes('m.tech') || qualLower.includes('mtech') || qualLower.includes('m.e.')) courseTokens.push('mtech', 'm.tech', 'me');
+    if (qualLower.includes('b.com') || qualLower.includes('bcom') || qualLower.includes('commerce')) courseTokens.push('bcom', 'b.com', 'commerce');
+    if (qualLower.includes('m.com') || qualLower.includes('mcom')) courseTokens.push('mcom', 'm.com');
+    if (qualLower.includes('bba')) courseTokens.push('bba', 'b.b.a', 'business administration');
+    if (qualLower.includes('mba')) courseTokens.push('mba', 'm.b.a', 'business administration');
+    if (qualLower.includes('b.sc') || qualLower.includes('bsc')) courseTokens.push('bsc', 'b.sc', 'science');
+    if (qualLower.includes('m.sc') || qualLower.includes('msc')) courseTokens.push('msc', 'm.sc');
+    if (qualLower.includes('b.a.') || qualLower === 'ba') courseTokens.push('ba', 'b.a', 'arts');
+    if (qualLower.includes('m.a.') || qualLower === 'ma') courseTokens.push('ma', 'm.a');
 
-    let isCourseFound = docRaw.includes(courseTarget) || cleanDoc.includes(courseTarget) || docRaw.includes(qualLower);
-    if (!isCourseFound && cleanDoc.length <= 25) {
-      isCourseFound = (courseTarget === 'bca');
-    }
+    let isCourseFound = courseTokens.some(ct => cleanDoc.includes(ct.replace(/[^a-z0-9]/g, '')) || docRaw.includes(ct));
 
     if (!isCourseFound) {
       btn.disabled = false;
@@ -490,23 +451,23 @@ async function runRealOcrVerification() {
     }
 
     // -------------------------------------------------------------
-    // STEP 3: SEARCH COLLEGE NAME / SFGC IN DOCUMENT
+    // STEP 3: SEARCH COLLEGE NAME IN DOCUMENT
     // -------------------------------------------------------------
     const colLower = collegeName.toLowerCase().trim();
     const cleanCol = colLower.replace(/[^a-z0-9]/g, '');
 
     let isCollegeFound = false;
-    if (cleanCol.length >= 3 && cleanDoc.includes(cleanCol)) {
+    if (cleanCol.length >= 4 && cleanDoc.includes(cleanCol)) {
       isCollegeFound = true;
-    } else if (cleanCol.includes('sfgc') || colLower.includes('seshadri') || colLower.includes('first grade')) {
-      if (cleanDoc.includes('sfgc') || cleanDoc.includes('seshadri') || cleanDoc.includes('firstgrade') || cleanDoc.includes('yelahanka') || docRaw.includes('sfgc') || cleanDoc.length <= 25) {
+    } else if (colLower.includes('seshadripuram') || colLower.includes('sfgc') || colLower.includes('first grade')) {
+      if (cleanDoc.includes('seshadripuram') || cleanDoc.includes('sfgc') || cleanDoc.includes('yelahanka') || cleanDoc.includes('firstgrade') || docRaw.includes('sfgc')) {
         isCollegeFound = true;
       }
     } else {
       const stopWords = new Set(['college', 'university', 'institute', 'institution', 'first', 'grade', 'the', 'and', 'for', 'of', 'in', 'at', 'bangalore', 'bengaluru', 'karnataka', 'india']);
       const tokens = colLower.replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(w => w.length >= 3 && !stopWords.has(w));
       if (tokens.length > 0) {
-        isCollegeFound = tokens.some(t => docRaw.includes(t) || cleanDoc.includes(t.replace(/[^a-z0-9]/g, '')));
+        isCollegeFound = tokens.some(t => cleanDoc.includes(t) || docRaw.includes(t) || docWords.some(w => levenshteinDist(t, w) <= 1));
       }
     }
 
@@ -546,7 +507,7 @@ async function runRealOcrVerification() {
       batchEndYear = 2030;
     }
 
-    let feePaymentYear = 2025;
+    let feePaymentYear = 0;
     const dateFormatted = rawOcrText.match(/\b\d{1,2}[-/.]\d{1,2}[-/.](20\d{2})\b/);
     if (dateFormatted) {
       feePaymentYear = parseInt(dateFormatted[1], 10);
@@ -601,6 +562,15 @@ async function runRealOcrVerification() {
     document.getElementById('certBatchStatus').innerText = `✓ Fee Paid in ${feePaymentYear || '2025'} is within Academic Batch (${passedOutYear})`;
     document.getElementById('certMatchReason').innerText = `✓ Authentic Fee Receipt: Active Enrolled Student in Good Standing`;
     document.getElementById('academicCertCard').classList.remove('hidden');
+
+    // Confetti celebration
+    if (typeof confetti === 'function') {
+      confetti({
+        particleCount: 80,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+    }
 
     calculateTrustScore();
 
