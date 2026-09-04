@@ -1,12 +1,14 @@
 /**
- * IntraWorld - Universal Academic Document Verification Controller
+ * IntraWorld - AI Vision & Anti-Forgery Document Verification Controller
+ * Powered by Google Gemini Vision AI
  * Path: C:\Intraworld\public\js\register.js
- * Dynamic Multi-Pillar OCR & QR Verification Engine (Zero Hardcoded Data)
  */
 
 // ==========================================
 // 1. API KEYS & FIREBASE INITIALIZATION
 // ==========================================
+const GEMINI_API_KEY = "AQ.Ab8RN6LpDxq_Wxcf2f4S9tqVR33H0K4t1_xrfbaMAK7etb4hMA"; 
+
 const WEB3FORMS_ACCESS_KEY = "bb00ad90-e756-4918-b4b5-caf2bab0b818";
 const TWOFACTOR_API_KEY = "33d4086d-a553-11f1-9cb1-0200cd936042";
 
@@ -79,10 +81,9 @@ function handleAcademicDocSelected(event) {
   document.getElementById('academicUploadLabel').innerHTML = `✅ <strong>Selected:</strong> ${file.name}`;
   
   const statusEl = document.getElementById('academicStatusMsg');
-  statusEl.innerText = `📄 Document "${file.name}" loaded. Click "Run 4-Point Document Verification" below.`;
+  statusEl.innerText = `📄 Document "${file.name}" ready. Click "Run AI Document Verification" below.`;
   statusEl.className = 'status-msg info';
 
-  // Reset verification badge
   isDocVerified = false;
   document.getElementById('academicCertCard').classList.add('hidden');
   document.getElementById('verifyDocBtn').classList.remove('hidden');
@@ -90,219 +91,122 @@ function handleAcademicDocSelected(event) {
   calculateTrustScore();
 }
 
-// =========================================================================
-// 3. MULTI-MODAL DOCUMENT TEXT EXTRACTOR (PDF STREAM + QR + OCR)
-// =========================================================================
-function loadImageElement(file) {
-  return new Promise((resolve, reject) => {
+// Convert file to Base64 (Supports Images and PDF renders)
+function fileToBase64(file) {
+  return new Promise(async (resolve, reject) => {
+    if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+      try {
+        if (typeof pdfjsLib !== 'undefined') {
+          const arrayBuffer = await file.arrayBuffer();
+          const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+          const page = await pdf.getPage(1);
+          const viewport = page.getViewport({ scale: 2.0 });
+          const canvas = document.createElement('canvas');
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+          const ctx = canvas.getContext('2d');
+          await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+          const base64Data = canvas.toDataURL('image/jpeg').split(',')[1];
+          resolve({ base64: base64Data, mimeType: 'image/jpeg' });
+          return;
+        }
+      } catch (pdfErr) {
+        console.warn("PDF render note:", pdfErr);
+      }
+    }
+
     const reader = new FileReader();
-    reader.onload = (e) => {
-      const img = new Image();
-      img.onload = () => resolve(img);
-      img.onerror = reject;
-      img.src = e.target.result;
+    reader.onload = () => {
+      const base64String = reader.result.split(',')[1];
+      resolve({ base64: base64String, mimeType: file.type || 'image/jpeg' });
     };
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
 }
 
-async function extractDocumentContent(file) {
-  let combinedText = "";
+// =========================================================================
+// 3. GEMINI VISION: CREDENTIAL MATCHING + ANTI-AI FORGERY DETECTION
+// =========================================================================
+async function verifyWithGeminiVision(file, studentData) {
+  const { base64, mimeType } = await fileToBase64(file);
 
-  // 1. Binary Stream String Extractor (Fast for PDF Receipts & Docs)
-  try {
-    const buffer = await file.arrayBuffer();
-    const bytes = new Uint8Array(buffer);
-    let chunks = [];
-    let current = "";
-    for (let i = 0; i < bytes.length; i++) {
-      const c = bytes[i];
-      if ((c >= 32 && c <= 126) || c === 10 || c === 13) {
-        current += String.fromCharCode(c);
-      } else {
-        if (current.trim().length >= 2) chunks.push(current.trim());
-        current = "";
-      }
+  const prompt = `You are an expert Forensic Document Examiner and Academic Credential Verification AI.
+Analyze this uploaded student document (ID Card / Fee Receipt / Grade Sheet) and cross-examine it with the student registration form details:
+
+Expected Form Details:
+- Student Name: "${studentData.fullName}"
+- Roll / Reg ID: "${studentData.studentRegId}"
+- Degree / Course: "${studentData.qualification}"
+- College / University: "${studentData.collegeName}"
+
+Forensic Analysis Tasks:
+1. ANTI-AI & ANTI-TAMPER CHECK:
+   - Check if this image is AI-generated (e.g. Midjourney, synthetic textures, distorted logos/watermarks).
+   - Check if this image has Photoshop tampering, edited text overlays, or mismatched font sharpness over the credentials.
+   - Set "isAiGeneratedOrTampered": true if fake or tampered, false if it looks like a genuine physical card/receipt.
+
+2. CREDENTIAL MATCHING:
+   - Extract the visible Name, Roll ID, Course (understand abbreviations like BCA = Bachelor of Computer Applications), and College Name.
+   - Compare each field with the Expected Form Details.
+
+Respond ONLY with a valid JSON object matching this exact schema:
+{
+  "isAuthentic": true,
+  "isAiGeneratedOrTampered": false,
+  "tamperDetails": "Explanation if AI-generated or tampered, or 'Genuine Physical Document'",
+  "nameMatched": true,
+  "regIdMatched": true,
+  "courseMatched": true,
+  "collegeMatched": true,
+  "extractedName": "Extracted Name",
+  "extractedRegId": "Extracted Roll No",
+  "extractedCourse": "Extracted Course",
+  "extractedCollege": "Extracted College",
+  "reason": "Brief verification summary"
+}`;
+
+  const payload = {
+    contents: [{
+      parts: [
+        { text: prompt },
+        { inline_data: { mime_type: mimeType, data: base64 } }
+      ]
+    }],
+    generationConfig: {
+      response_mime_type: "application/json"
     }
-    if (current.trim().length >= 2) chunks.push(current.trim());
-    combinedText += " " + chunks.join(" ");
-  } catch (e) {
-    console.warn("Buffer scan:", e);
-  }
+  };
 
-  // 2. Mozilla PDF.js Text Stream Reader (if PDF)
-  if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+  // Primary Model: gemini-3.5-flash | Fallback: gemini-flash-latest
+  const models = ['gemini-3.5-flash', 'gemini-flash-latest', 'gemini-3.1-flash-lite'];
+  let lastError = null;
+
+  for (const model of models) {
     try {
-      if (typeof pdfjsLib !== 'undefined') {
-        const arrayBuffer = await file.arrayBuffer();
-        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-        for (let i = 1; i <= Math.min(pdf.numPages, 3); i++) {
-          const page = await pdf.getPage(i);
-          const textContent = await page.getTextContent();
-          combinedText += " " + textContent.items.map(item => item.str).join(" ");
-        }
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const result = await response.json();
+      if (response.ok && result.candidates && result.candidates[0]?.content?.parts[0]?.text) {
+        const rawJson = result.candidates[0].content.parts[0].text;
+        return JSON.parse(rawJson);
+      } else {
+        lastError = result.error?.message || `Model ${model} failed`;
       }
-    } catch (pdfErr) {
-      console.warn("PDF stream error:", pdfErr);
+    } catch (e) {
+      lastError = e.message;
     }
   }
 
-  // 3. Image QR Code Decoder & High-Contrast OCR (for Camera Photos & Plastic ID Cards)
-  try {
-    let canvas = document.createElement('canvas');
-    let ctx = canvas.getContext('2d');
-
-    if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
-      const img = await loadImageElement(file);
-      canvas.width = img.width;
-      canvas.height = img.height;
-      ctx.drawImage(img, 0, 0);
-
-      // jsQR Barcode/QR Code Decoder
-      if (typeof jsQR !== 'undefined' && canvas.width > 0) {
-        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const qrResult = jsQR(imgData.data, imgData.width, imgData.height);
-        if (qrResult && qrResult.data) {
-          console.log("📱 QR Code Decoded:", qrResult.data);
-          combinedText += " " + qrResult.data;
-        }
-      }
-
-      // Tesseract OCR Text Extraction
-      if (typeof Tesseract !== 'undefined') {
-        try {
-          const ocrRes = await Tesseract.recognize(canvas, 'eng');
-          if (ocrRes && ocrRes.data && ocrRes.data.text) {
-            combinedText += " " + ocrRes.data.text;
-          }
-        } catch (tErr) {
-          console.warn("Tesseract OCR note:", tErr);
-        }
-      }
-    }
-  } catch (imgErr) {
-    console.warn("Image reader note:", imgErr);
-  }
-
-  combinedText += " " + file.name;
-  return combinedText.toLowerCase();
+  throw new Error(lastError || "All Gemini Vision endpoints are busy. Please try again.");
 }
 
 // =========================================================================
-// 4. DYNAMIC NLP TOKENIZATION & FUZZY MATCHING ENGINES
-// =========================================================================
-const STOP_WORDS = new Set([
-  'the', 'and', 'of', 'for', 'in', 'at', 'to', 'a', 'an', 'is', 'on', 'with', 
-  'college', 'university', 'institute', 'institution', 'school', 'academy', 'department', 
-  'grade', 'first', 'autonomous', 'affiliate', 'affiliated', 'trust', 'group'
-]);
-
-function tokenize(text) {
-  return text.toLowerCase()
-    .replace(/[^a-z0-9\s]/g, ' ')
-    .split(/\s+/)
-    .filter(t => t.length >= 2);
-}
-
-// 1. Dynamic Student Name Matcher
-function matchStudentName(inputName, docText, cleanDocText, fileName) {
-  const tokens = tokenize(inputName).filter(t => t.length >= 3);
-  if (tokens.length === 0) return true;
-
-  let matchedCount = 0;
-  for (const token of tokens) {
-    if (docText.includes(token) || cleanDocText.includes(token) || fileName.includes(token)) {
-      matchedCount++;
-    }
-  }
-  return matchedCount >= 1; // Passes if at least one main name token (first or last name) exists
-}
-
-// 2. Dynamic Reg / Roll ID Matcher
-function matchStudentRegId(inputRegId, docText, cleanDocText, cleanFileName) {
-  const cleanReg = inputRegId.toLowerCase().replace(/[^a-z0-9]/g, '');
-  if (cleanReg.length < 2) return false;
-
-  // Exact alphanumeric match
-  if (cleanDocText.includes(cleanReg) || cleanFileName.includes(cleanReg)) {
-    return true;
-  }
-
-  // Core number / roll suffix match (e.g. input "2024-BCA-018" matches "018" or "bca018")
-  if (cleanReg.length >= 4) {
-    const suffix = cleanReg.slice(-3);
-    if (cleanDocText.includes(suffix)) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
-// 3. Dynamic Course / Qualification Matcher
-function matchCourse(inputQualification, inputRegId, docText, cleanDocText, fileName) {
-  if (!inputQualification) return true;
-
-  // A. Extract short acronym e.g. "Bachelor of Computer Applications (BCA)" -> "bca"
-  const acronymMatch = inputQualification.match(/\(([^)]+)\)/);
-  const acronym = acronymMatch ? acronymMatch[1].toLowerCase().replace(/[^a-z0-9]/g, '') : '';
-
-  // B. Significant degree keywords
-  const degreeTokens = tokenize(inputQualification).filter(t => !STOP_WORDS.has(t) && t.length >= 3);
-
-  // Match 1: Check acronym in docText (e.g. 'bca', 'mca', 'btech', 'bcom', 'bba', 'bsc')
-  if (acronym && (docText.includes(acronym) || cleanDocText.includes(acronym) || fileName.includes(acronym))) {
-    return true;
-  }
-
-  // Match 2: Check if Roll Number has course code prefix (e.g. "24CA018" contains 'ca' for Computer Applications)
-  const cleanReg = inputRegId.toLowerCase().replace(/[^a-z0-9]/g, '');
-  if (acronym && cleanReg.includes(acronym)) {
-    return true;
-  }
-  if (acronym.length >= 2 && cleanReg.includes(acronym.slice(-2))) {
-    return true;
-  }
-
-  // Match 3: Check degree keyword tokens
-  for (const token of degreeTokens) {
-    if (docText.includes(token) || cleanDocText.includes(token)) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
-// 4. Dynamic College / University Matcher
-function matchCollege(inputCollege, docText, cleanDocText, fileName) {
-  const rawTokens = tokenize(inputCollege);
-  const significantTokens = rawTokens.filter(t => !STOP_WORDS.has(t) && t.length >= 3);
-
-  if (significantTokens.length === 0) {
-    return docText.includes('college') || docText.includes('university');
-  }
-
-  // Count how many institution-identifying words appear on the document
-  let matchedTokens = [];
-  for (const token of significantTokens) {
-    if (docText.includes(token) || cleanDocText.includes(token) || fileName.includes(token)) {
-      matchedTokens.push(token);
-    }
-  }
-
-  // Passes if at least 1 key institution keyword is found (e.g. 'seshadripuram', 'christ', 'oxford', 'pes', 'iit')
-  if (matchedTokens.length >= 1) {
-    return true;
-  }
-
-  // Safe fallback if document contains generic academic proof markers
-  return docText.includes('receipt') || docText.includes('fees') || docText.includes('student') || docText.includes('admission');
-}
-
-// =========================================================================
-// 5. RUN UNIVERSAL 4-POINT DOCUMENT VERIFICATION
+// 4. MAIN VERIFICATION CONTROLLER
 // =========================================================================
 async function runRealOcrVerification() {
   const fullName = document.getElementById('fullName').value.trim();
@@ -312,105 +216,82 @@ async function runRealOcrVerification() {
   const statusEl = document.getElementById('academicStatusMsg');
   const btn = document.getElementById('verifyDocBtn');
 
-  if (!fullName) {
-    statusEl.innerText = '❌ Error: Please enter your Full Name in Section 1 first.';
-    statusEl.className = 'status-msg error';
-    return;
-  }
-
-  if (!qualification) {
-    statusEl.innerText = '❌ Error: Please select your Qualification in Section 2.';
-    statusEl.className = 'status-msg error';
-    return;
-  }
-
-  if (!collegeName) {
-    statusEl.innerText = '❌ Error: Please enter your College Name in Section 2.';
-    statusEl.className = 'status-msg error';
-    return;
-  }
-
-  if (!studentRegId) {
-    statusEl.innerText = '❌ Error: Please enter your Student Roll / Reg ID in Section 2.';
-    statusEl.className = 'status-msg error';
-    return;
-  }
-
-  if (!selectedAcademicFile) {
-    statusEl.innerText = '❌ Error: Please upload your Student ID or Fee Receipt document.';
+  if (!fullName || !qualification || !collegeName || !studentRegId || !selectedAcademicFile) {
+    statusEl.innerText = '❌ Error: Please fill all personal & academic details and select your document first.';
     statusEl.className = 'status-msg error';
     return;
   }
 
   btn.disabled = true;
-  btn.innerText = 'Verifying Document...';
-  statusEl.innerText = '🔍 Cross-matching Name, Roll ID, Course & College on document...';
+  btn.innerText = 'AI Inspecting Document...';
+  statusEl.innerText = '🤖 Gemini AI Vision is scanning credentials & checking for AI forgery...';
   statusEl.className = 'status-msg info';
 
   try {
-    const docText = await extractDocumentContent(selectedAcademicFile);
-    const fileName = selectedAcademicFile.name.toLowerCase();
-    const cleanDocText = docText.replace(/[^a-z0-9]/g, '');
-    const cleanFileName = fileName.replace(/[^a-z0-9]/g, '');
+    const studentData = { fullName, qualification, collegeName, studentRegId };
+    const aiResult = await verifyWithGeminiVision(selectedAcademicFile, studentData);
 
-    // 1. Dynamic Check: Student Full Name
-    const isNameMatched = matchStudentName(fullName, docText, cleanDocText, fileName);
+    console.log("🤖 Gemini Vision AI Result:", aiResult);
 
-    // 2. Dynamic Check: Student Reg / Roll ID
-    const isRegIdMatched = matchStudentRegId(studentRegId, docText, cleanDocText, cleanFileName);
-
-    // 3. Dynamic Check: Course / Qualification
-    const isCourseMatched = matchCourse(qualification, studentRegId, docText, cleanDocText, fileName);
-
-    // 4. Dynamic Check: College / University Name
-    const isCollegeMatched = matchCollege(collegeName, docText, cleanDocText, fileName);
-
-    // Collect any failed pillars
-    let failedFields = [];
-    if (!isNameMatched) failedFields.push(`Name "${fullName}"`);
-    if (!isRegIdMatched) failedFields.push(`Reg ID "${studentRegId}"`);
-    if (!isCourseMatched) failedFields.push(`Course`);
-    if (!isCollegeMatched) failedFields.push(`College "${collegeName}"`);
-
-    if (failedFields.length > 0) {
+    // 1. Anti-AI / Anti-Photoshop Fraud Check
+    if (aiResult.isAiGeneratedOrTampered) {
       btn.disabled = false;
-      btn.innerText = 'Run 4-Point Document Verification';
+      btn.innerText = 'Run AI Document Verification';
       isDocVerified = false;
-      statusEl.innerText = `❌ Verification Mismatch: ${failedFields.join(', ')} was NOT found on this uploaded document.`;
+      statusEl.innerText = `❌ Fraud Rejected: Document detected as AI-generated or digitally modified (${aiResult.tamperDetails}).`;
       statusEl.className = 'status-msg error';
-      showAlert(`❌ Verification Failed: ${failedFields.join(', ')} does not match the uploaded document.`);
+      showAlert(`🚨 Fraud Alert: Uploaded document appears to be AI-generated or modified. Please upload an official physical ID card or fee receipt.`);
       calculateTrustScore();
       return;
     }
 
-    // ✅ 100% 4-POINT AUTHENTICATED
-    isDocVerified = true;
-    btn.classList.add('hidden');
+    // 2. Credential Match Verification
+    if (aiResult.isAuthentic && aiResult.nameMatched && aiResult.regIdMatched && aiResult.collegeMatched) {
+      // ✅ 100% GENUINE & MATCHED
+      isDocVerified = true;
+      btn.classList.add('hidden');
 
-    statusEl.innerText = `✅ Verified! ${fullName} • ${studentRegId} • ${collegeName} (+35% Trust Score)`;
-    statusEl.className = 'status-msg success';
+      statusEl.innerText = `✅ AI Verified & Anti-Tamper Passed: ${aiResult.extractedName} • ${aiResult.extractedRegId} • ${aiResult.extractedCollege} (+35% Trust Score)`;
+      statusEl.className = 'status-msg success';
 
-    document.getElementById('certStudentName').innerText = fullName;
-    document.getElementById('certCollegeName').innerText = collegeName;
-    document.getElementById('certRegNo').innerText = studentRegId;
-    document.getElementById('certMatchReason').innerText = `✓ Authenticated: Name (${fullName}), Reg ID (${studentRegId}) & College Confirmed`;
-    document.getElementById('academicCertCard').classList.remove('hidden');
+      document.getElementById('certStudentName').innerText = aiResult.extractedName || fullName;
+      document.getElementById('certCollegeName').innerText = aiResult.extractedCollege || collegeName;
+      document.getElementById('certRegNo').innerText = aiResult.extractedRegId || studentRegId;
+      document.getElementById('certMatchReason').innerText = `✓ AI Verified (Original Physical Doc Confirmed • Credentials Authenticated)`;
+      document.getElementById('academicCertCard').classList.remove('hidden');
 
-    calculateTrustScore();
+      calculateTrustScore();
+    } else {
+      // ❌ Mismatch
+      btn.disabled = false;
+      btn.innerText = 'Run AI Document Verification';
+      isDocVerified = false;
+
+      let mismatches = [];
+      if (!aiResult.nameMatched) mismatches.push(`Name (Found: "${aiResult.extractedName}")`);
+      if (!aiResult.regIdMatched) mismatches.push(`Reg ID (Found: "${aiResult.extractedRegId}")`);
+      if (!aiResult.collegeMatched) mismatches.push(`College (Found: "${aiResult.extractedCollege}")`);
+
+      const errorDetail = mismatches.length > 0 ? mismatches.join(", ") : aiResult.reason;
+      statusEl.innerText = `❌ Verification Mismatch: ${errorDetail}`;
+      statusEl.className = 'status-msg error';
+      showAlert(`❌ Verification Failed: ${errorDetail}`);
+      calculateTrustScore();
+    }
 
   } catch (err) {
-    console.error("Verification error:", err);
+    console.error("AI Verification error:", err);
     btn.disabled = false;
-    btn.innerText = 'Run 4-Point Document Verification';
+    btn.innerText = 'Run AI Document Verification';
     isDocVerified = false;
-    statusEl.innerText = `❌ Verification error. Please try again.`;
+    statusEl.innerText = `❌ AI Verification error: ${err.message}. Please try again.`;
     statusEl.className = 'status-msg error';
     calculateTrustScore();
   }
 }
 
 // ==========================================
-// 6. DYNAMIC AUTHENTICITY SCORE GAUGE
+// 5. DYNAMIC AUTHENTICITY SCORE GAUGE
 // ==========================================
 function calculateTrustScore() {
   let score = 0;
@@ -457,7 +338,7 @@ function calculateTrustScore() {
 }
 
 // ==========================================
-// 7. GMAIL OTP DISPATCH
+// 6. GMAIL OTP DISPATCH
 // ==========================================
 async function sendGmailOtp() {
   const email = document.getElementById('gmailAddress').value.trim();
@@ -552,7 +433,7 @@ function verifyGmailOtp() {
 }
 
 // ==========================================
-// 8. PHONE SMS OTP DISPATCH
+// 7. PHONE SMS OTP DISPATCH
 // ==========================================
 async function sendSmsOtp() {
   const phone = document.getElementById('mobileNumber').value.trim();
@@ -653,7 +534,7 @@ function completePhoneVerification() {
 }
 
 // ==========================================
-// 9. CLOUDFLARE TURNSTILE & HELPERS
+// 8. CLOUDFLARE TURNSTILE & HELPERS
 // ==========================================
 function triggerCloudflareCheck() {
   if (isCloudflareVerified) return;
@@ -705,7 +586,7 @@ function showAlert(msg) {
 }
 
 // =============================================================
-// 10. FINAL REGISTRATION & FIRESTORE DATABASE STORAGE
+// 9. FINAL REGISTRATION & FIRESTORE DATABASE STORAGE
 // =============================================================
 async function handleRegistrationSubmit(event) {
   event.preventDefault();
@@ -749,7 +630,7 @@ async function handleRegistrationSubmit(event) {
   }
 
   if (!isDocVerified) {
-    showAlert('⚠️ Please complete Section 3: Run the 4-point document verification.');
+    showAlert('⚠️ Please complete Section 3: Run the AI document verification.');
     return;
   }
 
@@ -808,7 +689,7 @@ function renderSuccessScreen(fullName, collegeName, qualification, specializatio
   document.getElementById('holoDegree').innerText = `${qualification} • ${specialization}`;
   document.getElementById('holoRegNo').innerText = regId;
   document.getElementById('holoBatch').innerText = passedOutYear || '2024-2027';
-  document.getElementById('successScoreText').innerText = `${trustScore}% Trust Rating (4-Point Document Verified)`;
+  document.getElementById('successScoreText').innerText = `${trustScore}% Trust Rating (AI Vision & Anti-Tamper Verified)`;
 
   const skillsContainer = document.getElementById('holoSkills');
   skillsContainer.innerHTML = '';
