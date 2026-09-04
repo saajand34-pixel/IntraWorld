@@ -103,70 +103,78 @@ function handleAcademicDocSelected(event) {
   calculateTrustScore();
 }
 
-function fileToBase64(file) {
-  return new Promise(async (resolve, reject) => {
-    if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
-      try {
-        if (typeof pdfjsLib !== 'undefined') {
-          const arrayBuffer = await file.arrayBuffer();
-          const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-          const page = await pdf.getPage(1);
-          const viewport = page.getViewport({ scale: 2.0 });
-          const canvas = document.createElement('canvas');
-          canvas.width = viewport.width;
-          canvas.height = viewport.height;
-          const ctx = canvas.getContext('2d');
-          await page.render({ canvasContext: ctx, viewport: viewport }).promise;
-          const base64Data = canvas.toDataURL('image/jpeg').split(',')[1];
-          resolve({ base64: base64Data, mimeType: 'image/jpeg' });
-          return;
+// =========================================================================
+// 3. MULTI-LAYER OCR & AI DOCUMENT TEXT EXTRACTION (PDF & IMAGE SUPPORT)
+// =========================================================================
+async function fileToOcrTarget(file) {
+  // If PDF, render first page to a high-resolution canvas for Tesseract and Gemini
+  if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+    try {
+      if (typeof pdfjsLib !== 'undefined') {
+        if (pdfjsLib.GlobalWorkerOptions && !pdfjsLib.GlobalWorkerOptions.workerSrc) {
+          pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
         }
-      } catch (pdfErr) {
-        console.warn("PDF render note:", pdfErr);
-      }
-    }
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        const page = await pdf.getPage(1);
+        const viewport = page.getViewport({ scale: 2.0 });
+        const canvas = document.createElement('canvas');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        const ctx = canvas.getContext('2d');
+        await page.render({ canvasContext: ctx, viewport: viewport }).promise;
 
+        // Also extract vector text if available
+        let textLayer = "";
+        try {
+          const textContent = await page.getTextContent();
+          textLayer = textContent.items.map(item => item.str).join(" ");
+        } catch (tErr) {}
+
+        const base64Jpg = canvas.toDataURL('image/jpeg', 0.9).split(',')[1];
+        return {
+          ocrTarget: canvas, // Canvas element ready for Tesseract OCR
+          directText: textLayer,
+          base64: base64Jpg,
+          mimeType: 'image/jpeg'
+        };
+      }
+    } catch (pdfErr) {
+      console.warn("PDF render to canvas note:", pdfErr);
+    }
+  }
+
+  // If Image (PNG, JPG, JPEG, WebP)
+  return new Promise((resolve) => {
     const reader = new FileReader();
     reader.onload = () => {
       const base64String = reader.result.split(',')[1];
-      resolve({ base64: base64String, mimeType: file.type || 'image/jpeg' });
+      resolve({
+        ocrTarget: file, // Image file object ready for Tesseract OCR
+        directText: "",
+        base64: base64String,
+        mimeType: file.type || 'image/jpeg'
+      });
     };
-    reader.onerror = reject;
+    reader.onerror = () => resolve({ ocrTarget: file, directText: "", base64: "", mimeType: 'image/jpeg' });
     reader.readAsDataURL(file);
   });
 }
 
-// =========================================================================
-// =========================================================================
-// 3. MULTI-LAYER OCR & AI DOCUMENT TEXT EXTRACTION
-// =========================================================================
 async function extractDocumentTextViaOCR(file) {
   let combinedExtractedText = "";
   const statusEl = document.getElementById('academicStatusMsg');
 
-  // LAYER 1: Direct PDF Text Extraction (for PDF files)
-  if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
-    try {
-      if (typeof pdfjsLib !== 'undefined') {
-        if (statusEl) statusEl.innerText = '📄 Reading PDF document layers...';
-        const arrayBuffer = await file.arrayBuffer();
-        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-        for (let i = 1; i <= Math.min(pdf.numPages, 5); i++) {
-          const page = await pdf.getPage(i);
-          const textContent = await page.getTextContent();
-          combinedExtractedText += " " + textContent.items.map(item => item.str).join(" ");
-        }
-      }
-    } catch (pdfErr) {
-      console.warn("PDF native layer note:", pdfErr);
-    }
+  const { ocrTarget, directText, base64, mimeType } = await fileToOcrTarget(file);
+  if (directText && directText.trim().length > 0) {
+    combinedExtractedText += " " + directText;
   }
 
-  // LAYER 2: Client-Side Tesseract OCR (High-Precision OCR for Images)
+  // LAYER 1: Client-Side Tesseract OCR (Reads Canvas or Image directly in browser)
   try {
     if (typeof Tesseract !== 'undefined') {
       if (statusEl) statusEl.innerText = '🔍 Optical Character Recognition (OCR) running...';
-      const tesseractResult = await Tesseract.recognize(file, 'eng', {
+      const tesseractResult = await Tesseract.recognize(ocrTarget, 'eng', {
         logger: (m) => {
           if (m.status === 'recognizing text' && statusEl) {
             const pct = Math.round(m.progress * 100);
@@ -182,11 +190,10 @@ async function extractDocumentTextViaOCR(file) {
     console.warn("Tesseract OCR note:", tessErr);
   }
 
-  // LAYER 3: Gemini Vision AI (if API key is available & online)
+  // LAYER 2: Gemini Vision AI (if API key is available & online)
   try {
     const geminiApiKey = await getGeminiKey();
-    if (geminiApiKey) {
-      const { base64, mimeType } = await fileToBase64(file);
+    if (geminiApiKey && base64) {
       const prompt = `Perform complete Optical Character Recognition (OCR) on this student document. Extract student name, registration number, course, degree, and college name. Return plain text only.`;
 
       const payload = {
@@ -213,16 +220,13 @@ async function extractDocumentTextViaOCR(file) {
               break;
             }
           }
-        } catch (mErr) {
-          // Fallback to client-side OCR
-        }
+        } catch (mErr) {}
       }
     }
   } catch (geminiErr) {
     console.warn("Gemini Vision API note:", geminiErr);
   }
 
-  // Append file name and sanitize
   combinedExtractedText = (combinedExtractedText + " " + file.name).trim();
   return combinedExtractedText;
 }
