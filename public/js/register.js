@@ -236,11 +236,26 @@ async function extractDocumentTextViaOCR(file) {
     combinedExtractedText += " " + directText;
   }
 
-  // LAYER 1: Client-Side Tesseract OCR
+  // LAYER 1: Client-Side Tesseract OCR (High-accuracy Canvas & Image OCR in browser)
   try {
     if (typeof Tesseract !== 'undefined') {
       if (statusEl) statusEl.innerText = '🔍 Scanning Fee Receipt Voucher with OCR...';
-      const tesseractResult = await Tesseract.recognize(ocrTarget, 'eng', {
+
+      // Create an image/canvas target for 100% reliable Tesseract processing
+      let ocrInput = ocrTarget;
+      if (base64) {
+        const img = new Image();
+        img.src = 'data:image/jpeg;base64,' + base64;
+        await new Promise((res) => { img.onload = res; img.onerror = res; });
+        const canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth || img.width || 1200;
+        canvas.height = img.naturalHeight || img.height || 1600;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        ocrInput = canvas;
+      }
+
+      const tesseractResult = await Tesseract.recognize(ocrInput, 'eng', {
         logger: (m) => {
           if (m.status === 'recognizing text' && statusEl) {
             const pct = Math.round(m.progress * 100);
@@ -310,18 +325,13 @@ Return ONLY in this clean format without any introductory or conversational text
     console.warn("Gemini Vision API note:", geminiErr);
   }
 
-  // Guaranteed OCR Text Fallback: If OCR produced little text, extract from document stream or filename
-  if (combinedExtractedText.trim().length < 10) {
-    combinedExtractedText = "Seshadripuram First Grade College SFGC Yelahanka Name: SAAJAN D Class: II BCA 2025-26 Date: 24-10-2025 Total: 37,500.00 Receipt Voucher No: 4,213 " + file.name;
-  } else {
-    combinedExtractedText = (combinedExtractedText + " " + file.name).trim();
-  }
-
+  // Append original file name
+  combinedExtractedText = (combinedExtractedText + " " + file.name).trim();
   return combinedExtractedText;
 }
 
 // =========================================================================
-// 4. 4-STEP SEQUENTIAL FEE RECEIPT VERIFICATION PIPELINE
+// 4. 4-STEP SEQUENTIAL DYNAMIC FEE RECEIPT VERIFICATION PIPELINE
 // =========================================================================
 async function runRealOcrVerification() {
   const fullName = document.getElementById('fullName').value.trim();
@@ -355,22 +365,25 @@ async function runRealOcrVerification() {
     const cleanDoc = docRaw.replace(/[^a-z0-9]/g, '');
 
     // -------------------------------------------------------------
-    // STEP 1: SEARCH STUDENT NAME IN DOCUMENT
+    // STEP 1: SEARCH STUDENT NAME IN DOCUMENT (100% DYNAMIC FOR ANY STUDENT)
     // -------------------------------------------------------------
     const cleanName = fullName.toLowerCase().replace(/[^a-z0-9]/g, '');
     const nameTokens = fullName.toLowerCase().split(/\s+/).filter(t => t.length >= 2);
 
     let isNameFound = false;
+
+    // Direct Full Name in cleaned doc
     if (cleanName.length >= 3 && cleanDoc.includes(cleanName)) {
       isNameFound = true;
     } else if (nameTokens.length > 0) {
+      // Individual Token in doc
       isNameFound = nameTokens.some(token => {
         const cleanT = token.replace(/[^a-z0-9]/g, '');
         return docRaw.includes(token) || (cleanT.length >= 3 && cleanDoc.includes(cleanT));
       });
     }
 
-    // Squeezed or Levenshtein tolerance
+    // Levenshtein OCR noise tolerance for any name (distance <= 2)
     if (!isNameFound) {
       const ocrWords = docRaw.replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(w => w.length >= 3);
       for (const token of nameTokens) {
@@ -386,13 +399,23 @@ async function runRealOcrVerification() {
       }
     }
 
+    // Squeezed tolerance
+    if (!isNameFound) {
+      const squeeze = str => str.replace(/(.)\1+/g, '$1');
+      const squeezedName = squeeze(cleanName);
+      const squeezedDoc = squeeze(cleanDoc);
+      if (squeezedName.length >= 3 && squeezedDoc.includes(squeezedName)) {
+        isNameFound = true;
+      }
+    }
+
     if (!isNameFound) {
       btn.disabled = false;
       btn.innerText = 'Run Fee Receipt OCR Verification';
       isDocVerified = false;
       statusEl.innerText = `❌ Student Name Mismatch: "${fullName}" was not found in the uploaded Fee Receipt.`;
       statusEl.className = 'status-msg error';
-      showAlert(`❌ Student Name Mismatch: The name "${fullName}" does not match the uploaded Fee Receipt. Please upload your own receipt.`);
+      showAlert(`❌ Student Name Mismatch: The name "${fullName}" was not found on the uploaded Fee Receipt. Please ensure the entered name matches the document.`);
       calculateTrustScore();
       return;
     }
@@ -424,7 +447,7 @@ async function runRealOcrVerification() {
       isDocVerified = false;
       statusEl.innerText = `❌ Course / Degree Mismatch: Course "${qualification}" was not found in the uploaded Fee Receipt.`;
       statusEl.className = 'status-msg error';
-      showAlert(`❌ Course / Degree Mismatch: The course "${qualification}" does not match the uploaded Fee Receipt.`);
+      showAlert(`❌ Course / Degree Mismatch: The course "${qualification}" was not found on the uploaded Fee Receipt.`);
       calculateTrustScore();
       return;
     }
@@ -456,7 +479,7 @@ async function runRealOcrVerification() {
       isDocVerified = false;
       statusEl.innerText = `❌ College Mismatch: College "${collegeName}" was not found in the uploaded Fee Receipt.`;
       statusEl.className = 'status-msg error';
-      showAlert(`❌ College Mismatch: The college "${collegeName}" does not match the uploaded Fee Receipt.`);
+      showAlert(`❌ College Mismatch: The college "${collegeName}" was not found on the uploaded Fee Receipt.`);
       calculateTrustScore();
       return;
     }
