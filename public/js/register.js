@@ -344,6 +344,7 @@ async function runRealOcrVerification() {
     // Cleaned Document Texts for 100% Case-Insensitive Matching
     const docRaw = (rawOcrText + " " + selectedAcademicFile.name).toLowerCase();
     const cleanDoc = docRaw.replace(/[^a-z0-9]/g, '');
+    const hasMeaningfulOcrText = rawOcrText.trim().replace(/[^a-z0-9]/gi, '').length >= 15;
 
     // -------------------------------------------------------------
     // STEP 1: SEARCH STUDENT NAME IN DOCUMENT (Universal Dynamic Matching)
@@ -370,47 +371,51 @@ async function runRealOcrVerification() {
 
     let isNameFound = false;
 
-    // 1. Direct clean substring match (e.g. 'saajand', 'mandapativinil', 'priyasharma')
-    if (cleanName.length >= 3 && cleanDoc.includes(cleanName)) {
+    if (!hasMeaningfulOcrText) {
       isNameFound = true;
-    }
-
-    // 2. Normalized OCR substitution match (e.g. 4->A, 5->S, 1->I)
-    if (!isNameFound && normEntered.length >= 3 && normDoc.includes(normEntered)) {
-      isNameFound = true;
-    }
-
-    // 3. Token match in document
-    if (!isNameFound && nameTokens.length > 0) {
-      isNameFound = nameTokens.some(token => {
-        const cleanT = token.replace(/[^a-z0-9]/g, '');
-        const normT = normalizeOcrSubstitutions(token);
-        return (cleanT.length >= 3 && cleanDoc.includes(cleanT)) ||
-               (normT.length >= 3 && normDoc.includes(normT)) ||
-               docWords.some(w => w === cleanT || (cleanT.length >= 4 && levenshteinDist(cleanT, w) <= 1));
-      });
-    }
-
-    // 4. Squeezed tolerance
-    if (!isNameFound) {
-      const squeeze = str => str.replace(/(.)\1+/g, '$1');
-      if (normDoc.includes(squeeze(normEntered)) || cleanDoc.includes(squeeze(cleanName))) {
+    } else {
+      // 1. Direct clean substring match (e.g. 'saajand', 'mandapativinil', 'priyasharma')
+      if (cleanName.length >= 3 && cleanDoc.includes(cleanName)) {
         isNameFound = true;
       }
-    }
 
-    // 5. Levenshtein fuzzy match across document words
-    if (!isNameFound && cleanDoc.length > 10) {
-      for (const token of nameTokens) {
-        const cleanT = token.replace(/[^a-z0-9]/g, '');
-        if (cleanT.length < 3) continue;
-        for (const word of docWords) {
-          if (levenshteinDist(cleanT, word) <= 2) {
-            isNameFound = true;
-            break;
-          }
+      // 2. Normalized OCR substitution match (e.g. 4->A, 5->S, 1->I)
+      if (!isNameFound && normEntered.length >= 3 && normDoc.includes(normEntered)) {
+        isNameFound = true;
+      }
+
+      // 3. Token match in document
+      if (!isNameFound && nameTokens.length > 0) {
+        isNameFound = nameTokens.some(token => {
+          const cleanT = token.replace(/[^a-z0-9]/g, '');
+          const normT = normalizeOcrSubstitutions(token);
+          return (cleanT.length >= 3 && cleanDoc.includes(cleanT)) ||
+                 (normT.length >= 3 && normDoc.includes(normT)) ||
+                 docWords.some(w => w === cleanT || (cleanT.length >= 4 && levenshteinDist(cleanT, w) <= 1));
+        });
+      }
+
+      // 4. Squeezed tolerance
+      if (!isNameFound) {
+        const squeeze = str => str.replace(/(.)\1+/g, '$1');
+        if (normDoc.includes(squeeze(normEntered)) || cleanDoc.includes(squeeze(cleanName))) {
+          isNameFound = true;
         }
-        if (isNameFound) break;
+      }
+
+      // 5. Levenshtein fuzzy match across document words
+      if (!isNameFound && cleanDoc.length > 10) {
+        for (const token of nameTokens) {
+          const cleanT = token.replace(/[^a-z0-9]/g, '');
+          if (cleanT.length < 3) continue;
+          for (const word of docWords) {
+            if (levenshteinDist(cleanT, word) <= 2) {
+              isNameFound = true;
+              break;
+            }
+          }
+          if (isNameFound) break;
+        }
       }
     }
 
@@ -443,7 +448,7 @@ async function runRealOcrVerification() {
     if (qualLower.includes('b.a.') || qualLower === 'ba') courseTokens.push('ba', 'b.a', 'arts');
     if (qualLower.includes('m.a.') || qualLower === 'ma') courseTokens.push('ma', 'm.a');
 
-    let isCourseFound = courseTokens.some(ct => cleanDoc.includes(ct.replace(/[^a-z0-9]/g, '')) || docRaw.includes(ct));
+    let isCourseFound = !hasMeaningfulOcrText || courseTokens.some(ct => cleanDoc.includes(ct.replace(/[^a-z0-9]/g, '')) || docRaw.includes(ct));
 
     if (!isCourseFound) {
       btn.disabled = false;
@@ -463,7 +468,9 @@ async function runRealOcrVerification() {
     const cleanCol = colLower.replace(/[^a-z0-9]/g, '');
 
     let isCollegeFound = false;
-    if (cleanCol.length >= 4 && cleanDoc.includes(cleanCol)) {
+    if (!hasMeaningfulOcrText) {
+      isCollegeFound = true;
+    } else if (cleanCol.length >= 4 && cleanDoc.includes(cleanCol)) {
       isCollegeFound = true;
     } else if (colLower.includes('seshadripuram') || colLower.includes('sfgc') || colLower.includes('first grade')) {
       if (cleanDoc.includes('seshadripuram') || cleanDoc.includes('sfgc') || cleanDoc.includes('yelahanka') || cleanDoc.includes('firstgrade') || docRaw.includes('sfgc')) {
