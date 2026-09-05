@@ -239,26 +239,14 @@ async function extractDocumentTextViaOCR(file) {
     combinedExtractedText += "\n" + directText;
   }
 
-  // LAYER 1: Client-Side Tesseract OCR Engine (Canvas / DataURL rendered)
+  // LAYER 1: Client-Side Tesseract OCR Engine
   try {
     if (typeof Tesseract !== 'undefined' && (ocrTarget || base64)) {
       if (statusEl) statusEl.innerText = '🔍 Scanning Fee Receipt Voucher with OCR...';
 
       const imgSource = ocrTarget || ('data:image/jpeg;base64,' + base64);
-      const img = new Image();
-      img.crossOrigin = "anonymous";
-      img.src = imgSource;
-      await new Promise((res) => { img.onload = res; img.onerror = res; });
 
-      const canvas = document.createElement('canvas');
-      canvas.width = img.naturalWidth || img.width || 1200;
-      canvas.height = img.naturalHeight || img.height || 1600;
-      const ctx = canvas.getContext('2d');
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, 0, 0);
-
-      const tesseractResult = await Tesseract.recognize(canvas, 'eng', {
+      const tesseractResult = await Tesseract.recognize(imgSource, 'eng', {
         logger: (m) => {
           if (m.status === 'recognizing text' && statusEl) {
             const pct = Math.round(m.progress * 100);
@@ -344,7 +332,6 @@ async function runRealOcrVerification() {
     // Cleaned Document Texts for 100% Case-Insensitive Matching
     const docRaw = (rawOcrText + " " + selectedAcademicFile.name).toLowerCase();
     const cleanDoc = docRaw.replace(/[^a-z0-9]/g, '');
-    const hasMeaningfulOcrText = rawOcrText.trim().replace(/[^a-z0-9]/gi, '').length >= 15;
 
     // -------------------------------------------------------------
     // STEP 1: SEARCH STUDENT NAME IN DOCUMENT (Universal Dynamic Matching)
@@ -371,51 +358,47 @@ async function runRealOcrVerification() {
 
     let isNameFound = false;
 
-    if (!hasMeaningfulOcrText) {
+    // 1. Direct clean substring match (e.g. 'saajand', 'mandapativinil', 'shubha')
+    if (cleanName.length >= 3 && cleanDoc.includes(cleanName)) {
       isNameFound = true;
-    } else {
-      // 1. Direct clean substring match (e.g. 'saajand', 'mandapativinil', 'priyasharma')
-      if (cleanName.length >= 3 && cleanDoc.includes(cleanName)) {
+    }
+
+    // 2. Normalized OCR substitution match (e.g. 4->A, 5->S, 1->I)
+    if (!isNameFound && normEntered.length >= 3 && normDoc.includes(normEntered)) {
+      isNameFound = true;
+    }
+
+    // 3. Token match in document
+    if (!isNameFound && nameTokens.length > 0) {
+      isNameFound = nameTokens.some(token => {
+        const cleanT = token.replace(/[^a-z0-9]/g, '');
+        const normT = normalizeOcrSubstitutions(token);
+        return (cleanT.length >= 3 && cleanDoc.includes(cleanT)) ||
+               (normT.length >= 3 && normDoc.includes(normT)) ||
+               docWords.some(w => w === cleanT || (cleanT.length >= 4 && levenshteinDist(cleanT, w) <= 1));
+      });
+    }
+
+    // 4. Squeezed tolerance
+    if (!isNameFound) {
+      const squeeze = str => str.replace(/(.)\1+/g, '$1');
+      if (normDoc.includes(squeeze(normEntered)) || cleanDoc.includes(squeeze(cleanName))) {
         isNameFound = true;
       }
+    }
 
-      // 2. Normalized OCR substitution match (e.g. 4->A, 5->S, 1->I)
-      if (!isNameFound && normEntered.length >= 3 && normDoc.includes(normEntered)) {
-        isNameFound = true;
-      }
-
-      // 3. Token match in document
-      if (!isNameFound && nameTokens.length > 0) {
-        isNameFound = nameTokens.some(token => {
-          const cleanT = token.replace(/[^a-z0-9]/g, '');
-          const normT = normalizeOcrSubstitutions(token);
-          return (cleanT.length >= 3 && cleanDoc.includes(cleanT)) ||
-                 (normT.length >= 3 && normDoc.includes(normT)) ||
-                 docWords.some(w => w === cleanT || (cleanT.length >= 4 && levenshteinDist(cleanT, w) <= 1));
-        });
-      }
-
-      // 4. Squeezed tolerance
-      if (!isNameFound) {
-        const squeeze = str => str.replace(/(.)\1+/g, '$1');
-        if (normDoc.includes(squeeze(normEntered)) || cleanDoc.includes(squeeze(cleanName))) {
-          isNameFound = true;
-        }
-      }
-
-      // 5. Levenshtein fuzzy match across document words
-      if (!isNameFound && cleanDoc.length > 10) {
-        for (const token of nameTokens) {
-          const cleanT = token.replace(/[^a-z0-9]/g, '');
-          if (cleanT.length < 3) continue;
-          for (const word of docWords) {
-            if (levenshteinDist(cleanT, word) <= 2) {
-              isNameFound = true;
-              break;
-            }
+    // 5. Levenshtein fuzzy match across document words
+    if (!isNameFound && cleanDoc.length > 10) {
+      for (const token of nameTokens) {
+        const cleanT = token.replace(/[^a-z0-9]/g, '');
+        if (cleanT.length < 3) continue;
+        for (const word of docWords) {
+          if (levenshteinDist(cleanT, word) <= 2) {
+            isNameFound = true;
+            break;
           }
-          if (isNameFound) break;
         }
+        if (isNameFound) break;
       }
     }
 
@@ -448,7 +431,7 @@ async function runRealOcrVerification() {
     if (qualLower.includes('b.a.') || qualLower === 'ba') courseTokens.push('ba', 'b.a', 'arts');
     if (qualLower.includes('m.a.') || qualLower === 'ma') courseTokens.push('ma', 'm.a');
 
-    let isCourseFound = !hasMeaningfulOcrText || courseTokens.some(ct => cleanDoc.includes(ct.replace(/[^a-z0-9]/g, '')) || docRaw.includes(ct));
+    let isCourseFound = courseTokens.some(ct => cleanDoc.includes(ct.replace(/[^a-z0-9]/g, '')) || docRaw.includes(ct));
 
     if (!isCourseFound) {
       btn.disabled = false;
@@ -468,9 +451,7 @@ async function runRealOcrVerification() {
     const cleanCol = colLower.replace(/[^a-z0-9]/g, '');
 
     let isCollegeFound = false;
-    if (!hasMeaningfulOcrText) {
-      isCollegeFound = true;
-    } else if (cleanCol.length >= 4 && cleanDoc.includes(cleanCol)) {
+    if (cleanCol.length >= 4 && cleanDoc.includes(cleanCol)) {
       isCollegeFound = true;
     } else if (colLower.includes('seshadripuram') || colLower.includes('sfgc') || colLower.includes('first grade')) {
       if (cleanDoc.includes('seshadripuram') || cleanDoc.includes('sfgc') || cleanDoc.includes('yelahanka') || cleanDoc.includes('firstgrade') || docRaw.includes('sfgc')) {
