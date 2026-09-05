@@ -226,10 +226,10 @@ document.addEventListener("DOMContentLoaded", () => {
         return R * c;
     }
 
-    // Realistic non-zero distance formatting
+    // Distance formatting
     function formatDistance(distKm) {
-        if (distKm < 0.1) {
-            return "250 m"; // Realistic minimum proximity inside campus
+        if (distKm < 0.05) {
+            return "< 50 m";
         } else if (distKm < 1.0) {
             return `${Math.round(distKm * 1000)} m`;
         } else {
@@ -245,7 +245,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     function requestLocationAndScan() {
-        statusText.innerHTML = `<i class="fa-solid fa-satellite-dish fa-spin" style="color: #38bdf8;"></i> Detecting your current location...`;
+        statusText.innerHTML = `<i class="fa-solid fa-satellite-dish fa-spin" style="color: #38bdf8;"></i> Detecting your current GPS location...`;
         detectBtn.disabled = true;
 
         if ("geolocation" in navigator) {
@@ -253,21 +253,45 @@ document.addEventListener("DOMContentLoaded", () => {
                 (position) => {
                     const userLat = position.coords.latitude;
                     const userLon = position.coords.longitude;
-                    processNearbyColleges(userLat, userLon, false);
+                    detectBtn.disabled = false;
+                    processNearbyColleges(userLat, userLon);
                 },
                 (err) => {
-                    console.warn("Using regional campus hub:", err.message);
-                    processNearbyColleges(13.1020, 77.5850, true);
+                    detectBtn.disabled = false;
+                    console.warn("Geolocation error:", err.message);
+                    if (err.code === 1) {
+                        statusText.innerHTML = `⚠️ Location permission denied. Please allow location access in your browser.`;
+                    } else if (err.code === 2) {
+                        statusText.innerHTML = `⚠️ Device location is unavailable. Please ensure location/GPS is turned on.`;
+                    } else {
+                        statusText.innerHTML = `⚠️ Location request timed out. Please try again.`;
+                    }
+
+                    collegesWrapper.style.display = "none";
+                    feedContainer.innerHTML = `
+                        <div class="card empty-feed">
+                            <i class="fa-solid fa-location-crosshairs fa-2x" style="margin-bottom: 12px; color: #f59e0b; display: block;"></i>
+                            Please allow location access to discover colleges within 5 km of you.
+                        </div>
+                    `;
                 },
-                { enableHighAccuracy: false, timeout: 6000, maximumAge: 300000 }
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
             );
         } else {
-            processNearbyColleges(13.1020, 77.5850, true);
+            detectBtn.disabled = false;
+            statusText.innerHTML = `⚠️ Geolocation is not supported by your browser.`;
+            collegesWrapper.style.display = "none";
+            feedContainer.innerHTML = `
+                <div class="card empty-feed">
+                    <i class="fa-solid fa-triangle-exclamation fa-2x" style="margin-bottom: 12px; color: #ef4444; display: block;"></i>
+                    Your browser does not support Geolocation.
+                </div>
+            `;
         }
     }
 
-    function processNearbyColleges(userLat, userLon, isFallback) {
-        // Calculate distance for each college
+    function processNearbyColleges(userLat, userLon) {
+        // Calculate real distance for each college from detected GPS coordinates
         const collegesWithDistance = collegesData.map(college => {
             const distance = calculateHaversineDistance(userLat, userLon, college.lat, college.lon);
             return {
@@ -277,29 +301,26 @@ document.addEventListener("DOMContentLoaded", () => {
             };
         });
 
-        // Filter colleges strictly within 5.0 km radius
+        // Filter colleges strictly within 5.0 km radius of user's real location
         const nearbyColleges = collegesWithDistance.filter(college => college.distance <= 5.0);
 
         // Sort ascending by distance (closest first)
         nearbyColleges.sort((a, b) => a.distance - b.distance);
 
-        detectBtn.disabled = false;
-
         if (nearbyColleges.length > 0) {
-            statusText.innerHTML = isFallback
-                ? `📍 Showing <strong>${nearbyColleges.length} colleges</strong> within 5 km radius.`
-                : `✅ Found <strong>${nearbyColleges.length} colleges</strong> within 5 km of your location.`;
+            statusText.innerHTML = `✅ Found <strong>${nearbyColleges.length} colleges</strong> within 5 km of your location.`;
             renderCollegePills(nearbyColleges);
         } else {
-            collegesWithDistance.sort((a, b) => a.distance - b.distance);
-            const fallbackList = collegesWithDistance.slice(0, 5);
-            statusText.innerHTML = `📍 Showing regional campuses within radius:`;
-            renderCollegePills(fallbackList);
+            statusText.innerHTML = `📍 No registered colleges found within 5 km of your location.`;
+            collegesWrapper.style.display = "none";
+            feedContainer.innerHTML = `
+                <div class="card empty-feed">
+                    <i class="fa-solid fa-location-dot fa-2x" style="margin-bottom: 12px; color: #7db7ff; display: block;"></i>
+                    No registered campuses found within a <strong>5 km radius</strong> of your detected location.
+                </div>
+            `;
         }
     }
-
-    // Auto-populate 5km colleges on startup
-    processNearbyColleges(13.1020, 77.5850, true);
 
     function renderCollegePills(colleges) {
         pillsContainer.innerHTML = "";

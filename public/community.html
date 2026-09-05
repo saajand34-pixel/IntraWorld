@@ -195,7 +195,7 @@
             <div class="card location-banner">
                 <div>
                     <h3><i class="fa-solid fa-location-dot" style="color: #0066ff;"></i> Nearby Campuses</h3>
-                    <p id="location-status-text" class="status-msg">📍 Showing 5 colleges within 5 km radius.</p>
+                    <p id="location-status-text" class="status-msg">Enable location to discover colleges within 5 km of you.</p>
                 </div>
                 <button id="enable-location-btn" class="btn">
                     <i class="fa-solid fa-crosshairs"></i> Detect Nearby Colleges
@@ -203,13 +203,18 @@
             </div>
 
             <!-- Nearby College Selection Bar -->
-            <div id="colleges-wrapper" class="card">
+            <div id="colleges-wrapper" class="card" style="display: none;">
                 <div class="pills-title">Colleges within 5 km radius:</div>
                 <div id="college-pills-container" class="pills-container"></div>
             </div>
 
             <!-- Feed Container -->
-            <div id="feed-container"></div>
+            <div id="feed-container">
+                <div class="card empty-feed">
+                    <i class="fa-solid fa-compass fa-2x" style="margin-bottom: 12px; color: #7db7ff; display: block;"></i>
+                    Click <strong>"Detect Nearby Colleges"</strong> to scan for campuses within a 5 km radius of your location.
+                </div>
+            </div>
 
         </section>
     </main>
@@ -228,6 +233,6 @@
     </script>
 
     <script type="module" src="firebase-config.js"></script>
-    <script type="module" src="js/community.js?v=2.3"></script>
+    <script type="module" src="js/community.js?v=2.4"></script>
 </body>
 </html>
