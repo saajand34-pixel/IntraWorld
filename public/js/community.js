@@ -244,54 +244,77 @@ document.addEventListener("DOMContentLoaded", () => {
         requestLocationAndScan();
     });
 
-    function requestLocationAndScan() {
-        statusText.innerHTML = `<i class="fa-solid fa-satellite-dish fa-spin" style="color: #38bdf8;"></i> Detecting your current GPS location...`;
+    async function requestLocationAndScan() {
+        statusText.innerHTML = `<i class="fa-solid fa-satellite-dish fa-spin" style="color: #38bdf8;"></i> Detecting your current location...`;
         detectBtn.disabled = true;
 
+        // Strategy 1: Browser Native Geolocation (standard network mode)
         if ("geolocation" in navigator) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const userLat = position.coords.latitude;
-                    const userLon = position.coords.longitude;
-                    detectBtn.disabled = false;
-                    processNearbyColleges(userLat, userLon);
-                },
-                (err) => {
-                    detectBtn.disabled = false;
-                    console.warn("Geolocation error:", err.message);
-                    if (err.code === 1) {
-                        statusText.innerHTML = `⚠️ Location permission denied. Please allow location access in your browser.`;
-                    } else if (err.code === 2) {
-                        statusText.innerHTML = `⚠️ Device location is unavailable. Please ensure location/GPS is turned on.`;
-                    } else {
-                        statusText.innerHTML = `⚠️ Location request timed out. Please try again.`;
-                    }
-
-                    collegesWrapper.style.display = "none";
-                    feedContainer.innerHTML = `
-                        <div class="card empty-feed">
-                            <i class="fa-solid fa-location-crosshairs fa-2x" style="margin-bottom: 12px; color: #f59e0b; display: block;"></i>
-                            Please allow location access to discover colleges within 5 km of you.
-                        </div>
-                    `;
-                },
-                { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
-            );
-        } else {
-            detectBtn.disabled = false;
-            statusText.innerHTML = `⚠️ Geolocation is not supported by your browser.`;
-            collegesWrapper.style.display = "none";
-            feedContainer.innerHTML = `
-                <div class="card empty-feed">
-                    <i class="fa-solid fa-triangle-exclamation fa-2x" style="margin-bottom: 12px; color: #ef4444; display: block;"></i>
-                    Your browser does not support Geolocation.
-                </div>
-            `;
+            try {
+                const pos = await new Promise((resolve, reject) => {
+                    navigator.geolocation.getCurrentPosition(
+                        resolve,
+                        reject,
+                        { enableHighAccuracy: false, timeout: 6000, maximumAge: 300000 }
+                    );
+                });
+                const userLat = pos.coords.latitude;
+                const userLon = pos.coords.longitude;
+                detectBtn.disabled = false;
+                processNearbyColleges(userLat, userLon);
+                return;
+            } catch (err) {
+                console.warn("Browser GPS unavailable or blocked by OS, trying IP location fallback:", err.message);
+            }
         }
+
+        // Strategy 2: Fast IP-Based Geolocation Fallback (Works on all Windows PCs / Laptops)
+        try {
+            const ipRes = await fetch("https://freeipapi.com/api/json");
+            if (ipRes.ok) {
+                const data = await ipRes.json();
+                const lat = parseFloat(data.latitude);
+                const lon = parseFloat(data.longitude);
+                if (!isNaN(lat) && !isNaN(lon)) {
+                    detectBtn.disabled = false;
+                    processNearbyColleges(lat, lon);
+                    return;
+                }
+            }
+        } catch (e) {
+            console.warn("IP Geo 1 failed:", e);
+        }
+
+        try {
+            const ipRes2 = await fetch("https://ipapi.co/json/");
+            if (ipRes2.ok) {
+                const data2 = await ipRes2.json();
+                const lat = parseFloat(data2.latitude);
+                const lon = parseFloat(data2.longitude);
+                if (!isNaN(lat) && !isNaN(lon)) {
+                    detectBtn.disabled = false;
+                    processNearbyColleges(lat, lon);
+                    return;
+                }
+            }
+        } catch (e) {
+            console.warn("IP Geo 2 failed:", e);
+        }
+
+        // Strategy 3: If everything was blocked
+        detectBtn.disabled = false;
+        statusText.innerHTML = `⚠️ Unable to retrieve your location. Please ensure location is enabled.`;
+        collegesWrapper.style.display = "none";
+        feedContainer.innerHTML = `
+            <div class="card empty-feed">
+                <i class="fa-solid fa-location-crosshairs fa-2x" style="margin-bottom: 12px; color: #f59e0b; display: block;"></i>
+                Please allow location access to discover colleges within 5 km of you.
+            </div>
+        `;
     }
 
     function processNearbyColleges(userLat, userLon) {
-        // Calculate real distance for each college from detected GPS coordinates
+        // Calculate real distance for each college from detected coordinates
         const collegesWithDistance = collegesData.map(college => {
             const distance = calculateHaversineDistance(userLat, userLon, college.lat, college.lon);
             return {
