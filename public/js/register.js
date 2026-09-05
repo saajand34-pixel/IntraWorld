@@ -164,15 +164,16 @@ async function fileToOcrTarget(file) {
         return new Promise((resolve) => {
           const reader = new FileReader();
           reader.onload = () => {
-            const base64String = reader.result.split(',')[1];
+            const dataUrl = reader.result;
+            const base64String = dataUrl.split(',')[1];
             resolve({
-              ocrTarget: embeddedJpgBlob,
+              ocrTarget: dataUrl,
               directText: "",
               base64: base64String,
               mimeType: 'image/jpeg'
             });
           };
-          reader.onerror = () => resolve({ ocrTarget: embeddedJpgBlob, directText: "", base64: "", mimeType: 'image/jpeg' });
+          reader.onerror = () => resolve({ ocrTarget: null, directText: "", base64: "", mimeType: 'image/jpeg' });
           reader.readAsDataURL(embeddedJpgBlob);
         });
       }
@@ -197,9 +198,10 @@ async function fileToOcrTarget(file) {
           textLayer = textContent.items.map(item => item.str).join(" ");
         } catch (tErr) {}
 
-        const base64Jpg = canvas.toDataURL('image/jpeg', 0.92).split(',')[1];
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
+        const base64Jpg = dataUrl.split(',')[1];
         return {
-          ocrTarget: canvas,
+          ocrTarget: dataUrl,
           directText: textLayer,
           base64: base64Jpg,
           mimeType: 'image/jpeg'
@@ -214,15 +216,16 @@ async function fileToOcrTarget(file) {
   return new Promise((resolve) => {
     const reader = new FileReader();
     reader.onload = () => {
-      const base64String = reader.result.split(',')[1];
+      const dataUrl = reader.result;
+      const base64String = dataUrl.split(',')[1];
       resolve({
-        ocrTarget: file,
+        ocrTarget: dataUrl,
         directText: "",
         base64: base64String,
         mimeType: file.type || 'image/jpeg'
       });
     };
-    reader.onerror = () => resolve({ ocrTarget: file, directText: "", base64: "", mimeType: 'image/jpeg' });
+    reader.onerror = () => resolve({ ocrTarget: null, directText: "", base64: "", mimeType: 'image/jpeg' });
     reader.readAsDataURL(file);
   });
 }
@@ -233,28 +236,29 @@ async function extractDocumentTextViaOCR(file) {
 
   const { ocrTarget, directText, base64, mimeType } = await fileToOcrTarget(file);
   if (directText && directText.trim().length > 0) {
-    combinedExtractedText += " " + directText;
+    combinedExtractedText += "\n" + directText;
   }
 
-  // LAYER 1: Client-Side Tesseract OCR Engine
+  // LAYER 1: Client-Side Tesseract OCR Engine (Canvas / DataURL rendered)
   try {
-    if (typeof Tesseract !== 'undefined') {
+    if (typeof Tesseract !== 'undefined' && (ocrTarget || base64)) {
       if (statusEl) statusEl.innerText = '🔍 Scanning Fee Receipt Voucher with OCR...';
 
-      let ocrInput = ocrTarget;
-      if (base64 && (!ocrInput || typeof ocrInput === 'string')) {
-        const img = new Image();
-        img.src = 'data:image/jpeg;base64,' + base64;
-        await new Promise((res) => { img.onload = res; img.onerror = res; });
-        const canvas = document.createElement('canvas');
-        canvas.width = img.naturalWidth || img.width || 1200;
-        canvas.height = img.naturalHeight || img.height || 1600;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0);
-        ocrInput = canvas;
-      }
+      const imgSource = ocrTarget || ('data:image/jpeg;base64,' + base64);
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.src = imgSource;
+      await new Promise((res) => { img.onload = res; img.onerror = res; });
 
-      const tesseractResult = await Tesseract.recognize(ocrInput, 'eng', {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.naturalWidth || img.width || 1200;
+      canvas.height = img.naturalHeight || img.height || 1600;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0);
+
+      const tesseractResult = await Tesseract.recognize(canvas, 'eng', {
         logger: (m) => {
           if (m.status === 'recognizing text' && statusEl) {
             const pct = Math.round(m.progress * 100);
@@ -262,6 +266,7 @@ async function extractDocumentTextViaOCR(file) {
           }
         }
       });
+
       if (tesseractResult && tesseractResult.data && tesseractResult.data.text) {
         combinedExtractedText += "\n" + tesseractResult.data.text;
       }
@@ -302,6 +307,7 @@ async function extractDocumentTextViaOCR(file) {
 
   // Append original file name for search context
   combinedExtractedText = (combinedExtractedText + " " + file.name).trim();
+  console.log("📄 Extracted Document OCR Text:\n", combinedExtractedText);
   return combinedExtractedText;
 }
 
