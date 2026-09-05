@@ -195,37 +195,21 @@
             <div class="card location-banner">
                 <div>
                     <h3><i class="fa-solid fa-location-dot" style="color: #0066ff;"></i> Nearby Campuses</h3>
-                    <p id="location-status-text" class="status-msg">Click below to enable location and discover colleges within 5 km.</p>
+                    <p id="location-status-text" class="status-msg">📍 Showing 5 colleges within 5 km radius.</p>
                 </div>
                 <button id="enable-location-btn" class="btn">
                     <i class="fa-solid fa-crosshairs"></i> Detect Nearby Colleges
                 </button>
             </div>
 
-            <!-- Location Status / Permission Helper Box -->
-            <div id="location-notice-box" class="card" style="display: none; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.3); padding: 16px 20px; border-radius: 14px; margin-bottom: 20px;">
-                <div style="display: flex; align-items: flex-start; gap: 14px;">
-                    <div id="notice-icon" style="font-size: 22px; color: #38bdf8; line-height: 1; margin-top: 2px;"><i class="fa-solid fa-circle-info"></i></div>
-                    <div style="flex: 1;">
-                        <h4 id="notice-title" style="color: #fff; font-size: 14px; margin-bottom: 4px; font-weight: 600;">Location Status</h4>
-                        <p id="notice-desc" style="color: #cbd5e1; font-size: 13px; line-height: 1.5; margin: 0;"></p>
-                    </div>
-                </div>
-            </div>
-
             <!-- Nearby College Selection Bar -->
-            <div id="colleges-wrapper" class="card" style="display: none;">
+            <div id="colleges-wrapper" class="card">
                 <div class="pills-title">Colleges within 5 km radius:</div>
                 <div id="college-pills-container" class="pills-container"></div>
             </div>
 
             <!-- Feed Container -->
-            <div id="feed-container">
-                <div class="card empty-feed">
-                    <i class="fa-solid fa-compass fa-2x" style="margin-bottom: 12px; color: #7db7ff; display: block;"></i>
-                    Click "Detect Nearby Colleges" to discover local campus networks within 5km.
-                </div>
-            </div>
+            <div id="feed-container"></div>
 
         </section>
     </main>
@@ -244,6 +228,6 @@
     </script>
 
     <script type="module" src="firebase-config.js"></script>
-    <script type="module" src="js/community.js?v=2.2"></script>
+    <script type="module" src="js/community.js?v=2.3"></script>
 </body>
 </html>

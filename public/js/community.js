@@ -239,100 +239,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!detectBtn) return;
 
-    // Listen for live permission changes (e.g. user toggles Location ON in browser settings)
-    if (navigator.permissions && navigator.permissions.query) {
-        navigator.permissions.query({ name: 'geolocation' }).then(permissionStatus => {
-            if (permissionStatus.state === 'granted') {
-                requestLocationAndScan();
-            }
-            permissionStatus.onchange = () => {
-                if (permissionStatus.state === 'granted') {
-                    requestLocationAndScan();
-                }
-            };
-        }).catch(() => {});
-    }
-
     // Trigger detection on button click
     detectBtn.addEventListener("click", () => {
         requestLocationAndScan();
     });
 
-    function showNotice(title, message, iconHtml, bgColor, borderColor) {
-        if (!noticeBox) return;
-        noticeBox.style.display = "block";
-        noticeTitle.textContent = title;
-        noticeDesc.innerHTML = message;
-        if (iconHtml) noticeIcon.innerHTML = iconHtml;
-        if (bgColor) noticeBox.style.background = bgColor;
-        if (borderColor) noticeBox.style.borderColor = borderColor;
-    }
-
-    function handleLocationSuccess(position) {
-        const userLat = position.coords.latitude;
-        const userLon = position.coords.longitude;
-
-        showNotice(
-            "Location Active ✅",
-            `Live location connected (<code>${userLat.toFixed(4)}, ${userLon.toFixed(4)}</code>). Showing colleges strictly within a <strong>5 km radius</strong>.`,
-            '<i class="fa-solid fa-circle-check" style="color: #22c55e;"></i>',
-            "rgba(34, 197, 94, 0.1)",
-            "rgba(34, 197, 94, 0.3)"
-        );
-
-        processNearbyColleges(userLat, userLon, false);
-    }
-
-    function handleLocationFallback(error) {
-        console.warn("Geolocation notice:", error ? error.message : "Fallback");
-        let helpMsg = "Showing verified local campuses within a 5 km radius (Yelahanka Student Hub).";
-
-        if (error && error.code === 1) {
-            helpMsg = "Location permission was not granted. Showing verified local campuses within 5 km of the Yelahanka Student Hub.";
-        }
-
-        showNotice(
-            "Campuses within 5 km Radius",
-            helpMsg,
-            '<i class="fa-solid fa-location-dot" style="color: #38bdf8;"></i>',
-            "rgba(59, 130, 246, 0.08)",
-            "rgba(59, 130, 246, 0.25)"
-        );
-
-        // Standard Yelahanka student hub center point (NES / Satellite Town)
-        // SFGC is ~1.2 km, Jnana Jyothi is ~880 m, GFGC is ~1.0 km, NMIT is ~2.9 km, BMSIT is ~3.9 km
-        const fallbackLat = 13.1020;
-        const fallbackLon = 77.5850;
-        processNearbyColleges(fallbackLat, fallbackLon, true);
-    }
-
     function requestLocationAndScan() {
-        statusText.innerHTML = `<i class="fa-solid fa-satellite-dish fa-spin" style="color: #38bdf8;"></i> Detecting location...`;
+        statusText.innerHTML = `<i class="fa-solid fa-satellite-dish fa-spin" style="color: #38bdf8;"></i> Detecting your current location...`;
         detectBtn.disabled = true;
-
-        showNotice(
-            "Detecting Location...",
-            "Connecting to GPS/Network location. Please ensure location access is enabled in your browser popup.",
-            '<i class="fa-solid fa-location-crosshairs fa-spin" style="color: #38bdf8;"></i>',
-            "rgba(59, 130, 246, 0.1)",
-            "rgba(59, 130, 246, 0.4)"
-        );
 
         if ("geolocation" in navigator) {
             navigator.geolocation.getCurrentPosition(
-                (position) => handleLocationSuccess(position),
-                (err1) => {
-                    console.warn("Standard accuracy fallback:", err1.message);
-                    navigator.geolocation.getCurrentPosition(
-                        (position) => handleLocationSuccess(position),
-                        (err2) => handleLocationFallback(err2),
-                        { enableHighAccuracy: true, timeout: 8000, maximumAge: 300000 }
-                    );
+                (position) => {
+                    const userLat = position.coords.latitude;
+                    const userLon = position.coords.longitude;
+                    processNearbyColleges(userLat, userLon, false);
                 },
-                { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 }
+                (err) => {
+                    console.warn("Using regional campus hub:", err.message);
+                    processNearbyColleges(13.1020, 77.5850, true);
+                },
+                { enableHighAccuracy: false, timeout: 6000, maximumAge: 300000 }
             );
         } else {
-            handleLocationFallback(null);
+            processNearbyColleges(13.1020, 77.5850, true);
         }
     }
 
@@ -357,17 +287,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (nearbyColleges.length > 0) {
             statusText.innerHTML = isFallback
-                ? `📍 Showing <strong>${nearbyColleges.length} colleges</strong> within 5km radius (Yelahanka Area).`
+                ? `📍 Showing <strong>${nearbyColleges.length} colleges</strong> within 5 km radius.`
                 : `✅ Found <strong>${nearbyColleges.length} colleges</strong> within 5 km of your location.`;
             renderCollegePills(nearbyColleges);
         } else {
-            // If user's GPS is far away from all registered colleges, show closest regional campuses
             collegesWithDistance.sort((a, b) => a.distance - b.distance);
             const fallbackList = collegesWithDistance.slice(0, 5);
-            statusText.innerHTML = `📍 No registered colleges within 5km of exact GPS. Showing closest regional campuses:`;
+            statusText.innerHTML = `📍 Showing regional campuses within radius:`;
             renderCollegePills(fallbackList);
         }
     }
+
+    // Auto-populate 5km colleges on startup
+    processNearbyColleges(13.1020, 77.5850, true);
 
     function renderCollegePills(colleges) {
         pillsContainer.innerHTML = "";
