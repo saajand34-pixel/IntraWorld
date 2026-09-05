@@ -120,7 +120,23 @@
             display: flex;
             gap: 10px;
             overflow-x: auto;
-            padding-bottom: 8px;
+            padding-bottom: 10px;
+            scrollbar-width: thin;
+            scrollbar-color: #0066ff rgba(255, 255, 255, 0.05);
+        }
+
+        .pills-container::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .pills-container::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .pills-container::-webkit-scrollbar-thumb {
+            background: #0066ff;
+            border-radius: 10px;
         }
 
         .college-pill {
@@ -179,11 +195,22 @@
             <div class="card location-banner">
                 <div>
                     <h3><i class="fa-solid fa-location-dot" style="color: #0066ff;"></i> Nearby Campuses</h3>
-                    <p id="location-status-text" class="status-msg">Enable location to find colleges near you.</p>
+                    <p id="location-status-text" class="status-msg">Click below to enable location and discover colleges within 5 km.</p>
                 </div>
                 <button id="enable-location-btn" class="btn">
                     <i class="fa-solid fa-crosshairs"></i> Detect Nearby Colleges
                 </button>
+            </div>
+
+            <!-- Location Status / Permission Helper Box -->
+            <div id="location-notice-box" class="card" style="display: none; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.3); padding: 16px 20px; border-radius: 14px; margin-bottom: 20px;">
+                <div style="display: flex; align-items: flex-start; gap: 14px;">
+                    <div id="notice-icon" style="font-size: 22px; color: #38bdf8; line-height: 1; margin-top: 2px;"><i class="fa-solid fa-circle-info"></i></div>
+                    <div style="flex: 1;">
+                        <h4 id="notice-title" style="color: #fff; font-size: 14px; margin-bottom: 4px; font-weight: 600;">Location Status</h4>
+                        <p id="notice-desc" style="color: #cbd5e1; font-size: 13px; line-height: 1.5; margin: 0;"></p>
+                    </div>
+                </div>
             </div>
 
             <!-- Nearby College Selection Bar -->
@@ -217,6 +244,6 @@
     </script>
 
     <script type="module" src="firebase-config.js"></script>
-    <script type="module" src="js/community.js?v=2.0"></script>
+    <script type="module" src="js/community.js?v=2.1"></script>
 </body>
 </html>
