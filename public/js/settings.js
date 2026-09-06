@@ -1,8 +1,9 @@
 import { db, auth } from "./firebase-config.js";
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { onAuthStateChanged, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { 
     doc, 
     updateDoc, 
+    deleteDoc,
     collection, 
     query, 
     where, 
@@ -226,6 +227,97 @@ function setupPhotoUpload() {
             }
         });
     }
+}
+
+// 4. Deactivate & Delete Account Logic
+function setupAccountDeactivation() {
+    const deactivateBtn = document.getElementById("deactivateAccountBtn");
+    const modal = document.getElementById("deactivateModal");
+    const cancelBtn = document.getElementById("cancelDeactivateBtn");
+    const confirmBtn = document.getElementById("confirmDeactivateBtn");
+
+    if (deactivateBtn && modal) {
+        deactivateBtn.addEventListener("click", () => {
+            modal.style.display = "flex";
+        });
+    }
+
+    if (cancelBtn && modal) {
+        cancelBtn.addEventListener("click", () => {
+            modal.style.display = "none";
+        });
+    }
+
+    if (confirmBtn) {
+        confirmBtn.addEventListener("click", async () => {
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Deleting Database Record...';
+
+            try {
+                const sessionRaw = localStorage.getItem("currentUser") || localStorage.getItem("intraWorldUser");
+                const sessionUser = sessionRaw ? JSON.parse(sessionRaw) : {};
+                const userEmail = (sessionUser.email || "").toLowerCase();
+
+                if (userEmail && db) {
+                    // 1. Delete from registrations collection
+                    try {
+                        const regSnap = await getDocs(query(collection(db, "registrations"), where("email", "==", userEmail)));
+                        for (const d of regSnap.docs) {
+                            await deleteDoc(doc(db, "registrations", d.id));
+                        }
+                    } catch (e) {
+                        console.warn("Delete registrations note:", e);
+                    }
+
+                    // 2. Delete from students collection
+                    try {
+                        const studSnap = await getDocs(query(collection(db, "students"), where("email", "==", userEmail)));
+                        for (const d of studSnap.docs) {
+                            await deleteDoc(doc(db, "students", d.id));
+                        }
+                    } catch (e) {
+                        console.warn("Delete students note:", e);
+                    }
+
+                    // 3. Delete from users collection
+                    try {
+                        await deleteDoc(doc(db, "users", userEmail));
+                        const userSnap = await getDocs(query(collection(db, "users"), where("email", "==", userEmail)));
+                        for (const d of userSnap.docs) {
+                            await deleteDoc(doc(db, "users", d.id));
+                        }
+                    } catch (e) {
+                        console.warn("Delete users note:", e);
+                    }
+                }
+
+                // 4. Try Firebase Auth deletion or signout
+                if (auth && auth.currentUser) {
+                    try {
+                        await deleteUser(auth.currentUser);
+                    } catch (authDelErr) {
+                        try {
+                            await signOut(auth);
+                        } catch (soErr) {}
+                    }
+                }
+
+                // 5. Clear all storage
+                localStorage.clear();
+                sessionStorage.clear();
+
+                alert("✅ Your account and registration records have been permanently removed from IntraWorld.");
+                window.location.href = "index.html";
+
+            } catch (error) {
+                console.error("Account deactivation error:", error);
+                alert("Account removal error: " + (error.message || "Failed to delete completely. Session cleared."));
+                localStorage.clear();
+                sessionStorage.clear();
+                window.location.href = "index.html";
+            }
+        });
+    }
 
     // Explicit Logout Handler
     document.getElementById("logoutBtn")?.addEventListener("click", (e) => {
@@ -242,8 +334,10 @@ if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", () => {
         initRender();
         setupPhotoUpload();
+        setupAccountDeactivation();
     });
 } else {
     initRender();
     setupPhotoUpload();
+    setupAccountDeactivation();
 }

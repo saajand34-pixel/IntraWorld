@@ -283,7 +283,7 @@
                 <a href="community.html"><i class="fa-solid fa-location-dot"></i><span>Community</span></a>
                 <a href="messages.html"><i class="fa-solid fa-comments"></i><span>Messages</span></a>
                 <a href="settings.html" class="active"><i class="fa-solid fa-gear"></i><span>Settings</span></a>
-                <a class="logout" id="logoutBtn" href="index.html"><i class="fa-solid fa-right-from-bracket"></i><span>Logout</span></a>
+                <a class="logout" id="logoutBtn" href="javascript:void(0);"><i class="fa-solid fa-right-from-bracket"></i><span>Logout</span></a>
             </nav>
         </header>
     </div>
@@ -294,7 +294,7 @@
 
             <div class="settings-header">
                 <h2><i class="fa-solid fa-sliders" style="color: #0066ff;"></i> Account Settings</h2>
-                <p>Manage your permanent student avatar and view your registered profile.</p>
+                <p>Manage your permanent student avatar, view registered profile, or manage account.</p>
             </div>
 
             <!-- PROFILE PHOTO (DP) CARD -->
@@ -382,10 +382,47 @@
                 </div>
             </div>
 
+            <!-- DANGER ZONE / ACCOUNT DEACTIVATION CARD -->
+            <div class="card" style="border-color: rgba(239, 68, 68, 0.25); background: rgba(239, 68, 68, 0.04);">
+                <div class="card-title" style="color: #ef4444;">
+                    <i class="fa-solid fa-triangle-exclamation" style="color: #ef4444;"></i> Account Deactivation
+                </div>
+                <div class="card-subtitle">
+                    Permanently delete your verified student registration and remove your profile from the IntraWorld database.
+                </div>
+
+                <div>
+                    <button id="deactivateAccountBtn" class="btn" style="background: rgba(239, 68, 68, 0.18); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.45); padding: 11px 22px;">
+                        <i class="fa-solid fa-trash-can"></i> Deactivate & Delete Account
+                    </button>
+                </div>
+            </div>
+
         </section>
     </main>
 
+    <!-- CONFIRMATION MODAL -->
+    <div id="deactivateModal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(6px); z-index: 2000; align-items: center; justify-content: center; padding: 20px;">
+        <div style="background: #081b2e; border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 18px; max-width: 480px; width: 100%; padding: 28px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8); text-align: center;">
+            <div style="width: 60px; height: 60px; border-radius: 50%; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto; font-size: 26px; color: #ef4444;">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3 style="color: #ffffff; font-size: 1.3rem; margin-bottom: 8px; font-weight: 700;">Are you sure you want to delete?</h3>
+            <p style="color: #cbd5e1; font-size: 0.92rem; line-height: 1.6; margin-bottom: 24px;">
+                This will permanently delete your student registration records, verified credentials, and avatar from the database. This action <strong>cannot be undone</strong>.
+            </p>
+            <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                <button id="cancelDeactivateBtn" class="btn" style="background: rgba(255, 255, 255, 0.08); color: #cbd5e1; border: 1px solid rgba(255, 255, 255, 0.15); padding: 10px 20px;">
+                    <i class="fa-solid fa-xmark"></i> No, Cancel
+                </button>
+                <button id="confirmDeactivateBtn" class="btn" style="background: #ef4444; color: #ffffff; padding: 10px 22px;">
+                    <i class="fa-solid fa-trash-can"></i> Yes, Delete My Account
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script type="module" src="js/firebase-config.js"></script>
-    <script type="module" src="js/settings.js?v=6.0"></script>
+    <script type="module" src="js/settings.js?v=7.0"></script>
 </body>
 </html>
