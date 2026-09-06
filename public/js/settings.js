@@ -1,220 +1,249 @@
-﻿import { db, auth } from "./firebase-config.js";
+import { db, auth } from "./firebase-config.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import {
-    doc,
-    getDoc,
-    updateDoc,
-    collection,
-    query,
-    where,
-    getDocs
+import { 
+    doc, 
+    updateDoc, 
+    collection, 
+    query, 
+    where, 
+    getDocs 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const DEFAULT_AVATAR = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2338bdf8'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-3.8-.85-5.05-2.2.03-1.68 3.37-2.6 5.05-2.6s5.02.92 5.05 2.6C15.8 19.15 14.03 20 12 20z'/></svg>";
 
-let currentUserData = null;
-let currentDocId = null;
-let currentCollection = "registrations";
-let selectedBase64Image = null;
+let selectedBase64Photo = null;
+let activeDocId = null;
+let activeCollection = "registrations";
 
-// Convert Uploaded File to Base64 String with quality compression
-function fileToBase64Compress(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = (event) => {
-            const img = new Image();
-            img.src = event.target.result;
-            img.onload = () => {
-                const canvas = document.createElement("canvas");
-                const MAX_WIDTH = 400;
-                const MAX_HEIGHT = 400;
-                let width = img.width;
-                let height = img.height;
-
-                if (width > height) {
-                    if (width > MAX_WIDTH) {
-                        height *= MAX_WIDTH / width;
-                        width = MAX_WIDTH;
-                    }
-                } else {
-                    if (height > MAX_HEIGHT) {
-                        width *= MAX_HEIGHT / height;
-                        height = MAX_HEIGHT;
-                    }
-                }
-
-                canvas.width = width;
-                canvas.height = height;
-                const ctx = canvas.getContext("2d");
-                ctx.drawImage(img, 0, 0, width, height);
-                resolve(canvas.toDataURL("image/jpeg", 0.85));
-            };
-        };
-        reader.onerror = (error) => reject(error);
-    });
-}
-
-// Update Page Avatars
-function updatePageAvatars(avatarUrl) {
-    const preview = document.getElementById("settings-avatar-preview");
-    if (preview && avatarUrl) preview.src = avatarUrl;
+function renderFields(user) {
+    if (!user) return;
     
-    // Also update any navbar avatar
-    const navAvatar = document.getElementById("profileImage");
-    if (navAvatar && avatarUrl) navAvatar.src = avatarUrl;
-}
+    const name = user.fullName || user.full_name || "Student User";
+    const email = user.email || "";
+    const phone = user.mobileNumber || user.mobile || user.phone || "";
+    const state = user.state || "";
+    const qual = user.qualification || "";
+    const college = user.collegeName || user.collegeOrUniversity || user.college || "";
+    const passout = user.passoutYear || user.passedOutYear || user.passout_year || "";
+    const avatar = user.avatar || user.profilePhotoUrl || DEFAULT_AVATAR;
 
-// Populate Inputs with User Details
-function renderUserData(data) {
-    if (!data) return;
+    const nameEl = document.getElementById("dbFullName");
+    const emailEl = document.getElementById("dbEmail");
+    const mobileEl = document.getElementById("dbMobile");
+    const stateEl = document.getElementById("dbState");
+    const qualEl = document.getElementById("dbQualification");
+    const collegeEl = document.getElementById("dbCollege");
+    const passoutEl = document.getElementById("dbPassout");
+    const preview = document.getElementById("avatarPreview");
 
-    const fullName = data.fullName || data.full_name || "";
-    const email = data.email || "";
-    const phone = data.mobileNumber || data.mobile || data.phone || "";
-    const state = data.state || "";
-    const qualification = data.qualification || "";
-    const college = data.collegeOrUniversity || data.collegeName || data.college || "";
-    const passout = data.passoutYear || data.passedOutYear || data.passout_year || "";
-
-    const nameEl = document.getElementById("userFullName");
-    const emailEl = document.getElementById("userEmail");
-    const mobileEl = document.getElementById("userMobile");
-    const stateEl = document.getElementById("userState");
-    const qualEl = document.getElementById("userQualification");
-    const collegeEl = document.getElementById("userCollege");
-    const passoutEl = document.getElementById("userPassout");
-
-    if (nameEl) nameEl.value = fullName;
+    if (nameEl) nameEl.value = name;
     if (emailEl) emailEl.value = email;
     if (mobileEl) mobileEl.value = phone;
     if (stateEl) stateEl.value = state;
-    if (qualEl) qualEl.value = qualification;
+    if (qualEl) qualEl.value = qual;
     if (collegeEl) collegeEl.value = college;
     if (passoutEl) passoutEl.value = passout;
 
-    const isVerified = data.verificationStatus === "verified" || data.isVerified === true || data.isFeeReceiptVerified === true;
-    const badgeContainer = document.getElementById("userVerificationBadge");
-    if (badgeContainer) {
-        badgeContainer.innerHTML = `
+    if (preview && avatar) preview.src = avatar;
+
+    const isVerified = user.isVerified === true || user.isFeeReceiptVerified === true || user.verificationStatus === "verified";
+    const badgeEl = document.getElementById("dbVerificationBadge");
+    if (badgeEl) {
+        badgeEl.innerHTML = `
             <span class="status-badge ${isVerified ? 'status-verified' : 'status-pending'}">
-                <i class="fa-solid ${isVerified ? 'fa-circle-check' : 'fa-clock'}"></i> ${isVerified ? 'Verified Member' : 'Pending Verification'}
+                <i class="fa-solid ${isVerified ? 'fa-circle-check' : 'fa-clock'}"></i> ${isVerified ? 'Verified Student Member' : 'Pending Verification'}
             </span>
         `;
     }
-
-    const avatar = data.avatar || data.profilePhotoUrl || DEFAULT_AVATAR;
-    updatePageAvatars(avatar);
 }
 
-// Auth Listener & Firestore Synchronization
-onAuthStateChanged(auth, async (user) => {
-    let sessionUser = JSON.parse(localStorage.getItem("currentUser") || localStorage.getItem("intraWorldUser") || "{}");
-    const userEmail = user?.email || sessionUser.email;
-
-    if (!userEmail) return;
-
+// 1. Synchronous Instant Render from Session
+function initRender() {
     try {
-        // Query registrations or users collection by email
-        let q = query(collection(db, "registrations"), where("email", "==", userEmail));
-        let querySnapshot = await getDocs(q);
-
-        if (querySnapshot.empty) {
-            q = query(collection(db, "users"), where("email", "==", userEmail));
-            querySnapshot = await getDocs(q);
-            currentCollection = "users";
-        }
-
-        if (!querySnapshot.empty) {
-            const docSnap = querySnapshot.docs[0];
-            currentDocId = docSnap.id;
-            currentUserData = docSnap.data();
-
-            const merged = { ...sessionUser, ...currentUserData, id: currentDocId };
-            localStorage.setItem("currentUser", JSON.stringify(merged));
-            localStorage.setItem("intraWorldUser", JSON.stringify(merged));
-            renderUserData(merged);
-        } else if (sessionUser.email) {
-            renderUserData(sessionUser);
-        }
-    } catch (err) {
-        console.error("Error fetching user data from Firestore:", err);
-        if (sessionUser) renderUserData(sessionUser);
-    }
-});
-
-// Event Listeners Initialization
-document.addEventListener("DOMContentLoaded", () => {
-    // Immediate render from localStorage session
-    try {
-        const cached = localStorage.getItem("currentUser") || localStorage.getItem("intraWorldUser");
-        if (cached) {
-            renderUserData(JSON.parse(cached));
+        const rawSession = localStorage.getItem("currentUser") || localStorage.getItem("intraWorldUser");
+        if (rawSession) {
+            const user = JSON.parse(rawSession);
+            renderFields(user);
         }
     } catch (e) {
-        console.warn("Could not read local session:", e);
+        console.warn("Local session read note:", e);
+    }
+}
+
+// 2. Background Firestore Sync
+async function syncFromFirestore(userEmail) {
+    if (!userEmail || !db) return;
+    try {
+        let q = query(collection(db, "registrations"), where("email", "==", userEmail));
+        let snap = await getDocs(q);
+
+        if (snap.empty) {
+            q = query(collection(db, "students"), where("email", "==", userEmail));
+            snap = await getDocs(q);
+            activeCollection = "students";
+        }
+
+        if (snap.empty) {
+            q = query(collection(db, "users"), where("email", "==", userEmail));
+            snap = await getDocs(q);
+            activeCollection = "users";
+        }
+
+        if (!snap.empty) {
+            const docSnap = snap.docs[0];
+            activeDocId = docSnap.id;
+            const data = docSnap.data();
+
+            const currentRaw = localStorage.getItem("currentUser") || "{}";
+            const currentObj = JSON.parse(currentRaw);
+            const merged = { ...currentObj, ...data, id: activeDocId };
+            
+            localStorage.setItem("currentUser", JSON.stringify(merged));
+            localStorage.setItem("intraWorldUser", JSON.stringify(merged));
+            renderFields(merged);
+        }
+    } catch (err) {
+        console.warn("Firestore sync note:", err.message);
+    }
+}
+
+// Auth state listener for sync
+if (auth) {
+    onAuthStateChanged(auth, (user) => {
+        const sessionRaw = localStorage.getItem("currentUser") || localStorage.getItem("intraWorldUser");
+        const email = user?.email || (sessionRaw ? JSON.parse(sessionRaw).email : null);
+        if (email) {
+            syncFromFirestore(email);
+        }
+    });
+}
+
+// 3. WhatsApp-Style DP Upload & Compression
+function setupPhotoUpload() {
+    const fileInput = document.getElementById("dpFileInput");
+    const saveDpBtn = document.getElementById("saveDpBtn");
+    const toastMsg = document.getElementById("dpToastMsg");
+
+    function showToast(msg, isSuccess = true) {
+        if (!toastMsg) return;
+        toastMsg.style.display = "flex";
+        toastMsg.style.background = isSuccess ? "rgba(34, 197, 94, 0.15)" : "rgba(239, 68, 68, 0.15)";
+        toastMsg.style.border = isSuccess ? "1px solid rgba(34, 197, 94, 0.4)" : "1px solid rgba(239, 68, 68, 0.4)";
+        toastMsg.style.color = isSuccess ? "#4ade80" : "#f87171";
+        toastMsg.innerHTML = `<i class="fa-solid ${isSuccess ? 'fa-circle-check' : 'fa-triangle-exclamation'}"></i> <span>${msg}</span>`;
+        
+        setTimeout(() => {
+            toastMsg.style.display = "none";
+        }, 5000);
     }
 
-    const photoInput = document.getElementById("profilePhotoInput");
-    const savePhotoBtn = document.getElementById("savePhotoBtn");
-
-    if (photoInput) {
-        photoInput.addEventListener("change", async (e) => {
+    if (fileInput) {
+        fileInput.addEventListener("change", (e) => {
             const file = e.target.files[0];
-            if (file) {
-                try {
-                    selectedBase64Image = await fileToBase64Compress(file);
-                    updatePageAvatars(selectedBase64Image);
-                    if (savePhotoBtn) savePhotoBtn.style.display = "inline-flex";
-                } catch (err) {
-                    alert("Failed to load selected photo.");
-                }
-            }
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement("canvas");
+                    const MAX_SIZE = 400;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > MAX_SIZE) {
+                            height *= MAX_SIZE / width;
+                            width = MAX_SIZE;
+                        }
+                    } else {
+                        if (height > MAX_SIZE) {
+                            width *= MAX_SIZE / height;
+                            height = MAX_SIZE;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext("2d");
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    selectedBase64Photo = canvas.toDataURL("image/jpeg", 0.85);
+
+                    const preview = document.getElementById("avatarPreview");
+                    if (preview) preview.src = selectedBase64Photo;
+
+                    if (saveDpBtn) saveDpBtn.style.display = "inline-flex";
+                };
+            };
         });
     }
 
-    if (savePhotoBtn) {
-        savePhotoBtn.addEventListener("click", async () => {
-            if (!selectedBase64Image) return;
+    if (saveDpBtn) {
+        saveDpBtn.addEventListener("click", async () => {
+            if (!selectedBase64Photo) return;
 
-            savePhotoBtn.innerText = "Saving...";
-            savePhotoBtn.disabled = true;
+            saveDpBtn.disabled = true;
+            saveDpBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
 
             try {
                 let sessionUser = JSON.parse(localStorage.getItem("currentUser") || localStorage.getItem("intraWorldUser") || "{}");
-                sessionUser.avatar = selectedBase64Image;
+                sessionUser.avatar = selectedBase64Photo;
+                sessionUser.profilePhotoUrl = selectedBase64Photo;
+
                 localStorage.setItem("currentUser", JSON.stringify(sessionUser));
                 localStorage.setItem("intraWorldUser", JSON.stringify(sessionUser));
 
-                // Save permanently into Firestore DB
-                if (currentDocId) {
-                    await updateDoc(doc(db, currentCollection, currentDocId), {
-                        avatar: selectedBase64Image,
-                        profilePhotoUrl: selectedBase64Image
+                // Save to Firestore
+                if (activeDocId && db) {
+                    await updateDoc(doc(db, activeCollection, activeDocId), {
+                        avatar: selectedBase64Photo,
+                        profilePhotoUrl: selectedBase64Photo
                     });
-                } else if (sessionUser.email) {
-                    // Try to query or set doc if docId wasn't captured yet
+                } else if (sessionUser.email && db) {
                     try {
                         const q = query(collection(db, "registrations"), where("email", "==", sessionUser.email));
                         const snap = await getDocs(q);
                         if (!snap.empty) {
                             await updateDoc(doc(db, "registrations", snap.docs[0].id), {
-                                avatar: selectedBase64Image,
-                                profilePhotoUrl: selectedBase64Image
+                                avatar: selectedBase64Photo,
+                                profilePhotoUrl: selectedBase64Photo
                             });
                         }
-                    } catch (ignore) {}
+                    } catch (err) {}
                 }
 
-                alert("✅ Profile photo saved permanently!");
-                savePhotoBtn.style.display = "none";
+                showToast("Profile picture updated and saved permanently!");
+                saveDpBtn.style.display = "none";
             } catch (err) {
-                console.error("Error saving permanent avatar:", err);
-                alert("Saved to current session! (Firestore Update Note: " + err.message + ")");
+                console.error("Save avatar error:", err);
+                showToast("Saved to current session! (" + err.message + ")", true);
             } finally {
-                savePhotoBtn.innerText = "Save Photo";
-                savePhotoBtn.disabled = false;
+                saveDpBtn.disabled = false;
+                saveDpBtn.innerHTML = '<i class="fa-solid fa-circle-check"></i> Save Photo Permanently';
             }
         });
     }
-});
+
+    // Explicit Logout Handler
+    document.getElementById("logoutBtn")?.addEventListener("click", (e) => {
+        e.preventDefault();
+        localStorage.removeItem("currentUser");
+        localStorage.removeItem("intraWorldUser");
+        sessionStorage.clear();
+        window.location.href = "index.html";
+    });
+}
+
+// Initialize on DOM Ready
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => {
+        initRender();
+        setupPhotoUpload();
+    });
+} else {
+    initRender();
+    setupPhotoUpload();
+}
