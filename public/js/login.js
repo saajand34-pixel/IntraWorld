@@ -6,7 +6,9 @@ import {
     getDoc, 
     getDocs, 
     query, 
-    where 
+    where, 
+    setDoc, 
+    updateDoc 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -115,64 +117,96 @@ document.addEventListener("DOMContentLoaded", () => {
             // ==========================================
             // 3. SCAN FIRESTORE COLLECTIONS (registrations, students, users)
             // ==========================================
-            let docSnap = null;
-            let userData = null;
+            let regData = null;
+            let studData = null;
+            let uData = null;
+            let primaryDocSnap = null;
 
             if (db) {
                 // Check 1: 'registrations' collection
                 try {
                     const regSnap = await getDocs(query(collection(db, "registrations"), where("email", "==", email)));
                     if (!regSnap.empty) {
-                        docSnap = regSnap.docs[0];
-                        userData = docSnap.data();
+                        primaryDocSnap = regSnap.docs[0];
+                        regData = primaryDocSnap.data();
                     }
                 } catch (err) {
                     console.warn("Registrations collection scan note:", err.message);
                 }
 
-                // Check 2: 'students' collection (if not found yet)
-                if (!userData) {
-                    try {
-                        const studSnap = await getDocs(query(collection(db, "students"), where("email", "==", email)));
-                        if (!studSnap.empty) {
-                            docSnap = studSnap.docs[0];
-                            userData = docSnap.data();
-                        }
-                    } catch (err) {
-                        console.warn("Students collection scan note:", err.message);
+                // Check 2: 'students' collection
+                try {
+                    const studSnap = await getDocs(query(collection(db, "students"), where("email", "==", email)));
+                    if (!studSnap.empty) {
+                        if (!primaryDocSnap) primaryDocSnap = studSnap.docs[0];
+                        studData = studSnap.docs[0].data();
                     }
+                } catch (err) {
+                    console.warn("Students collection scan note:", err.message);
                 }
 
                 // Check 3: 'users' collection (doc by email or query)
-                if (!userData) {
-                    try {
-                        const userDocSnap = await getDoc(doc(db, "users", email));
-                        if (userDocSnap.exists()) {
-                            docSnap = userDocSnap;
-                            userData = userDocSnap.data();
-                        } else {
-                            const userQuerySnap = await getDocs(query(collection(db, "users"), where("email", "==", email)));
-                            if (!userQuerySnap.empty) {
-                                docSnap = userQuerySnap.docs[0];
-                                userData = docSnap.data();
-                            }
+                try {
+                    const userDocSnap = await getDoc(doc(db, "users", email));
+                    if (userDocSnap.exists()) {
+                        if (!primaryDocSnap) primaryDocSnap = userDocSnap;
+                        uData = userDocSnap.data();
+                    } else {
+                        const userQuerySnap = await getDocs(query(collection(db, "users"), where("email", "==", email)));
+                        if (!userQuerySnap.empty) {
+                            if (!primaryDocSnap) primaryDocSnap = userQuerySnap.docs[0];
+                            uData = userQuerySnap.docs[0].data();
                         }
-                    } catch (err) {
-                        console.warn("Users collection scan note:", err.message);
                     }
+                } catch (err) {
+                    console.warn("Users collection scan note:", err.message);
                 }
             }
+
+            const docSnap = primaryDocSnap;
+            const userData = regData || studData || uData 
+                ? { ...regData, ...studData, ...uData } 
+                : null;
 
             // ==========================================
             // 4. VERIFY CREDENTIALS & STORE LOGGED-IN SESSION
             // ==========================================
             if (userData) {
-                // If password is recorded in database, verify it
-                const storedPassword = userData.password ? String(userData.password).trim() : null;
+                // Gather all candidate passwords stored across collections
+                const candidatePasswords = [
+                    uData?.password ? String(uData.password).trim() : null,
+                    studData?.password ? String(studData.password).trim() : null,
+                    regData?.password ? String(regData.password).trim() : null
+                ].filter(Boolean);
 
-                if (storedPassword && storedPassword !== password && !authSuccess) {
+                const isPasswordMatch = candidatePasswords.includes(password) || authSuccess;
+
+                if (!isPasswordMatch) {
                     showAlert("Incorrect password. Please verify and try again.");
                     return;
+                }
+
+                // If entered password matches, ensure ALL collections are synchronized to this password!
+                if (candidatePasswords.length > 0 && candidatePasswords.some(p => p !== password)) {
+                    try {
+                        if (regData && String(regData.password).trim() !== password) {
+                            const rSnap = await getDocs(query(collection(db, "registrations"), where("email", "==", email)));
+                            for (const d of rSnap.docs) {
+                                await updateDoc(doc(db, "registrations", d.id), { password: password });
+                            }
+                        }
+                        if (studData && String(studData.password).trim() !== password) {
+                            const sSnap = await getDocs(query(collection(db, "students"), where("email", "==", email)));
+                            for (const d of sSnap.docs) {
+                                await updateDoc(doc(db, "students", d.id), { password: password });
+                            }
+                        }
+                        if (uData && String(uData.password).trim() !== password) {
+                            await setDoc(doc(db, "users", email), { password: password }, { merge: true });
+                        }
+                    } catch (syncErr) {
+                        console.warn("Auto password resync note:", syncErr.message);
+                    }
                 }
 
                 const sessionData = {
