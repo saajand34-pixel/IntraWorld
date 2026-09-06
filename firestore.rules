@@ -1,14 +1,14 @@
-﻿rules_version = '2';
+rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // 🔒 System config (read-only)
+    // System config (read-only)
     match /system_config/{doc} {
       allow read: if true;
       allow write: if false;
     }
 
-    // 👤 Allow authenticated and genuine student interactions across collections
+    // Allow genuine student records and collections
     match /{document=**} {
       allow read, write: if true;
     }
