@@ -1,4 +1,4 @@
-import { db } from "../firebase-config.js";
+﻿import { db } from "../firebase-config.js";
 
 document.addEventListener("DOMContentLoaded", () => {
     const searchInput = document.getElementById("college-search-input");
@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const pillsContainer = document.getElementById("college-pills-container");
     const feedContainer = document.getElementById("feed-container");
 
-    const collegesData = [
+    const PRESET_COLLEGES = [
         {
             name: "Seshadripuram First Grade College (SFGC)",
             shortName: "SFGC",
@@ -194,13 +194,121 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     ];
 
+    // Load any user-created custom communities from localStorage
+    function getStoredCustomCommunities() {
+        try {
+            const raw = localStorage.getItem("intra_custom_communities");
+            return raw ? JSON.parse(raw) : [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function saveCustomCommunity(community) {
+        try {
+            const current = getStoredCustomCommunities();
+            // Avoid duplicates
+            const exists = current.some(c => c.name.toLowerCase() === community.name.toLowerCase());
+            if (!exists) {
+                current.push(community);
+                localStorage.setItem("intra_custom_communities", JSON.stringify(current));
+            }
+        } catch (e) {
+            console.warn("Could not persist custom community:", e);
+        }
+    }
+
+    // Merge preset and custom communities
+    let collegesData = [...PRESET_COLLEGES, ...getStoredCustomCommunities()];
+
+    // HTML sanitizer
     function escapeHtml(str) {
-        return String(str)
+        return String(str || "")
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
             .replace(/>/g, "&gt;")
             .replace(/"/g, "&quot;")
             .replace(/'/g, "&#039;");
+    }
+
+    // Retrieve active logged in student details
+    function getLoggedInStudent() {
+        try {
+            const rawUser = localStorage.getItem("currentUser") || localStorage.getItem("intraWorldUser");
+            if (!rawUser) return null;
+            const user = JSON.parse(rawUser);
+            const userCollege = (user.collegeName || user.college || user.collegeOrUniversity || user.institution || "").trim();
+            const fullName = (user.fullName || user.full_name || "Student").trim();
+            const email = (user.email || "").trim();
+            return {
+                isLoggedIn: Boolean(email || fullName),
+                userCollege,
+                fullName,
+                email
+            };
+        } catch (e) {
+            return null;
+        }
+    }
+
+    // Acronym generator helper
+    function getAcronym(str) {
+        return (str || "")
+            .replace(/[^a-zA-Z0-9\s]/g, "")
+            .split(/\s+/)
+            .filter(w => !["of", "and", "the", "in", "for", "to", "&"].includes(w.toLowerCase()))
+            .map(w => w[0])
+            .join("")
+            .toLowerCase();
+    }
+
+    // College string normalizer helper
+    function cleanCollegeStr(str) {
+        return (str || "")
+            .toLowerCase()
+            .replace(/[^a-z0-9\s]/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
+    }
+
+    // Compare searched college with the student's registered college
+    function isSameCollege(searched, userCollege) {
+        if (!searched || !userCollege) return false;
+
+        const sClean = cleanCollegeStr(searched);
+        const uClean = cleanCollegeStr(userCollege);
+
+        if (!sClean || !uClean) return false;
+
+        // Exact match
+        if (sClean === uClean) return true;
+
+        // Substring containment
+        if (sClean.length >= 3 && uClean.includes(sClean)) return true;
+        if (uClean.length >= 3 && sClean.includes(uClean)) return true;
+
+        // Acronym match
+        const sAcr = getAcronym(searched);
+        const uAcr = getAcronym(userCollege);
+
+        if (sClean === uAcr || sAcr === uClean) return true;
+        if (sAcr.length >= 2 && uAcr.length >= 2 && sAcr === uAcr) return true;
+
+        // Token overlap excluding generic filler words
+        const fillerWords = new Set([
+            "college", "degree", "university", "institute", "institution", 
+            "of", "technology", "first", "grade", "the", "engineering", 
+            "management", "science", "arts", "commerce", "campus"
+        ]);
+        const sTokens = sClean.split(" ").filter(w => !fillerWords.has(w) && w.length > 2);
+        const uTokens = uClean.split(" ").filter(w => !fillerWords.has(w) && w.length > 2);
+
+        if (sTokens.length > 0 && uTokens.length > 0) {
+            const matchingTokens = sTokens.filter(t => uTokens.some(ut => ut.includes(t) || t.includes(ut)));
+            if (matchingTokens.length > 0) return true;
+        }
+
+        return false;
     }
 
     let activeCollege = collegesData[0];
@@ -213,8 +321,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         colleges.forEach((college) => {
             const pill = document.createElement("button");
-            pill.className = `college-pill ${college.name === currentSelection.name ? "active" : ""}`;
-            pill.innerHTML = `<i class="fa-solid fa-building-columns"></i> ${college.name}`;
+            pill.className = `college-pill ${college.name === currentSelection?.name ? "active" : ""}`;
+            pill.innerHTML = `<i class="fa-solid fa-building-columns"></i> ${escapeHtml(college.name)}`;
 
             pill.addEventListener("click", () => {
                 document.querySelectorAll(".college-pill").forEach(p => p.classList.remove("active"));
@@ -232,31 +340,34 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    function renderPosts(college) {
-        if (!college.posts || college.posts.length === 0) {
+    function renderPosts(college, alertBannerHtml = "") {
+        let banner = alertBannerHtml ? alertBannerHtml : "";
+
+        if (!college || !college.posts || college.posts.length === 0) {
             feedContainer.innerHTML = `
+                ${banner}
                 <div class="card empty-feed">
                     <i class="fa-solid fa-bullhorn fa-2x" style="margin-bottom: 12px; color: #7db7ff; display: block;"></i>
-                    No announcements posted for <strong>${escapeHtml(college.name)}</strong> yet.
+                    No announcements posted for <strong>${escapeHtml(college?.name || "this college")}</strong> yet.
                 </div>
             `;
             return;
         }
 
-        feedContainer.innerHTML = college.posts.map(post => `
+        const postsHtml = college.posts.map(post => `
             <div class="card post-card" style="margin-bottom: 20px; padding: 22px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <div style="width: 38px; height: 38px; border-radius: 50%; background: #0066ff; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff;">
-                            ${post.author.charAt(0)}
+                            ${escapeHtml(post.author ? post.author.charAt(0) : "S")}
                         </div>
                         <div>
                             <strong style="color: #fff; font-size: 1.02rem;">${escapeHtml(post.author)}</strong>
-                            <div style="color: #8fa8bf; font-size: 0.8rem;">${escapeHtml(post.role)} • <span style="color: #38bdf8;">${escapeHtml(college.shortName || college.name)}</span></div>
+                            <div style="color: #8fa8bf; font-size: 0.8rem;">${escapeHtml(post.role || "Member")} • <span style="color: #38bdf8;">${escapeHtml(college.shortName || college.name)}</span></div>
                         </div>
                     </div>
                     <span style="background: rgba(0, 102, 255, 0.2); color: #38bdf8; font-size: 0.75rem; padding: 4px 12px; border-radius: 20px; font-weight: 600; border: 1px solid rgba(56, 189, 248, 0.3);">
-                        #${escapeHtml(post.tag)}
+                        #${escapeHtml(post.tag || "Announcement")}
                     </span>
                 </div>
 
@@ -271,7 +382,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 <div style="color: #8fa8bf; font-size: 0.82rem; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255, 255, 255, 0.06); padding-top: 12px; margin-top: 6px;">
                     <span style="display: flex; align-items: center; gap: 6px;">
-                        <i class="fa-regular fa-clock"></i> ${escapeHtml(post.time)}
+                        <i class="fa-regular fa-clock"></i> ${escapeHtml(post.time || "Recently")}
                     </span>
                     <div style="display: flex; gap: 15px; align-items: center;">
                         <span style="cursor: pointer; color: #38bdf8;"><i class="fa-regular fa-thumbs-up"></i> Helpful</span>
@@ -280,38 +391,161 @@ document.addEventListener("DOMContentLoaded", () => {
                 </div>
             </div>
         `).join("");
+
+        feedContainer.innerHTML = banner + postsHtml;
     }
 
+    // Render when no matching community is found
     function renderEmptyCommunity(searchedName) {
         collegesWrapper.style.display = "none";
+
+        const student = getLoggedInStudent();
+        const registeredCollegeText = student && student.userCollege 
+            ? escapeHtml(student.userCollege) 
+            : "No verified college in session";
+
         feedContainer.innerHTML = `
             <div class="card" style="text-align: center; padding: 45px 25px; border: 1px dashed rgba(255, 255, 255, 0.18); border-radius: 16px;">
-                <div style="width: 70px; height: 70px; border-radius: 50%; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto; font-size: 28px; color: #ef4444;">
-                    <i class="fa-solid fa-building-circle-exclamation"></i>
+                <div style="width: 70px; height: 70px; border-radius: 50%; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto; font-size: 28px; color: #38bdf8;">
+                    <i class="fa-solid fa-building-columns"></i>
                 </div>
                 <h3 style="color: #fff; font-size: 1.35rem; margin-bottom: 8px; font-weight: 600;">Community Not Created Yet</h3>
-                <p style="color: #cbd5e1; font-size: 0.95rem; max-width: 520px; margin: 0 auto 20px auto; line-height: 1.6;">
+                <p style="color: #cbd5e1; font-size: 0.95rem; max-width: 540px; margin: 0 auto 14px auto; line-height: 1.6;">
                     The community page for "<strong>${escapeHtml(searchedName)}</strong>" has not been created yet on IntraWorld.
                 </p>
-                <button class="btn" id="request-community-btn" style="background: #0066ff;">
-                    <i class="fa-solid fa-plus"></i> Request / Create Community for "${escapeHtml(searchedName)}"
-                </button>
-                <div id="request-success-msg" style="display: none; color: #22c55e; margin-top: 15px; font-size: 14px; font-weight: 500;">
-                    <i class="fa-solid fa-circle-check"></i> Request submitted! Our team will activate the <strong>${escapeHtml(searchedName)}</strong> community hub shortly.
+                <div style="font-size: 12.5px; color: #94a3b8; margin-bottom: 20px; background: rgba(255, 255, 255, 0.04); display: inline-block; padding: 6px 14px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.08);">
+                    <i class="fa-solid fa-id-badge" style="color: #38bdf8; margin-right: 5px;"></i> Your Pursuing College: <strong style="color: #38bdf8;">${registeredCollegeText}</strong>
                 </div>
+                
+                <div>
+                    <button class="btn" id="request-community-btn" style="background: #0066ff;">
+                        <i class="fa-solid fa-plus"></i> Request / Create Community for "${escapeHtml(searchedName)}"
+                    </button>
+                </div>
+
+                <div id="verification-result-container" style="margin-top: 20px; max-width: 580px; margin-left: auto; margin-right: auto;"></div>
             </div>
         `;
 
         const requestBtn = document.getElementById("request-community-btn");
-        const successMsg = document.getElementById("request-success-msg");
-        if (requestBtn && successMsg) {
+        const resultContainer = document.getElementById("verification-result-container");
+
+        if (requestBtn && resultContainer) {
             requestBtn.addEventListener("click", () => {
-                requestBtn.disabled = true;
-                requestBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Submitting...`;
-                setTimeout(() => {
-                    requestBtn.style.display = "none";
-                    successMsg.style.display = "block";
-                }, 400);
+                const currentStudent = getLoggedInStudent();
+
+                if (!currentStudent || !currentStudent.isLoggedIn) {
+                    resultContainer.innerHTML = `
+                        <div style="background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.35); border-radius: 12px; padding: 18px; text-align: left;">
+                            <div style="display: flex; align-items: center; gap: 8px; color: #ef4444; font-weight: 600; font-size: 0.95rem; margin-bottom: 6px;">
+                                <i class="fa-solid fa-circle-exclamation"></i> Authentication Required
+                            </div>
+                            <p style="color: #cbd5e1; font-size: 0.88rem; line-height: 1.5;">
+                                Please <a href="login.html" style="color: #38bdf8; font-weight: 600;">log in with your verified student account</a> to create or lead a campus community.
+                            </p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                if (!currentStudent.userCollege) {
+                    resultContainer.innerHTML = `
+                        <div style="background: rgba(234, 179, 8, 0.12); border: 1px solid rgba(234, 179, 8, 0.35); border-radius: 12px; padding: 18px; text-align: left;">
+                            <div style="display: flex; align-items: center; gap: 8px; color: #eab308; font-weight: 600; font-size: 0.95rem; margin-bottom: 6px;">
+                                <i class="fa-solid fa-triangle-exclamation"></i> College Details Missing
+                            </div>
+                            <p style="color: #cbd5e1; font-size: 0.88rem; line-height: 1.5;">
+                                We could not find a registered college in your profile. Please complete your registration or update your college in <a href="settings.html" style="color: #38bdf8; font-weight: 600;">Settings</a>.
+                            </p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Verify college match
+                const isMatch = isSameCollege(searchedName, currentStudent.userCollege);
+
+                if (isMatch) {
+                    // Match! Create community
+                    requestBtn.disabled = true;
+                    requestBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Verifying Student College Enrollment...`;
+
+                    setTimeout(() => {
+                        const newCommunity = {
+                            name: searchedName,
+                            shortName: searchedName.length > 25 ? (getAcronym(searchedName).toUpperCase() || searchedName.slice(0, 12)) : searchedName,
+                            posts: [
+                                {
+                                    author: currentStudent.fullName || "Student Lead",
+                                    role: "Community Founder",
+                                    tag: "Welcome",
+                                    time: "Just now",
+                                    title: `🏛️ Official Community Hub Founded for ${searchedName}`,
+                                    content: `Welcome to the official ${searchedName} campus hub on IntraWorld! Founded and verified by ${currentStudent.fullName || "an enrolled student"}. You can now share campus notices, club events, sports meetups, and academic discussions with your peers.`,
+                                    image: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80"
+                                }
+                            ]
+                        };
+
+                        saveCustomCommunity(newCommunity);
+                        collegesData.push(newCommunity);
+
+                        if (searchInput) searchInput.value = "";
+                        if (clearBtn) clearBtn.style.display = "none";
+                        if (pillsHeaderTitle) pillsHeaderTitle.textContent = "Campus Communities:";
+
+                        const celebrationBanner = `
+                            <div class="card" style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(16, 185, 129, 0.05)); border: 1px solid rgba(34, 197, 94, 0.4); border-radius: 14px; padding: 18px 22px; margin-bottom: 22px;">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <div style="width: 42px; height: 42px; border-radius: 50%; background: #22c55e; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                                        <i class="fa-solid fa-circle-check"></i>
+                                    </div>
+                                    <div>
+                                        <strong style="color: #4ade80; font-size: 1.05rem;">🎉 Community Successfully Verified & Created!</strong>
+                                        <p style="color: #cbd5e1; font-size: 0.88rem; margin-top: 2px;">
+                                            You have established the official hub for <strong>${escapeHtml(searchedName)}</strong>. As an actively enrolled student, you are recognized as the founding moderator!
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+
+                        renderCollegePills(collegesData, newCommunity);
+                        renderPosts(newCommunity, celebrationBanner);
+                    }, 500);
+
+                } else {
+                    // Mismatch! Reject creation
+                    resultContainer.innerHTML = `
+                        <div style="background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.35); border-radius: 12px; padding: 20px; text-align: left; animation: fadeIn 0.3s ease;">
+                            <div style="display: flex; align-items: center; gap: 10px; color: #ef4444; font-weight: 600; font-size: 1rem; margin-bottom: 8px;">
+                                <i class="fa-solid fa-triangle-exclamation fa-lg"></i> Creation Rejected: College Mismatch
+                            </div>
+                            <p style="color: #cbd5e1; font-size: 0.9rem; line-height: 1.5; margin-bottom: 10px;">
+                                You are registered as pursuing at: <strong style="color: #38bdf8;">"${escapeHtml(currentStudent.userCollege)}"</strong>.
+                            </p>
+                            <p style="color: #94a3b8; font-size: 0.84rem; line-height: 1.5; margin-bottom: 14px;">
+                                To maintain genuine campus moderation and prevent unauthorized hubs, IntraWorld security rules require that a student can only create and lead a community for the college they are currently pursuing.
+                            </p>
+                            <div>
+                                <button id="switch-to-my-college-btn" class="btn" style="background: rgba(56, 189, 248, 0.2); border: 1px solid rgba(56, 189, 248, 0.4); color: #38bdf8; font-size: 13px; padding: 8px 16px;">
+                                    <i class="fa-solid fa-magnifying-glass"></i> Search for my college: "${escapeHtml(currentStudent.userCollege)}"
+                                </button>
+                            </div>
+                        </div>
+                    `;
+
+                    const switchBtn = document.getElementById("switch-to-my-college-btn");
+                    if (switchBtn) {
+                        switchBtn.addEventListener("click", () => {
+                            if (searchInput) {
+                                searchInput.value = currentStudent.userCollege;
+                                searchInput.focus();
+                            }
+                            handleSearch(currentStudent.userCollege);
+                        });
+                    }
+                }
             });
         }
     }
@@ -330,7 +564,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const matches = collegesData.filter(c => 
             c.name.toLowerCase().includes(trimmed) || 
-            (c.shortName && c.shortName.toLowerCase().includes(trimmed))
+            (c.shortName && c.shortName.toLowerCase().includes(trimmed)) ||
+            cleanCollegeStr(c.name).includes(cleanCollegeStr(trimmed)) ||
+            (c.shortName && cleanCollegeStr(c.shortName).includes(cleanCollegeStr(trimmed)))
         );
 
         if (matches.length > 0) {

@@ -1,4 +1,4 @@
-import { db, auth } from "./firebase-config.js";
+﻿import { db, auth } from "./firebase-config.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import {
     doc,
@@ -48,7 +48,7 @@ function fileToBase64Compress(file) {
                 canvas.height = height;
                 const ctx = canvas.getContext("2d");
                 ctx.drawImage(img, 0, 0, width, height);
-                resolve(canvas.toDataURL("image/jpeg", 0.8));
+                resolve(canvas.toDataURL("image/jpeg", 0.85));
             };
         };
         reader.onerror = (error) => reject(error);
@@ -58,27 +58,47 @@ function fileToBase64Compress(file) {
 // Update Page Avatars
 function updatePageAvatars(avatarUrl) {
     const preview = document.getElementById("settings-avatar-preview");
-    if (preview) preview.src = avatarUrl;
+    if (preview && avatarUrl) preview.src = avatarUrl;
+    
+    // Also update any navbar avatar
+    const navAvatar = document.getElementById("profileImage");
+    if (navAvatar && avatarUrl) navAvatar.src = avatarUrl;
 }
 
 // Populate Inputs with User Details
 function renderUserData(data) {
     if (!data) return;
 
-    document.getElementById("userFullName").value = data.fullName || data.full_name || "";
-    document.getElementById("userEmail").value = data.email || "";
-    document.getElementById("userMobile").value = data.mobileNumber || data.mobile || data.phone || "";
-    document.getElementById("userState").value = data.state || "";
-    document.getElementById("userQualification").value = data.qualification || "";
-    document.getElementById("userCollege").value = data.collegeOrUniversity || data.college || "";
-    document.getElementById("userPassout").value = data.passoutYear || data.passout_year || "";
+    const fullName = data.fullName || data.full_name || "";
+    const email = data.email || "";
+    const phone = data.mobileNumber || data.mobile || data.phone || "";
+    const state = data.state || "";
+    const qualification = data.qualification || "";
+    const college = data.collegeOrUniversity || data.collegeName || data.college || "";
+    const passout = data.passoutYear || data.passedOutYear || data.passout_year || "";
 
-    const isVerified = data.verificationStatus === "verified" || data.isVerified === true;
+    const nameEl = document.getElementById("userFullName");
+    const emailEl = document.getElementById("userEmail");
+    const mobileEl = document.getElementById("userMobile");
+    const stateEl = document.getElementById("userState");
+    const qualEl = document.getElementById("userQualification");
+    const collegeEl = document.getElementById("userCollege");
+    const passoutEl = document.getElementById("userPassout");
+
+    if (nameEl) nameEl.value = fullName;
+    if (emailEl) emailEl.value = email;
+    if (mobileEl) mobileEl.value = phone;
+    if (stateEl) stateEl.value = state;
+    if (qualEl) qualEl.value = qualification;
+    if (collegeEl) collegeEl.value = college;
+    if (passoutEl) passoutEl.value = passout;
+
+    const isVerified = data.verificationStatus === "verified" || data.isVerified === true || data.isFeeReceiptVerified === true;
     const badgeContainer = document.getElementById("userVerificationBadge");
     if (badgeContainer) {
         badgeContainer.innerHTML = `
             <span class="status-badge ${isVerified ? 'status-verified' : 'status-pending'}">
-                ${isVerified ? 'Verified Member' : 'Pending Verification'}
+                <i class="fa-solid ${isVerified ? 'fa-circle-check' : 'fa-clock'}"></i> ${isVerified ? 'Verified Member' : 'Pending Verification'}
             </span>
         `;
     }
@@ -89,7 +109,7 @@ function renderUserData(data) {
 
 // Auth Listener & Firestore Synchronization
 onAuthStateChanged(auth, async (user) => {
-    let sessionUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
+    let sessionUser = JSON.parse(localStorage.getItem("currentUser") || localStorage.getItem("intraWorldUser") || "{}");
     const userEmail = user?.email || sessionUser.email;
 
     if (!userEmail) return;
@@ -110,9 +130,10 @@ onAuthStateChanged(auth, async (user) => {
             currentDocId = docSnap.id;
             currentUserData = docSnap.data();
 
-            // Update session storage
-            localStorage.setItem("currentUser", JSON.stringify({ ...sessionUser, ...currentUserData, id: currentDocId }));
-            renderUserData(currentUserData);
+            const merged = { ...sessionUser, ...currentUserData, id: currentDocId };
+            localStorage.setItem("currentUser", JSON.stringify(merged));
+            localStorage.setItem("intraWorldUser", JSON.stringify(merged));
+            renderUserData(merged);
         } else if (sessionUser.email) {
             renderUserData(sessionUser);
         }
@@ -124,6 +145,16 @@ onAuthStateChanged(auth, async (user) => {
 
 // Event Listeners Initialization
 document.addEventListener("DOMContentLoaded", () => {
+    // Immediate render from localStorage session
+    try {
+        const cached = localStorage.getItem("currentUser") || localStorage.getItem("intraWorldUser");
+        if (cached) {
+            renderUserData(JSON.parse(cached));
+        }
+    } catch (e) {
+        console.warn("Could not read local session:", e);
+    }
+
     const photoInput = document.getElementById("profilePhotoInput");
     const savePhotoBtn = document.getElementById("savePhotoBtn");
 
@@ -150,9 +181,10 @@ document.addEventListener("DOMContentLoaded", () => {
             savePhotoBtn.disabled = true;
 
             try {
-                let sessionUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
+                let sessionUser = JSON.parse(localStorage.getItem("currentUser") || localStorage.getItem("intraWorldUser") || "{}");
                 sessionUser.avatar = selectedBase64Image;
                 localStorage.setItem("currentUser", JSON.stringify(sessionUser));
+                localStorage.setItem("intraWorldUser", JSON.stringify(sessionUser));
 
                 // Save permanently into Firestore DB
                 if (currentDocId) {
@@ -160,13 +192,25 @@ document.addEventListener("DOMContentLoaded", () => {
                         avatar: selectedBase64Image,
                         profilePhotoUrl: selectedBase64Image
                     });
+                } else if (sessionUser.email) {
+                    // Try to query or set doc if docId wasn't captured yet
+                    try {
+                        const q = query(collection(db, "registrations"), where("email", "==", sessionUser.email));
+                        const snap = await getDocs(q);
+                        if (!snap.empty) {
+                            await updateDoc(doc(db, "registrations", snap.docs[0].id), {
+                                avatar: selectedBase64Image,
+                                profilePhotoUrl: selectedBase64Image
+                            });
+                        }
+                    } catch (ignore) {}
                 }
 
-                alert("Profile photo updated permanently!");
+                alert("✅ Profile photo saved permanently!");
                 savePhotoBtn.style.display = "none";
             } catch (err) {
                 console.error("Error saving permanent avatar:", err);
-                alert("Saved to current session! (Firestore Update Error: " + err.message + ")");
+                alert("Saved to current session! (Firestore Update Note: " + err.message + ")");
             } finally {
                 savePhotoBtn.innerText = "Save Photo";
                 savePhotoBtn.disabled = false;
