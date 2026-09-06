@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
-    <title>Settings - Intra World</title>
+    <title>Account Settings - Intra World</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
@@ -45,11 +45,7 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.1);
         }
 
-        .nav-links { 
-            display: flex; 
-            align-items: center; 
-            gap: 6px; 
-        }
+        .nav-links { display: flex; align-items: center; gap: 6px; }
 
         .nav-links a { 
             display: flex; 
@@ -65,10 +61,7 @@
             transition: all 0.2s ease; 
         }
 
-        .nav-links a:hover { 
-            color: #fff; 
-            background: rgba(255, 255, 255, 0.08); 
-        }
+        .nav-links a:hover { color: #fff; background: rgba(255, 255, 255, 0.08); }
 
         .nav-links a.active { 
             color: #fff; 
@@ -82,79 +75,129 @@
             margin-left: 6px; 
         }
 
-        .nav-links a.logout:hover { 
-            background: #ef4444; 
-            color: #ffffff; 
-        }
+        .nav-links a.logout:hover { background: #ef4444; color: #ffffff; }
 
+        /* Main Content Layout */
         .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
-        .content { padding: 35px; flex: 1; overflow-y: auto; max-width: 900px; margin: 0 auto; width: 100%; }
+        .content { flex: 1; padding: 35px; width: 100%; max-width: 900px; margin: 0 auto; overflow-y: auto; }
 
-        @media (max-width: 768px) {
-            .nav-container { width: 95%; top: 10px; }
-            .floating-navbar { padding: 6px 8px; }
-            .nav-links a { padding: 8px 12px; font-size: 13px; }
-            .nav-links a span { display: none; }
+        .settings-header {
+            margin-bottom: 24px;
         }
 
-        .settings-card {
-            background: linear-gradient(135deg, rgba(6, 21, 36, 0.8), rgba(16, 43, 69, 0.6));
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 14px;
-            padding: 28px;
-            margin-top: 20px;
-        }
-
-        .profile-upload-container {
+        .settings-header h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #ffffff;
             display: flex;
             align-items: center;
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .dashboard-avatar {
-            width: 85px;
-            height: 85px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 3px solid #38bdf8;
-        }
-
-        .upload-controls {
-            display: flex;
             gap: 10px;
-            align-items: center;
         }
 
-        .upload-btn, .save-btn {
-            padding: 10px 16px;
-            border-radius: 8px;
+        .settings-header p {
             font-size: 14px;
+            color: #8fa8bf;
+            margin-top: 4px;
+        }
+
+        .card { 
+            background: #081b2e; 
+            padding: 26px; 
+            border-radius: 16px; 
+            border: 1px solid rgba(255,255,255,0.08); 
+            margin-bottom: 24px; 
+            width: 100%; 
+        }
+
+        .card-title {
+            font-size: 1.15rem;
             font-weight: 600;
-            cursor: pointer;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+
+        .card-subtitle {
+            font-size: 13px;
+            color: #8fa8bf;
+            margin-bottom: 20px;
+        }
+
+        /* Profile DP WhatsApp-Style Container */
+        .profile-dp-section {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .dp-wrapper {
+            position: relative;
+            width: 105px;
+            height: 105px;
+            border-radius: 50%;
+            border: 3px solid #38bdf8;
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.25);
+            background: #040d18;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .dp-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .dp-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn {
+            background: #0066ff;
+            color: #ffffff;
             border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
             display: inline-flex;
             align-items: center;
             gap: 8px;
+            transition: 0.2s ease;
+            width: fit-content;
         }
 
-        .upload-btn {
+        .btn:hover { background: #0f3f8c; }
+        .btn-outline {
             background: rgba(56, 189, 248, 0.15);
             color: #38bdf8;
-            border: 1px solid rgba(56, 189, 248, 0.3);
+            border: 1px solid rgba(56, 189, 248, 0.35);
         }
-
-        .save-btn {
+        .btn-outline:hover {
+            background: rgba(56, 189, 248, 0.25);
+            color: #ffffff;
+        }
+        .btn-save {
             background: #22c55e;
             color: #ffffff;
         }
+        .btn-save:hover { background: #16a34a; }
 
-        /* User Profile Info Fields */
+        /* Registration Data Grid */
         .info-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 18px;
-            margin-top: 20px;
+            margin-top: 10px;
         }
 
         .info-field {
@@ -168,33 +211,63 @@
             color: #94a3b8;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            font-weight: 500;
         }
 
         .info-field input {
-            background: #081624;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: white;
+            background: #040e1a;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #ffffff;
             padding: 12px 14px;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 14px;
             outline: none;
         }
 
         .info-field input:disabled {
-            background: #050e17;
+            background: #020812;
             color: #cbd5e1;
+            border-color: rgba(255, 255, 255, 0.08);
         }
 
         .status-badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
             font-weight: 600;
             width: fit-content;
         }
-        .status-verified { background: #16a34a; color: white; }
-        .status-pending { background: #ca8a04; color: white; }
+        .status-verified {
+            background: rgba(34, 197, 94, 0.15);
+            color: #4ade80;
+            border: 1px solid rgba(34, 197, 94, 0.35);
+        }
+        .status-pending {
+            background: rgba(234, 179, 8, 0.15);
+            color: #facc15;
+            border: 1px solid rgba(234, 179, 8, 0.35);
+        }
+
+        .toast-msg {
+            display: none;
+            padding: 12px 18px;
+            border-radius: 10px;
+            font-size: 14px;
+            margin-top: 14px;
+            align-items: center;
+            gap: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .nav-container { width: 95%; top: 10px; }
+            .floating-navbar { padding: 6px 8px; }
+            .nav-links a { padding: 8px 12px; font-size: 13px; }
+            .nav-links a span { display: none; }
+            .content { padding: 20px 15px; }
+        }
     </style>
 </head>
 <body>
@@ -203,127 +276,337 @@
     <div class="nav-container">
         <header class="floating-navbar">
             <nav class="nav-links">
-    <a href="dashboard.html">
-        <i class="fa-solid fa-house"></i>
-        <span>Home</span>
-    </a>
-    <a href="connect.html">
-        <i class="fa-solid fa-user-group"></i>
-        <span>Student Connect</span>
-    </a>
-    <a href="posts.html">
-        <i class="fa-solid fa-newspaper"></i>
-        <span>Posts</span>
-    </a>
-    <a href="community.html">
-        <i class="fa-solid fa-location-dot"></i>
-        <span>Community</span>
-    </a>
-    <a href="messages.html">
-        <i class="fa-solid fa-comments"></i>
-        <span>Messages</span>
-    </a>
-    <a href="settings.html" class="active">
-        <i class="fa-solid fa-gear"></i>
-        <span>Settings</span>
-    </a>
-    <a class="logout" id="logoutBtn" href="javascript:void(0);">
-        <i class="fa-solid fa-right-from-bracket"></i>
-        <span>Logout</span>
-    </a>
-</nav>
+                <a href="dashboard.html"><i class="fa-solid fa-house"></i><span>Home</span></a>
+                <a href="connect.html"><i class="fa-solid fa-user-group"></i><span>Student Connect</span></a>
+                <a href="posts.html"><i class="fa-solid fa-newspaper"></i><span>Posts</span></a>
+                <a href="community.html"><i class="fa-solid fa-location-dot"></i><span>Community</span></a>
+                <a href="messages.html"><i class="fa-solid fa-comments"></i><span>Messages</span></a>
+                <a href="settings.html" class="active"><i class="fa-solid fa-gear"></i><span>Settings</span></a>
+                <a class="logout" id="logoutBtn" href="javascript:void(0);"><i class="fa-solid fa-right-from-bracket"></i><span>Logout</span></a>
+            </nav>
         </header>
     </div>
 
+    <!-- MAIN SETTINGS AREA -->
     <main class="main">
         <section class="content">
-            <h2>Account Settings</h2>
 
-            <!-- PHOTO UPLOAD CARD -->
-            <div class="settings-card">
-                <h3><i class="fa-solid fa-image"></i> Profile Photo</h3>
-                <p style="font-size:13px; color:#94a3b8; margin-top:4px;">Upload a permanent avatar picture to customize your Intra World identity.</p>
+            <div class="settings-header">
+                <h2><i class="fa-solid fa-sliders" style="color: #0066ff;"></i> Account Settings</h2>
+                <p>Manage your permanent student avatar and view your registered profile.</p>
+            </div>
 
-                <div class="profile-upload-container">
-                    <img id="settings-avatar-preview" class="dashboard-avatar" src="https://via.placeholder.com/85" alt="Profile Preview">
+            <!-- PROFILE PHOTO (DP) CARD -->
+            <div class="card">
+                <div class="card-title">
+                    <i class="fa-solid fa-camera-retro" style="color: #38bdf8;"></i> Profile Picture (DP)
+                </div>
+                <div class="card-subtitle">
+                    Upload a permanent profile photo. Stored securely and synced across all your devices.
+                </div>
 
-                    <div class="upload-controls">
-                        <label for="profilePhotoInput" class="upload-btn">
-                            <i class="fa-solid fa-camera"></i> Choose Photo
+                <div class="profile-dp-section">
+                    <div class="dp-wrapper">
+                        <img id="avatarPreview" class="dp-image" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2338bdf8'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-3.8-.85-5.05-2.2.03-1.68 3.37-2.6 5.05-2.6s5.02.92 5.05 2.6C15.8 19.15 14.03 20 12 20z'/></svg>" alt="Student DP">
+                    </div>
+
+                    <div class="dp-actions">
+                        <label for="dpFileInput" class="btn btn-outline">
+                            <i class="fa-solid fa-cloud-arrow-up"></i> Choose New Photo
                         </label>
-                        <input type="file" id="profilePhotoInput" accept="image/*" hidden>
-                        <button id="savePhotoBtn" class="save-btn" style="display: none;">
-                            <i class="fa-solid fa-check"></i> Save Photo
+                        <input type="file" id="dpFileInput" accept="image/*" style="display: none;">
+
+                        <button id="saveDpBtn" class="btn btn-save" style="display: none;">
+                            <i class="fa-solid fa-circle-check"></i> Save Photo Permanently
                         </button>
                     </div>
                 </div>
+
+                <div id="dpToastMsg" class="toast-msg"></div>
             </div>
 
-            <!-- USER DETAILS DISPLAY CARD -->
-            <div class="settings-card">
-                <h3><i class="fa-solid fa-id-card"></i> Personal Information</h3>
-                <p style="font-size:13px; color:#94a3b8; margin-top:4px;">Your registered details stored in Firestore database.</p>
+            <!-- PERSONAL REGISTRATION DATABASE VIEW -->
+            <div class="card">
+                <div class="card-title">
+                    <i class="fa-solid fa-id-card-clip" style="color: #38bdf8;"></i> Personal Registration Record
+                </div>
+                <div class="card-subtitle">
+                    Your authenticated student database credentials. Private to your account only.
+                </div>
 
                 <div class="info-grid">
                     <div class="info-field">
                         <label>Full Name</label>
-                        <input type="text" id="userFullName" disabled>
+                        <input type="text" id="dbFullName" placeholder="Student Name" disabled>
                     </div>
 
                     <div class="info-field">
                         <label>Email Address</label>
-                        <input type="email" id="userEmail" disabled>
+                        <input type="email" id="dbEmail" placeholder="student@example.com" disabled>
                     </div>
 
                     <div class="info-field">
                         <label>Mobile Number</label>
-                        <input type="text" id="userMobile" disabled>
+                        <input type="text" id="dbMobile" placeholder="Contact number" disabled>
                     </div>
 
                     <div class="info-field">
-                        <label>State</label>
-                        <input type="text" id="userState" disabled>
+                        <label>State / Region</label>
+                        <input type="text" id="dbState" placeholder="State" disabled>
                     </div>
 
                     <div class="info-field">
-                        <label>Qualification</label>
-                        <input type="text" id="userQualification" disabled>
+                        <label>Enrolled Qualification</label>
+                        <input type="text" id="dbQualification" placeholder="Degree / Course" disabled>
                     </div>
 
                     <div class="info-field">
                         <label>College / University</label>
-                        <input type="text" id="userCollege" disabled>
+                        <input type="text" id="dbCollege" placeholder="College Name" disabled>
                     </div>
 
                     <div class="info-field">
-                        <label>Passout Year</label>
-                        <input type="text" id="userPassout" disabled>
+                        <label>Passout Year / Batch</label>
+                        <input type="text" id="dbPassout" placeholder="Year" disabled>
                     </div>
 
                     <div class="info-field">
-                        <label>Verification Status</label>
-                        <div id="userVerificationBadge" style="margin-top:6px;">
-                            <span class="status-badge status-pending">Pending</span>
+                        <label>Membership Status</label>
+                        <div id="dbVerificationBadge" style="margin-top: 4px;">
+                            <span class="status-badge status-verified">
+                                <i class="fa-solid fa-circle-check"></i> Verified Member
+                            </span>
                         </div>
                     </div>
                 </div>
             </div>
+
         </section>
     </main>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            document.getElementById("logoutBtn")?.addEventListener("click", (e) => {
-                e.preventDefault();
-                localStorage.removeItem("currentUser");
-                localStorage.removeItem("intraWorldUser");
-                sessionStorage.clear();
-                window.location.href = "index.html";
+    <!-- FIREBASE AND SETTINGS CONTROLLER SCRIPT -->
+    <script type="module">
+        import { db, auth } from "./firebase-config.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { 
+            doc, 
+            updateDoc, 
+            collection, 
+            query, 
+            where, 
+            getDocs 
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const DEFAULT_AVATAR = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2338bdf8'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-3.8-.85-5.05-2.2.03-1.68 3.37-2.6 5.05-2.6s5.02.92 5.05 2.6C15.8 19.15 14.03 20 12 20z'/></svg>";
+
+        let selectedBase64Photo = null;
+        let activeDocId = null;
+        let activeCollection = "registrations";
+
+        function renderFields(user) {
+            if (!user) return;
+            
+            const name = user.fullName || user.full_name || "Student User";
+            const email = user.email || "";
+            const phone = user.mobileNumber || user.mobile || user.phone || "";
+            const state = user.state || "";
+            const qual = user.qualification || "";
+            const college = user.collegeName || user.collegeOrUniversity || user.college || "";
+            const passout = user.passoutYear || user.passedOutYear || user.passout_year || "";
+            const avatar = user.avatar || user.profilePhotoUrl || DEFAULT_AVATAR;
+
+            document.getElementById("dbFullName").value = name;
+            document.getElementById("dbEmail").value = email;
+            document.getElementById("dbMobile").value = phone;
+            document.getElementById("dbState").value = state;
+            document.getElementById("dbQualification").value = qual;
+            document.getElementById("dbCollege").value = college;
+            document.getElementById("dbPassout").value = passout;
+
+            const preview = document.getElementById("avatarPreview");
+            if (preview && avatar) preview.src = avatar;
+
+            const isVerified = user.isVerified === true || user.isFeeReceiptVerified === true || user.verificationStatus === "verified";
+            const badgeEl = document.getElementById("dbVerificationBadge");
+            if (badgeEl) {
+                badgeEl.innerHTML = 
+                    <span class="status-badge ">
+                        <i class="fa-solid "></i> 
+                    </span>
+                ;
+            }
+        }
+
+        // 1. Synchronous Instant Render from Session
+        try {
+            const rawSession = localStorage.getItem("currentUser") || localStorage.getItem("intraWorldUser");
+            if (rawSession) {
+                const user = JSON.parse(rawSession);
+                renderFields(user);
+            }
+        } catch (e) {
+            console.warn("Local session read note:", e);
+        }
+
+        // 2. Background Firestore Sync
+        async function syncFromFirestore(userEmail) {
+            if (!userEmail || !db) return;
+            try {
+                // Check registrations
+                let q = query(collection(db, "registrations"), where("email", "==", userEmail));
+                let snap = await getDocs(q);
+
+                if (snap.empty) {
+                    q = query(collection(db, "users"), where("email", "==", userEmail));
+                    snap = await getDocs(q);
+                    activeCollection = "users";
+                }
+
+                if (!snap.empty) {
+                    const docSnap = snap.docs[0];
+                    activeDocId = docSnap.id;
+                    const data = docSnap.data();
+
+                    const currentRaw = localStorage.getItem("currentUser") || "{}";
+                    const currentObj = JSON.parse(currentRaw);
+                    const merged = { ...currentObj, ...data, id: activeDocId };
+                    
+                    localStorage.setItem("currentUser", JSON.stringify(merged));
+                    localStorage.setItem("intraWorldUser", JSON.stringify(merged));
+                    renderFields(merged);
+                }
+            } catch (err) {
+                console.warn("Firestore sync note:", err.message);
+            }
+        }
+
+        // Auth state listener for sync (NEVER REDIRECTS)
+        if (auth) {
+            onAuthStateChanged(auth, (user) => {
+                const sessionRaw = localStorage.getItem("currentUser") || localStorage.getItem("intraWorldUser");
+                const email = user?.email || (sessionRaw ? JSON.parse(sessionRaw).email : null);
+                if (email) {
+                    syncFromFirestore(email);
+                }
             });
+        }
+
+        // 3. WhatsApp-Style DP Upload & Compression
+        const fileInput = document.getElementById("dpFileInput");
+        const saveDpBtn = document.getElementById("saveDpBtn");
+        const toastMsg = document.getElementById("dpToastMsg");
+
+        function showToast(msg, isSuccess = true) {
+            if (!toastMsg) return;
+            toastMsg.style.display = "flex";
+            toastMsg.style.background = isSuccess ? "rgba(34, 197, 94, 0.15)" : "rgba(239, 68, 68, 0.15)";
+            toastMsg.style.border = isSuccess ? "1px solid rgba(34, 197, 94, 0.4)" : "1px solid rgba(239, 68, 68, 0.4)";
+            toastMsg.style.color = isSuccess ? "#4ade80" : "#f87171";
+            toastMsg.innerHTML = <i class="fa-solid "></i> <span></span>;
+            
+            setTimeout(() => {
+                toastMsg.style.display = "none";
+            }, 5000);
+        }
+
+        if (fileInput) {
+            fileInput.addEventListener("change", (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement("canvas");
+                        const MAX_SIZE = 400;
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > height) {
+                            if (width > MAX_SIZE) {
+                                height *= MAX_SIZE / width;
+                                width = MAX_SIZE;
+                            }
+                        } else {
+                            if (height > MAX_SIZE) {
+                                width *= MAX_SIZE / height;
+                                height = MAX_SIZE;
+                            }
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext("2d");
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        selectedBase64Photo = canvas.toDataURL("image/jpeg", 0.85);
+
+                        const preview = document.getElementById("avatarPreview");
+                        if (preview) preview.src = selectedBase64Photo;
+
+                        if (saveDpBtn) saveDpBtn.style.display = "inline-flex";
+                    };
+                };
+            });
+        }
+
+        if (saveDpBtn) {
+            saveDpBtn.addEventListener("click", async () => {
+                if (!selectedBase64Photo) return;
+
+                saveDpBtn.disabled = true;
+                saveDpBtn.innerHTML = <i class="fa-solid fa-spinner fa-spin"></i> Saving...;
+
+                try {
+                    let sessionUser = JSON.parse(localStorage.getItem("currentUser") || localStorage.getItem("intraWorldUser") || "{}");
+                    sessionUser.avatar = selectedBase64Photo;
+                    sessionUser.profilePhotoUrl = selectedBase64Photo;
+
+                    localStorage.setItem("currentUser", JSON.stringify(sessionUser));
+                    localStorage.setItem("intraWorldUser", JSON.stringify(sessionUser));
+
+                    // Save to Firestore
+                    if (activeDocId && db) {
+                        await updateDoc(doc(db, activeCollection, activeDocId), {
+                            avatar: selectedBase64Photo,
+                            profilePhotoUrl: selectedBase64Photo
+                        });
+                    } else if (sessionUser.email && db) {
+                        try {
+                            const q = query(collection(db, "registrations"), where("email", "==", sessionUser.email));
+                            const snap = await getDocs(q);
+                            if (!snap.empty) {
+                                await updateDoc(doc(db, "registrations", snap.docs[0].id), {
+                                    avatar: selectedBase64Photo,
+                                    profilePhotoUrl: selectedBase64Photo
+                                });
+                            }
+                        } catch (err) {}
+                    }
+
+                    showToast("Profile picture updated and saved permanently!");
+                    saveDpBtn.style.display = "none";
+                } catch (err) {
+                    console.error("Save avatar error:", err);
+                    showToast("Saved to current session! (" + err.message + ")", true);
+                } finally {
+                    saveDpBtn.disabled = false;
+                    saveDpBtn.innerHTML = <i class="fa-solid fa-circle-check"></i> Save Photo Permanently;
+                }
+            });
+        }
+
+        // 4. Explicit Logout Handler
+        document.getElementById("logoutBtn")?.addEventListener("click", (e) => {
+            e.preventDefault();
+            localStorage.removeItem("currentUser");
+            localStorage.removeItem("intraWorldUser");
+            sessionStorage.clear();
+            window.location.href = "index.html";
         });
     </script>
-
-    <script type="module" src="js/firebase-config.js"></script>
-    <script type="module" src="js/settings.js?v=5.0"></script>
 </body>
 </html>
