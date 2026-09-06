@@ -160,6 +160,11 @@
             box-shadow: 0 4px 15px rgba(0, 102, 255, 0.35);
         }
 
+        #college-search-input:focus {
+            border-color: #0066ff !important;
+            box-shadow: 0 0 15px rgba(0, 102, 255, 0.3) !important;
+        }
+
         .empty-feed { text-align: center; padding: 35px 20px; }
 
         @media (max-width: 768px) {
@@ -191,30 +196,33 @@
     <main class="main">
         <section class="content">
 
-            <!-- Location Detection Bar -->
-            <div class="card location-banner">
-                <div>
-                    <h3><i class="fa-solid fa-location-dot" style="color: #0066ff;"></i> Nearby Campuses</h3>
-                    <p id="location-status-text" class="status-msg">Enable location to discover colleges within 5 km of you.</p>
+            <!-- Search Bar Container -->
+            <div class="card search-banner" style="display: flex; flex-direction: column; gap: 14px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                    <div>
+                        <h3 style="font-size: 1.25rem; font-weight: 600;"><i class="fa-solid fa-graduation-cap" style="color: #0066ff; margin-right: 8px;"></i> College Communities</h3>
+                        <p style="font-size: 13px; color: #8fa8bf; margin-top: 4px;">Search and explore campus feeds, events, elections, and student announcements.</p>
+                    </div>
                 </div>
-                <button id="enable-location-btn" class="btn">
-                    <i class="fa-solid fa-crosshairs"></i> Detect Nearby Colleges
-                </button>
+                
+                <div class="search-box-wrapper" style="position: relative; width: 100%;">
+                    <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #64748b; font-size: 15px;"></i>
+                    <input type="text" id="college-search-input" placeholder="Search college name (e.g. SFGC, BMSIT, Jnana Jyothi, NMIT, RVCE...)" 
+                        style="width: 100%; padding: 12px 42px 12px 45px; background: #0c233c; border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 12px; color: #fff; font-size: 14px; outline: none; transition: all 0.2s;" />
+                    <button id="clear-search-btn" style="display: none; position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #8fa8bf; cursor: pointer; font-size: 16px;">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
             </div>
 
-            <!-- Nearby College Selection Bar -->
-            <div id="colleges-wrapper" class="card" style="display: none;">
-                <div class="pills-title">Colleges within 5 km radius:</div>
+            <!-- Available College Communities Pills Bar -->
+            <div id="colleges-wrapper" class="card">
+                <div class="pills-title" id="pills-header-title">Campus Communities:</div>
                 <div id="college-pills-container" class="pills-container"></div>
             </div>
 
             <!-- Feed Container -->
-            <div id="feed-container">
-                <div class="card empty-feed">
-                    <i class="fa-solid fa-compass fa-2x" style="margin-bottom: 12px; color: #7db7ff; display: block;"></i>
-                    Click <strong>"Detect Nearby Colleges"</strong> to scan for campuses within a 5 km radius of your location.
-                </div>
-            </div>
+            <div id="feed-container"></div>
 
         </section>
     </main>
@@ -233,6 +241,6 @@
     </script>
 
     <script type="module" src="firebase-config.js"></script>
-    <script type="module" src="js/community.js?v=2.5"></script>
+    <script type="module" src="js/community.js?v=3.0"></script>
 </body>
 </html>

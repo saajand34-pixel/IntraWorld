@@ -1,13 +1,10 @@
 import { db } from "../firebase-config.js";
 
 document.addEventListener("DOMContentLoaded", () => {
-    const detectBtn = document.getElementById("enable-location-btn");
-    const statusText = document.getElementById("location-status-text");
-    const noticeBox = document.getElementById("location-notice-box");
-    const noticeTitle = document.getElementById("notice-title");
-    const noticeDesc = document.getElementById("notice-desc");
-    const noticeIcon = document.getElementById("notice-icon");
+    const searchInput = document.getElementById("college-search-input");
+    const clearBtn = document.getElementById("clear-search-btn");
     const collegesWrapper = document.getElementById("colleges-wrapper");
+    const pillsHeaderTitle = document.getElementById("pills-header-title");
     const pillsContainer = document.getElementById("college-pills-container");
     const feedContainer = document.getElementById("feed-container");
 
@@ -15,8 +12,6 @@ document.addEventListener("DOMContentLoaded", () => {
         {
             name: "Seshadripuram First Grade College (SFGC)",
             shortName: "SFGC",
-            lat: 13.1007,
-            lon: 77.5963,
             posts: [
                 {
                     author: "Council Department",
@@ -41,8 +36,6 @@ document.addEventListener("DOMContentLoaded", () => {
         {
             name: "Jnana Jyothi Degree College",
             shortName: "Jnana Jyothi",
-            lat: 13.0980,
-            lon: 77.5920,
             posts: [
                 {
                     author: "Sports Lead",
@@ -65,79 +58,8 @@ document.addEventListener("DOMContentLoaded", () => {
             ]
         },
         {
-            name: "Government First Grade College Yelahanka",
-            shortName: "GFGC Yelahanka",
-            lat: 13.1055,
-            lon: 77.5935,
-            posts: [
-                {
-                    author: "Cultural Committee",
-                    role: "Event Coordinator",
-                    tag: "Fest",
-                    time: "Recently",
-                    title: "🍱 Grand Food Fest 2026 - A Huge Success!",
-                    content: "The annual campus Food Fest was conducted with great enthusiasm and participation! Students showcased incredible homemade delicacies and food stalls, making the event a grand success.",
-                    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRI7VxEYzzznDiWT9WAV5NNz8B8TeA8Wr9kSWBxejiJRQ&s=10"
-                }
-            ]
-        },
-        {
-            name: "Nitte Meenakshi (NMIT)",
-            shortName: "NMIT",
-            lat: 13.1278,
-            lon: 77.5878,
-            posts: [
-                {
-                    author: "Tech Club NMIT",
-                    role: "Event Host",
-                    tag: "Event",
-                    time: "1 day ago",
-                    title: "⚡ HackNMIT 2026 - National Level Hackathon",
-                    content: "Build solutions for real-world cloud & AI problems. Free food, schwag bags, and mentorship for top 15 teams!",
-                    image: "https://images.unsplash.com/photo-1515187029135-18ee286d815b?auto=format&fit=crop&w=800&q=80"
-                },
-                {
-                    author: "NMIT Media Cell",
-                    role: "News",
-                    tag: "News",
-                    time: "3 days ago",
-                    title: "🏆 NMIT Teams Win National Smart India Hackathon",
-                    content: "Congratulations to team CyberKnights for bagging first place in the AI category!",
-                    image: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80"
-                }
-            ]
-        },
-        {
-            name: "BMSIT College",
-            shortName: "BMSIT",
-            lat: 13.1333,
-            lon: 77.5683,
-            posts: [
-                {
-                    author: "Rohan M.",
-                    role: "Cultural Secretary",
-                    tag: "Fest",
-                    time: "2 hours ago",
-                    title: "🎉 Utsav '26 - Annual Cultural Fest Announcement!",
-                    content: "Get ready BMSITians! Registrations for Battle of the Bands, Group Dance, and Fashion Show are now open. Cash prizes worth ₹1.5 Lakhs!",
-                    image: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80"
-                },
-                {
-                    author: "Robotics Club",
-                    role: "Technical Team",
-                    tag: "Event",
-                    time: "6 hours ago",
-                    title: "🚀 Autonomous Drone Building Workshop",
-                    content: "Learn flight controller design and sensor calibration. Open for CSE, ECE, and Mech branches.",
-                    image: "https://images.unsplash.com/photo-1527977966376-1c8408f9f108?auto=format&fit=crop&w=800&q=80"
-                }
-            ]
-        },
-        {
             name: "Bishop Cotton Women's Christian College",
             shortName: "Bishop Cotton",
-            lat: 12.9698,
-            lon: 77.6012,
             posts: [
                 {
                     author: "Student Council",
@@ -162,8 +84,6 @@ document.addEventListener("DOMContentLoaded", () => {
         {
             name: "East West College",
             shortName: "East West",
-            lat: 12.9815,
-            lon: 77.4988,
             posts: [
                 {
                     author: "Tech Forum EWGI",
@@ -186,10 +106,71 @@ document.addEventListener("DOMContentLoaded", () => {
             ]
         },
         {
+            name: "Government First Grade College Yelahanka",
+            shortName: "GFGC Yelahanka",
+            posts: [
+                {
+                    author: "Cultural Committee",
+                    role: "Event Coordinator",
+                    tag: "Fest",
+                    time: "Recently",
+                    title: "🍱 Grand Food Fest 2026 - A Huge Success!",
+                    content: "The annual campus Food Fest was conducted with great enthusiasm and participation! Students showcased incredible homemade delicacies and food stalls, making the event a grand success.",
+                    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRI7VxEYzzznDiWT9WAV5NNz8B8TeA8Wr9kSWBxejiJRQ&s=10"
+                }
+            ]
+        },
+        {
+            name: "BMSIT College",
+            shortName: "BMSIT",
+            posts: [
+                {
+                    author: "Rohan M.",
+                    role: "Cultural Secretary",
+                    tag: "Fest",
+                    time: "2 hours ago",
+                    title: "🎉 Utsav '26 - Annual Cultural Fest Announcement!",
+                    content: "Get ready BMSITians! Registrations for Battle of the Bands, Group Dance, and Fashion Show are now open. Cash prizes worth ₹1.5 Lakhs!",
+                    image: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80"
+                },
+                {
+                    author: "Robotics Club",
+                    role: "Technical Team",
+                    tag: "Event",
+                    time: "6 hours ago",
+                    title: "🚀 Autonomous Drone Building Workshop",
+                    content: "Learn flight controller design and sensor calibration. Open for CSE, ECE, and Mech branches.",
+                    image: "https://images.unsplash.com/photo-1527977966376-1c8408f9f108?auto=format&fit=crop&w=800&q=80"
+                }
+            ]
+        },
+        {
+            name: "Nitte Meenakshi (NMIT)",
+            shortName: "NMIT",
+            posts: [
+                {
+                    author: "Tech Club NMIT",
+                    role: "Event Host",
+                    tag: "Event",
+                    time: "1 day ago",
+                    title: "⚡ HackNMIT 2026 - National Level Hackathon",
+                    content: "Build solutions for real-world cloud & AI problems. Free food, schwag bags, and mentorship for top 15 teams!",
+                    image: "https://images.unsplash.com/photo-1515187029135-18ee286d815b?auto=format&fit=crop&w=800&q=80"
+                },
+                {
+                    author: "NMIT Media Cell",
+                    role: "News",
+                    tag: "News",
+                    time: "3 days ago",
+                    title: "🏆 NMIT Teams Win National Smart India Hackathon",
+                    content: "Congratulations to team CyberKnights for bagging first place in the AI category!",
+                    image: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80"
+                }
+            ]
+        },
+        {
             name: "Nagarjuna College",
             shortName: "Nagarjuna (NCET)",
-            lat: 13.2505,
-            lon: 77.7289,
             posts: [
                 {
                     author: "NCET Cultural Crew",
@@ -213,150 +194,32 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     ];
 
-    // Mathematical Haversine Distance Formula (in Kilometers)
-    function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
-        const R = 6371; // Earth's mean radius in km
-        const dLat = (lat2 - lat1) * Math.PI / 180;
-        const dLon = (lon2 - lon1) * Math.PI / 180;
-        const a =
-            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-            Math.sin(dLon / 2) * Math.sin(dLon / 2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return R * c;
+    function escapeHtml(str) {
+        return String(str)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
     }
 
-    // Distance formatting
-    function formatDistance(distKm) {
-        if (distKm < 0.05) {
-            return "< 50 m";
-        } else if (distKm < 1.0) {
-            return `${Math.round(distKm * 1000)} m`;
-        } else {
-            return `${distKm.toFixed(1)} km`;
-        }
-    }
+    let activeCollege = collegesData[0];
 
-    if (!detectBtn) return;
-
-    // Trigger detection on button click
-    detectBtn.addEventListener("click", () => {
-        requestLocationAndScan();
-    });
-
-    async function requestLocationAndScan() {
-        statusText.innerHTML = `<i class="fa-solid fa-satellite-dish fa-spin" style="color: #38bdf8;"></i> Detecting your current location...`;
-        detectBtn.disabled = true;
-
-        // Strategy 1: Browser Native Geolocation (standard network mode)
-        if ("geolocation" in navigator) {
-            try {
-                const pos = await new Promise((resolve, reject) => {
-                    navigator.geolocation.getCurrentPosition(
-                        resolve,
-                        reject,
-                        { enableHighAccuracy: false, timeout: 6000, maximumAge: 300000 }
-                    );
-                });
-                const userLat = pos.coords.latitude;
-                const userLon = pos.coords.longitude;
-                detectBtn.disabled = false;
-                processNearbyColleges(userLat, userLon);
-                return;
-            } catch (err) {
-                console.warn("Browser GPS unavailable or blocked by OS, trying IP location fallback:", err.message);
-            }
-        }
-
-        // Strategy 2: Fast IP-Based Geolocation Fallback (Works on all Windows PCs / Laptops)
-        try {
-            const ipRes = await fetch("https://freeipapi.com/api/json");
-            if (ipRes.ok) {
-                const data = await ipRes.json();
-                const lat = parseFloat(data.latitude);
-                const lon = parseFloat(data.longitude);
-                if (!isNaN(lat) && !isNaN(lon)) {
-                    detectBtn.disabled = false;
-                    processNearbyColleges(lat, lon);
-                    return;
-                }
-            }
-        } catch (e) {
-            console.warn("IP Geo 1 failed:", e);
-        }
-
-        try {
-            const ipRes2 = await fetch("https://ipapi.co/json/");
-            if (ipRes2.ok) {
-                const data2 = await ipRes2.json();
-                const lat = parseFloat(data2.latitude);
-                const lon = parseFloat(data2.longitude);
-                if (!isNaN(lat) && !isNaN(lon)) {
-                    detectBtn.disabled = false;
-                    processNearbyColleges(lat, lon);
-                    return;
-                }
-            }
-        } catch (e) {
-            console.warn("IP Geo 2 failed:", e);
-        }
-
-        // Strategy 3: If everything was blocked
-        detectBtn.disabled = false;
-        statusText.innerHTML = `⚠️ Unable to retrieve your location. Please ensure location is enabled.`;
-        collegesWrapper.style.display = "none";
-        feedContainer.innerHTML = `
-            <div class="card empty-feed">
-                <i class="fa-solid fa-location-crosshairs fa-2x" style="margin-bottom: 12px; color: #f59e0b; display: block;"></i>
-                Please allow location access to discover colleges within 5 km of you.
-            </div>
-        `;
-    }
-
-    function processNearbyColleges(userLat, userLon) {
-        // Calculate real distance for each college from detected coordinates
-        const collegesWithDistance = collegesData.map(college => {
-            const distance = calculateHaversineDistance(userLat, userLon, college.lat, college.lon);
-            return {
-                ...college,
-                distance: distance,
-                formattedDistance: formatDistance(distance)
-            };
-        });
-
-        // Filter colleges strictly within 5.0 km radius of user's real location
-        const nearbyColleges = collegesWithDistance.filter(college => college.distance <= 5.0);
-
-        // Sort ascending by distance (closest first)
-        nearbyColleges.sort((a, b) => a.distance - b.distance);
-
-        if (nearbyColleges.length > 0) {
-            statusText.innerHTML = `✅ Found <strong>${nearbyColleges.length} colleges</strong> within 5 km of your location.`;
-            renderCollegePills(nearbyColleges);
-        } else {
-            statusText.innerHTML = `📍 No registered colleges found within 5 km of your location.`;
-            collegesWrapper.style.display = "none";
-            feedContainer.innerHTML = `
-                <div class="card empty-feed">
-                    <i class="fa-solid fa-location-dot fa-2x" style="margin-bottom: 12px; color: #7db7ff; display: block;"></i>
-                    No registered campuses found within a <strong>5 km radius</strong> of your detected location.
-                </div>
-            `;
-        }
-    }
-
-    function renderCollegePills(colleges) {
+    function renderCollegePills(colleges, selectedCollege = null) {
         pillsContainer.innerHTML = "";
         collegesWrapper.style.display = "block";
 
-        colleges.forEach((college, index) => {
+        const currentSelection = selectedCollege || colleges[0];
+
+        colleges.forEach((college) => {
             const pill = document.createElement("button");
-            pill.className = `college-pill ${index === 0 ? "active" : ""}`;
-            pill.innerHTML = `<i class="fa-solid fa-building-columns"></i> ${college.name} <span style="background: rgba(0, 102, 255, 0.25); color: #7db7ff; padding: 2px 8px; border-radius: 10px; font-size: 11px; margin-left: 6px; font-weight: 600;">${college.formattedDistance}</span>`;
+            pill.className = `college-pill ${college.name === currentSelection.name ? "active" : ""}`;
+            pill.innerHTML = `<i class="fa-solid fa-building-columns"></i> ${college.name}`;
 
             pill.addEventListener("click", () => {
                 document.querySelectorAll(".college-pill").forEach(p => p.classList.remove("active"));
                 pill.classList.add("active");
+                activeCollege = college;
                 renderPosts(college);
             });
 
@@ -364,7 +227,8 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         if (colleges.length > 0) {
-            renderPosts(colleges[0]);
+            activeCollege = currentSelection;
+            renderPosts(currentSelection);
         }
     }
 
@@ -373,7 +237,7 @@ document.addEventListener("DOMContentLoaded", () => {
             feedContainer.innerHTML = `
                 <div class="card empty-feed">
                     <i class="fa-solid fa-bullhorn fa-2x" style="margin-bottom: 12px; color: #7db7ff; display: block;"></i>
-                    No recent announcements posted for <strong>${college.name}</strong> yet. Check back soon!
+                    No announcements posted for <strong>${escapeHtml(college.name)}</strong> yet.
                 </div>
             `;
             return;
@@ -387,27 +251,27 @@ document.addEventListener("DOMContentLoaded", () => {
                             ${post.author.charAt(0)}
                         </div>
                         <div>
-                            <strong style="color: #fff; font-size: 1.02rem;">${post.author}</strong>
-                            <div style="color: #8fa8bf; font-size: 0.8rem;">${post.role} • <span style="color: #38bdf8;">${college.shortName || college.name}</span></div>
+                            <strong style="color: #fff; font-size: 1.02rem;">${escapeHtml(post.author)}</strong>
+                            <div style="color: #8fa8bf; font-size: 0.8rem;">${escapeHtml(post.role)} • <span style="color: #38bdf8;">${escapeHtml(college.shortName || college.name)}</span></div>
                         </div>
                     </div>
                     <span style="background: rgba(0, 102, 255, 0.2); color: #38bdf8; font-size: 0.75rem; padding: 4px 12px; border-radius: 20px; font-weight: 600; border: 1px solid rgba(56, 189, 248, 0.3);">
-                        #${post.tag}
+                        #${escapeHtml(post.tag)}
                     </span>
                 </div>
 
-                <h4 style="color: #fff; margin: 10px 0 8px 0; font-size: 1.15rem; font-weight: 600;">${post.title}</h4>
-                <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; margin-bottom: 14px;">${post.content}</p>
+                <h4 style="color: #fff; margin: 10px 0 8px 0; font-size: 1.15rem; font-weight: 600;">${escapeHtml(post.title)}</h4>
+                <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; margin-bottom: 14px;">${escapeHtml(post.content)}</p>
                 
                 ${post.image ? `
                 <div style="margin-bottom: 16px; border-radius: 10px; overflow: hidden; max-height: 320px; border: 1px solid rgba(255, 255, 255, 0.08);">
-                    <img src="${post.image}" alt="${post.title}" style="width: 100%; height: 260px; object-fit: cover; display: block;" onerror="this.style.display='none'" />
+                    <img src="${post.image}" alt="${escapeHtml(post.title)}" style="width: 100%; height: 260px; object-fit: cover; display: block;" onerror="this.style.display='none'" />
                 </div>
                 ` : ''}
 
                 <div style="color: #8fa8bf; font-size: 0.82rem; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255, 255, 255, 0.06); padding-top: 12px; margin-top: 6px;">
                     <span style="display: flex; align-items: center; gap: 6px;">
-                        <i class="fa-regular fa-clock"></i> ${post.time}
+                        <i class="fa-regular fa-clock"></i> ${escapeHtml(post.time)}
                     </span>
                     <div style="display: flex; gap: 15px; align-items: center;">
                         <span style="cursor: pointer; color: #38bdf8;"><i class="fa-regular fa-thumbs-up"></i> Helpful</span>
@@ -417,4 +281,82 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
         `).join("");
     }
+
+    function renderEmptyCommunity(searchedName) {
+        collegesWrapper.style.display = "none";
+        feedContainer.innerHTML = `
+            <div class="card" style="text-align: center; padding: 45px 25px; border: 1px dashed rgba(255, 255, 255, 0.18); border-radius: 16px;">
+                <div style="width: 70px; height: 70px; border-radius: 50%; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto; font-size: 28px; color: #ef4444;">
+                    <i class="fa-solid fa-building-circle-exclamation"></i>
+                </div>
+                <h3 style="color: #fff; font-size: 1.35rem; margin-bottom: 8px; font-weight: 600;">Community Not Created Yet</h3>
+                <p style="color: #cbd5e1; font-size: 0.95rem; max-width: 520px; margin: 0 auto 20px auto; line-height: 1.6;">
+                    The community page for "<strong>${escapeHtml(searchedName)}</strong>" has not been created yet on IntraWorld.
+                </p>
+                <button class="btn" id="request-community-btn" style="background: #0066ff;">
+                    <i class="fa-solid fa-plus"></i> Request / Create Community for "${escapeHtml(searchedName)}"
+                </button>
+                <div id="request-success-msg" style="display: none; color: #22c55e; margin-top: 15px; font-size: 14px; font-weight: 500;">
+                    <i class="fa-solid fa-circle-check"></i> Request submitted! Our team will activate the <strong>${escapeHtml(searchedName)}</strong> community hub shortly.
+                </div>
+            </div>
+        `;
+
+        const requestBtn = document.getElementById("request-community-btn");
+        const successMsg = document.getElementById("request-success-msg");
+        if (requestBtn && successMsg) {
+            requestBtn.addEventListener("click", () => {
+                requestBtn.disabled = true;
+                requestBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Submitting...`;
+                setTimeout(() => {
+                    requestBtn.style.display = "none";
+                    successMsg.style.display = "block";
+                }, 400);
+            });
+        }
+    }
+
+    function handleSearch(query) {
+        const trimmed = query.trim().toLowerCase();
+
+        if (!trimmed) {
+            if (clearBtn) clearBtn.style.display = "none";
+            if (pillsHeaderTitle) pillsHeaderTitle.textContent = "Campus Communities:";
+            renderCollegePills(collegesData, activeCollege);
+            return;
+        }
+
+        if (clearBtn) clearBtn.style.display = "block";
+
+        const matches = collegesData.filter(c => 
+            c.name.toLowerCase().includes(trimmed) || 
+            (c.shortName && c.shortName.toLowerCase().includes(trimmed))
+        );
+
+        if (matches.length > 0) {
+            if (pillsHeaderTitle) pillsHeaderTitle.textContent = `Matching Communities (${matches.length}):`;
+            renderCollegePills(matches, matches[0]);
+        } else {
+            renderEmptyCommunity(query.trim());
+        }
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener("input", (e) => {
+            handleSearch(e.target.value);
+        });
+    }
+
+    if (clearBtn) {
+        clearBtn.addEventListener("click", () => {
+            if (searchInput) {
+                searchInput.value = "";
+                searchInput.focus();
+            }
+            handleSearch("");
+        });
+    }
+
+    // Initial render on page load
+    renderCollegePills(collegesData, collegesData[0]);
 });
