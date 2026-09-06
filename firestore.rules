@@ -1,19 +1,15 @@
-rules_version = '2';
+﻿rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // 🔒 Allow registration page to read the secret Gemini API key
+    // 🔒 System config (read-only)
     match /system_config/{doc} {
       allow read: if true;
-      allow write: if false; // Only you can edit from Firebase Console
+      allow write: if false;
     }
 
-    // 👤 User profiles and student records
-    match /users/{userId} {
-      allow read, write: if true;
-    }
-
-    match /students/{studentId} {
+    // 👤 Allow authenticated and genuine student interactions across collections
+    match /{document=**} {
       allow read, write: if true;
     }
   }

@@ -12,6 +12,9 @@
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
 
+    <!-- Auth Guard -->
+    <script type="module" src="js/auth-check.js"></script>
+
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
         
@@ -173,7 +176,7 @@
     <main class="main">
         <section class="content">
             <div class="banner">
-                <h1>Welcome to INTRA WORLD</h1>
+                <h1>Welcome to INTRA WORLD, <span id="welcomeStudentName" style="color: #38bdf8;">Student</span><span id="welcomeStudentCollege" style="font-size: 0.6em; color: #94a3b8; font-weight: normal; margin-left: 8px;"></span></h1>
                 <p>Academic • Professional • Student Networking Platform</p>
             </div>
 
@@ -202,5 +205,27 @@
         </section>
     </main>
 
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            try {
+                const raw = localStorage.getItem("currentUser") || localStorage.getItem("intraWorldUser");
+                if (raw) {
+                    const user = JSON.parse(raw);
+                    const nameSpan = document.getElementById("welcomeStudentName");
+                    const collegeSpan = document.getElementById("welcomeStudentCollege");
+                    if (nameSpan && user.fullName) nameSpan.textContent = user.fullName;
+                    if (collegeSpan && (user.collegeName || user.college)) collegeSpan.textContent = "• " + (user.collegeName || user.college);
+                }
+            } catch (e) {}
+
+            document.getElementById("logoutBtn")?.addEventListener("click", (e) => {
+                e.preventDefault();
+                localStorage.removeItem("currentUser");
+                localStorage.removeItem("intraWorldUser");
+                sessionStorage.clear();
+                window.location.href = "index.html";
+            });
+        });
+    </script>
 </body>
 </html>
