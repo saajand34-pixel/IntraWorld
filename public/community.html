@@ -1,6 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- BULLETPROOF AUTH GUARD & BFCACHE SECURITY -->
+    <script>
+        (function() {
+            function enforceAuth() {
+                try {
+                    var raw = localStorage.getItem("currentUser") || localStorage.getItem("intraWorldUser");
+                    if (!raw) {
+                        document.documentElement.style.display = "none";
+                        window.location.replace("index.html");
+                        return false;
+                    }
+                    var u = JSON.parse(raw);
+                    if (!u || !u.email) {
+                        localStorage.clear();
+                        sessionStorage.clear();
+                        document.documentElement.style.display = "none";
+                        window.location.replace("index.html");
+                        return false;
+                    }
+                    return true;
+                } catch(e) {
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    document.documentElement.style.display = "none";
+                    window.location.replace("index.html");
+                    return false;
+                }
+            }
+            if (!enforceAuth()) {
+                if (document.documentElement) document.documentElement.style.display = "none";
+            }
+            window.addEventListener("pageshow", function(event) {
+                enforceAuth();
+            });
+        })();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>College Community - Intra World</title>
@@ -187,7 +223,7 @@
                 <a href="community.html"><i class="fa-solid fa-location-dot"></i><span>Community</span></a>
                 <a href="messages.html"><i class="fa-solid fa-comments"></i><span>Messages</span></a>
                 <a href="settings.html"><i class="fa-solid fa-gear"></i><span>Settings</span></a>
-                <a class="logout" id="logoutBtn" href="index.html"><i class="fa-solid fa-right-from-bracket"></i><span>Logout</span></a>
+                <a class="logout" id="logoutBtn" href="javascript:void(0);"><i class="fa-solid fa-right-from-bracket"></i><span>Logout</span></a>
             </nav>
         </header>
     </div>
@@ -240,7 +276,11 @@
         });
     </script>
 
-    <script type="module" src="firebase-config.js"></script>
-    <script type="module" src="js/community.js?v=3.2"></script>
+    
+    
+
+    <script type="module" src="js/firebase-config.js"></script>
+    <script type="module" src="js/auth-check.js"></script>
+    <script type="module" src="js/community.js?v=3.3"></script>
 </body>
 </html>

@@ -1,6 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- BULLETPROOF AUTH GUARD & BFCACHE SECURITY -->
+    <script>
+        (function() {
+            function enforceAuth() {
+                try {
+                    var raw = localStorage.getItem("currentUser") || localStorage.getItem("intraWorldUser");
+                    if (!raw) {
+                        document.documentElement.style.display = "none";
+                        window.location.replace("index.html");
+                        return false;
+                    }
+                    var u = JSON.parse(raw);
+                    if (!u || !u.email) {
+                        localStorage.clear();
+                        sessionStorage.clear();
+                        document.documentElement.style.display = "none";
+                        window.location.replace("index.html");
+                        return false;
+                    }
+                    return true;
+                } catch(e) {
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    document.documentElement.style.display = "none";
+                    window.location.replace("index.html");
+                    return false;
+                }
+            }
+            if (!enforceAuth()) {
+                if (document.documentElement) document.documentElement.style.display = "none";
+            }
+            window.addEventListener("pageshow", function(event) {
+                enforceAuth();
+            });
+        })();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -422,7 +458,11 @@
         </div>
     </div>
 
+    
+    
+
     <script type="module" src="js/firebase-config.js"></script>
-    <script type="module" src="js/settings.js?v=7.0"></script>
+    <script type="module" src="js/auth-check.js"></script>
+    <script type="module" src="js/settings.js?v=8.0"></script>
 </body>
 </html>

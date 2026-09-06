@@ -13,8 +13,7 @@ let userConnections = new Set();
 // Check localStorage FIRST - this is our source of truth
 const localUser = localStorage.getItem("currentUser");
 if (!localUser) {
-    alert("Please log in first.");
-    window.location.href = "login.html";
+    window.location.replace("index.html");
 } else {
     // If localStorage has user, proceed - Firebase will sync in background
     const storedUserData = JSON.parse(localUser);

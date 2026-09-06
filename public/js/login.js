@@ -94,7 +94,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 showAlert("Admin verified! Redirecting to dashboard...", "success");
                 setTimeout(() => {
-                    window.location.href = "admin.html";
+                    window.location.replace("admin.html");
                 }, 350);
                 return;
             }
@@ -202,7 +202,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 setTimeout(() => {
-                    window.location.href = "dashboard.html";
+                    window.location.replace("dashboard.html");
                 }, 400);
                 return;
             }
@@ -221,7 +221,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 showAlert("🎉 Login verified! Opening Dashboard...", "success");
                 setTimeout(() => {
-                    window.location.href = "dashboard.html";
+                    window.location.replace("dashboard.html");
                 }, 400);
                 return;
             }

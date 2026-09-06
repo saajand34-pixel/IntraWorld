@@ -1,6 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- BULLETPROOF ADMIN AUTH GUARD & BFCACHE SECURITY -->
+    <script>
+        (function() {
+            function enforceAdminAuth() {
+                try {
+                    var raw = localStorage.getItem("currentUser") || localStorage.getItem("intraWorldUser");
+                    if (!raw) {
+                        document.documentElement.style.display = "none";
+                        window.location.replace("login.html");
+                        return false;
+                    }
+                    var u = JSON.parse(raw);
+                    if (!u || (u.role !== "admin" && u.email !== "admin@intraworld.com")) {
+                        document.documentElement.style.display = "none";
+                        window.location.replace("index.html");
+                        return false;
+                    }
+                    return true;
+                } catch(e) {
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    document.documentElement.style.display = "none";
+                    window.location.replace("index.html");
+                    return false;
+                }
+            }
+            if (!enforceAdminAuth()) {
+                if (document.documentElement) document.documentElement.style.display = "none";
+            }
+            window.addEventListener("pageshow", function(event) {
+                enforceAdminAuth();
+            });
+        })();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IntraWorld Admin Dashboard</title>
@@ -172,7 +206,7 @@
 
     <header>
         <h1>IntraWorld Admin Dashboard</h1>
-        <button id="logoutBtn">Logout</button>
+        <button id="logoutBtn" onclick="if(window.secureLogout)window.secureLogout(event);else{localStorage.clear();sessionStorage.clear();window.location.replace('index.html');}">Logout</button>
     </header>
 
     <div class="container">
@@ -222,11 +256,13 @@
         </div>
     </div>
 
-    <script type="module" src="admin.js"></script>
+    
     <script>
-        document.getElementById('logoutBtn').addEventListener('click', function() {
-            window.location.href = 'index.html';
-        });
+        
     </script>
+
+    <script type="module" src="js/firebase-config.js"></script>
+    <script type="module" src="js/auth-check.js"></script>
+    <script type="module" src="js/admin.js"></script>
 </body>
 </html>

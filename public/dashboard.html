@@ -2,6 +2,42 @@
 <html lang="en">
 
 <head>
+    <!-- BULLETPROOF AUTH GUARD & BFCACHE SECURITY -->
+    <script>
+        (function() {
+            function enforceAuth() {
+                try {
+                    var raw = localStorage.getItem("currentUser") || localStorage.getItem("intraWorldUser");
+                    if (!raw) {
+                        document.documentElement.style.display = "none";
+                        window.location.replace("index.html");
+                        return false;
+                    }
+                    var u = JSON.parse(raw);
+                    if (!u || !u.email) {
+                        localStorage.clear();
+                        sessionStorage.clear();
+                        document.documentElement.style.display = "none";
+                        window.location.replace("index.html");
+                        return false;
+                    }
+                    return true;
+                } catch(e) {
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    document.documentElement.style.display = "none";
+                    window.location.replace("index.html");
+                    return false;
+                }
+            }
+            if (!enforceAuth()) {
+                if (document.documentElement) document.documentElement.style.display = "none";
+            }
+            window.addEventListener("pageshow", function(event) {
+                enforceAuth();
+            });
+        })();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -164,7 +200,7 @@
         <i class="fa-solid fa-gear"></i>
         <span>Settings</span>
     </a>
-    <a class="logout" id="logoutBtn" href="index.html">
+    <a class="logout" id="logoutBtn" href="javascript:void(0);">
         <i class="fa-solid fa-right-from-bracket"></i>
         <span>Logout</span>
     </a>
@@ -218,14 +254,11 @@
                 }
             } catch (e) {}
 
-            document.getElementById("logoutBtn")?.addEventListener("click", (e) => {
-                e.preventDefault();
-                localStorage.removeItem("currentUser");
-                localStorage.removeItem("intraWorldUser");
-                sessionStorage.clear();
-                window.location.href = "index.html";
-            });
+            
         });
     </script>
+
+    <script type="module" src="js/firebase-config.js"></script>
+    <script type="module" src="js/auth-check.js"></script>
 </body>
 </html>

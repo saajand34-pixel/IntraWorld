@@ -307,26 +307,27 @@ function setupAccountDeactivation() {
                 sessionStorage.clear();
 
                 alert("✅ Your account and registration records have been permanently removed from IntraWorld.");
-                window.location.href = "index.html";
+                window.location.replace("index.html");
 
             } catch (error) {
                 console.error("Account deactivation error:", error);
                 alert("Account removal error: " + (error.message || "Failed to delete completely. Session cleared."));
                 localStorage.clear();
                 sessionStorage.clear();
-                window.location.href = "index.html";
+                window.location.replace("index.html");
             }
         });
     }
 
     // Explicit Logout Handler
+    
     document.getElementById("logoutBtn")?.addEventListener("click", (e) => {
         e.preventDefault();
-        localStorage.removeItem("currentUser");
-        localStorage.removeItem("intraWorldUser");
+        localStorage.clear();
         sessionStorage.clear();
-        window.location.href = "index.html";
+        window.location.replace("index.html");
     });
+
 }
 
 // Initialize on DOM Ready
