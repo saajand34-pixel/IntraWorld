@@ -51,14 +51,27 @@ let currentUser = null;
 let selectedFile = null;
 let selectedFileType = null; // 'image' or 'doc'
 
-// Auth Check
+// Check localStorage first
+try {
+    const rawLocalUser = localStorage.getItem("currentUser") || localStorage.getItem("intraWorldUser");
+    if (rawLocalUser) {
+        const parsed = JSON.parse(rawLocalUser);
+        currentUser = {
+            uid: parsed.id || parsed.uid || parsed.email,
+            email: parsed.email,
+            displayName: parsed.fullName || parsed.full_name
+        };
+        if (myAvatar) myAvatar.textContent = (parsed.email || "U").charAt(0).toUpperCase();
+        loadPosts();
+    }
+} catch (e) {}
+
+// Auth listener sync
 onAuthStateChanged(auth, (user) => {
     if (user) {
         currentUser = user;
         if (myAvatar) myAvatar.textContent = (user.email || "U").charAt(0).toUpperCase();
         loadPosts();
-    } else {
-        window.location.href = "index.html";
     }
 });
 
