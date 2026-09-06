@@ -621,6 +621,114 @@ function calculateTrustScore() {
   return finalScore;
 }
 
+
+// =============================================================
+// UNIQUE FIELD VALIDATORS (GMAIL, MOBILE NUMBER, REG ID)
+// =============================================================
+
+async function isEmailAlreadyRegistered(email) {
+  if (!db || !email) return false;
+  const cleanEmail = email.trim().toLowerCase();
+
+  try {
+    // 1. Direct doc lookup in users collection
+    const userDoc = await db.collection("users").doc(cleanEmail).get();
+    if (userDoc.exists) return true;
+
+    // 2. Query registrations collection
+    const regSnap = await db.collection("registrations").where("email", "==", cleanEmail).limit(1).get();
+    if (!regSnap.empty) return true;
+
+    // 3. Query students collection
+    const studSnap = await db.collection("students").where("email", "==", cleanEmail).limit(1).get();
+    if (!studSnap.empty) return true;
+
+    // 4. In-memory check against registrations for safety
+    const allRegs = await db.collection("registrations").get();
+    for (const doc of allRegs.docs) {
+      const d = doc.data();
+      if ((d.email || "").trim().toLowerCase() === cleanEmail) {
+        return true;
+      }
+    }
+  } catch (err) {
+    console.warn("Email uniqueness check note:", err.message);
+  }
+  return false;
+}
+
+async function isPhoneAlreadyRegistered(phone) {
+  if (!db || !phone) return false;
+  const rawClean = phone.replace(/\D/g, '');
+  if (rawClean.length < 8) return false;
+
+  const last10 = rawClean.slice(-10);
+
+  const variants = [
+    phone.trim(),
+    phone.replace(/\s+/g, ''),
+    rawClean,
+    `+${rawClean}`,
+    last10,
+    `+91${last10}`,
+    `+91 ${last10}`
+  ];
+
+  try {
+    for (const col of ["registrations", "users", "students"]) {
+      for (const variant of variants) {
+        if (!variant) continue;
+        const snap1 = await db.collection(col).where("phone", "==", variant).limit(1).get();
+        if (!snap1.empty) return true;
+        const snap2 = await db.collection(col).where("mobile", "==", variant).limit(1).get();
+        if (!snap2.empty) return true;
+      }
+    }
+
+    const allRegs = await db.collection("registrations").get();
+    for (const doc of allRegs.docs) {
+      const d = doc.data();
+      const existingRaw = (d.phone || d.mobile || "").replace(/\D/g, '');
+      if (existingRaw && existingRaw.length >= 8) {
+        if (existingRaw === rawClean || (last10.length === 10 && existingRaw.endsWith(last10))) {
+          return true;
+        }
+      }
+    }
+  } catch (err) {
+    console.warn("Phone uniqueness check note:", err.message);
+  }
+  return false;
+}
+
+async function isRegIdAlreadyRegistered(regId) {
+  if (!db || !regId) return false;
+  const target = regId.trim().toUpperCase();
+
+  try {
+    for (const col of ["registrations", "students", "users"]) {
+      for (const field of ["studentRegId", "regId", "regid", "registerNo", "regNumber"]) {
+        const snapUpper = await db.collection(col).where(field, "==", target).limit(1).get();
+        if (!snapUpper.empty) return true;
+        const snapLower = await db.collection(col).where(field, "==", target.toLowerCase()).limit(1).get();
+        if (!snapLower.empty) return true;
+      }
+    }
+
+    const allRegs = await db.collection("registrations").get();
+    for (const doc of allRegs.docs) {
+      const d = doc.data();
+      const existing = (d.studentRegId || d.regId || d.regid || d.registerNo || d.regNumber || "").trim().toUpperCase();
+      if (existing && existing === target) {
+        return true;
+      }
+    }
+  } catch (err) {
+    console.warn("Reg ID uniqueness check note:", err.message);
+  }
+  return false;
+}
+
 // ==========================================
 // 6. GMAIL OTP DISPATCH
 // ==========================================
@@ -643,9 +751,22 @@ async function sendGmailOtp() {
   currentEmailOtp = Math.floor(100000 + Math.random() * 900000).toString();
 
   btn.disabled = true;
+  btn.innerText = 'Checking...';
+  statusEl.innerText = 'Verifying Gmail uniqueness...';
+  statusEl.className = 'status-msg info';
+
+  const emailTaken = await isEmailAlreadyRegistered(email);
+  if (emailTaken) {
+    btn.disabled = false;
+    btn.innerText = 'Send OTP';
+    statusEl.innerText = `❌ The Gmail address "${email}" is already registered.`;
+    statusEl.className = 'status-msg error';
+    showAlert(`❌ Duplicate Email: The Gmail address '${email}' is already registered in IntraWorld. Please sign in or use another email.`);
+    return;
+  }
+
   btn.innerText = 'Sending...';
   statusEl.innerText = 'Dispatching secure OTP to your Gmail...';
-  statusEl.className = 'status-msg info';
 
   try {
     await fetch('https://api.web3forms.com/submit', {
@@ -733,9 +854,22 @@ async function sendSmsOtp() {
   currentSmsOtp = Math.floor(100000 + Math.random() * 900000).toString();
 
   btn.disabled = true;
+  btn.innerText = 'Checking...';
+  statusEl.innerText = 'Verifying mobile number uniqueness...';
+  statusEl.className = 'status-msg info';
+
+  const phoneTaken = await isPhoneAlreadyRegistered(phone);
+  if (phoneTaken) {
+    btn.disabled = false;
+    btn.innerText = 'Send SMS';
+    statusEl.innerText = `❌ The mobile number "${phone}" is already registered.`;
+    statusEl.className = 'status-msg error';
+    showAlert(`❌ Duplicate Mobile Number: The mobile number '${phone}' is already registered in IntraWorld. Each student must register with a unique mobile number.`);
+    return;
+  }
+
   btn.innerText = 'Sending SMS...';
   statusEl.innerText = 'Dispatching SMS OTP via 2Factor Gateway...';
-  statusEl.className = 'status-msg info';
 
   try {
     const res = await fetch(`https://2factor.in/API/V1/${TWOFACTOR_API_KEY}/SMS/${cleanPhone}/AUTOGEN/STUDENT_VERIFY`);
@@ -926,6 +1060,38 @@ async function handleRegistrationSubmit(event) {
   const trustScore = calculateTrustScore();
   const submitBtn = document.getElementById('submitBtn');
   submitBtn.disabled = true;
+  submitBtn.innerText = 'Verifying unique student credentials...';
+
+  // 1. Verify Unique Gmail Address
+  const isEmailTaken = await isEmailAlreadyRegistered(email);
+  if (isEmailTaken) {
+    showAlert(`❌ Duplicate Email: The Gmail address '${email}' is already registered in IntraWorld. Please sign in or use another email.`);
+    submitBtn.disabled = false;
+    submitBtn.innerText = '🛡️ Create Account & Verify Student Status';
+    document.getElementById('gmailAddress').focus();
+    return;
+  }
+
+  // 2. Verify Unique Mobile Number
+  const isPhoneTaken = await isPhoneAlreadyRegistered(phone);
+  if (isPhoneTaken) {
+    showAlert(`❌ Duplicate Mobile Number: '${phone}' is already registered in IntraWorld. Each student must register with a unique mobile number.`);
+    submitBtn.disabled = false;
+    submitBtn.innerText = '🛡️ Create Account & Verify Student Status';
+    document.getElementById('mobileNumber').focus();
+    return;
+  }
+
+  // 3. Verify Unique Student Roll No / Reg ID
+  const isRegIdTaken = await isRegIdAlreadyRegistered(studentRegId);
+  if (isRegIdTaken) {
+    showAlert(`❌ Duplicate Registration ID: Student Roll No / Reg ID '${studentRegId}' is already registered in IntraWorld. Each student must have a unique Registration ID.`);
+    submitBtn.disabled = false;
+    submitBtn.innerText = '🛡️ Create Account & Verify Student Status';
+    document.getElementById('studentRegId').focus();
+    return;
+  }
+
   submitBtn.innerText = 'Saving Verified Profile to Firestore...';
 
   const studentRecord = {
@@ -1008,4 +1174,30 @@ function renderSuccessScreen(fullName, collegeName, qualification, specializatio
 
 window.addEventListener('DOMContentLoaded', () => {
   calculateTrustScore();
+
+  const regIdInput = document.getElementById('studentRegId');
+  const regIdStatus = document.getElementById('regIdStatusMsg');
+
+  regIdInput?.addEventListener('blur', async () => {
+    const val = regIdInput.value.trim();
+    if (val.length >= 2) {
+      if (regIdStatus) {
+        regIdStatus.innerText = 'Verifying Reg ID uniqueness...';
+        regIdStatus.className = 'status-msg info';
+      }
+      const taken = await isRegIdAlreadyRegistered(val);
+      if (taken) {
+        if (regIdStatus) {
+          regIdStatus.innerText = `❌ Roll No / Reg ID "${val}" is already registered by another student.`;
+          regIdStatus.className = 'status-msg error';
+        }
+        showAlert(`❌ Duplicate Registration ID: Student Roll No / Reg ID '${val}' is already registered.`);
+      } else {
+        if (regIdStatus) {
+          regIdStatus.innerText = `✅ Roll No / Reg ID "${val}" is available.`;
+          regIdStatus.className = 'status-msg success';
+        }
+      }
+    }
+  });
 });
