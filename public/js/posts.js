@@ -11,7 +11,19 @@ window.addEventListener("unhandledrejection", (e) => {
 });
 
 import { db, auth } from "../firebase-config.js";
-import { collection, addDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { 
+    collection, 
+    addDoc, 
+    getDocs, 
+    query, 
+    orderBy, 
+    deleteDoc, 
+    doc, 
+    updateDoc, 
+    arrayUnion, 
+    arrayRemove, 
+    serverTimestamp 
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 const SIGHTENGINE_API_USER = "1295656117";
@@ -551,7 +563,166 @@ if (publishPostBtn) {
 }
 
 // ==========================================
-// LOAD FEED WITH RIGHT-END AI BADGES
+// SHARE MODAL MANAGEMENT
+// ==========================================
+let activeShareContext = null;
+let cachedPeers = null;
+
+const shareModal = document.getElementById("shareModal");
+const closeShareModalBtn = document.getElementById("closeShareModalBtn");
+const sharePreviewText = document.getElementById("sharePreviewText");
+const sharePeerList = document.getElementById("sharePeerList");
+const copyPostLinkBtn = document.getElementById("copyPostLinkBtn");
+
+if (closeShareModalBtn && shareModal) {
+    closeShareModalBtn.addEventListener("click", () => {
+        shareModal.style.display = "none";
+        activeShareContext = null;
+    });
+    shareModal.addEventListener("click", (e) => {
+        if (e.target === shareModal) {
+            shareModal.style.display = "none";
+            activeShareContext = null;
+        }
+    });
+}
+
+if (copyPostLinkBtn) {
+    copyPostLinkBtn.addEventListener("click", async () => {
+        if (!activeShareContext) return;
+        const textToCopy = `IntraWorld Post by ${activeShareContext.authorName}:\n"${activeShareContext.content || 'Academic Document/Image'}"`;
+        try {
+            await navigator.clipboard.writeText(textToCopy);
+            const originalHTML = copyPostLinkBtn.innerHTML;
+            copyPostLinkBtn.innerHTML = `<i class="fa-solid fa-check" style="color: #4ade80;"></i> Copied to Clipboard!`;
+            setTimeout(() => {
+                copyPostLinkBtn.innerHTML = originalHTML;
+            }, 2000);
+        } catch (e) {
+            alert("Copied post snippet:\n\n" + textToCopy);
+        }
+    });
+}
+
+async function fetchPeersForShare() {
+    if (cachedPeers) return cachedPeers;
+    const peers = [];
+    const myEmail = (currentUser?.email || "").toLowerCase();
+
+    try {
+        let snap = await getDocs(collection(db, "registrations"));
+        if (snap.empty) snap = await getDocs(collection(db, "users"));
+
+        snap.forEach((docSnap) => {
+            const data = docSnap.data();
+            const email = (data.email || "").toLowerCase();
+            if (email && email !== myEmail) {
+                peers.push({
+                    id: docSnap.id,
+                    name: data.fullName || data.full_name || data.name || email.split("@")[0],
+                    email: email,
+                    regId: data.studentRegId || data.regId || data.regid || ""
+                });
+            }
+        });
+        cachedPeers = peers;
+    } catch (err) {
+        console.error("Error fetching classmates for share:", err);
+    }
+    return peers;
+}
+
+async function openShareModal(postId, authorName, content) {
+    if (!shareModal) return;
+    activeShareContext = { postId, authorName, content };
+
+    if (sharePreviewText) {
+        const snippet = content && content.trim() ? content.trim() : "Academic project/media post";
+        sharePreviewText.innerHTML = `<strong>${escapeHtml(authorName)}:</strong> "${escapeHtml(snippet.length > 120 ? snippet.substring(0, 120) + "..." : snippet)}"`;
+    }
+
+    if (sharePeerList) {
+        sharePeerList.innerHTML = `<div style="text-align: center; color: #7db7ff; padding: 20px;"><i class="fa-solid fa-spinner fa-spin"></i> Loading classmates...</div>`;
+    }
+
+    shareModal.style.display = "flex";
+
+    const peers = await fetchPeersForShare();
+
+    if (!sharePeerList) return;
+
+    if (!peers || peers.length === 0) {
+        sharePeerList.innerHTML = `<div style="text-align: center; color: #94a3b8; font-size: 13px; padding: 20px;">No other classmates registered yet.</div>`;
+        return;
+    }
+
+    sharePeerList.innerHTML = "";
+    peers.forEach((peer) => {
+        const item = document.createElement("div");
+        item.className = "share-peer-item";
+        item.innerHTML = `
+            <div class="share-peer-info">
+                <div class="share-peer-avatar">${escapeHtml(peer.name.charAt(0).toUpperCase())}</div>
+                <div class="share-peer-text">
+                    <h5>${escapeHtml(peer.name)}</h5>
+                    <p>${peer.regId ? `Reg ID: ${escapeHtml(peer.regId)}` : escapeHtml(peer.email)}</p>
+                </div>
+            </div>
+            <button class="share-send-btn" data-peer-email="${escapeHtml(peer.email)}" data-peer-name="${escapeHtml(peer.name)}">
+                <i class="fa-solid fa-paper-plane"></i> Send
+            </button>
+        `;
+
+        const sendBtn = item.querySelector(".share-send-btn");
+        sendBtn.addEventListener("click", async () => {
+            if (!currentUser || !currentUser.email) {
+                alert("Please log in to send.");
+                return;
+            }
+            sendBtn.disabled = true;
+            sendBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Sending...`;
+
+            try {
+                const myEmail = currentUser.email.toLowerCase();
+                const peerEmail = peer.email.toLowerCase();
+                const chatId = [myEmail, peerEmail].sort().join("___");
+
+                const snippet = activeShareContext.content && activeShareContext.content.trim() 
+                    ? activeShareContext.content.trim() 
+                    : "Academic document/image attachment";
+
+                const shareText = `📢 Shared an Academic Post from ${activeShareContext.authorName}:\n\n"${snippet}"\n\n🔗 View in Posts Feed`;
+
+                await addDoc(collection(db, "chats", chatId, "messages"), {
+                    senderEmail: myEmail,
+                    receiverEmail: peerEmail,
+                    senderName: currentUser.displayName || myEmail.split("@")[0],
+                    text: shareText,
+                    timestamp: serverTimestamp(),
+                    timeStr: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    status: "sent",
+                    viewed: false,
+                    deletedFor: [],
+                    deletedForEveryone: false,
+                    replyTo: null
+                });
+
+                sendBtn.classList.add("sent");
+                sendBtn.innerHTML = `<i class="fa-solid fa-check"></i> Sent`;
+            } catch (err) {
+                console.error("Failed to share post via chat:", err);
+                sendBtn.disabled = false;
+                sendBtn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Retry`;
+                alert("Failed to send: " + err.message);
+            }
+        });
+
+        sharePeerList.appendChild(item);
+    });
+}
+
+// ==========================================
+// LOAD FEED WITH LIKES, COMMENTS, DELETE & SHARE
 // ==========================================
 async function loadPosts() {
     if (!postsFeed) return;
@@ -568,57 +739,274 @@ async function loadPosts() {
         postsFeed.innerHTML = "";
 
         snapshot.forEach((docSnap) => {
+            const postId = docSnap.id;
             const post = docSnap.data();
             const initial = (post.authorEmail || "U").charAt(0).toUpperCase();
             const authorName = (post.authorEmail || "student").split("@")[0];
             const aiScore = typeof post.aiPercentage === "number" ? post.aiPercentage : 0;
 
-            const postHTML = `
-                <div class="post-card">
-                    <div class="post-header-row">
-                        <div class="post-author">
-                            <div class="user-avatar">${initial}</div>
-                            <div class="author-info">
-                                <h4>${escapeHtml(authorName)}</h4>
-                                <p>${new Date(post.createdAt).toLocaleString()}</p>
-                            </div>
+            const myEmail = (currentUser?.email || "").toLowerCase();
+            const isAuthor = currentUser && (
+                (post.authorEmail && post.authorEmail.toLowerCase() === myEmail) ||
+                (post.uid && post.uid === currentUser.uid)
+            );
+
+            // Likes Array
+            const likesList = Array.isArray(post.likes) ? post.likes : [];
+            const isLiked = myEmail && likesList.some(e => (e || "").toLowerCase() === myEmail);
+            const likeCount = likesList.length;
+
+            // Comments Array
+            const commentsList = Array.isArray(post.comments) ? post.comments : [];
+            const commentCount = commentsList.length;
+
+            const postCard = document.createElement("div");
+            postCard.className = "post-card";
+            postCard.id = `post-${postId}`;
+
+            postCard.innerHTML = `
+                <div class="post-header-row">
+                    <div class="post-author">
+                        <div class="user-avatar">${initial}</div>
+                        <div class="author-info">
+                            <h4>${escapeHtml(authorName)}</h4>
+                            <p>${new Date(post.createdAt).toLocaleString()}</p>
                         </div>
-                        ${renderAiPercentageBadge(aiScore, post.aiReasoning)}
                     </div>
+                    <div class="post-header-actions">
+                        ${renderAiPercentageBadge(aiScore, post.aiReasoning)}
+                        ${isAuthor ? `
+                            <button class="btn-delete-post" data-post-id="${postId}" title="Delete Post completely from database">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        ` : ""}
+                    </div>
+                </div>
 
-                    <div class="post-content">${escapeHtml(post.content || "")}</div>
+                <div class="post-content">${escapeHtml(post.content || "")}</div>
 
-                    ${post.mediaUrl ? `<img src="${post.mediaUrl}" class="post-media" alt="Post media">` : ""}
+                ${post.mediaUrl ? `<img src="${post.mediaUrl}" class="post-media" alt="Post media">` : ""}
 
-                    ${post.docUrl ? `
-                        <a href="${post.docUrl}" target="_blank" download="${escapeHtml(post.docName || "document.pdf")}" class="pdf-card">
-                            <i class="fa-solid fa-file-pdf fa-2x"></i>
-                            <div>
-                                <strong>Attachment Document:</strong>
-                                <div>${escapeHtml(post.docName || "Download File")}</div>
+                ${post.docUrl ? `
+                    <a href="${post.docUrl}" target="_blank" download="${escapeHtml(post.docName || "document.pdf")}" class="pdf-card">
+                        <i class="fa-solid fa-file-pdf fa-2x"></i>
+                        <div>
+                            <strong>Attachment Document:</strong>
+                            <div>${escapeHtml(post.docName || "Download File")}</div>
+                        </div>
+                    </a>
+                ` : ""}
+
+                ${post.githubUrl ? `
+                    <a href="${escapeHtml(post.githubUrl)}" target="_blank" class="github-card">
+                        <i class="fa-brands fa-github fa-2x"></i>
+                        <div>
+                            <strong>GitHub Repository Project:</strong>
+                            <div>${escapeHtml(post.githubUrl)}</div>
+                        </div>
+                    </a>
+                ` : ""}
+
+                <div class="post-footer">
+                    <button class="interaction-btn like-btn ${isLiked ? "liked" : ""}" data-post-id="${postId}" data-liked="${isLiked ? "true" : "false"}">
+                        <i class="${isLiked ? "fa-solid" : "fa-regular"} fa-heart"></i>
+                        <span class="like-label">${likeCount > 0 ? `${likeCount} ${likeCount === 1 ? "Like" : "Likes"}` : "Like"}</span>
+                    </button>
+                    <button class="interaction-btn comment-toggle-btn" data-post-id="${postId}">
+                        <i class="fa-regular fa-comment"></i>
+                        <span class="comment-label">${commentCount > 0 ? `${commentCount} ${commentCount === 1 ? "Comment" : "Comments"}` : "Comment"}</span>
+                    </button>
+                    <button class="interaction-btn share-open-btn" data-post-id="${postId}">
+                        <i class="fa-solid fa-share"></i> Share
+                    </button>
+                </div>
+
+                <!-- Instagram-style expandable comments drawer -->
+                <div class="comments-drawer" id="comments-drawer-${postId}" style="display: none;">
+                    <div class="comments-list" id="comments-list-${postId}">
+                        ${commentsList.length === 0 ? `<div class="no-comments-msg" style="color: #64748b; font-size: 12px; padding: 4px 0;">No comments yet. Start the conversation!</div>` : ""}
+                        ${commentsList.map(c => `
+                            <div class="comment-item">
+                                <div class="comment-avatar">${escapeHtml((c.authorName || c.authorEmail || "U").charAt(0).toUpperCase())}</div>
+                                <div class="comment-body">
+                                    <div class="comment-header-row">
+                                        <span class="comment-author">${escapeHtml(c.authorName || (c.authorEmail || "").split("@")[0] || "Student")}</span>
+                                        <span class="comment-time">${c.createdAt ? new Date(c.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ""}</span>
+                                    </div>
+                                    <div class="comment-text">${escapeHtml(c.text || "")}</div>
+                                </div>
                             </div>
-                        </a>
-                    ` : ""}
-
-                    ${post.githubUrl ? `
-                        <a href="${escapeHtml(post.githubUrl)}" target="_blank" class="github-card">
-                            <i class="fa-brands fa-github fa-2x"></i>
-                            <div>
-                                <strong>GitHub Repository Project:</strong>
-                                <div>${escapeHtml(post.githubUrl)}</div>
-                            </div>
-                        </a>
-                    ` : ""}
-
-                    <div class="post-footer">
-                        <button class="interaction-btn"><i class="fa-regular fa-thumbs-up"></i> Like</button>
-                        <button class="interaction-btn"><i class="fa-regular fa-comment"></i> Comment</button>
-                        <button class="interaction-btn"><i class="fa-solid fa-share"></i> Share</button>
+                        `).join("")}
+                    </div>
+                    <div class="comment-input-row">
+                        <input type="text" class="comment-input" id="comment-input-${postId}" placeholder="Write a comment..." />
+                        <button class="comment-submit-btn" id="comment-submit-${postId}" title="Post comment">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
                     </div>
                 </div>
             `;
 
-            postsFeed.innerHTML += postHTML;
+            // 1. Setup Delete Button Handler
+            const deleteBtn = postCard.querySelector(".btn-delete-post");
+            if (deleteBtn) {
+                deleteBtn.addEventListener("click", async () => {
+                    const confirmed = confirm("Are you sure you want to permanently delete this post? It will be removed completely from IntraWorld.");
+                    if (!confirmed) return;
+
+                    deleteBtn.disabled = true;
+                    deleteBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i>`;
+
+                    try {
+                        await deleteDoc(doc(db, "posts", postId));
+                        postCard.style.transition = "opacity 0.3s ease, transform 0.3s ease";
+                        postCard.style.opacity = "0";
+                        postCard.style.transform = "scale(0.95)";
+                        setTimeout(() => postCard.remove(), 300);
+                    } catch (err) {
+                        console.error("Delete post error:", err);
+                        alert("Failed to delete post: " + err.message);
+                        deleteBtn.disabled = false;
+                        deleteBtn.innerHTML = `<i class="fa-solid fa-trash-can"></i>`;
+                    }
+                });
+            }
+
+            // 2. Setup Instagram-Style Like Toggle
+            const likeBtn = postCard.querySelector(".like-btn");
+            if (likeBtn) {
+                likeBtn.addEventListener("click", async () => {
+                    if (!currentUser || !currentUser.email) {
+                        alert("Please log in to like posts.");
+                        return;
+                    }
+
+                    const isCurrentlyLiked = likeBtn.getAttribute("data-liked") === "true";
+                    const newLiked = !isCurrentlyLiked;
+                    likeBtn.setAttribute("data-liked", newLiked ? "true" : "false");
+
+                    const heartIcon = likeBtn.querySelector("i");
+                    const labelEl = likeBtn.querySelector(".like-label");
+
+                    // Optimistic UI state
+                    if (newLiked) {
+                        likeBtn.classList.add("liked");
+                        if (heartIcon) heartIcon.className = "fa-solid fa-heart";
+                    } else {
+                        likeBtn.classList.remove("liked");
+                        if (heartIcon) heartIcon.className = "fa-regular fa-heart";
+                    }
+
+                    let curCount = 0;
+                    const match = (labelEl.textContent || "").match(/\d+/);
+                    if (match) curCount = parseInt(match[0], 10);
+                    curCount = newLiked ? curCount + 1 : Math.max(0, curCount - 1);
+                    labelEl.textContent = curCount > 0 ? `${curCount} ${curCount === 1 ? "Like" : "Likes"}` : "Like";
+
+                    try {
+                        const postRef = doc(db, "posts", postId);
+                        await updateDoc(postRef, {
+                            likes: newLiked ? arrayUnion(myEmail) : arrayRemove(myEmail)
+                        });
+                    } catch (err) {
+                        console.error("Like toggle error:", err);
+                    }
+                });
+            }
+
+            // 3. Setup Comments Drawer & Composer
+            const commentToggleBtn = postCard.querySelector(".comment-toggle-btn");
+            const drawer = postCard.querySelector(`#comments-drawer-${postId}`);
+            const commentInput = postCard.querySelector(`#comment-input-${postId}`);
+            const commentSubmitBtn = postCard.querySelector(`#comment-submit-${postId}`);
+            const commentsListEl = postCard.querySelector(`#comments-list-${postId}`);
+            const commentLabelEl = postCard.querySelector(".comment-label");
+
+            if (commentToggleBtn && drawer) {
+                commentToggleBtn.addEventListener("click", () => {
+                    const isVisible = drawer.style.display !== "none";
+                    drawer.style.display = isVisible ? "none" : "block";
+                    if (!isVisible && commentInput) {
+                        commentInput.focus();
+                    }
+                });
+            }
+
+            async function submitComment() {
+                if (!currentUser || !currentUser.email) {
+                    alert("Please log in to comment.");
+                    return;
+                }
+                const text = (commentInput?.value || "").trim();
+                if (!text) return;
+
+                commentInput.value = "";
+
+                const newComment = {
+                    id: "c_" + Date.now() + "_" + Math.random().toString(36).substring(2, 6),
+                    authorEmail: currentUser.email.toLowerCase(),
+                    authorName: currentUser.displayName || currentUser.email.split("@")[0],
+                    text: text,
+                    createdAt: new Date().toISOString()
+                };
+
+                // Optimistic comment item
+                const emptyMsg = commentsListEl.querySelector(".no-comments-msg");
+                if (emptyMsg) emptyMsg.remove();
+
+                const cItem = document.createElement("div");
+                cItem.className = "comment-item";
+                cItem.innerHTML = `
+                    <div class="comment-avatar">${escapeHtml(newComment.authorName.charAt(0).toUpperCase())}</div>
+                    <div class="comment-body">
+                        <div class="comment-header-row">
+                            <span class="comment-author">${escapeHtml(newComment.authorName)}</span>
+                            <span class="comment-time">Just now</span>
+                        </div>
+                        <div class="comment-text">${escapeHtml(newComment.text)}</div>
+                    </div>
+                `;
+                commentsListEl.appendChild(cItem);
+                commentsListEl.scrollTop = commentsListEl.scrollHeight;
+
+                // Update comment counter text
+                let cCount = 0;
+                const match = (commentLabelEl.textContent || "").match(/\d+/);
+                if (match) cCount = parseInt(match[0], 10);
+                cCount += 1;
+                commentLabelEl.textContent = `${cCount} ${cCount === 1 ? "Comment" : "Comments"}`;
+
+                try {
+                    await updateDoc(doc(db, "posts", postId), {
+                        comments: arrayUnion(newComment)
+                    });
+                } catch (err) {
+                    console.error("Comment submit error:", err);
+                    alert("Failed to save comment: " + err.message);
+                }
+            }
+
+            if (commentSubmitBtn) {
+                commentSubmitBtn.addEventListener("click", submitComment);
+            }
+            if (commentInput) {
+                commentInput.addEventListener("keydown", (e) => {
+                    if (e.key === "Enter") {
+                        e.preventDefault();
+                        submitComment();
+                    }
+                });
+            }
+
+            // 4. Setup Share Button Handler
+            const shareBtn = postCard.querySelector(".share-open-btn");
+            if (shareBtn) {
+                shareBtn.addEventListener("click", () => {
+                    openShareModal(postId, authorName, post.content || "");
+                });
+            }
+
+            postsFeed.appendChild(postCard);
         });
 
     } catch (err) {

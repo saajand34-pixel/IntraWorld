@@ -126,18 +126,39 @@
 
         .header-title { font-size: 28px; margin-bottom: 10px; }
         .header-desc { color: #7db7ff; margin-bottom: 30px; }
-        .contact-box { background: #081b2e; padding: 25px; border-radius: 18px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 30px; display: flex; gap: 15px; align-items: center; }
-        .contact-box input { flex: 1; padding: 14px 18px; background: #102b45; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: white; font-size: 14px; outline: none; }
-        .contact-box button { padding: 14px 25px; background: #0066ff; color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: 500; transition: 0.2s; }
+        .contact-box { background: #081b2e; padding: 25px; border-radius: 18px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 30px; display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
+        .contact-box input { flex: 1; min-width: 250px; padding: 14px 18px; background: #102b45; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: white; font-size: 14px; outline: none; }
+        .contact-box input:focus { border-color: #0066ff; }
+        .contact-box button { padding: 14px 25px; background: #0066ff; color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: 500; transition: 0.2s; white-space: nowrap; }
         .contact-box button:hover { background: #0f3f8c; }
+
+        /* Incoming Connection Requests Section */
+        .requests-section { background: #081b2e; border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 18px; padding: 24px; margin-bottom: 30px; }
+        .requests-section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+        .requests-section-title { font-size: 18px; font-weight: 600; color: #38bdf8; display: flex; align-items: center; gap: 10px; }
+        .badge-count { background: #0066ff; color: #fff; font-size: 12px; padding: 3px 10px; border-radius: 20px; font-weight: 600; }
+        .requests-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+        .request-card { background: #102b45; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .request-card .req-avatar { width: 52px; height: 52px; border-radius: 50%; background: #0066ff; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; color: white; margin-bottom: 10px; }
+        .request-card h4 { font-size: 16px; margin-bottom: 4px; color: #fff; }
+        .request-card .regid-text { font-size: 12px; color: #38bdf8; background: rgba(56, 189, 248, 0.12); padding: 3px 10px; border-radius: 20px; margin-bottom: 14px; }
+        .req-btn-group { display: flex; gap: 10px; width: 100%; }
+        .btn-accept { flex: 1; padding: 9px; background: #16a34a; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 500; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn-accept:hover { background: #15803d; }
+        .btn-decline { flex: 1; padding: 9px; background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 500; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn-decline:hover { background: #ef4444; color: #fff; }
+
+        /* Student Grid & Cards */
         .student-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
         .student-card { background: #0b2137; padding: 25px; border-radius: 18px; border: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; align-items: center; text-align: center; }
         .student-avatar { width: 70px; height: 70px; border-radius: 50%; background: #0066ff; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: bold; color: white; margin-bottom: 15px; }
         .student-card h3 { font-size: 18px; margin-bottom: 5px; }
-        .student-card p { color: #7db7ff; font-size: 13px; margin-bottom: 15px; }
+        .student-card p { color: #7db7ff; font-size: 13px; margin-bottom: 8px; }
+        .student-regid-tag { font-size: 12px; color: #38bdf8; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.25); padding: 4px 12px; border-radius: 20px; margin-bottom: 14px; display: inline-flex; align-items: center; gap: 6px; }
         .connect-btn { width: 100%; padding: 10px; background: #0066ff; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 14px; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .connect-btn:hover { background: #0f3f8c; }
-        .connect-btn.connected { background: #2e7d32; cursor: default; }
+        .connect-btn.connected { background: #16a34a !important; cursor: default; }
+        .connect-btn.pending { background: #f59e0b !important; color: #fff; cursor: default; }
 
         @media (max-width: 768px) {
             .nav-container { width: 95%; top: 10px; }
@@ -189,12 +210,24 @@
     <main class="main">
         <section class="content">
             <h1 class="header-title">Student Connect</h1>
-            <p class="header-desc">Find and connect with classmates using saved phone numbers or profile names.</p>
+            <p class="header-desc">Find and connect with classmates using Registration ID. Connections require mutual approval.</p>
 
             <div class="contact-box">
-                <i class="fa-solid fa-phone" style="color: #7db7ff; font-size: 18px;"></i>
-                <input type="text" id="phoneSearchInput" placeholder="Enter contact phone number (e.g., +919876543210 or 9876543210)...">
-                <button id="searchPhoneBtn"><i class="fa-solid fa-magnifying-glass"></i> Find Contact</button>
+                <i class="fa-solid fa-id-card" style="color: #7db7ff; font-size: 20px;"></i>
+                <input type="text" id="regIdSearchInput" placeholder="Search by Student Registration ID (e.g. 24CA018)...">
+                <button id="searchRegIdBtn"><i class="fa-solid fa-magnifying-glass"></i> Search Reg ID</button>
+            </div>
+
+            <!-- Incoming Connection Requests (Mutual Approval) -->
+            <div class="requests-section" id="incomingRequestsSection" style="display: none;">
+                <div class="requests-section-header">
+                    <div class="requests-section-title">
+                        <i class="fa-solid fa-user-clock"></i>
+                        <span>Incoming Connection Requests</span>
+                        <span class="badge-count" id="requestsCountBadge">0</span>
+                    </div>
+                </div>
+                <div class="requests-grid" id="requestsGrid"></div>
             </div>
 
             <div class="student-grid" id="studentGrid">
@@ -203,11 +236,8 @@
         </section>
     </main>
 
-    
-    
-
     <script type="module" src="js/firebase-config.js"></script>
     <script type="module" src="js/auth-check.js"></script>
-    <script type="module" src="js/connect.js"></script>
+    <script type="module" src="js/connect.js?v=2.2"></script>
 </body>
 </html>
