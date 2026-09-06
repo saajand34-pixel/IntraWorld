@@ -22,7 +22,7 @@ function renderFields(user) {
     const name = user.fullName || user.full_name || "Student User";
     const email = user.email || "";
     const phone = user.mobileNumber || user.mobile || user.phone || "";
-    const state = user.state || "";
+    const regId = user.studentRegId || user.regId || user.regid || user.registerNo || user.regNumber || user.registrationNumber || user.studentId || "";
     const qual = user.qualification || "";
     const college = user.collegeName || user.collegeOrUniversity || user.college || "";
     const passout = user.passoutYear || user.passedOutYear || user.passout_year || "";
@@ -31,7 +31,7 @@ function renderFields(user) {
     const nameEl = document.getElementById("dbFullName");
     const emailEl = document.getElementById("dbEmail");
     const mobileEl = document.getElementById("dbMobile");
-    const stateEl = document.getElementById("dbState");
+    const regIdEl = document.getElementById("dbRegId");
     const qualEl = document.getElementById("dbQualification");
     const collegeEl = document.getElementById("dbCollege");
     const passoutEl = document.getElementById("dbPassout");
@@ -40,7 +40,7 @@ function renderFields(user) {
     if (nameEl) nameEl.value = name;
     if (emailEl) emailEl.value = email;
     if (mobileEl) mobileEl.value = phone;
-    if (stateEl) stateEl.value = state;
+    if (regIdEl) regIdEl.value = regId;
     if (qualEl) qualEl.value = qual;
     if (collegeEl) collegeEl.value = college;
     if (passoutEl) passoutEl.value = passout;
