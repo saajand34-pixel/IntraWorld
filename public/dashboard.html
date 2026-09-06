@@ -212,7 +212,7 @@
     <main class="main">
         <section class="content">
             <div class="banner">
-                <h1>Welcome to INTRA WORLD, <span id="welcomeStudentName" style="color: #38bdf8;">Student</span><span id="welcomeStudentCollege" style="font-size: 0.6em; color: #94a3b8; font-weight: normal; margin-left: 8px;"></span></h1>
+                <h1>Welcome to INTRA WORLD, <span id="welcomeStudentName" style="color: #38bdf8;">Student</span></h1>
                 <p>Academic • Professional • Student Networking Platform</p>
             </div>
 
@@ -248,17 +248,14 @@
                 if (raw) {
                     const user = JSON.parse(raw);
                     const nameSpan = document.getElementById("welcomeStudentName");
-                    const collegeSpan = document.getElementById("welcomeStudentCollege");
                     if (nameSpan && user.fullName) nameSpan.textContent = user.fullName;
-                    if (collegeSpan && (user.collegeName || user.college)) collegeSpan.textContent = "• " + (user.collegeName || user.college);
                 }
             } catch (e) {}
-
-            
         });
     </script>
 
     <script type="module" src="js/firebase-config.js"></script>
     <script type="module" src="js/auth-check.js"></script>
+    <script type="module" src="js/dashboard.js"></script>
 </body>
 </html>

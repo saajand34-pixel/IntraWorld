@@ -7,9 +7,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!user) return;
 
     const nameSpan = document.getElementById('welcomeStudentName');
-    const collegeSpan = document.getElementById('welcomeStudentCollege');
     if (nameSpan && user.fullName) nameSpan.textContent = user.fullName;
-    if (collegeSpan && (user.collegeName || user.college)) collegeSpan.textContent = '• ' + (user.collegeName || user.college);
 
     // Dynamic connection counters
     try {
