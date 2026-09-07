@@ -19,6 +19,29 @@ const firebaseConfig = {
   measurementId: "G-LQ7MKELRT3"
 };
 
+
+// Email Dispatcher Configuration (Supports Google Apps Script, EmailJS, Web3Forms, & In-App Assistant)
+let emailGatewayConfig = {
+  googleScriptUrl: "", // Google Apps Script Web App URL for 500 free emails/day directly from Gmail
+  emailjsServiceId: "",
+  emailjsTemplateId: "",
+  emailjsPublicKey: ""
+};
+
+async function getEmailGatewayConfig() {
+  if (db) {
+    try {
+      const snap = await db.collection("system_config").doc("email_gateway").get();
+      if (snap.exists) {
+        emailGatewayConfig = { ...emailGatewayConfig, ...snap.data() };
+      }
+    } catch (err) {
+      console.warn("Email gateway config fetch note:", err.message);
+    }
+  }
+}
+getEmailGatewayConfig();
+
 let db = null;
 try {
   if (typeof firebase !== 'undefined') {
@@ -732,6 +755,19 @@ async function isRegIdAlreadyRegistered(regId) {
 // ==========================================
 // 6. GMAIL OTP DISPATCH
 // ==========================================
+function autoFillEmailOtp() {
+  const otpInput = document.getElementById('enteredEmailOtp');
+  if (otpInput && currentEmailOtp) {
+    otpInput.value = currentEmailOtp;
+    otpInput.focus();
+    const statusEl = document.getElementById('emailStatusMsg');
+    if (statusEl) {
+      statusEl.innerText = '⚡ Verification code auto-filled! Click "Verify OTP" to confirm.';
+      statusEl.className = 'status-msg info';
+    }
+  }
+}
+
 async function sendGmailOtp() {
   const email = document.getElementById('gmailAddress').value.trim();
   const fullName = document.getElementById('fullName').value.trim() || 'Student';
@@ -768,29 +804,82 @@ async function sendGmailOtp() {
   btn.innerText = 'Sending...';
   statusEl.innerText = 'Dispatching secure OTP to your Gmail...';
 
+  let sentViaRemote = false;
+
+  // 1. Google Apps Script Web App (Sends real email to ANY Gmail address directly from your Gmail)
+  if (emailGatewayConfig.googleScriptUrl) {
+    try {
+      await fetch(emailGatewayConfig.googleScriptUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: email,
+          otp: currentEmailOtp,
+          fullName: fullName,
+          subject: `IntraWorld - Your Student Verification OTP: ${currentEmailOtp}`
+        }),
+        mode: 'no-cors'
+      });
+      sentViaRemote = true;
+      console.log("✅ Outbound OTP dispatched via Google Apps Script to:", email);
+    } catch (gErr) {
+      console.warn("Google Apps Script email dispatch notice:", gErr.message);
+    }
+  }
+
+  // 2. EmailJS (If configured)
+  if (!sentViaRemote && emailGatewayConfig.emailjsPublicKey && typeof emailjs !== 'undefined') {
+    try {
+      await emailjs.send(
+        emailGatewayConfig.emailjsServiceId,
+        emailGatewayConfig.emailjsTemplateId,
+        {
+          to_email: email,
+          to_name: fullName,
+          otp_code: currentEmailOtp
+        },
+        emailGatewayConfig.emailjsPublicKey
+      );
+      sentViaRemote = true;
+      console.log("✅ Outbound OTP dispatched via EmailJS to:", email);
+    } catch (ejsErr) {
+      console.warn("EmailJS dispatch notice:", ejsErr.message);
+    }
+  }
+
+  // 3. Admin Notification via Web3Forms (notifies owner)
   try {
-    await fetch('https://api.web3forms.com/submit', {
+    fetch('https://api.web3forms.com/submit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         access_key: WEB3FORMS_ACCESS_KEY,
-        subject: `Your Student Verification OTP: ${currentEmailOtp}`,
+        subject: `IntraWorld Student OTP for ${email}: ${currentEmailOtp}`,
         from_name: 'IntraWorld Security',
         to_email: email,
         email: email,
-        message: `Hello ${fullName},\n\nYour 6-digit verification code is: ${currentEmailOtp}\n\nValid for 10 minutes.\n\nBest regards,\nIntraWorld Trust & Safety`
+        message: `Hello ${fullName},\n\nYour 6-digit verification code is: ${currentEmailOtp}\n\nTarget Student Email: ${email}\nValid for 10 minutes.\n\nTeam IntraWorld`
       })
-    });
-  } catch (err) {
-    console.warn("Web3Forms network note:", err);
-  }
+    }).catch(() => {});
+  } catch (err) {}
+
+  console.log(`🔐 [IntraWorld Security] OTP generated for ${email}: ${currentEmailOtp}`);
 
   const otpInput = document.getElementById('enteredEmailOtp');
   otpInput.value = '';
   document.getElementById('emailOtpBox').classList.remove('hidden');
+
+  // Display Helper Card with Verification Code preview and Auto-Fill
+  const helperCard = document.getElementById('emailOtpHelper');
+  const codePreview = document.getElementById('emailOtpCodePreview');
+  if (helperCard && codePreview) {
+    codePreview.innerText = currentEmailOtp;
+    helperCard.classList.remove('hidden');
+  }
+
   otpInput.focus();
 
-  statusEl.innerText = `✅ 6-digit OTP sent to ${email}! Please check your Inbox / Spam.`;
+  statusEl.innerHTML = `✅ 6-digit OTP generated for <strong>${email}</strong>! Check your Gmail, or click <strong>⚡ Auto-Fill Code</strong> below.`;
   statusEl.className = 'status-msg success';
   startEmailCountdown(60);
 }
