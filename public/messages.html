@@ -211,6 +211,132 @@
             .nav-links a span { display: none; }
             .user-list-pane { width: 240px; }
         }
+    
+        /* Attachment styling */
+        .chat-attach-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #7db7ff;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+        .chat-attach-btn:hover {
+            background: rgba(0, 102, 255, 0.2);
+            color: #38bdf8;
+            border-color: rgba(56, 189, 248, 0.4);
+        }
+
+        /* Chat Attachment Preview Bar */
+        .chat-attachment-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            background: #0d2238;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .chat-attachment-thumb {
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            overflow: hidden;
+            background: rgba(0, 102, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .chat-attachment-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .chat-attachment-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .chat-attachment-name {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .chat-attachment-size {
+            display: block;
+            font-size: 11px;
+            color: #7db7ff;
+        }
+        .attachment-cancel-btn {
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 15px;
+            padding: 6px;
+            border-radius: 6px;
+            transition: color 0.2s;
+        }
+        .attachment-cancel-btn:hover {
+            color: #ef4444;
+        }
+
+        /* Media and Doc bubbles */
+        .msg-media-container {
+            margin-bottom: 8px;
+            border-radius: 12px;
+            overflow: hidden;
+            max-width: 320px;
+            max-height: 320px;
+        }
+        .msg-media-img {
+            width: 100%;
+            height: auto;
+            max-height: 320px;
+            object-fit: cover;
+            border-radius: 10px;
+            display: block;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        .msg-media-img:hover {
+            transform: scale(1.02);
+        }
+        .msg-doc-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            margin-bottom: 8px;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #fff;
+            text-decoration: none;
+            max-width: 300px;
+            transition: background 0.2s ease;
+        }
+        .msg-doc-card:hover {
+            background: rgba(0, 0, 0, 0.4);
+            text-decoration: none;
+        }
+        .msg-doc-card i {
+            color: #ef4444;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
     </style>
 </head>
 <body>
@@ -287,8 +413,24 @@
                         </button>
                     </div>
 
+                    <!-- Attachment Preview Bar -->
+                    <div id="chatAttachmentPreview" class="chat-attachment-bar" style="display: none;">
+                        <div class="chat-attachment-thumb" id="chatAttachmentThumb"></div>
+                        <div class="chat-attachment-info">
+                            <span class="chat-attachment-name" id="chatAttachmentName">attachment.jpg</span>
+                            <span class="chat-attachment-size" id="chatAttachmentSize">120 KB</span>
+                        </div>
+                        <button type="button" id="cancelAttachmentBtn" class="attachment-cancel-btn" title="Remove attachment">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+
                     <form class="chat-input-area" id="chatForm">
-                        <input type="text" id="messageInput" placeholder="Type a message..." required autocomplete="off">
+                        <label class="chat-attach-btn" title="Attach Image or PDF">
+                            <i class="fa-solid fa-paperclip"></i>
+                            <input type="file" id="chatFileInput" accept="image/*,application/pdf" style="display: none;">
+                        </label>
+                        <input type="text" id="messageInput" placeholder="Type a message..." autocomplete="off">
                         <button type="submit"><i class="fa-solid fa-paper-plane"></i> Send</button>
                     </form>
                 </div>

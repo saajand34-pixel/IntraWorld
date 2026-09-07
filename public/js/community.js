@@ -1,4 +1,11 @@
 ﻿import { db } from "../firebase-config.js";
+import { 
+    collection, 
+    getDocs, 
+    query, 
+    where, 
+    orderBy 
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 document.addEventListener("DOMContentLoaded", () => {
     const searchInput = document.getElementById("college-search-input");
@@ -340,12 +347,84 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    function renderPosts(college, alertBannerHtml = "") {
+    async function renderPosts(college, alertBannerHtml = "") {
         let banner = alertBannerHtml ? alertBannerHtml : "";
 
-        if (!college || !college.posts || college.posts.length === 0) {
+        const currentStudent = getLoggedInStudent();
+        let statusNotice = "";
+
+        if (currentStudent && currentStudent.isLoggedIn) {
+            if (currentStudent.userCollege && isSameCollege(college.name, currentStudent.userCollege)) {
+                statusNotice = `
+                    <div class="card" style="background: linear-gradient(135deg, rgba(0, 102, 255, 0.15), rgba(56, 189, 248, 0.08)); border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 14px; padding: 18px 22px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 42px; height: 42px; border-radius: 50%; background: #0066ff; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">
+                                <i class="fa-solid fa-graduation-cap"></i>
+                            </div>
+                            <div>
+                                <strong style="color: #fff; font-size: 1rem;">Enrolled Student of ${escapeHtml(college.name)}</strong>
+                                <p style="color: #94a3b8; font-size: 0.85rem; margin: 2px 0 0 0;">You have verified posting privileges in this community feed.</p>
+                            </div>
+                        </div>
+                        <a href="posts.html?audience=community" class="btn" style="background: #0066ff; color: #fff; text-decoration: none; padding: 9px 18px; font-size: 0.88rem; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-pen-to-square"></i> Post Announcement
+                        </a>
+                    </div>
+                `;
+            } else if (currentStudent.userCollege) {
+                statusNotice = `
+                    <div class="card" style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 14px 18px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 36px; height: 36px; border-radius: 50%; background: rgba(234, 179, 8, 0.15); color: #eab308; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0;">
+                            <i class="fa-solid fa-lock"></i>
+                        </div>
+                        <div>
+                            <strong style="color: #e2e8f0; font-size: 0.92rem;">Guest College View (Enrolled at: ${escapeHtml(currentStudent.userCollege)})</strong>
+                            <p style="color: #94a3b8; font-size: 0.82rem; margin: 2px 0 0 0;">Community posting is restricted to enrolled students of ${escapeHtml(college.shortName || college.name)}. You can post in your own college community feed.</p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        feedContainer.innerHTML = banner + statusNotice + '<div style="text-align: center; padding: 30px; color: #7db7ff;"><i class="fa-solid fa-spinner fa-spin"></i> Loading community feed...</div>';
+
+        // Fetch live community posts from Firestore
+        let livePosts = [];
+        try {
+            const q = query(
+                collection(db, "posts"), 
+                where("postType", "==", "community"),
+                orderBy("createdAt", "desc")
+            );
+            const snap = await getDocs(q);
+            snap.forEach(d => {
+                const data = d.data();
+                if (isSameCollege(data.targetCollege, college.name) || isSameCollege(data.authorCollege, college.name)) {
+                    livePosts.push({
+                        author: data.authorEmail ? data.authorEmail.split("@")[0] : "Student",
+                        role: "Enrolled Student",
+                        tag: data.aiLabel ? `${data.aiLabel}` : "Community Post",
+                        time: data.createdAt ? new Date(data.createdAt).toLocaleDateString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "Recently",
+                        title: data.content && data.content.length > 60 ? data.content.substring(0, 60) + "..." : (data.content || "Student Community Post"),
+                        content: data.content || "",
+                        image: data.mediaUrl || null,
+                        docUrl: data.docUrl || null,
+                        docName: data.docName || null,
+                        githubUrl: data.githubUrl || null,
+                        aiPercentage: data.aiPercentage
+                    });
+                }
+            });
+        } catch (err) {
+            console.warn("Could not fetch live Firestore community posts:", err);
+        }
+
+        const allPosts = [...livePosts, ...(college.posts || [])];
+
+        if (allPosts.length === 0) {
             feedContainer.innerHTML = `
                 ${banner}
+                ${statusNotice}
                 <div class="card empty-feed">
                     <i class="fa-solid fa-bullhorn fa-2x" style="margin-bottom: 12px; color: #7db7ff; display: block;"></i>
                     No announcements posted for <strong>${escapeHtml(college?.name || "this college")}</strong> yet.
@@ -354,12 +433,12 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        const postsHtml = college.posts.map(post => `
+        const postsHtml = allPosts.map(post => `
             <div class="card post-card" style="margin-bottom: 20px; padding: 22px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <div style="width: 38px; height: 38px; border-radius: 50%; background: #0066ff; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff;">
-                            ${escapeHtml(post.author ? post.author.charAt(0) : "S")}
+                            ${escapeHtml(post.author ? post.author.charAt(0).toUpperCase() : "S")}
                         </div>
                         <div>
                             <strong style="color: #fff; font-size: 1.02rem;">${escapeHtml(post.author)}</strong>
@@ -367,7 +446,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         </div>
                     </div>
                     <span style="background: rgba(0, 102, 255, 0.2); color: #38bdf8; font-size: 0.75rem; padding: 4px 12px; border-radius: 20px; font-weight: 600; border: 1px solid rgba(56, 189, 248, 0.3);">
-                        #${escapeHtml(post.tag || "Announcement")}
+                        #${escapeHtml(post.tag || "Community Post")}
                     </span>
                 </div>
 
@@ -378,6 +457,26 @@ document.addEventListener("DOMContentLoaded", () => {
                 <div style="margin-bottom: 16px; border-radius: 10px; overflow: hidden; max-height: 320px; border: 1px solid rgba(255, 255, 255, 0.08);">
                     <img src="${post.image}" alt="${escapeHtml(post.title)}" style="width: 100%; height: 260px; object-fit: cover; display: block;" onerror="this.style.display='none'" />
                 </div>
+                ` : ''}
+
+                ${post.docUrl ? `
+                <a href="${post.docUrl}" target="_blank" download="${escapeHtml(post.docName || 'document.pdf')}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; margin-bottom: 16px; border-radius: 10px; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.1); color: #fff; text-decoration: none;">
+                    <i class="fa-solid fa-file-pdf fa-2x" style="color: #ef4444;"></i>
+                    <div>
+                        <strong style="display: block; font-size: 13px;">${escapeHtml(post.docName || "Download Document Attachment")}</strong>
+                        <span style="font-size: 11px; color: #7db7ff;">Click to view / download</span>
+                    </div>
+                </a>
+                ` : ''}
+
+                ${post.githubUrl ? `
+                <a href="${escapeHtml(post.githubUrl)}" target="_blank" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; margin-bottom: 16px; border-radius: 10px; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.1); color: #fff; text-decoration: none;">
+                    <i class="fa-brands fa-github fa-2x" style="color: #fff;"></i>
+                    <div>
+                        <strong style="display: block; font-size: 13px;">GitHub Repository Project</strong>
+                        <span style="font-size: 11px; color: #7db7ff;">${escapeHtml(post.githubUrl)}</span>
+                    </div>
+                </a>
                 ` : ''}
 
                 <div style="color: #8fa8bf; font-size: 0.82rem; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255, 255, 255, 0.06); padding-top: 12px; margin-top: 6px;">
@@ -392,7 +491,7 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
         `).join("");
 
-        feedContainer.innerHTML = banner + postsHtml;
+        feedContainer.innerHTML = banner + statusNotice + postsHtml;
     }
 
     // Render when no matching community is found

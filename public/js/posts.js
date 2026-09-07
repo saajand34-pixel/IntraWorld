@@ -16,6 +16,7 @@ import {
     addDoc, 
     getDocs, 
     query, 
+    where, 
     orderBy, 
     deleteDoc, 
     doc, 
@@ -59,6 +60,75 @@ for (const [name, el] of Object.entries(requiredEls)) {
 let currentUser = null;
 let selectedFile = null;
 let selectedFileType = null; // 'image' or 'doc'
+let currentAudience = "public"; // "public" or "community"
+let userCollegeName = "";
+let loadedPostsCache = [];
+let currentFeedFilter = "all";
+
+const audiencePillPublic = document.getElementById("audiencePillPublic");
+const audiencePillCommunity = document.getElementById("audiencePillCommunity");
+const audienceCollegeName = document.getElementById("audienceCollegeName");
+const filterMyCollegeBtn = document.getElementById("filterMyCollegeBtn");
+const sharePreviewThumb = document.getElementById("sharePreviewThumb");
+
+function extractCollege(data) {
+    if (!data) return "";
+    return (data.collegeName || data.collegeOrUniversity || data.college || data.institution || "").trim();
+}
+
+function updateAudienceUI() {
+    if (audienceCollegeName) {
+        if (userCollegeName) {
+            audienceCollegeName.textContent = userCollegeName;
+            if (audiencePillCommunity) {
+                audiencePillCommunity.title = "Post to " + userCollegeName + " Community Feed";
+            }
+        } else {
+            audienceCollegeName.textContent = "Your College (Not Set)";
+            if (audiencePillCommunity) {
+                audiencePillCommunity.title = "Update college in profile/settings to post in your college community";
+            }
+        }
+    }
+    if (filterMyCollegeBtn) {
+        if (userCollegeName) {
+            filterMyCollegeBtn.innerHTML = '<i class="fa-solid fa-building-columns"></i> ' + escapeHtml(userCollegeName) + ' Feed';
+        } else {
+            filterMyCollegeBtn.innerHTML = '<i class="fa-solid fa-building-columns"></i> College Communities';
+        }
+    }
+}
+
+// Setup Audience Selector Pills
+if (audiencePillPublic && audiencePillCommunity) {
+    audiencePillPublic.addEventListener("click", () => {
+        currentAudience = "public";
+        audiencePillPublic.classList.add("active");
+        audiencePillCommunity.classList.remove("active");
+    });
+
+    audiencePillCommunity.addEventListener("click", () => {
+        if (!userCollegeName) {
+            alert("⚠️ You must have your enrolled College Name set in your profile to post to your College Community. Please update your profile in Settings or Registration.");
+            return;
+        }
+        currentAudience = "community";
+        audiencePillCommunity.classList.add("active");
+        audiencePillPublic.classList.remove("active");
+    });
+}
+
+// Check URL query parameters for audience preselection
+try {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get("audience") === "community") {
+        currentAudience = "community";
+        if (audiencePillCommunity && audiencePillPublic) {
+            audiencePillCommunity.classList.add("active");
+            audiencePillPublic.classList.remove("active");
+        }
+    }
+} catch(e) {}
 
 // Check localStorage first
 try {

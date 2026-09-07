@@ -203,7 +203,7 @@
         .share-modal-header h3 { font-size: 18px; font-weight: 600; color: #fff; display: flex; align-items: center; gap: 8px; }
         .share-modal-close { background: transparent; border: none; color: #94a3b8; font-size: 20px; cursor: pointer; transition: color 0.2s; }
         .share-modal-close:hover { color: #fff; }
-        .share-preview-box { background: #102b45; padding: 12px; border-radius: 10px; margin-bottom: 16px; font-size: 13px; color: #cbd5e1; border-left: 3px solid #0066ff; max-height: 70px; overflow: hidden; text-overflow: ellipsis; }
+        
         .share-peer-list { max-height: 240px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
         .share-peer-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: rgba(255, 255, 255, 0.04); border-radius: 10px; }
         .share-peer-info { display: flex; align-items: center; gap: 10px; }
@@ -213,6 +213,33 @@
         .share-send-btn { background: #0066ff; border: none; color: white; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500; cursor: pointer; transition: 0.2s; }
         .share-send-btn:hover { background: #0f3f8c; }
         .share-send-btn.sent { background: #22c55e; cursor: default; }
+
+        
+        /* Post Audience Selector */
+        .post-audience-bar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; padding: 10px 14px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; }
+        .audience-title { font-size: 12.5px; color: #8fa8bf; font-weight: 500; display: flex; align-items: center; gap: 6px; }
+        .audience-options { display: flex; gap: 8px; flex-wrap: wrap; }
+        .audience-pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500; cursor: pointer; background: #102b45; border: 1px solid rgba(255, 255, 255, 0.1); color: #8fa8bf; transition: all 0.2s; user-select: none; }
+        .audience-pill:hover { color: #fff; background: rgba(255, 255, 255, 0.08); }
+        .audience-pill.active { background: #0066ff; color: #fff; border-color: #0066ff; box-shadow: 0 2px 10px rgba(0, 102, 255, 0.4); }
+        .audience-pill.community.active { background: #0891b2; border-color: #06b6d4; box-shadow: 0 2px 10px rgba(6, 182, 212, 0.4); }
+
+        /* Feed Filter Bar */
+        .feed-filters-bar { display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 4px; }
+        .feed-filter-btn { background: #081b2e; border: 1px solid rgba(255, 255, 255, 0.08); color: #8fa8bf; border-radius: 20px; padding: 8px 16px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; white-space: nowrap; display: flex; align-items: center; gap: 6px; }
+        .feed-filter-btn:hover { color: #fff; background: rgba(255, 255, 255, 0.06); }
+        .feed-filter-btn.active { background: #0066ff; color: #fff; border-color: #0066ff; box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3); }
+
+        /* Post Type Badges */
+        .post-type-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; padding: 3px 10px; border-radius: 12px; font-weight: 600; }
+        .badge-public { background: rgba(0, 102, 255, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+        .badge-community { background: rgba(6, 182, 212, 0.15); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.35); }
+
+        /* Enhanced Share Preview */
+        .share-preview-box { background: #102b45; padding: 12px; border-radius: 10px; margin-bottom: 16px; font-size: 13px; color: #cbd5e1; border-left: 3px solid #0066ff; display: flex; gap: 12px; align-items: center; }
+        .share-preview-thumb { width: 48px; height: 48px; border-radius: 8px; object-fit: cover; flex-shrink: 0; border: 1px solid rgba(255, 255, 255, 0.15); }
+        .share-preview-details { flex: 1; min-width: 0; }
+        .share-preview-text { max-height: 50px; overflow: hidden; text-overflow: ellipsis; line-height: 1.4; }
 
         @media (max-width: 768px) {
             .nav-container { width: 95%; top: 10px; }
@@ -280,6 +307,22 @@
 
                 <div class="ai-shield-status" id="aiShieldStatus"></div>
 
+                <!-- Post Audience Selector (Public vs. College Community) -->
+                <div class="post-audience-bar">
+                    <div class="audience-title"><i class="fa-solid fa-bullseye" style="color: #38bdf8;"></i> Target Audience:</div>
+                    <div class="audience-options">
+                        <label class="audience-pill active" id="audiencePillPublic">
+                            <input type="radio" name="postAudience" value="public" checked style="display: none;">
+                            <i class="fa-solid fa-globe"></i> <span>Public Post</span>
+                        </label>
+                        <label class="audience-pill community" id="audiencePillCommunity">
+                            <input type="radio" name="postAudience" value="community" style="display: none;">
+                            <i class="fa-solid fa-building-columns"></i> <span id="audienceCollegeName">College Community</span>
+                        </label>
+                    </div>
+                </div>
+
+
                 <div class="post-actions">
                     <div class="media-options">
                         <label class="upload-btn">
@@ -301,6 +344,14 @@
                 </div>
             </div>
 
+            
+            <!-- Feed Category Filters -->
+            <div class="feed-filters-bar">
+                <button class="feed-filter-btn active" data-filter="all"><i class="fa-solid fa-border-all"></i> All Posts</button>
+                <button class="feed-filter-btn" data-filter="public"><i class="fa-solid fa-globe"></i> 🌐 Public Feed</button>
+                <button class="feed-filter-btn" data-filter="community" id="filterMyCollegeBtn"><i class="fa-solid fa-building-columns"></i> 🏛️ My College Community</button>
+            </div>
+
             <div id="postsFeed">
                 <div style="color: #7db7ff; text-align: center; padding: 40px;">Loading posts...</div>
             </div>
@@ -314,7 +365,13 @@
                 <h3><i class="fa-solid fa-share-nodes" style="color: #38bdf8;"></i> Share Post</h3>
                 <button class="share-modal-close" id="closeShareModalBtn"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <div class="share-preview-box" id="sharePreviewText">Loading post preview...</div>
+            
+            <div class="share-preview-box" id="sharePreviewBox">
+                <img id="sharePreviewThumb" class="share-preview-thumb" style="display: none;" src="" alt="Thumbnail">
+                <div class="share-preview-details">
+                    <div class="share-preview-text" id="sharePreviewText">Loading post preview...</div>
+                </div>
+            </div>
             <div style="font-size: 13px; color: #94a3b8; margin-bottom: 10px; font-weight: 500;">
                 <i class="fa-solid fa-paper-plane" style="color: #0066ff;"></i> Send directly to classmates:
             </div>

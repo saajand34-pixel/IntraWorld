@@ -28,6 +28,101 @@ document.addEventListener("DOMContentLoaded", async () => {
     const chatForm = document.getElementById("chatForm");
     const messageInput = document.getElementById("messageInput");
 
+    // Chat Attachment Elements
+    const chatFileInput = document.getElementById("chatFileInput");
+    const chatAttachmentPreview = document.getElementById("chatAttachmentPreview");
+    const chatAttachmentThumb = document.getElementById("chatAttachmentThumb");
+    const chatAttachmentName = document.getElementById("chatAttachmentName");
+    const chatAttachmentSize = document.getElementById("chatAttachmentSize");
+    const cancelAttachmentBtn = document.getElementById("cancelAttachmentBtn");
+
+    let selectedChatFile = null;
+    let selectedChatFileType = null; // 'image' or 'doc'
+
+    function formatFileSize(bytes) {
+        if (bytes < 1024) return bytes + " B";
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+        return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+    }
+
+    function clearChatAttachment() {
+        selectedChatFile = null;
+        selectedChatFileType = null;
+        if (chatFileInput) chatFileInput.value = "";
+        if (chatAttachmentPreview) chatAttachmentPreview.style.display = "none";
+        if (chatAttachmentThumb) chatAttachmentThumb.innerHTML = "";
+    }
+
+    if (cancelAttachmentBtn) {
+        cancelAttachmentBtn.addEventListener("click", clearChatAttachment);
+    }
+
+    if (chatFileInput) {
+        chatFileInput.addEventListener("change", (e) => {
+            const file = e.target.files && e.target.files[0];
+            if (!file) return;
+
+            if (file.type.startsWith("image/")) {
+                selectedChatFile = file;
+                selectedChatFileType = "image";
+                const reader = new FileReader();
+                reader.onload = (evt) => {
+                    if (chatAttachmentThumb) {
+                        chatAttachmentThumb.innerHTML = `<img src="${evt.target.result}" style="width:100%;height:100%;object-fit:cover;" />`;
+                    }
+                };
+                reader.readAsDataURL(file);
+            } else {
+                selectedChatFile = file;
+                selectedChatFileType = "doc";
+                if (chatAttachmentThumb) {
+                    chatAttachmentThumb.innerHTML = `<i class="fa-solid fa-file-pdf fa-2x" style="color:#ef4444;"></i>`;
+                }
+            }
+
+            if (chatAttachmentName) chatAttachmentName.textContent = file.name;
+            if (chatAttachmentSize) chatAttachmentSize.textContent = formatFileSize(file.size);
+            if (chatAttachmentPreview) chatAttachmentPreview.style.display = "flex";
+            if (messageInput) messageInput.focus();
+        });
+    }
+
+    function fileToDataUrl(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(e.target.result);
+            reader.onerror = (e) => reject(e);
+            reader.readAsDataURL(file);
+        });
+    }
+
+    function compressImageToBase64(file, maxWidth = 1000, quality = 0.7) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement("canvas");
+                    let width = img.width;
+                    let height = img.height;
+                    if (width > maxWidth) {
+                        height = Math.round((height * maxWidth) / width);
+                        width = maxWidth;
+                    }
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext("2d");
+                    ctx.drawImage(img, 0, 0, width, height);
+                    resolve(canvas.toDataURL("image/jpeg", quality));
+                };
+                img.onerror = (e) => reject(e);
+            };
+            reader.onerror = (e) => reject(e);
+        });
+    }
+
     // Reply preview elements
     const replyPreviewBar = document.getElementById("replyPreviewBar");
     const replyPreviewAuthor = document.getElementById("replyPreviewAuthor");
@@ -305,10 +400,34 @@ document.addEventListener("DOMContentLoaded", async () => {
                         }
                     }
 
+                    let mediaHtml = "";
+                    if (msg.mediaUrl) {
+                        mediaHtml = `
+                            <div class="msg-media-container">
+                                <img src="${msg.mediaUrl}" class="msg-media-img" alt="Shared media" onclick="window.open('${msg.mediaUrl}', '_blank')" />
+                            </div>
+                        `;
+                    }
+
+                    let docHtml = "";
+                    if (msg.docUrl) {
+                        docHtml = `
+                            <a href="${msg.docUrl}" target="_blank" download="${escapeHtml(msg.docName || 'document.pdf')}" class="msg-doc-card">
+                                <i class="fa-solid fa-file-pdf"></i>
+                                <div>
+                                    <strong style="display: block; font-size: 13px; color: #fff;">${escapeHtml(msg.docName || "Attachment Document")}</strong>
+                                    <span style="font-size: 11px; color: #7db7ff;">Click to view / download</span>
+                                </div>
+                            </a>
+                        `;
+                    }
+
                     bubbleHtml = `
                         <div class="msg-bubble">
                             ${quoteHtml}
-                            <div class="msg-content">${escapeHtml(msg.text || "")}</div>
+                            ${mediaHtml}
+                            ${docHtml}
+                            ${msg.text ? `<div class="msg-content">${escapeHtml(msg.text || "")}</div>` : ""}
                             <div class="msg-meta">
                                 <span>${msg.timeStr || ''}</span>
                                 ${tickHtml}
@@ -386,41 +505,81 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (!selectedPeer || !messageInput) return;
 
             const text = messageInput.value.trim();
-            if (!text) return;
+            if (!text && !selectedChatFile) return;
 
-            messageInput.value = "";
-            const myEmail = currentUser.email.toLowerCase();
-            const peerEmail = selectedPeer.email.toLowerCase();
-            const chatId = [myEmail, peerEmail].sort().join("___");
-
-            const now = new Date();
-            const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-            const payload = {
-                senderEmail: myEmail,
-                receiverEmail: peerEmail,
-                senderName: currentUser.fullName || currentUser.full_name || "Student",
-                text: text,
-                timestamp: serverTimestamp(),
-                timeStr: timeStr,
-                status: "sent",
-                viewed: false,
-                deletedFor: [],
-                deletedForEveryone: false,
-                replyTo: replyingTo ? {
-                    id: replyingTo.id,
-                    senderName: replyingTo.senderName,
-                    text: replyingTo.text
-                } : null
-            };
-
-            // Clear reply preview bar
-            cancelReply();
+            const sendBtn = chatForm.querySelector("button[type='submit']");
+            if (sendBtn) {
+                sendBtn.disabled = true;
+                sendBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+            }
 
             try {
+                let mediaUrl = null;
+                let docUrl = null;
+                let docName = null;
+
+                if (selectedChatFile) {
+                    if (selectedChatFileType === "image") {
+                        mediaUrl = await compressImageToBase64(selectedChatFile);
+                    } else if (selectedChatFileType === "doc") {
+                        if (selectedChatFile.size > 800 * 1024) {
+                            alert("⚠️ Document is larger than 800 KB limit for instant direct messaging.");
+                            if (sendBtn) {
+                                sendBtn.disabled = false;
+                                sendBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Send';
+                            }
+                            return;
+                        }
+                        docUrl = await fileToDataUrl(selectedChatFile);
+                        docName = selectedChatFile.name;
+                    }
+                }
+
+                messageInput.value = "";
+                const myEmail = currentUser.email.toLowerCase();
+                const peerEmail = selectedPeer.email.toLowerCase();
+                const chatId = [myEmail, peerEmail].sort().join("___");
+
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                const payload = {
+                    senderEmail: myEmail,
+                    receiverEmail: peerEmail,
+                    senderName: currentUser.fullName || currentUser.full_name || "Student",
+                    text: text,
+                    timestamp: serverTimestamp(),
+                    timeStr: timeStr,
+                    status: "sent",
+                    viewed: false,
+                    deletedFor: [],
+                    deletedForEveryone: false,
+                    replyTo: replyingTo ? {
+                        id: replyingTo.id,
+                        senderName: replyingTo.senderName,
+                        text: replyingTo.text
+                    } : null
+                };
+
+                if (mediaUrl) payload.mediaUrl = mediaUrl;
+                if (docUrl) {
+                    payload.docUrl = docUrl;
+                    payload.docName = docName || "Attachment";
+                }
+
+                // Clear attachments & reply preview
+                clearChatAttachment();
+                cancelReply();
+
                 await addDoc(collection(db, "chats", chatId, "messages"), payload);
             } catch (err) {
                 console.error("Send message error:", err);
+                alert("Failed to send message: " + err.message);
+            } finally {
+                if (sendBtn) {
+                    sendBtn.disabled = false;
+                    sendBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Send';
+                }
             }
         });
     }
