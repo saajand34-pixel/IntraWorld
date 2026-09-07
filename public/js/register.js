@@ -22,7 +22,7 @@ const firebaseConfig = {
 
 // Email Dispatcher Configuration (Supports Google Apps Script, EmailJS, Web3Forms, & In-App Assistant)
 let emailGatewayConfig = {
-  googleScriptUrl: "", // Google Apps Script Web App URL for 500 free emails/day directly from Gmail
+  googleScriptUrl: "https://script.google.com/macros/s/AKfycbxmm5u7FHCBYITrhgPRydESdAyisQMFwZGVeprbwZn-nrm7kPPfmVwI2qxTQo-LsVrx3A/exec", // Google Apps Script Web App URL for 500 free emails/day directly from Gmail
   emailjsServiceId: "",
   emailjsTemplateId: "",
   emailjsPublicKey: ""
@@ -811,7 +811,7 @@ async function sendGmailOtp() {
     try {
       await fetch(emailGatewayConfig.googleScriptUrl, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify({
           email: email,
           otp: currentEmailOtp,
