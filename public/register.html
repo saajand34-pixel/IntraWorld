@@ -24,17 +24,17 @@
   <!-- INTERNAL CSS (IntraWorld Theme) -->
   <style>
     :root {
-      --bg-color: #120307;
-      --card-bg: rgba(28, 6, 13, 0.95);
-      --card-border: rgba(212, 175, 55, 0.22);
-      --input-bg: #140307;
+      --bg-color: #140103;
+      --card-bg: rgba(35, 3, 8, 0.96);
+      --card-border: rgba(212, 175, 55, 0.28);
+      --input-bg: #190104;
       --input-border: rgba(212, 175, 55, 0.2);
       --input-focus: #d4af37;
       --cyan-accent: #d4af37;
       --cyan-glow: rgba(212, 175, 55, 0.25);
       --text-main: #f8fafc;
-      --text-muted: #cbb3ba;
-      --text-label: #f5e8eb;
+      --text-muted: #d6d3d1;
+      --text-label: #f5f5f4;
       --success: #10b981;
       --danger: #ef4444;
       --warning: #f59e0b;
@@ -45,7 +45,7 @@
     body {
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
       background-color: var(--bg-color);
-      background-image: radial-gradient(circle at 50% 0%, rgba(136, 19, 55, 0.42) 0%, transparent 65%), radial-gradient(rgba(212, 175, 55, 0.07) 1px, transparent 1px);
+      background-image: radial-gradient(circle at 50% 0%, rgba(120, 0, 15, 0.45) 0%, transparent 65%), radial-gradient(rgba(212, 175, 55, 0.07) 1px, transparent 1px);
       background-size: 28px 28px;
       color: var(--text-main);
       min-height: 100vh;
@@ -62,7 +62,7 @@
       top: 50%; left: 50%;
       transform: translate(-50%, -50%);
       width: 650px; height: 650px;
-      background: radial-gradient(circle, rgba(136, 19, 55, 0.25) 0%, transparent 70%);
+      background: radial-gradient(circle, rgba(120, 0, 15, 0.3) 0%, transparent 70%);
       pointer-events: none;
       z-index: 0;
     }
@@ -84,7 +84,7 @@
       gap: 6px;
       padding: 5px 14px;
       border-radius: 9999px;
-      background: rgba(38, 10, 20, 0.85);
+      background: rgba(45, 4, 10, 0.9);
       border: 1px solid rgba(212, 175, 55, 0.35);
       font-size: 11px;
       font-weight: 700;
@@ -98,7 +98,7 @@
       gap: 10px;
       padding: 5px 14px;
       border-radius: 9999px;
-      background: rgba(38, 10, 20, 0.85);
+      background: rgba(45, 4, 10, 0.9);
       border: 1px solid var(--card-border);
       font-size: 11px;
       font-weight: 600;
@@ -235,18 +235,18 @@
 
     .btn-cyan {
       background: linear-gradient(135deg, #d4af37, #b8860b);
-      color: #120307; font-weight: 700; box-shadow: 0 4px 14px rgba(212, 175, 55, 0.35);
+      color: #140103; font-weight: 700; box-shadow: 0 4px 14px rgba(212, 175, 55, 0.35);
     }
     .btn-cyan:hover:not(:disabled) { background: linear-gradient(135deg, #f59e0b, #d4af37); transform: translateY(-1px); }
     .btn-cyan:disabled { opacity: 0.5; cursor: not-allowed; }
     .btn-success { background: #059669; color: #fff; }
-    .btn-secondary { background: #240812; color: #cbb3ba; border: 1px solid var(--input-border); }
+    .btn-secondary { background: #280309; color: #d6d3d1; border: 1px solid var(--input-border); }
     .btn-secondary:hover { background: #2d0a17; border-color: rgba(212, 175, 55, 0.4); color: #fff; }
 
     .btn-submit {
       width: 100%; padding: 15px; font-size: 14.5px; font-weight: 700;
       background: linear-gradient(135deg, #d4af37 0%, #f59e0b 50%, #b8860b 100%);
-      color: #120307; border-radius: 14px; box-shadow: 0 6px 25px rgba(212, 175, 55, 0.4);
+      color: #140103; border-radius: 14px; box-shadow: 0 6px 25px rgba(212, 175, 55, 0.4);
       margin-top: 14px;
     }
     .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(212, 175, 55, 0.55); }
@@ -266,7 +266,7 @@
 
     /* DOCUMENT UPLOAD (NATIVE LABEL CLICKABLE) */
     .ocr-registry-box {
-      background: rgba(28, 6, 13, 0.88);
+      background: rgba(35, 3, 8, 0.9);
       border: 1px solid rgba(212, 175, 55, 0.28);
       border-radius: 18px;
       padding: 22px;
@@ -321,13 +321,13 @@
     /* Success Card */
     .success-panel { text-align: center; display: flex; flex-direction: column; gap: 20px; }
     .holo-card {
-      background: linear-gradient(135deg, rgba(38, 10, 20, 0.95), rgba(28, 6, 13, 0.8));
+      background: linear-gradient(135deg, rgba(45, 4, 10, 0.96), rgba(28, 6, 13, 0.8));
       border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 20px; padding: 24px; text-align: left;
     }
     .holo-top { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
     .holo-avatar {
       width: 58px; height: 58px; border-radius: 14px;
-      background: linear-gradient(135deg, #d4af37, #881337);
+      background: linear-gradient(135deg, #d4af37, #78000f);
       display: flex; align-items: center; justify-content: center;
       font-size: 24px; font-weight: 800; color: #fff; border: 2px solid rgba(212, 175, 55, 0.35);
     }
