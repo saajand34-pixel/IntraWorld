@@ -363,51 +363,63 @@
             </div>
 
             <!-- PERSONAL REGISTRATION DATABASE VIEW -->
-            <div class="card">
-                <div class="card-title">
-                    <i class="fa-solid fa-id-card-clip" style="color: #38bdf8;"></i> Personal Registration Record
+            <div class="card" style="border: 1px solid rgba(56, 189, 248, 0.2); box-shadow: 0 10px 30px rgba(0,0,0,0.35);">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 6px;">
+                    <div class="card-title" style="margin-bottom: 0;">
+                        <i class="fa-solid fa-id-card-clip" style="color: #38bdf8;"></i> Personal Registration & College Record
+                    </div>
+                    <span style="font-size: 11px; background: rgba(56, 189, 248, 0.12); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); padding: 4px 10px; border-radius: 20px; font-weight: 600;">
+                        <i class="fa-solid fa-shield-halved"></i> Authenticated Student
+                    </span>
                 </div>
                 <div class="card-subtitle">
-                    Your authenticated student database credentials. Private to your account only.
+                    Your authenticated student database credentials. College Name is synced with your community posting rights and post badges.
                 </div>
 
                 <div class="info-grid">
                     <div class="info-field">
-                        <label>Full Name</label>
+                        <label><i class="fa-solid fa-user" style="color: #8fa8bf; margin-right: 4px;"></i> Full Name</label>
                         <input type="text" id="dbFullName" placeholder="Student Name" disabled>
                     </div>
 
                     <div class="info-field">
-                        <label>Email Address</label>
+                        <label><i class="fa-solid fa-envelope" style="color: #8fa8bf; margin-right: 4px;"></i> Email Address</label>
                         <input type="email" id="dbEmail" placeholder="student@example.com" disabled>
                     </div>
 
                     <div class="info-field">
-                        <label>Mobile Number</label>
+                        <label><i class="fa-solid fa-phone" style="color: #8fa8bf; margin-right: 4px;"></i> Mobile Number</label>
                         <input type="text" id="dbMobile" placeholder="Contact number" disabled>
                     </div>
 
                     <div class="info-field">
-                        <label>Registration ID</label>
+                        <label><i class="fa-solid fa-id-badge" style="color: #8fa8bf; margin-right: 4px;"></i> Student Roll No / Reg ID</label>
                         <input type="text" id="dbRegId" placeholder="Reg ID" disabled>
                     </div>
 
                     <div class="info-field">
-                        <label>Enrolled Qualification</label>
+                        <label><i class="fa-solid fa-graduation-cap" style="color: #8fa8bf; margin-right: 4px;"></i> Enrolled Qualification</label>
                         <input type="text" id="dbQualification" placeholder="Degree / Course" disabled>
                     </div>
 
                     <div class="info-field">
-                        <label>College / University</label>
-                        <input type="text" id="dbCollege" placeholder="College Name" disabled>
-                    </div>
-
-                    <div class="info-field">
-                        <label>Passout Year / Batch</label>
+                        <label><i class="fa-solid fa-calendar-days" style="color: #8fa8bf; margin-right: 4px;"></i> Passout Year / Batch</label>
                         <input type="text" id="dbPassout" placeholder="Year" disabled>
                     </div>
 
-                    <div class="info-field">
+                    <!-- Prominent College Name Field -->
+                    <div class="info-field" style="grid-column: 1 / -1; background: rgba(56, 189, 248, 0.05); padding: 16px; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.25);">
+                        <label style="color: #38bdf8; font-weight: 600; display: flex; align-items: center; gap: 8px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">
+                            <i class="fa-solid fa-building-columns" style="font-size: 15px;"></i> College / University Name (From Registration)
+                        </label>
+                        <input type="text" id="dbCollege" placeholder="e.g. Seshadripuram First Grade College (SFGC)" style="border-color: rgba(56, 189, 248, 0.4); background: #040e1a; font-size: 15px; font-weight: 500; color: #fff; margin-top: 4px;">
+                        <div style="font-size: 12px; color: #8fa8bf; margin-top: 6px; display: flex; align-items: center; gap: 6px;">
+                            <i class="fa-solid fa-circle-info" style="color: #38bdf8;"></i>
+                            <span>This is what you entered during registration. You can edit this field anytime to update your affiliated campus community feed.</span>
+                        </div>
+                    </div>
+
+                    <div class="info-field" style="grid-column: 1 / -1;">
                         <label>Membership Status</label>
                         <div id="dbVerificationBadge" style="margin-top: 4px;">
                             <span class="status-badge status-verified">
@@ -415,6 +427,13 @@
                             </span>
                         </div>
                     </div>
+                </div>
+
+                <div style="margin-top: 22px; display: flex; justify-content: flex-end; align-items: center; gap: 14px; flex-wrap: wrap; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 18px;">
+                    <div id="profileSaveMsg" style="font-size: 13px; color: #4ade80; display: none;"></div>
+                    <button id="saveProfileBtn" class="btn" style="background: #0066ff; color: #ffffff; padding: 11px 24px; border-radius: 10px; font-weight: 600; font-size: 14px; border: none; cursor: pointer; box-shadow: 0 4px 15px rgba(0, 102, 255, 0.35);">
+                        <i class="fa-solid fa-floppy-disk"></i> Save Profile & College Name
+                    </button>
                 </div>
             </div>
 

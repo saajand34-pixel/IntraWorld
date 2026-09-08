@@ -211,31 +211,76 @@
     <!-- MAIN DASHBOARD CONTENT AREA -->
     <main class="main">
         <section class="content">
-            <div class="banner">
-                <h1>Welcome to INTRA WORLD, <span id="welcomeStudentName" style="color: #38bdf8;">Student</span></h1>
-                <p>Academic • Professional • Student Networking Platform</p>
+            <!-- MODERN HERO DASHBOARD BANNER -->
+            <div class="banner" style="background: linear-gradient(135deg, rgba(8, 27, 46, 0.9), rgba(16, 43, 69, 0.5)); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 20px; padding: 32px 28px; box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4); margin-bottom: 35px;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px;">
+                    <div>
+                        <div style="display: inline-flex; align-items: center; gap: 8px; font-size: 12px; background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.35); padding: 4px 12px; border-radius: 20px; font-weight: 700; margin-bottom: 12px;">
+                            <i class="fa-solid fa-circle-check"></i> Verified Genuine Student
+                        </div>
+                        <h1 style="font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 800; color: #fff; margin-bottom: 6px; letter-spacing: -0.5px;">
+                            Welcome back, <span id="welcomeStudentName" style="background: linear-gradient(135deg, #ffffff, #38bdf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Student</span> 👋
+                        </h1>
+                        <p id="studentCollegeBadge" style="font-size: 14px; color: #7db7ff; display: flex; align-items: center; gap: 8px; margin-top: 4px;">
+                            <i class="fa-solid fa-building-columns" style="color: #38bdf8;"></i> <span id="studentCollegeText">Campus Community Enrolled</span>
+                        </p>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <a href="posts.html" class="btn" style="background: #0066ff; color: #fff; text-decoration: none; padding: 10px 18px; border-radius: 12px; font-size: 13.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(0, 102, 255, 0.4);">
+                            <i class="fa-solid fa-newspaper"></i> Social Feed
+                        </a>
+                        <a href="community.html" class="btn" style="background: rgba(255, 255, 255, 0.08); color: #fff; border: 1px solid rgba(255, 255, 255, 0.15); text-decoration: none; padding: 10px 18px; border-radius: 12px; font-size: 13.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-building-columns"></i> My Campus Hub
+                        </a>
+                    </div>
+                </div>
             </div>
 
+            <!-- STATS AND ACTIVITY CARDS -->
             <div class="cards">
-                <div class="card">
-                    <h3>Student Connections</h3>
-                    <h2 id="connections">0</h2>
-                    <p>Trusted academic connections.</p>
+                <div class="card" style="border-radius: 16px; position: relative; overflow: hidden;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h3>Student Connections</h3>
+                        <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(0, 102, 255, 0.15); color: #38bdf8; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                            <i class="fa-solid fa-user-group"></i>
+                        </div>
+                    </div>
+                    <h2 id="connections" style="color: #fff; font-size: 32px; font-weight: 800;">0</h2>
+                    <p>Verified classmates & cross-campus peers.</p>
                 </div>
-                <div class="card">
-                    <h3>Projects</h3>
-                    <h2 id="projects">0</h2>
-                    <p>Project collaborations.</p>
+
+                <div class="card" style="border-radius: 16px; position: relative; overflow: hidden;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h3>Projects & Repos</h3>
+                        <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(16, 185, 129, 0.15); color: #34d399; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                            <i class="fa-solid fa-diagram-project"></i>
+                        </div>
+                    </div>
+                    <h2 id="projects" style="color: #fff; font-size: 32px; font-weight: 800;">0</h2>
+                    <p>Academic capstone & group collaborations.</p>
                 </div>
-                <div class="card">
-                    <h3>Research</h3>
-                    <h2 id="research">0</h2>
-                    <p>Research opportunities.</p>
+
+                <div class="card" style="border-radius: 16px; position: relative; overflow: hidden;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h3>Research & Publications</h3>
+                        <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(129, 140, 248, 0.15); color: #818cf8; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                            <i class="fa-solid fa-book-bookmark"></i>
+                        </div>
+                    </div>
+                    <h2 id="research" style="color: #fff; font-size: 32px; font-weight: 800;">0</h2>
+                    <p>Technical papers & innovation articles.</p>
                 </div>
-                <div class="card">
-                    <h3>Notifications</h3>
-                    <h2 id="notifications">0</h2>
-                    <p>Unread notifications.</p>
+
+                <div class="card" style="border-radius: 16px; position: relative; overflow: hidden;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h3>Direct Messages</h3>
+                        <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(245, 158, 11, 0.15); color: #fbbf24; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                            <i class="fa-solid fa-comment-dots"></i>
+                        </div>
+                    </div>
+                    <h2 id="notifications" style="color: #fff; font-size: 32px; font-weight: 800;">0</h2>
+                    <p>Real-time chat with attachment support.</p>
                 </div>
             </div>
         </section>
@@ -248,7 +293,14 @@
                 if (raw) {
                     const user = JSON.parse(raw);
                     const nameSpan = document.getElementById("welcomeStudentName");
-                    if (nameSpan && user.fullName) nameSpan.textContent = user.fullName;
+                    if (nameSpan && (user.fullName || user.full_name)) {
+                        nameSpan.textContent = user.fullName || user.full_name;
+                    }
+                    const collegeSpan = document.getElementById("studentCollegeText");
+                    const college = user.collegeName || user.collegeOrUniversity || user.college || user.institution;
+                    if (collegeSpan && college) {
+                        collegeSpan.textContent = college;
+                    }
                 }
             } catch (e) {}
         });

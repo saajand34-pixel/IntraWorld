@@ -24,7 +24,7 @@ function renderFields(user) {
     const phone = user.mobileNumber || user.mobile || user.phone || "";
     const regId = user.studentRegId || user.regId || user.regid || user.registerNo || user.regNumber || user.registrationNumber || user.studentId || "";
     const qual = user.qualification || "";
-    const college = user.collegeName || user.collegeOrUniversity || user.college || "";
+    const college = user.collegeName || user.collegeOrUniversity || user.college || user.institution || "";
     const passout = user.passoutYear || user.passedOutYear || user.passout_year || "";
     const avatar = user.avatar || user.profilePhotoUrl || DEFAULT_AVATAR;
 
@@ -97,7 +97,8 @@ async function syncFromFirestore(userEmail) {
 
             const currentRaw = localStorage.getItem("currentUser") || "{}";
             const currentObj = JSON.parse(currentRaw);
-            const merged = { ...currentObj, ...data, id: activeDocId };
+            const college = data.collegeName || data.collegeOrUniversity || data.college || data.institution || currentObj.collegeName || "";
+            const merged = { ...currentObj, ...data, collegeName: college, id: activeDocId };
             
             localStorage.setItem("currentUser", JSON.stringify(merged));
             localStorage.setItem("intraWorldUser", JSON.stringify(merged));
@@ -330,15 +331,115 @@ function setupAccountDeactivation() {
 
 }
 
+// 5. Setup Profile & College Name Save Logic
+function setupProfileSave() {
+    const saveProfileBtn = document.getElementById("saveProfileBtn");
+    const profileSaveMsg = document.getElementById("profileSaveMsg");
+    const collegeInput = document.getElementById("dbCollege");
+
+    if (saveProfileBtn && collegeInput) {
+        saveProfileBtn.addEventListener("click", async () => {
+            const newCollege = collegeInput.value.trim();
+            if (!newCollege) {
+                alert("⚠️ Please enter your College or University Name.");
+                collegeInput.focus();
+                return;
+            }
+
+            saveProfileBtn.disabled = true;
+            saveProfileBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+
+            try {
+                let sessionUser = JSON.parse(localStorage.getItem("currentUser") || localStorage.getItem("intraWorldUser") || "{}");
+                sessionUser.collegeName = newCollege;
+                sessionUser.college = newCollege;
+                sessionUser.collegeOrUniversity = newCollege;
+
+                localStorage.setItem("currentUser", JSON.stringify(sessionUser));
+                localStorage.setItem("intraWorldUser", JSON.stringify(sessionUser));
+
+                const email = (sessionUser.email || "").toLowerCase();
+                if (email && db) {
+                    // Update in users collection
+                    try {
+                        await updateDoc(doc(db, "users", email), {
+                            collegeName: newCollege,
+                            college: newCollege
+                        });
+                    } catch (e) {
+                        console.warn("Update users note:", e);
+                    }
+
+                    // Update in active doc
+                    if (activeDocId) {
+                        try {
+                            await updateDoc(doc(db, activeCollection, activeDocId), {
+                                collegeName: newCollege,
+                                college: newCollege
+                            });
+                        } catch (e) {
+                            console.warn("Update active doc note:", e);
+                        }
+                    }
+
+                    // Update all matching registration docs
+                    try {
+                        const q = query(collection(db, "registrations"), where("email", "==", email));
+                        const snap = await getDocs(q);
+                        snap.forEach(async (d) => {
+                            await updateDoc(doc(db, "registrations", d.id), {
+                                collegeName: newCollege,
+                                college: newCollege
+                            });
+                        });
+                    } catch (e) {
+                        console.warn("Update registrations note:", e);
+                    }
+
+                    // Update all matching student docs
+                    try {
+                        const q = query(collection(db, "students"), where("email", "==", email));
+                        const snap = await getDocs(q);
+                        snap.forEach(async (d) => {
+                            await updateDoc(doc(db, "students", d.id), {
+                                collegeName: newCollege,
+                                college: newCollege
+                            });
+                        });
+                    } catch (e) {
+                        console.warn("Update students note:", e);
+                    }
+                }
+
+                if (profileSaveMsg) {
+                    profileSaveMsg.style.display = "inline-flex";
+                    profileSaveMsg.innerHTML = '<i class="fa-solid fa-circle-check"></i> College Name saved & synced!';
+                    setTimeout(() => {
+                        profileSaveMsg.style.display = "none";
+                    }, 4000);
+                }
+            } catch (err) {
+                console.error("Save profile error:", err);
+                alert("Failed to save changes: " + err.message);
+            } finally {
+                saveProfileBtn.disabled = false;
+                saveProfileBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Profile & College Name';
+            }
+        });
+    }
+}
+
 // Initialize on DOM Ready
 if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", () => {
         initRender();
         setupPhotoUpload();
         setupAccountDeactivation();
+        setupProfileSave();
     });
 } else {
     initRender();
     setupPhotoUpload();
     setupAccountDeactivation();
+    setupProfileSave();
 }
