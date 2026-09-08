@@ -18,11 +18,11 @@
     <style>
         :root {
             /* 90% True Royal Maroon Red Palette (Zero Pink / Magenta) */
-            --bg-canvas: #140205;
-            --bg-card: #1c0207;
+            --bg-canvas: #36050e;
+            --bg-card: #220308;
             --bg-card-hover: #24030a;
-            --bg-surface: #200308;
-            --bg-glass: rgba(24, 2, 6, 0.96);
+            --bg-surface: #220308;
+            --bg-glass: rgba(38, 4, 10, 0.95);
             --red-hotrod: #c41226;
             --red-hotrod-glow: rgba(220, 20, 45, 0.55);
             --maroon-glow: rgba(220, 20, 45, 0.55);
@@ -52,8 +52,8 @@
         }
 
         body {
-            background-color: #140205;
-            background: #140205;
+            background-color: #36050e;
+            background: #36050e;
             color: var(--text-body);
             min-height: 100vh;
             display: flex;
@@ -169,7 +169,7 @@
 
         .btn-nav-register {
             background: linear-gradient(135deg, #ffd700 0%, #f59e0b 50%, #d97706 100%);
-            color: #160205;
+            color: #180206;
             padding: 9px 22px;
             border-radius: 25px;
             font-size: 13.5px;
@@ -256,7 +256,7 @@
             align-items: center;
             gap: 10px;
             background: linear-gradient(135deg, #ffd700 0%, #f59e0b 50%, #d97706 100%);
-            color: #160205;
+            color: #180206;
             padding: 16px 36px;
             border-radius: 14px;
             font-size: 16px;
@@ -536,7 +536,7 @@
         }
 
         .importance-box {
-            background: #160205;
+            background: #36050e;
             border-left: 3px solid var(--gold-primary);
             border-radius: 0 12px 12px 0;
             padding: 12px 16px;
@@ -565,7 +565,7 @@
         }
 
         .creator-banner {
-            background: linear-gradient(135deg, #1c0207, #160205);
+            background: linear-gradient(135deg, #220308, #180206);
             border: 1px solid var(--gold-border-strong);
             border-radius: 28px;
             padding: 54px 44px;
@@ -625,7 +625,7 @@
 
         .team-card.lead {
             border-color: var(--gold-border-strong);
-            background: linear-gradient(180deg, #32050c, #1c0207);
+            background: linear-gradient(180deg, #32050c, #220308);
         }
 
         .team-avatar {
@@ -684,7 +684,7 @@
 
         /* Tech Stack Footer in Creator Section */
         .tech-stack-container {
-            background: #160205;
+            background: #36050e;
             border: 1px solid var(--gold-border);
             border-radius: 18px;
             padding: 22px 28px;
@@ -734,7 +734,7 @@
         }
 
         .cta-bottom-box {
-            background: #140205;
+            background: #36050e;
             border: 1px solid var(--gold-border-strong);
             border-radius: 26px;
             padding: 65px 36px;
@@ -861,7 +861,7 @@
         }
 
         .arch-box {
-            background: #140205;
+            background: #36050e;
             border: 1px solid var(--gold-border);
             border-radius: 16px;
             padding: 22px 20px;
@@ -905,6 +905,47 @@
             padding: 25px 0;
         }
 
+    
+        /* Centered Hero Logo & Subtitle */
+        .hero-logo-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .hero-center-logo {
+            width: 135px;
+            height: 135px;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 18px rgba(0, 0, 0, 0.7));
+            border-radius: 50%;
+            border: 2px solid rgba(245, 158, 11, 0.45);
+            background: #24030a;
+            padding: 4px;
+            transition: transform 0.3s ease;
+        }
+
+        .hero-center-logo:hover {
+            transform: scale(1.06);
+        }
+
+        .hero-logo-text {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(2rem, 4.2vw, 3.2rem);
+            font-weight: 800;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, #ffffff 25%, #ffd700 70%, #f59e0b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.1;
+            margin: 0;
+            text-align: center;
+        }
+
     </style>
 </head>
 <body>
@@ -913,7 +954,6 @@
     <div class="header-nav-wrapper">
         <header class="header-nav">
             <a href="index.html" class="nav-brand">
-                <img src="logo.png" alt="IntraWorld Circular Logo" class="nav-logo-img">
                 <span class="nav-brand-text">INTRAWORLD</span>
             </a>
 
@@ -943,6 +983,12 @@
         <!-- HERO SECTION -->
         <section class="hero-section">
             <div class="container">
+                <!-- HERO CENTER LOGO & TITLE -->
+                <div class="hero-logo-box">
+                    <img src="logo.png" alt="IntraWorld Emblem" class="hero-center-logo">
+                    <div class="hero-logo-text">INTRAWORLD</div>
+                </div>
+
                 <div class="badge-pill">
                     <i class="fa-solid fa-award"></i> College Final Project 2026 • Verified Student Network
                 </div>
