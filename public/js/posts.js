@@ -130,7 +130,127 @@ try {
     }
 } catch(e) {}
 
-// Check localStorage first
+// College Resolution and Normalization Helpers
+function cleanCollegeStr(str) {
+    return (str || "").toLowerCase().replace(/[^a-z0-9]/g, "").trim();
+}
+
+function getAcronym(str) {
+    return (str || "")
+        .replace(/[^a-zA-Z0-9\s]/g, "")
+        .split(/\s+/)
+        .filter(w => !["of", "and", "the", "in", "for", "to", "&"].includes(w.toLowerCase()))
+        .map(w => w[0])
+        .join("")
+        .toLowerCase();
+}
+
+function isSameCollege(c1, c2) {
+    if (!c1 || !c2) return false;
+    const s1 = cleanCollegeStr(c1);
+    const s2 = cleanCollegeStr(c2);
+    if (!s1 || !s2) return false;
+    if (s1.includes(s2) || s2.includes(s1)) return true;
+    const a1 = getAcronym(c1);
+    const a2 = getAcronym(c2);
+    if (a1 && a2 && (a1 === a2 || s1.includes(a2) || s2.includes(a1))) return true;
+    return false;
+}
+
+// Fetch College from Firestore if missing from local session
+async function fetchCollegeFromFirestore(email) {
+    if (!email || !db) return "";
+    try {
+        let q = query(collection(db, "registrations"), where("email", "==", email));
+        let snap = await getDocs(q);
+        if (snap.empty) {
+            q = query(collection(db, "students"), where("email", "==", email));
+            snap = await getDocs(q);
+        }
+        if (snap.empty) {
+            q = query(collection(db, "users"), where("email", "==", email));
+            snap = await getDocs(q);
+        }
+        if (!snap.empty) {
+            const data = snap.docs[0].data();
+            const col = extractCollege(data);
+            if (col) {
+                userCollegeName = col;
+                // Update local storage
+                try {
+                    const raw = localStorage.getItem("currentUser") || "{}";
+                    const u = JSON.parse(raw);
+                    u.collegeName = col;
+                    localStorage.setItem("currentUser", JSON.stringify(u));
+                    localStorage.setItem("intraWorldUser", JSON.stringify(u));
+                } catch(e) {}
+                updateAudienceUI();
+                return col;
+            }
+        }
+    } catch(err) {
+        console.warn("Could not fetch college from Firestore:", err);
+    }
+    return "";
+}
+
+// Setup Audience Selector Pills with interactive fallback
+if (audiencePillPublic && audiencePillCommunity) {
+    audiencePillPublic.addEventListener("click", () => {
+        currentAudience = "public";
+        audiencePillPublic.classList.add("active");
+        audiencePillCommunity.classList.remove("active");
+    });
+
+    audiencePillCommunity.addEventListener("click", async () => {
+        if (!userCollegeName && currentUser?.email) {
+            await fetchCollegeFromFirestore(currentUser.email);
+        }
+
+        if (!userCollegeName) {
+            const entered = prompt("🎓 Please enter your enrolled College Name to post to your College Community (e.g. Seshadripuram First Grade College (SFGC)):");
+            if (entered && entered.trim()) {
+                userCollegeName = entered.trim();
+                try {
+                    const raw = localStorage.getItem("currentUser") || "{}";
+                    const u = JSON.parse(raw);
+                    u.collegeName = userCollegeName;
+                    localStorage.setItem("currentUser", JSON.stringify(u));
+                    localStorage.setItem("intraWorldUser", JSON.stringify(u));
+
+                    if (currentUser?.email && db) {
+                        const q = query(collection(db, "registrations"), where("email", "==", currentUser.email));
+                        getDocs(q).then(snap => {
+                            snap.forEach(d => updateDoc(doc(db, "registrations", d.id), { collegeName: userCollegeName }));
+                        }).catch(() => {});
+                    }
+                } catch(e) {}
+                updateAudienceUI();
+            } else {
+                alert("⚠️ You must have your enrolled College Name set to post to your College Community.");
+                return;
+            }
+        }
+
+        currentAudience = "community";
+        audiencePillCommunity.classList.add("active");
+        audiencePillPublic.classList.remove("active");
+    });
+}
+
+// Preselect community audience if coming from URL ?audience=community
+try {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get("audience") === "community") {
+        currentAudience = "community";
+        if (audiencePillCommunity && audiencePillPublic) {
+            audiencePillCommunity.classList.add("active");
+            audiencePillPublic.classList.remove("active");
+        }
+    }
+} catch(e) {}
+
+// Initial load of currentUser & College from local session
 try {
     const rawLocalUser = localStorage.getItem("currentUser") || localStorage.getItem("intraWorldUser");
     if (rawLocalUser) {
@@ -140,16 +260,26 @@ try {
             email: parsed.email,
             displayName: parsed.fullName || parsed.full_name
         };
+        const col = extractCollege(parsed);
+        if (col) {
+            userCollegeName = col;
+            updateAudienceUI();
+        } else if (parsed.email) {
+            fetchCollegeFromFirestore(parsed.email);
+        }
         if (myAvatar) myAvatar.textContent = (parsed.email || "U").charAt(0).toUpperCase();
         loadPosts();
     }
 } catch (e) {}
 
-// Auth listener sync
-onAuthStateChanged(auth, (user) => {
+// Auth listener sync & College check
+onAuthStateChanged(auth, async (user) => {
     if (user) {
         currentUser = user;
         if (myAvatar) myAvatar.textContent = (user.email || "U").charAt(0).toUpperCase();
+        if (!userCollegeName && user.email) {
+            await fetchCollegeFromFirestore(user.email);
+        }
         loadPosts();
     }
 });
@@ -598,6 +728,7 @@ if (publishPostBtn) {
             const postData = {
                 uid: currentUser.uid,
                 authorEmail: currentUser.email,
+                authorName: currentUser.displayName || (currentUser.email ? currentUser.email.split("@")[0] : "Student"),
                 content: textContent,
                 mediaUrl: mediaUrl,
                 docUrl: docUrl,
@@ -606,6 +737,11 @@ if (publishPostBtn) {
                 aiPercentage: parseFloat(aiPercentage),
                 aiReasoning: aiReasoning,
                 aiLabel: aiLabel,
+                postType: currentAudience,
+                audience: currentAudience,
+                targetCollege: currentAudience === "community" ? (userCollegeName || "College Community") : null,
+                authorCollege: userCollegeName || "",
+                collegeName: userCollegeName || "",
                 createdAt: new Date().toISOString()
             };
 
@@ -794,6 +930,52 @@ async function openShareModal(postId, authorName, content) {
 // ==========================================
 // LOAD FEED WITH LIKES, COMMENTS, DELETE & SHARE
 // ==========================================
+// Feed Filtering Function
+function filterAndRenderPosts() {
+    if (!postsFeed) return;
+    if (!loadedPostsCache || loadedPostsCache.length === 0) {
+        postsFeed.innerHTML = `<div style="color: var(--text-muted); text-align: center; padding: 40px;">No posts found.</div>`;
+        return;
+    }
+
+    let filtered = loadedPostsCache;
+    if (currentFeedFilter === "public") {
+        filtered = loadedPostsCache.filter(p => p.postType !== "community" && p.audience !== "community");
+    } else if (currentFeedFilter === "community") {
+        filtered = loadedPostsCache.filter(p => {
+            const isComm = p.postType === "community" || p.audience === "community";
+            if (!isComm) return false;
+            if (userCollegeName) {
+                return isSameCollege(p.targetCollege || p.authorCollege || p.collegeName, userCollegeName);
+            }
+            return true;
+        });
+    }
+
+    if (filtered.length === 0) {
+        const filterMsg = currentFeedFilter === "community"
+            ? (userCollegeName ? `No community posts yet for ${userCollegeName}. Be the first to post!` : "No college community posts found.")
+            : (currentFeedFilter === "public" ? "No public posts found." : "No posts found.");
+        postsFeed.innerHTML = `<div style="color: var(--text-muted); text-align: center; padding: 40px;">${escapeHtml(filterMsg)}</div>`;
+        return;
+    }
+
+    postsFeed.innerHTML = "";
+    filtered.forEach(item => {
+        renderSinglePostCard(item);
+    });
+}
+
+// Wire Category Filter Buttons
+document.querySelectorAll(".feed-filter-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+        document.querySelectorAll(".feed-filter-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        currentFeedFilter = btn.getAttribute("data-filter") || "all";
+        filterAndRenderPosts();
+    });
+});
+
 async function loadPosts() {
     if (!postsFeed) return;
 
@@ -802,287 +984,305 @@ async function loadPosts() {
         const snapshot = await getDocs(q);
 
         if (snapshot.empty) {
-            postsFeed.innerHTML = `<div style="color: #7db7ff; text-align: center; padding: 40px;">No posts found.</div>`;
+            loadedPostsCache = [];
+            postsFeed.innerHTML = `<div style="color: var(--text-muted); text-align: center; padding: 40px;">No posts found.</div>`;
             return;
         }
 
-        postsFeed.innerHTML = "";
-
+        loadedPostsCache = [];
         snapshot.forEach((docSnap) => {
-            const postId = docSnap.id;
-            const post = docSnap.data();
-            const initial = (post.authorEmail || "U").charAt(0).toUpperCase();
-            const authorName = (post.authorEmail || "student").split("@")[0];
-            const aiScore = typeof post.aiPercentage === "number" ? post.aiPercentage : 0;
-
-            const myEmail = (currentUser?.email || "").toLowerCase();
-            const isAuthor = currentUser && (
-                (post.authorEmail && post.authorEmail.toLowerCase() === myEmail) ||
-                (post.uid && post.uid === currentUser.uid)
-            );
-
-            // Likes Array
-            const likesList = Array.isArray(post.likes) ? post.likes : [];
-            const isLiked = myEmail && likesList.some(e => (e || "").toLowerCase() === myEmail);
-            const likeCount = likesList.length;
-
-            // Comments Array
-            const commentsList = Array.isArray(post.comments) ? post.comments : [];
-            const commentCount = commentsList.length;
-
-            const postCard = document.createElement("div");
-            postCard.className = "post-card";
-            postCard.id = `post-${postId}`;
-
-            postCard.innerHTML = `
-                <div class="post-header-row">
-                    <div class="post-author">
-                        <div class="user-avatar">${initial}</div>
-                        <div class="author-info">
-                            <h4>${escapeHtml(authorName)}</h4>
-                            <p>${new Date(post.createdAt).toLocaleString()}</p>
-                        </div>
-                    </div>
-                    <div class="post-header-actions">
-                        ${renderAiPercentageBadge(aiScore, post.aiReasoning)}
-                        ${isAuthor ? `
-                            <button class="btn-delete-post" data-post-id="${postId}" title="Delete Post completely from database">
-                                <i class="fa-solid fa-trash-can"></i>
-                            </button>
-                        ` : ""}
-                    </div>
-                </div>
-
-                <div class="post-content">${escapeHtml(post.content || "")}</div>
-
-                ${post.mediaUrl ? `<img src="${post.mediaUrl}" class="post-media" alt="Post media">` : ""}
-
-                ${post.docUrl ? `
-                    <a href="${post.docUrl}" target="_blank" download="${escapeHtml(post.docName || "document.pdf")}" class="pdf-card">
-                        <i class="fa-solid fa-file-pdf fa-2x"></i>
-                        <div>
-                            <strong>Attachment Document:</strong>
-                            <div>${escapeHtml(post.docName || "Download File")}</div>
-                        </div>
-                    </a>
-                ` : ""}
-
-                ${post.githubUrl ? `
-                    <a href="${escapeHtml(post.githubUrl)}" target="_blank" class="github-card">
-                        <i class="fa-brands fa-github fa-2x"></i>
-                        <div>
-                            <strong>GitHub Repository Project:</strong>
-                            <div>${escapeHtml(post.githubUrl)}</div>
-                        </div>
-                    </a>
-                ` : ""}
-
-                <div class="post-footer">
-                    <button class="interaction-btn like-btn ${isLiked ? "liked" : ""}" data-post-id="${postId}" data-liked="${isLiked ? "true" : "false"}">
-                        <i class="${isLiked ? "fa-solid" : "fa-regular"} fa-heart"></i>
-                        <span class="like-label">${likeCount > 0 ? `${likeCount} ${likeCount === 1 ? "Like" : "Likes"}` : "Like"}</span>
-                    </button>
-                    <button class="interaction-btn comment-toggle-btn" data-post-id="${postId}">
-                        <i class="fa-regular fa-comment"></i>
-                        <span class="comment-label">${commentCount > 0 ? `${commentCount} ${commentCount === 1 ? "Comment" : "Comments"}` : "Comment"}</span>
-                    </button>
-                    <button class="interaction-btn share-open-btn" data-post-id="${postId}">
-                        <i class="fa-solid fa-share"></i> Share
-                    </button>
-                </div>
-
-                <!-- Instagram-style expandable comments drawer -->
-                <div class="comments-drawer" id="comments-drawer-${postId}" style="display: none;">
-                    <div class="comments-list" id="comments-list-${postId}">
-                        ${commentsList.length === 0 ? `<div class="no-comments-msg" style="color: #64748b; font-size: 12px; padding: 4px 0;">No comments yet. Start the conversation!</div>` : ""}
-                        ${commentsList.map(c => `
-                            <div class="comment-item">
-                                <div class="comment-avatar">${escapeHtml((c.authorName || c.authorEmail || "U").charAt(0).toUpperCase())}</div>
-                                <div class="comment-body">
-                                    <div class="comment-header-row">
-                                        <span class="comment-author">${escapeHtml(c.authorName || (c.authorEmail || "").split("@")[0] || "Student")}</span>
-                                        <span class="comment-time">${c.createdAt ? new Date(c.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ""}</span>
-                                    </div>
-                                    <div class="comment-text">${escapeHtml(c.text || "")}</div>
-                                </div>
-                            </div>
-                        `).join("")}
-                    </div>
-                    <div class="comment-input-row">
-                        <input type="text" class="comment-input" id="comment-input-${postId}" placeholder="Write a comment..." />
-                        <button class="comment-submit-btn" id="comment-submit-${postId}" title="Post comment">
-                            <i class="fa-solid fa-paper-plane"></i>
-                        </button>
-                    </div>
-                </div>
-            `;
-
-            // 1. Setup Delete Button Handler
-            const deleteBtn = postCard.querySelector(".btn-delete-post");
-            if (deleteBtn) {
-                deleteBtn.addEventListener("click", async () => {
-                    const confirmed = confirm("Are you sure you want to permanently delete this post? It will be removed completely from IntraWorld.");
-                    if (!confirmed) return;
-
-                    deleteBtn.disabled = true;
-                    deleteBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i>`;
-
-                    try {
-                        await deleteDoc(doc(db, "posts", postId));
-                        postCard.style.transition = "opacity 0.3s ease, transform 0.3s ease";
-                        postCard.style.opacity = "0";
-                        postCard.style.transform = "scale(0.95)";
-                        setTimeout(() => postCard.remove(), 300);
-                    } catch (err) {
-                        console.error("Delete post error:", err);
-                        alert("Failed to delete post: " + err.message);
-                        deleteBtn.disabled = false;
-                        deleteBtn.innerHTML = `<i class="fa-solid fa-trash-can"></i>`;
-                    }
-                });
-            }
-
-            // 2. Setup Instagram-Style Like Toggle
-            const likeBtn = postCard.querySelector(".like-btn");
-            if (likeBtn) {
-                likeBtn.addEventListener("click", async () => {
-                    if (!currentUser || !currentUser.email) {
-                        alert("Please log in to like posts.");
-                        return;
-                    }
-
-                    const isCurrentlyLiked = likeBtn.getAttribute("data-liked") === "true";
-                    const newLiked = !isCurrentlyLiked;
-                    likeBtn.setAttribute("data-liked", newLiked ? "true" : "false");
-
-                    const heartIcon = likeBtn.querySelector("i");
-                    const labelEl = likeBtn.querySelector(".like-label");
-
-                    // Optimistic UI state
-                    if (newLiked) {
-                        likeBtn.classList.add("liked");
-                        if (heartIcon) heartIcon.className = "fa-solid fa-heart";
-                    } else {
-                        likeBtn.classList.remove("liked");
-                        if (heartIcon) heartIcon.className = "fa-regular fa-heart";
-                    }
-
-                    let curCount = 0;
-                    const match = (labelEl.textContent || "").match(/\d+/);
-                    if (match) curCount = parseInt(match[0], 10);
-                    curCount = newLiked ? curCount + 1 : Math.max(0, curCount - 1);
-                    labelEl.textContent = curCount > 0 ? `${curCount} ${curCount === 1 ? "Like" : "Likes"}` : "Like";
-
-                    try {
-                        const postRef = doc(db, "posts", postId);
-                        await updateDoc(postRef, {
-                            likes: newLiked ? arrayUnion(myEmail) : arrayRemove(myEmail)
-                        });
-                    } catch (err) {
-                        console.error("Like toggle error:", err);
-                    }
-                });
-            }
-
-            // 3. Setup Comments Drawer & Composer
-            const commentToggleBtn = postCard.querySelector(".comment-toggle-btn");
-            const drawer = postCard.querySelector(`#comments-drawer-${postId}`);
-            const commentInput = postCard.querySelector(`#comment-input-${postId}`);
-            const commentSubmitBtn = postCard.querySelector(`#comment-submit-${postId}`);
-            const commentsListEl = postCard.querySelector(`#comments-list-${postId}`);
-            const commentLabelEl = postCard.querySelector(".comment-label");
-
-            if (commentToggleBtn && drawer) {
-                commentToggleBtn.addEventListener("click", () => {
-                    const isVisible = drawer.style.display !== "none";
-                    drawer.style.display = isVisible ? "none" : "block";
-                    if (!isVisible && commentInput) {
-                        commentInput.focus();
-                    }
-                });
-            }
-
-            async function submitComment() {
-                if (!currentUser || !currentUser.email) {
-                    alert("Please log in to comment.");
-                    return;
-                }
-                const text = (commentInput?.value || "").trim();
-                if (!text) return;
-
-                commentInput.value = "";
-
-                const newComment = {
-                    id: "c_" + Date.now() + "_" + Math.random().toString(36).substring(2, 6),
-                    authorEmail: currentUser.email.toLowerCase(),
-                    authorName: currentUser.displayName || currentUser.email.split("@")[0],
-                    text: text,
-                    createdAt: new Date().toISOString()
-                };
-
-                // Optimistic comment item
-                const emptyMsg = commentsListEl.querySelector(".no-comments-msg");
-                if (emptyMsg) emptyMsg.remove();
-
-                const cItem = document.createElement("div");
-                cItem.className = "comment-item";
-                cItem.innerHTML = `
-                    <div class="comment-avatar">${escapeHtml(newComment.authorName.charAt(0).toUpperCase())}</div>
-                    <div class="comment-body">
-                        <div class="comment-header-row">
-                            <span class="comment-author">${escapeHtml(newComment.authorName)}</span>
-                            <span class="comment-time">Just now</span>
-                        </div>
-                        <div class="comment-text">${escapeHtml(newComment.text)}</div>
-                    </div>
-                `;
-                commentsListEl.appendChild(cItem);
-                commentsListEl.scrollTop = commentsListEl.scrollHeight;
-
-                // Update comment counter text
-                let cCount = 0;
-                const match = (commentLabelEl.textContent || "").match(/\d+/);
-                if (match) cCount = parseInt(match[0], 10);
-                cCount += 1;
-                commentLabelEl.textContent = `${cCount} ${cCount === 1 ? "Comment" : "Comments"}`;
-
-                try {
-                    await updateDoc(doc(db, "posts", postId), {
-                        comments: arrayUnion(newComment)
-                    });
-                } catch (err) {
-                    console.error("Comment submit error:", err);
-                    alert("Failed to save comment: " + err.message);
-                }
-            }
-
-            if (commentSubmitBtn) {
-                commentSubmitBtn.addEventListener("click", submitComment);
-            }
-            if (commentInput) {
-                commentInput.addEventListener("keydown", (e) => {
-                    if (e.key === "Enter") {
-                        e.preventDefault();
-                        submitComment();
-                    }
-                });
-            }
-
-            // 4. Setup Share Button Handler
-            const shareBtn = postCard.querySelector(".share-open-btn");
-            if (shareBtn) {
-                shareBtn.addEventListener("click", () => {
-                    openShareModal(postId, authorName, post.content || "");
-                });
-            }
-
-            postsFeed.appendChild(postCard);
+            loadedPostsCache.push({
+                id: docSnap.id,
+                ...docSnap.data()
+            });
         });
 
+        filterAndRenderPosts();
     } catch (err) {
         console.error("🔴 Error loading feed:", err);
         postsFeed.innerHTML = `<div style="color: #ef4444; text-align: center; padding: 40px;">Error loading posts.</div>`;
     }
+}
+
+
+function renderSinglePostCard(post) {
+    const postId = post.id;
+    const initial = (post.authorEmail || "U").charAt(0).toUpperCase();
+    const authorName = post.authorName || (post.authorEmail || "student").split("@")[0];
+    const aiScore = typeof post.aiPercentage === "number" ? post.aiPercentage : 0;
+
+    const myEmail = (currentUser?.email || "").toLowerCase();
+    const isAuthor = currentUser && (
+        (post.authorEmail && post.authorEmail.toLowerCase() === myEmail) ||
+        (post.uid && post.uid === currentUser.uid)
+    );
+
+    // Likes Array
+    const likesList = Array.isArray(post.likes) ? post.likes : [];
+    const isLiked = myEmail && likesList.some(e => (e || "").toLowerCase() === myEmail);
+    const likeCount = likesList.length;
+
+    // Comments Array
+    const commentsList = Array.isArray(post.comments) ? post.comments : [];
+    const commentCount = commentsList.length;
+
+    const postCard = document.createElement("div");
+    postCard.className = "post-card";
+    postCard.id = `post-${postId}`;
+
+    const isCommPost = post.postType === "community" || post.audience === "community";
+    const collegeTag = post.targetCollege || post.authorCollege || post.collegeName || "College Community";
+
+    postCard.innerHTML = `
+        <div class="post-header-row">
+            <div class="post-author">
+                <div class="user-avatar">${initial}</div>
+                <div class="author-info">
+                    <h4>${escapeHtml(authorName)}</h4>
+                    <p>${post.createdAt ? new Date(post.createdAt).toLocaleString() : "Recently"}</p>
+                </div>
+            </div>
+            <div class="post-header-actions">
+                ${isCommPost ? `
+                    <span class="post-type-badge badge-community">
+                        <i class="fa-solid fa-building-columns"></i> ${escapeHtml(collegeTag)}
+                    </span>
+                ` : `
+                    <span class="post-type-badge badge-public">
+                        <i class="fa-solid fa-globe"></i> Public Post
+                    </span>
+                `}
+                ${renderAiPercentageBadge(aiScore, post.aiReasoning)}
+                ${isAuthor ? `
+                    <button class="btn-delete-post" data-post-id="${postId}" title="Delete Post completely from database">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                ` : ""}
+            </div>
+        </div>
+
+        <div class="post-content">${escapeHtml(post.content || "")}</div>
+
+        ${post.mediaUrl ? `<img src="${post.mediaUrl}" class="post-media" alt="Post media">` : ""}
+
+        ${post.docUrl ? `
+            <a href="${post.docUrl}" target="_blank" download="${escapeHtml(post.docName || "document.pdf")}" class="pdf-card">
+                <i class="fa-solid fa-file-pdf fa-2x"></i>
+                <div>
+                    <strong>Attachment Document:</strong>
+                    <div>${escapeHtml(post.docName || "Download File")}</div>
+                </div>
+            </a>
+        ` : ""}
+
+        ${post.githubUrl ? `
+            <a href="${escapeHtml(post.githubUrl)}" target="_blank" class="github-card">
+                <i class="fa-brands fa-github fa-2x"></i>
+                <div>
+                    <strong>GitHub Repository Project:</strong>
+                    <div>${escapeHtml(post.githubUrl)}</div>
+                </div>
+            </a>
+        ` : ""}
+
+        <div class="post-footer">
+            <button class="interaction-btn like-btn ${isLiked ? "liked" : ""}" data-post-id="${postId}" data-liked="${isLiked ? "true" : "false"}">
+                <i class="${isLiked ? "fa-solid" : "fa-regular"} fa-heart"></i>
+                <span class="like-label">${likeCount > 0 ? `${likeCount} ${likeCount === 1 ? "Like" : "Likes"}` : "Like"}</span>
+            </button>
+            <button class="interaction-btn comment-toggle-btn" data-post-id="${postId}">
+                <i class="fa-regular fa-comment"></i>
+                <span class="comment-label">${commentCount > 0 ? `${commentCount} ${commentCount === 1 ? "Comment" : "Comments"}` : "Comment"}</span>
+            </button>
+            <button class="interaction-btn share-open-btn" data-post-id="${postId}">
+                <i class="fa-solid fa-share"></i> Share
+            </button>
+        </div>
+
+        <!-- Instagram-style expandable comments drawer -->
+        <div class="comments-drawer" id="comments-drawer-${postId}" style="display: none;">
+            <div class="comments-list" id="comments-list-${postId}">
+                ${commentsList.length === 0 ? `<div class="no-comments-msg" style="color: #64748b; font-size: 12px; padding: 4px 0;">No comments yet. Start the conversation!</div>` : ""}
+                ${commentsList.map(c => `
+                    <div class="comment-item">
+                        <div class="comment-avatar">${escapeHtml((c.authorName || c.authorEmail || "U").charAt(0).toUpperCase())}</div>
+                        <div class="comment-body">
+                            <div class="comment-header-row">
+                                <span class="comment-author">${escapeHtml(c.authorName || (c.authorEmail || "").split("@")[0] || "Student")}</span>
+                                <span class="comment-time">${c.createdAt ? new Date(c.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ""}</span>
+                            </div>
+                            <div class="comment-text">${escapeHtml(c.text || "")}</div>
+                        </div>
+                    </div>
+                `).join("")}
+            </div>
+            <div class="comment-input-row">
+                <input type="text" class="comment-input" id="comment-input-${postId}" placeholder="Write a comment..." />
+                <button class="comment-submit-btn" id="comment-submit-${postId}" title="Post comment">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    `;
+
+    // 1. Delete Handler
+    const deleteBtn = postCard.querySelector(".btn-delete-post");
+    if (deleteBtn) {
+        deleteBtn.addEventListener("click", async () => {
+            const confirmed = confirm("Are you sure you want to permanently delete this post? It will be removed completely from IntraWorld.");
+            if (!confirmed) return;
+
+            deleteBtn.disabled = true;
+            deleteBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i>`;
+
+            try {
+                await deleteDoc(doc(db, "posts", postId));
+                loadedPostsCache = loadedPostsCache.filter(p => p.id !== postId);
+                postCard.style.transition = "opacity 0.3s ease, transform 0.3s ease";
+                postCard.style.opacity = "0";
+                postCard.style.transform = "scale(0.95)";
+                setTimeout(() => postCard.remove(), 300);
+            } catch (err) {
+                console.error("Delete post error:", err);
+                alert("Failed to delete post: " + err.message);
+                deleteBtn.disabled = false;
+                deleteBtn.innerHTML = `<i class="fa-solid fa-trash-can"></i>`;
+            }
+        });
+    }
+
+    // 2. Like Handler
+    const likeBtn = postCard.querySelector(".like-btn");
+    if (likeBtn) {
+        likeBtn.addEventListener("click", async () => {
+            if (!currentUser || !currentUser.email) {
+                alert("Please log in to like posts.");
+                return;
+            }
+
+            const isCurrentlyLiked = likeBtn.getAttribute("data-liked") === "true";
+            const newLiked = !isCurrentlyLiked;
+            likeBtn.setAttribute("data-liked", newLiked ? "true" : "false");
+
+            const heartIcon = likeBtn.querySelector("i");
+            const labelEl = likeBtn.querySelector(".like-label");
+
+            if (newLiked) {
+                likeBtn.classList.add("liked");
+                if (heartIcon) heartIcon.className = "fa-solid fa-heart";
+            } else {
+                likeBtn.classList.remove("liked");
+                if (heartIcon) heartIcon.className = "fa-regular fa-heart";
+            }
+
+            let curCount = 0;
+            const match = (labelEl.textContent || "").match(/\d+/);
+            if (match) curCount = parseInt(match[0], 10);
+            curCount = newLiked ? curCount + 1 : Math.max(0, curCount - 1);
+            labelEl.textContent = curCount > 0 ? `${curCount} ${curCount === 1 ? "Like" : "Likes"}` : "Like";
+
+            try {
+                const postRef = doc(db, "posts", postId);
+                await updateDoc(postRef, {
+                    likes: newLiked ? arrayUnion(myEmail) : arrayRemove(myEmail)
+                });
+            } catch (err) {
+                console.error("Like toggle error:", err);
+            }
+        });
+    }
+
+    // 3. Comments Drawer & Composer
+    const commentToggleBtn = postCard.querySelector(".comment-toggle-btn");
+    const drawer = postCard.querySelector(`#comments-drawer-${postId}`);
+    const commentInput = postCard.querySelector(`#comment-input-${postId}`);
+    const commentSubmitBtn = postCard.querySelector(`#comment-submit-${postId}`);
+    const commentsListEl = postCard.querySelector(`#comments-list-${postId}`);
+    const commentLabelEl = postCard.querySelector(".comment-label");
+
+    if (commentToggleBtn && drawer) {
+        commentToggleBtn.addEventListener("click", () => {
+            const isVisible = drawer.style.display !== "none";
+            drawer.style.display = isVisible ? "none" : "block";
+            if (!isVisible && commentInput) {
+                commentInput.focus();
+            }
+        });
+    }
+
+    async function submitComment() {
+        if (!currentUser || !currentUser.email) {
+            alert("Please log in to comment.");
+            return;
+        }
+        const text = (commentInput?.value || "").trim();
+        if (!text) return;
+
+        commentInput.value = "";
+
+        const newComment = {
+            id: "c_" + Date.now() + "_" + Math.random().toString(36).substring(2, 6),
+            authorEmail: currentUser.email.toLowerCase(),
+            authorName: currentUser.displayName || currentUser.email.split("@")[0],
+            text: text,
+            createdAt: new Date().toISOString()
+        };
+
+        const emptyMsg = commentsListEl.querySelector(".no-comments-msg");
+        if (emptyMsg) emptyMsg.remove();
+
+        const cItem = document.createElement("div");
+        cItem.className = "comment-item";
+        cItem.innerHTML = `
+            <div class="comment-avatar">${escapeHtml(newComment.authorName.charAt(0).toUpperCase())}</div>
+            <div class="comment-body">
+                <div class="comment-header-row">
+                    <span class="comment-author">${escapeHtml(newComment.authorName)}</span>
+                    <span class="comment-time">Just now</span>
+                </div>
+                <div class="comment-text">${escapeHtml(newComment.text)}</div>
+            </div>
+        `;
+        commentsListEl.appendChild(cItem);
+        commentsListEl.scrollTop = commentsListEl.scrollHeight;
+
+        let cCount = 0;
+        const match = (commentLabelEl.textContent || "").match(/\d+/);
+        if (match) cCount = parseInt(match[0], 10);
+        cCount += 1;
+        commentLabelEl.textContent = `${cCount} ${cCount === 1 ? "Comment" : "Comments"}`;
+
+        try {
+            await updateDoc(doc(db, "posts", postId), {
+                comments: arrayUnion(newComment)
+            });
+        } catch (err) {
+            console.error("Comment submit error:", err);
+            alert("Failed to save comment: " + err.message);
+        }
+    }
+
+    if (commentSubmitBtn) {
+        commentSubmitBtn.addEventListener("click", submitComment);
+    }
+    if (commentInput) {
+        commentInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                submitComment();
+            }
+        });
+    }
+
+    // 4. Share Button Handler
+    const shareBtn = postCard.querySelector(".share-open-btn");
+    if (shareBtn) {
+        shareBtn.addEventListener("click", () => {
+            openShareModal(postId, authorName, post.content || "");
+        });
+    }
+
+    postsFeed.appendChild(postCard);
 }
 
 function escapeHtml(str) {
