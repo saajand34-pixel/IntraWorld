@@ -49,13 +49,9 @@
             display: flex; 
             flex-direction: column; 
             min-height: 100vh; 
-            background-color: #160205;
-            background-image: 
-                radial-gradient(circle at 50% 0%, rgba(220, 20, 45, 0.52) 0%, rgba(160, 10, 25, 0.22) 48%, transparent 75%),
-                radial-gradient(circle at 100% 100%, rgba(245, 158, 11, 0.14) 0%, transparent 45%),
-                radial-gradient(rgba(245, 158, 11, 0.09) 1px, transparent 1px);
-            background-size: 100% 100%, 100% 100%, 28px 28px;
-            background-attachment: fixed;
+            background-color: #140205;
+            background: #140205;
+            
             color: #ffffff; 
             padding-top: 100px;
         }
@@ -75,7 +71,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: rgba(28, 3, 8, 0.94);
+            background: rgba(24, 2, 6, 0.96);
             backdrop-filter: blur(18px);
             -webkit-backdrop-filter: blur(18px);
             border: 1px solid rgba(245, 158, 11, 0.35);
@@ -106,7 +102,8 @@
             color: #160205; 
             background: linear-gradient(135deg, #ffd700 0%, #f59e0b 50%, #d97706 100%); 
             font-weight: 700;
-            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.45);
+            box-shadow: none;
+            border: 1px solid rgba(245, 158, 11, 0.4);
         }
 
         .nav-links a.logout { 
@@ -122,7 +119,7 @@
         .content { flex: 1; padding: 35px; width: 100%; max-width: 900px; margin: 0 auto; overflow-y: auto; }
 
         .card { 
-            background: #240309; 
+            background: #1c0207; 
             border: 1px solid rgba(245, 158, 11, 0.3); 
             padding: 25px; 
             border-radius: 16px; 
@@ -153,7 +150,8 @@
             align-items: center;
             gap: 8px;
             transition: 0.2s;
-            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.45);
+            box-shadow: none;
+            border: 1px solid rgba(245, 158, 11, 0.4);
         }
 
         .btn:hover { background: linear-gradient(135deg, #fef08a 0%, #ffd700 50%, #f59e0b 100%); }
@@ -185,7 +183,7 @@
         }
 
         .college-pill {
-            background: #190206;
+            background: #160205;
             border: 1px solid rgba(245, 158, 11, 0.3);
             color: #d6d3d1;
             border-radius: 20px;
@@ -203,7 +201,7 @@
             color: #160205;
             font-weight: 700;
             border-color: #f59e0b;
-            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.45);
+            box-shadow: none;
         }
 
         #college-search-input:focus {

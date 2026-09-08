@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Embedded Internal CSS -->
     <style>
         * {
             box-sizing: border-box;
@@ -22,13 +21,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #160205;
-            background-image: 
-                radial-gradient(circle at 50% 0%, rgba(220, 20, 45, 0.52) 0%, rgba(160, 10, 25, 0.22) 48%, transparent 75%),
-                radial-gradient(circle at 100% 100%, rgba(245, 158, 11, 0.14) 0%, transparent 45%),
-                radial-gradient(rgba(245, 158, 11, 0.09) 1px, transparent 1px);
-            background-size: 100% 100%, 100% 100%, 28px 28px;
-            background-attachment: fixed;
+            background: #140205;
             color: #ffffff;
             padding: 20px;
         }
@@ -37,11 +30,10 @@
             width: 100%;
             max-width: 440px;
             padding: 40px;
-            background: rgba(36, 3, 9, 0.95);
+            background: #1c0207;
             border: 1px solid rgba(245, 158, 11, 0.35);
-            border-radius: 24px;
-            backdrop-filter: blur(20px);
-            box-shadow: 0 16px 45px rgba(0, 0, 0, 0.8), 0 0 35px rgba(220, 20, 45, 0.22), inset 0 1px 0 rgba(255, 215, 0, 0.2);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
             position: relative;
         }
 
@@ -108,19 +100,19 @@
         .field-wrapper input {
             width: 100%;
             padding: 12px 40px 12px 40px;
-            background: #190206;
+            background: #140205;
             border: 1px solid rgba(245, 158, 11, 0.28);
             border-radius: 10px;
             color: #ffffff;
             font-size: 15px;
             outline: none;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
         }
 
         .field-wrapper input:focus {
             border-color: #f59e0b;
-            background: rgba(212, 175, 55, 0.06);
-            box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
+            background: rgba(245, 158, 11, 0.05);
+            box-shadow: none;
         }
 
         .toggle-password {
@@ -128,7 +120,7 @@
             right: 14px;
             color: #64748b;
             cursor: pointer;
-            transition: color 0.3s ease;
+            transition: color 0.2s ease;
         }
 
         .toggle-password:hover {
@@ -146,7 +138,7 @@
             font-size: 14px;
             color: #f59e0b;
             text-decoration: none;
-            transition: color 0.3s ease;
+            transition: color 0.2s ease;
         }
 
         .forgot-link:hover {
@@ -162,18 +154,18 @@
             justify-content: center;
             gap: 10px;
             background: linear-gradient(135deg, #ffd700 0%, #f59e0b 50%, #d97706 100%);
-            box-shadow: 0 4px 18px rgba(245, 158, 11, 0.45);
+            box-shadow: none;
             border-radius: 10px;
             color: #160205;
-            border: none;
+            border: 1px solid rgba(245, 158, 11, 0.4);
             cursor: pointer;
             font-weight: 700;
             margin-top: 24px;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
         }
 
         .btn-submit:hover:not(:disabled) {
-            box-shadow: 0 6px 22px rgba(255, 215, 0, 0.65);
+            box-shadow: none;
             background: linear-gradient(135deg, #fef08a 0%, #ffd700 50%, #f59e0b 100%);
             transform: translateY(-1px);
         }
@@ -194,7 +186,7 @@
             color: #f59e0b;
             font-weight: 600;
             text-decoration: none;
-            transition: color 0.3s ease;
+            transition: color 0.2s ease;
         }
 
         .footer-link a:hover {
@@ -216,30 +208,30 @@
         <div id="loginAlertBox" style="display: none; padding: 12px 16px; border-radius: 10px; margin-bottom: 20px; font-size: 14px; align-items: center; gap: 10px;"></div>
 
         <form id="loginForm">
-    <div class="input-group">
-        <label for="email">Email Address</label>
-        <div class="field-wrapper">
-            <i class="fa-solid fa-envelope icon"></i>
-            <input type="email" id="email" name="email" placeholder="john@gmail.com" required>
-        </div>
-    </div>
+            <div class="input-group">
+                <label for="email">Email or Username</label>
+                <div class="field-wrapper">
+                    <i class="fa-solid fa-envelope icon"></i>
+                    <input type="text" id="email" name="email" placeholder="Student Email or Username" required>
+                </div>
+            </div>
 
-    <div class="input-group">
-        <label for="password">Password</label>
-        <div class="field-wrapper">
-            <i class="fa-solid fa-lock icon"></i>
-            <input type="password" id="password" name="password" placeholder="••••••••" required>
-            <i class="fa-solid fa-eye toggle-password" id="togglePassword"></i>
-        </div>
-        <div class="forgot-wrapper">
-            <a href="forgotpassword.html" class="forgot-link">Forgot Password?</a>
-        </div>
-    </div>
+            <div class="input-group">
+                <label for="password">Password</label>
+                <div class="field-wrapper">
+                    <i class="fa-solid fa-lock icon"></i>
+                    <input type="password" id="password" name="password" placeholder="••••••••" required>
+                    <i class="fa-solid fa-eye toggle-password" id="togglePassword"></i>
+                </div>
+                <div class="forgot-wrapper">
+                    <a href="forgotpassword.html" class="forgot-link">Forgot Password?</a>
+                </div>
+            </div>
 
-    <button type="submit" class="btn-submit" id="submitBtn">
-        <i class="fa-solid fa-right-to-bracket"></i> Login
-    </button>
-</form>
+            <button type="submit" class="btn-submit" id="submitBtn">
+                <i class="fa-solid fa-right-to-bracket"></i> Login
+            </button>
+        </form>
 
         <div class="footer-link">
             Don't have an account? <a href="register.html">Register</a>
@@ -260,6 +252,6 @@
         }
     </script>
 
-    <script type="module" src="./js/login.js?v=3.3"></script>
+    <script type="module" src="./js/login.js?v=4.0"></script>
 </body>
 </html>

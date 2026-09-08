@@ -18,11 +18,11 @@
     <style>
         :root {
             /* 90% True Royal Maroon Red Palette (Zero Pink / Magenta) */
-            --bg-canvas: #160205;
-            --bg-card: #240309;
-            --bg-card-hover: #2f040c;
-            --bg-surface: #2a030a;
-            --bg-glass: rgba(28, 3, 8, 0.94);
+            --bg-canvas: #140205;
+            --bg-card: #1c0207;
+            --bg-card-hover: #24030a;
+            --bg-surface: #200308;
+            --bg-glass: rgba(24, 2, 6, 0.96);
             --red-hotrod: #c41226;
             --red-hotrod-glow: rgba(220, 20, 45, 0.55);
             --maroon-glow: rgba(220, 20, 45, 0.55);
@@ -52,17 +52,13 @@
         }
 
         body {
-            background-color: var(--bg-canvas);
+            background-color: #140205;
+            background: #140205;
             color: var(--text-body);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            background-image: 
-                radial-gradient(circle at 50% 0%, rgba(220, 20, 45, 0.52) 0%, rgba(160, 10, 25, 0.22) 48%, transparent 75%),
-                radial-gradient(circle at 100% 100%, rgba(245, 158, 11, 0.14) 0%, transparent 45%),
-                radial-gradient(rgba(245, 158, 11, 0.09) 1px, transparent 1px);
-            background-size: 100% 100%, 100% 100%, 28px 28px;
-            background-attachment: fixed;
+            
             overflow-x: hidden;
             line-height: 1.65;
         }
@@ -179,7 +175,8 @@
             font-size: 13.5px;
             font-weight: 700;
             text-decoration: none;
-            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.45);
+            box-shadow: none;
+            border: 1px solid rgba(245, 158, 11, 0.4);
             transition: all 0.25s ease;
             display: flex;
             align-items: center;
@@ -189,7 +186,7 @@
         .btn-nav-register:hover {
             transform: translateY(-1px);
             background: linear-gradient(135deg, #ffd700, #c59b27);
-            box-shadow: 0 6px 22px rgba(255, 215, 0, 0.65);
+            box-shadow: none;
         }
 
         /* ===== SPACIOUS HERO SECTION ===== */
@@ -212,7 +209,7 @@
             font-weight: 700;
             margin-bottom: 28px;
             backdrop-filter: blur(12px);
-            box-shadow: 0 4px 20px rgba(245, 158, 11, 0.25);
+            box-shadow: none;
             letter-spacing: 0.8px;
             text-transform: uppercase;
         }
@@ -265,14 +262,14 @@
             font-size: 16px;
             font-weight: 700;
             text-decoration: none;
-            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.5);
+            box-shadow: none;
             transition: all 0.25s ease;
         }
 
         .btn-cta-primary:hover {
             transform: translateY(-2px);
             background: linear-gradient(135deg, #ffd700, #c59b27);
-            box-shadow: 0 12px 30px rgba(212, 175, 55, 0.6);
+            box-shadow: none;
         }
 
         .btn-cta-secondary {
@@ -407,7 +404,7 @@
             transform: translateY(-5px);
             background: var(--bg-card-hover);
             border-color: var(--gold-border-strong);
-            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7), 0 0 25px rgba(212, 175, 55, 0.18);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
         }
 
         .pillar-icon-wrap {
@@ -488,7 +485,7 @@
             transform: translateY(-5px);
             background: var(--bg-card-hover);
             border-color: var(--gold-border-strong);
-            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7), 0 0 25px rgba(212, 175, 55, 0.18);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
         }
 
         .feature-top {
@@ -539,7 +536,7 @@
         }
 
         .importance-box {
-            background: #190206;
+            background: #160205;
             border-left: 3px solid var(--gold-primary);
             border-radius: 0 12px 12px 0;
             padding: 12px 16px;
@@ -568,11 +565,11 @@
         }
 
         .creator-banner {
-            background: linear-gradient(135deg, #240309, #190206);
+            background: linear-gradient(135deg, #1c0207, #160205);
             border: 1px solid var(--gold-border-strong);
             border-radius: 28px;
             padding: 54px 44px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 35px rgba(245, 158, 11, 0.15);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
             position: relative;
             overflow: hidden;
         }
@@ -623,12 +620,12 @@
         .team-card:hover {
             transform: translateY(-6px);
             border-color: var(--gold-border-strong);
-            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75), 0 0 25px rgba(212, 175, 55, 0.22);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75);
         }
 
         .team-card.lead {
             border-color: var(--gold-border-strong);
-            background: linear-gradient(180deg, #32050c, #240309);
+            background: linear-gradient(180deg, #32050c, #1c0207);
         }
 
         .team-avatar {
@@ -643,7 +640,7 @@
             font-size: 32px;
             font-weight: 800;
             color: #ffffff;
-            box-shadow: 0 0 25px rgba(255, 215, 0, 0.45);
+            box-shadow: none;
             border: 3px solid var(--gold-border-strong);
         }
 
@@ -687,7 +684,7 @@
 
         /* Tech Stack Footer in Creator Section */
         .tech-stack-container {
-            background: #190206;
+            background: #160205;
             border: 1px solid var(--gold-border);
             border-radius: 18px;
             padding: 22px 28px;
@@ -737,11 +734,11 @@
         }
 
         .cta-bottom-box {
-            background: radial-gradient(circle at center, rgba(120, 0, 15, 0.4) 0%, #240309 75%);
+            background: #140205;
             border: 1px solid var(--gold-border-strong);
             border-radius: 26px;
             padding: 65px 36px;
-            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.75), 0 0 30px rgba(245, 158, 11, 0.18);
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.75);
         }
 
         .cta-bottom-box h2 {
@@ -853,6 +850,61 @@
                 justify-content: center;
             }
         }
+    
+        /* Architecture 3-Column Section */
+        .architecture-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+            gap: 20px;
+            margin-top: 18px;
+            text-align: left;
+        }
+
+        .arch-box {
+            background: #140205;
+            border: 1px solid var(--gold-border);
+            border-radius: 16px;
+            padding: 22px 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .arch-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            color: var(--gold-primary);
+            font-size: 1.15rem;
+            font-weight: 700;
+        }
+
+        .arch-header i {
+            font-size: 20px;
+        }
+
+        .arch-desc {
+            font-size: 13.5px;
+            color: var(--text-muted);
+            margin-bottom: 14px;
+            line-height: 1.5;
+        }
+
+        .arch-box .tech-badges-row {
+            justify-content: flex-start;
+            gap: 8px;
+        }
+
+        .simple-footer-text {
+            color: #ffd700;
+            font-size: 15px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin: 0;
+            text-align: center;
+            padding: 25px 0;
+        }
+
     </style>
 </head>
 <body>
@@ -1155,15 +1207,15 @@
                         <div class="team-card lead">
                             <div class="team-avatar">S</div>
                             <h3 class="team-name">Saajan D</h3>
-                            <span class="team-role">Project Lead & Full-Stack Architect</span>
+                            <span class="team-role">Frontend &amp; Backend Development</span>
                             <p class="team-desc">
-                                Led system architecture, Firebase Cloud Firestore database modeling, multimodal AI integration, transactional email gateways, and security rules.
+                                Worked on frontend and backend development, user interface implementation, Firebase database integration, authentication, and core application workflows.
                             </p>
                             <div class="team-tags">
-                                <span class="team-tag">System Design</span>
-                                <span class="team-tag">Firebase Engine</span>
-                                <span class="team-tag">AI Vision</span>
-                                <span class="team-tag">Cloud Security</span>
+                                <span class="team-tag">Frontend Work</span>
+                                <span class="team-tag">Backend Work</span>
+                                <span class="team-tag">Firebase</span>
+                                <span class="team-tag">Core Logic</span>
                             </div>
                         </div>
 
@@ -1171,15 +1223,15 @@
                         <div class="team-card">
                             <div class="team-avatar">J</div>
                             <h3 class="team-name">Jamwanth</h3>
-                            <span class="team-role">Co-Developer & Frontend UI/UX Specialist</span>
+                            <span class="team-role">Designing &amp; Frontend Development</span>
                             <p class="team-desc">
-                                Designed interactive user interfaces, responsive feed layouts, community hub components, glassmorphism design systems, and cross-device testing.
+                                Worked on designing and frontend development, crafting webpage layouts, responsive components, visual styles, and user interaction design.
                             </p>
                             <div class="team-tags">
-                                <span class="team-tag">UI/UX Design</span>
-                                <span class="team-tag">Responsive Web</span>
-                                <span class="team-tag">Component UX</span>
-                                <span class="team-tag">Client Logic</span>
+                                <span class="team-tag">UI Designing</span>
+                                <span class="team-tag">Frontend Work</span>
+                                <span class="team-tag">Layouts</span>
+                                <span class="team-tag">UI/UX</span>
                             </div>
                         </div>
 
@@ -1187,31 +1239,70 @@
                         <div class="team-card">
                             <div class="team-avatar">M</div>
                             <h3 class="team-name">Mandapati Vinil</h3>
-                            <span class="team-role">Co-Developer & Systems Engineer</span>
+                            <span class="team-role">UI Designing &amp; Project Report</span>
                             <p class="team-desc">
-                                Engineered student verification workflows, OCR receipt validation logic, media compression pipelines, and chat message state handlers.
+                                Worked on designing with Jamwanth and prepared the comprehensive project documentation and final report for the college project submission.
                             </p>
                             <div class="team-tags">
-                                <span class="team-tag">OCR Pipeline</span>
-                                <span class="team-tag">Data Modeling</span>
-                                <span class="team-tag">Media Storage</span>
-                                <span class="team-tag">Auth Guards</span>
+                                <span class="team-tag">UI Designing</span>
+                                <span class="team-tag">Project Report</span>
+                                <span class="team-tag">Documentation</span>
+                                <span class="team-tag">Design Collaboration</span>
                             </div>
                         </div>
 
                     </div>
 
-                    <!-- PROJECT TECH STACK BREAKDOWN -->
+                    <!-- PROJECT TECH STACK BREAKDOWN (FRONTEND, BACKEND, DATABASE) -->
                     <div class="tech-stack-container">
                         <div class="tech-stack-title">Project Full-Stack Web Architecture</div>
-                        <div class="tech-badges-row">
-                            <span class="tech-badge"><i class="fa-brands fa-html5"></i> Semantic HTML5</span>
-                            <span class="tech-badge"><i class="fa-brands fa-css3-alt"></i> Modern CSS3 & Glassmorphism</span>
-                            <span class="tech-badge"><i class="fa-brands fa-js"></i> Vanilla JavaScript ES6+</span>
-                            <span class="tech-badge"><i class="fa-solid fa-database"></i> Firebase Firestore Realtime</span>
-                            <span class="tech-badge"><i class="fa-solid fa-lock"></i> Firebase Authentication</span>
-                            <span class="tech-badge"><i class="fa-solid fa-robot"></i> Sightengine Multimodal AI</span>
-                            <span class="tech-badge"><i class="fa-brands fa-google"></i> Google Apps Script Gateway</span>
+                        <div class="architecture-grid">
+
+                            <!-- Frontend -->
+                            <div class="arch-box">
+                                <div class="arch-header">
+                                    <i class="fa-solid fa-desktop"></i>
+                                    <h4>Frontend</h4>
+                                </div>
+                                <p class="arch-desc">Responsive student portals, real-time feed interfaces, and client-side voucher scanning.</p>
+                                <div class="tech-badges-row">
+                                    <span class="tech-badge"><i class="fa-brands fa-html5"></i> Semantic HTML5</span>
+                                    <span class="tech-badge"><i class="fa-brands fa-css3-alt"></i> Modern CSS3 &amp; Responsive UI</span>
+                                    <span class="tech-badge"><i class="fa-brands fa-js"></i> Vanilla JavaScript (ES Modules)</span>
+                                    <span class="tech-badge"><i class="fa-solid fa-file-invoice"></i> Tesseract.js (Receipt OCR)</span>
+                                </div>
+                            </div>
+
+                            <!-- Backend -->
+                            <div class="arch-box">
+                                <div class="arch-header">
+                                    <i class="fa-solid fa-server"></i>
+                                    <h4>Backend</h4>
+                                </div>
+                                <p class="arch-desc">Authentication services, cloud security enforcement, and transactional email dispatch.</p>
+                                <div class="tech-badges-row">
+                                    <span class="tech-badge"><i class="fa-solid fa-lock"></i> Firebase Authentication</span>
+                                    <span class="tech-badge"><i class="fa-brands fa-google"></i> Google Apps Script Web App API</span>
+                                    <span class="tech-badge"><i class="fa-solid fa-envelope-circle-check"></i> Automated Email OTP Dispatch</span>
+                                    <span class="tech-badge"><i class="fa-solid fa-shield-halved"></i> Role-based Access Control</span>
+                                </div>
+                            </div>
+
+                            <!-- Database -->
+                            <div class="arch-box">
+                                <div class="arch-header">
+                                    <i class="fa-solid fa-database"></i>
+                                    <h4>Database</h4>
+                                </div>
+                                <p class="arch-desc">High-speed cloud NoSQL collections for verified student data, campus feeds, and chats.</p>
+                                <div class="tech-badges-row">
+                                    <span class="tech-badge"><i class="fa-solid fa-database"></i> Google Cloud Firestore (NoSQL)</span>
+                                    <span class="tech-badge"><i class="fa-solid fa-users"></i> Users &amp; Registrations</span>
+                                    <span class="tech-badge"><i class="fa-solid fa-newspaper"></i> Posts &amp; Community Feeds</span>
+                                    <span class="tech-badge"><i class="fa-solid fa-comments"></i> Direct Peer Messages</span>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
 
@@ -1244,30 +1335,9 @@
     <!-- FOOTER -->
     <footer class="site-footer">
         <div class="container">
-            <div class="footer-content">
-                <div class="footer-brand">
-                    <img src="logo.png" alt="IntraWorld Logo" style="width: 36px; height: 36px; object-fit: contain;">
-                    <span>INTRAWORLD</span>
-                </div>
-
-                <div class="footer-links">
-                    <a href="dashboard.html">Dashboard</a>
-                    <a href="posts.html">Posts Feed</a>
-                    <a href="community.html">Campus Communities</a>
-                    <a href="connect.html">Student Connect</a>
-                    <a href="messages.html">Direct Chat</a>
-                    <a href="settings.html">Account Settings</a>
-                </div>
-            </div>
-
-            <div class="footer-credits">
-                <p>
-                    <strong>&copy; 2026 INTRAWORLD</strong> • College Final Project Capstone
-                </p>
-                <p style="margin-top: 5px; font-size: 12.5px; color: var(--text-dim);">
-                    Created and engineered by <strong>Saajan Team</strong> (Saajan D, Jamwanth, Mandapati Vinil) for College Final Project. All Rights Reserved.
-                </p>
-            </div>
+            <p class="simple-footer-text">
+                @This website is belongs to Saajan &amp; Team
+            </p>
         </div>
     </footer>
 

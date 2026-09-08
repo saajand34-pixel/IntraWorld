@@ -24,10 +24,10 @@
   <!-- INTERNAL CSS (IntraWorld Theme) -->
   <style>
     :root {
-      --bg-color: #160205;
-      --card-bg: rgba(35, 3, 8, 0.96);
+      --bg-color: #140205;
+      --card-bg: #1c0207;
       --card-border: rgba(245, 158, 11, 0.35);
-      --input-bg: #190206;
+      --input-bg: #160205;
       --input-border: rgba(245, 158, 11, 0.25);
       --input-focus: #f59e0b;
       --cyan-accent: #f59e0b;
@@ -45,11 +45,7 @@
     body {
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
       background-color: var(--bg-color);
-      background-image: 
-                radial-gradient(circle at 50% 0%, rgba(220, 20, 45, 0.52) 0%, rgba(160, 10, 25, 0.22) 48%, transparent 75%),
-                radial-gradient(circle at 100% 100%, rgba(245, 158, 11, 0.14) 0%, transparent 45%),
-                radial-gradient(rgba(245, 158, 11, 0.09) 1px, transparent 1px);
-      background-size: 28px 28px;
+      background: #140205;
       color: var(--text-main);
       min-height: 100vh;
       display: flex;
@@ -65,7 +61,7 @@
       top: 50%; left: 50%;
       transform: translate(-50%, -50%);
       width: 650px; height: 650px;
-      background: radial-gradient(circle, rgba(120, 0, 15, 0.3) 0%, transparent 70%);
+      background: #140205;
       pointer-events: none;
       z-index: 0;
     }
@@ -92,7 +88,7 @@
       font-size: 11px;
       font-weight: 700;
       color: #f59e0b;
-      box-shadow: 0 0 15px rgba(245, 158, 11, 0.18);
+      box-shadow: none;
     }
 
     .trust-meter-badge {
@@ -152,7 +148,7 @@
 
     .medallion-fallback {
       width: 82px; height: 82px; border-radius: 50%;
-      background: radial-gradient(circle at 35% 35%, #e2e8f0, #94a3b8 45%, #475569 85%, #1e293b 100%);
+      background: #140205;
       border: 3px solid #cbd5e1; display: flex; flex-direction: column;
       align-items: center; justify-content: center;
       box-shadow: 0 0 25px rgba(56, 189, 248, 0.25);
@@ -238,21 +234,21 @@
 
     .btn-cyan {
       background: linear-gradient(135deg, #ffd700 0%, #f59e0b 50%, #d97706 100%);
-      color: #160205; font-weight: 700; box-shadow: 0 4px 14px rgba(255, 215, 0, 0.45);
+      color: #160205; font-weight: 700; box-shadow: none;
     }
     .btn-cyan:hover:not(:disabled) { background: linear-gradient(135deg, #fef08a 0%, #ffd700 50%, #f59e0b 100%); transform: translateY(-1px); }
     .btn-cyan:disabled { opacity: 0.5; cursor: not-allowed; }
     .btn-success { background: #059669; color: #fff; }
-    .btn-secondary { background: #2a030a; color: #d6d3d1; border: 1px solid var(--input-border); }
+    .btn-secondary { background: #200308; color: #d6d3d1; border: 1px solid var(--input-border); }
     .btn-secondary:hover { background: #2d0a17; border-color: rgba(255, 215, 0, 0.5); color: #fff; }
 
     .btn-submit {
       width: 100%; padding: 15px; font-size: 14.5px; font-weight: 700;
       background: linear-gradient(135deg, #f59e0b 0%, #f59e0b 50%, #d97706 100%);
-      color: #160205; border-radius: 14px; box-shadow: 0 6px 25px rgba(255, 215, 0, 0.5);
+      color: #160205; border-radius: 14px; box-shadow: none;
       margin-top: 14px;
     }
-    .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(255, 215, 0, 0.65); }
+    .btn-submit:hover { transform: translateY(-2px); box-shadow: none; }
 
     .otp-card {
       margin-top: 8px; padding: 12px 14px;
@@ -293,7 +289,7 @@
     .upload-box-dash:hover {
       border-color: var(--cyan-accent);
       background: rgba(245, 158, 11, 0.12);
-      box-shadow: 0 0 20px rgba(245, 158, 11, 0.18);
+      box-shadow: none;
     }
 
     .cert-badge-hud {
