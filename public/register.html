@@ -24,17 +24,17 @@
   <!-- INTERNAL CSS (IntraWorld Theme) -->
   <style>
     :root {
-      --bg-color: #090c10;
-      --card-bg: rgba(17, 21, 28, 0.92);
-      --card-border: rgba(255, 255, 255, 0.1);
-      --input-bg: #0d1117;
-      --input-border: rgba(255, 255, 255, 0.1);
-      --input-focus: #38bdf8;
-      --cyan-accent: #38bdf8;
-      --cyan-glow: rgba(56, 189, 248, 0.25);
+      --bg-color: #120307;
+      --card-bg: rgba(28, 6, 13, 0.95);
+      --card-border: rgba(212, 175, 55, 0.22);
+      --input-bg: #140307;
+      --input-border: rgba(212, 175, 55, 0.2);
+      --input-focus: #d4af37;
+      --cyan-accent: #d4af37;
+      --cyan-glow: rgba(212, 175, 55, 0.25);
       --text-main: #f8fafc;
-      --text-muted: #94a3b8;
-      --text-label: #cbd5e1;
+      --text-muted: #cbb3ba;
+      --text-label: #f5e8eb;
       --success: #10b981;
       --danger: #ef4444;
       --warning: #f59e0b;
@@ -45,7 +45,7 @@
     body {
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
       background-color: var(--bg-color);
-      background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1.2px, transparent 1.2px);
+      background-image: radial-gradient(circle at 50% 0%, rgba(136, 19, 55, 0.42) 0%, transparent 65%), radial-gradient(rgba(212, 175, 55, 0.07) 1px, transparent 1px);
       background-size: 28px 28px;
       color: var(--text-main);
       min-height: 100vh;
@@ -62,7 +62,7 @@
       top: 50%; left: 50%;
       transform: translate(-50%, -50%);
       width: 650px; height: 650px;
-      background: radial-gradient(circle, rgba(14, 165, 233, 0.08) 0%, transparent 70%);
+      background: radial-gradient(circle, rgba(136, 19, 55, 0.25) 0%, transparent 70%);
       pointer-events: none;
       z-index: 0;
     }
@@ -84,12 +84,12 @@
       gap: 6px;
       padding: 5px 14px;
       border-radius: 9999px;
-      background: rgba(12, 22, 48, 0.85);
-      border: 1px solid rgba(56, 189, 248, 0.3);
+      background: rgba(38, 10, 20, 0.85);
+      border: 1px solid rgba(212, 175, 55, 0.35);
       font-size: 11px;
-      font-weight: 600;
-      color: #38bdf8;
-      box-shadow: 0 0 15px rgba(56, 189, 248, 0.15);
+      font-weight: 700;
+      color: #d4af37;
+      box-shadow: 0 0 15px rgba(212, 175, 55, 0.15);
     }
 
     .trust-meter-badge {
@@ -98,7 +98,7 @@
       gap: 10px;
       padding: 5px 14px;
       border-radius: 9999px;
-      background: rgba(12, 22, 48, 0.85);
+      background: rgba(38, 10, 20, 0.85);
       border: 1px solid var(--card-border);
       font-size: 11px;
       font-weight: 600;
@@ -158,7 +158,7 @@
 
     .welcome-title {
       font-size: 32px; font-weight: 800; letter-spacing: -0.02em;
-      background: linear-gradient(180deg, #ffffff 15%, #bae6fd 60%, #38bdf8 100%);
+      background: linear-gradient(180deg, #ffffff 15%, #fde047 60%, #d4af37 100%);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       margin-bottom: 6px;
     }
@@ -234,22 +234,22 @@
     }
 
     .btn-cyan {
-      background: linear-gradient(135deg, #0284c7, #0ea5e9);
-      color: #ffffff; box-shadow: 0 4px 14px rgba(14, 165, 233, 0.35);
+      background: linear-gradient(135deg, #d4af37, #b8860b);
+      color: #120307; font-weight: 700; box-shadow: 0 4px 14px rgba(212, 175, 55, 0.35);
     }
-    .btn-cyan:hover:not(:disabled) { background: linear-gradient(135deg, #0369a1, #0284c7); transform: translateY(-1px); }
+    .btn-cyan:hover:not(:disabled) { background: linear-gradient(135deg, #f59e0b, #d4af37); transform: translateY(-1px); }
     .btn-cyan:disabled { opacity: 0.5; cursor: not-allowed; }
     .btn-success { background: #059669; color: #fff; }
-    .btn-secondary { background: #0f1c3f; color: #cbd5e1; border: 1px solid var(--input-border); }
-    .btn-secondary:hover { background: #152654; border-color: rgba(56, 189, 248, 0.4); color: #fff; }
+    .btn-secondary { background: #240812; color: #cbb3ba; border: 1px solid var(--input-border); }
+    .btn-secondary:hover { background: #2d0a17; border-color: rgba(212, 175, 55, 0.4); color: #fff; }
 
     .btn-submit {
       width: 100%; padding: 15px; font-size: 14.5px; font-weight: 700;
-      background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 50%, #2563eb 100%);
-      color: #ffffff; border-radius: 14px; box-shadow: 0 6px 25px rgba(14, 165, 233, 0.4);
+      background: linear-gradient(135deg, #d4af37 0%, #f59e0b 50%, #b8860b 100%);
+      color: #120307; border-radius: 14px; box-shadow: 0 6px 25px rgba(212, 175, 55, 0.4);
       margin-top: 14px;
     }
-    .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(14, 165, 233, 0.55); }
+    .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(212, 175, 55, 0.55); }
 
     .otp-card {
       margin-top: 8px; padding: 12px 14px;
@@ -266,8 +266,8 @@
 
     /* DOCUMENT UPLOAD (NATIVE LABEL CLICKABLE) */
     .ocr-registry-box {
-      background: rgba(12, 22, 48, 0.85);
-      border: 1px solid rgba(56, 189, 248, 0.35);
+      background: rgba(28, 6, 13, 0.88);
+      border: 1px solid rgba(212, 175, 55, 0.28);
       border-radius: 18px;
       padding: 22px;
       margin-top: 8px;
@@ -278,19 +278,19 @@
 
     .upload-box-dash {
       display: block;
-      border: 2px dashed rgba(56, 189, 248, 0.4);
+      border: 2px dashed rgba(212, 175, 55, 0.35);
       border-radius: 14px;
       padding: 22px;
       text-align: center;
-      background: rgba(7, 16, 38, 0.7);
+      background: rgba(20, 4, 10, 0.7);
       cursor: pointer;
       transition: all 0.2s ease;
       user-select: none;
     }
     .upload-box-dash:hover {
       border-color: var(--cyan-accent);
-      background: rgba(14, 165, 233, 0.1);
-      box-shadow: 0 0 20px rgba(56, 189, 248, 0.15);
+      background: rgba(212, 175, 55, 0.1);
+      box-shadow: 0 0 20px rgba(212, 175, 55, 0.15);
     }
 
     .cert-badge-hud {
@@ -321,15 +321,15 @@
     /* Success Card */
     .success-panel { text-align: center; display: flex; flex-direction: column; gap: 20px; }
     .holo-card {
-      background: linear-gradient(135deg, rgba(12, 22, 48, 0.95), rgba(15, 30, 66, 0.8));
-      border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 20px; padding: 24px; text-align: left;
+      background: linear-gradient(135deg, rgba(38, 10, 20, 0.95), rgba(28, 6, 13, 0.8));
+      border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 20px; padding: 24px; text-align: left;
     }
     .holo-top { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
     .holo-avatar {
       width: 58px; height: 58px; border-radius: 14px;
-      background: linear-gradient(135deg, #0284c7, #2563eb);
+      background: linear-gradient(135deg, #d4af37, #881337);
       display: flex; align-items: center; justify-content: center;
-      font-size: 24px; font-weight: 800; color: #fff;
+      font-size: 24px; font-weight: 800; color: #fff; border: 2px solid rgba(212, 175, 55, 0.35);
     }
     .holo-info h3 { font-size: 18px; font-weight: 800; color: #fff; }
     .holo-info .college { font-size: 13px; color: var(--cyan-accent); font-weight: 600; }
@@ -350,10 +350,9 @@
       color: #94a3b8;
     }
     .signin-footer a {
-      color: #38bdf8;
+      color: #d4af37;
       font-weight: 600;
       text-decoration: none;
-      transition: all 0.2s;
     }
     .signin-footer a:hover {
       text-decoration: underline;

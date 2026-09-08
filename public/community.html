@@ -49,13 +49,11 @@
             display: flex; 
             flex-direction: column; 
             min-height: 100vh; 
-            background-color: #090c10;
-            background-image: radial-gradient(circle at 50% 0%, rgba(32, 40, 54, 0.45) 0%, transparent 60%), radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-            background-size: 100% 100%, 24px 24px; 
+            background-color: #120307;
+            background-image: radial-gradient(circle at 50% 0%, rgba(136, 19, 55, 0.42) 0%, transparent 65%), radial-gradient(rgba(212, 175, 55, 0.07) 1px, transparent 1px);
+            background-size: 100% 100%, 28px 28px; 
             color: #ffffff; 
             padding-top: 100px;
-            
-            
         }
 
         /* ===== FLOATING NAVBAR CONTAINER ===== */
@@ -73,13 +71,13 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: rgba(14, 18, 25, 0.88);
+            background: rgba(26, 6, 13, 0.92);
             backdrop-filter: blur(18px);
             -webkit-backdrop-filter: blur(18px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(212, 175, 55, 0.22);
             padding: 8px 12px;
             border-radius: 50px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.75), inset 0 0 0 1px rgba(212, 175, 55, 0.15);
         }
 
         .nav-links { display: flex; align-items: center; gap: 6px; }
@@ -90,7 +88,7 @@
             gap: 8px; 
             padding: 10px 18px; 
             border-radius: 25px; 
-            color: #8fa8bf; 
+            color: #cbb3ba; 
             text-decoration: none; 
             font-size: 14px; 
             font-weight: 500; 
@@ -98,12 +96,13 @@
             transition: all 0.2s ease; 
         }
 
-        .nav-links a:hover { color: #fff; background: rgba(255, 255, 255, 0.08); }
+        .nav-links a:hover { color: #d4af37; background: rgba(212, 175, 55, 0.1); }
 
         .nav-links a.active { 
-            color: #fff; 
-            background: #0066ff; 
-            box-shadow: 0 4px 15px rgba(0, 102, 255, 0.35);
+            color: #120307; 
+            background: linear-gradient(135deg, #d4af37, #b8860b); 
+            font-weight: 700;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.35);
         }
 
         .nav-links a.logout { 
@@ -119,10 +118,10 @@
         .content { flex: 1; padding: 35px; width: 100%; max-width: 900px; margin: 0 auto; overflow-y: auto; }
 
         .card { 
-            background: #11151c; border: 1px solid rgba(255,255,255,0.08); 
+            background: #1c060d; 
+            border: 1px solid rgba(212, 175, 55, 0.18); 
             padding: 25px; 
             border-radius: 16px; 
-            border: 1px solid rgba(255,255,255,0.08); 
             margin-bottom: 22px; 
             width: 100%; 
         }
@@ -135,35 +134,36 @@
             gap: 15px;
         }
 
-        .status-msg { font-size: 13px; color: #7db7ff; margin-top: 4px; }
+        .status-msg { font-size: 13px; color: #d4af37; margin-top: 4px; }
 
         .btn {
-            background: #0066ff;
-            color: #ffffff;
+            background: linear-gradient(135deg, #d4af37, #b8860b);
+            color: #120307;
             border: none;
             padding: 10px 20px;
             border-radius: 10px;
-            font-weight: 600;
+            font-weight: 700;
             font-size: 14px;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
             gap: 8px;
             transition: 0.2s;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.35);
         }
 
-        .btn:hover { background: #0f3f8c; }
+        .btn:hover { background: linear-gradient(135deg, #f59e0b, #d4af37); }
         .btn:disabled { background: rgba(255,255,255,0.1); color: #8fa8bf; cursor: not-allowed; }
 
         /* College Pills Styling */
-        .pills-title { font-size: 14px; font-weight: 500; color: #7db7ff; margin-bottom: 12px; }
+        .pills-title { font-size: 14px; font-weight: 500; color: #d4af37; margin-bottom: 12px; }
         .pills-container {
             display: flex;
             gap: 10px;
             overflow-x: auto;
             padding-bottom: 10px;
             scrollbar-width: thin;
-            scrollbar-color: #0066ff rgba(255, 255, 255, 0.05);
+            scrollbar-color: #d4af37 rgba(212, 175, 55, 0.1);
         }
 
         .pills-container::-webkit-scrollbar {
@@ -176,14 +176,14 @@
         }
 
         .pills-container::-webkit-scrollbar-thumb {
-            background: #0066ff;
+            background: #d4af37;
             border-radius: 10px;
         }
 
         .college-pill {
-            background: #102b45;
-            border: 1px solid rgba(255,255,255,0.1);
-            color: #8fa8bf;
+            background: #16040a;
+            border: 1px solid rgba(212, 175, 55, 0.18);
+            color: #cbb3ba;
             border-radius: 20px;
             padding: 8px 16px;
             font-size: 13px;
@@ -192,13 +192,14 @@
             transition: all 0.2s;
         }
 
-        .college-pill:hover { color: #ffffff; background: rgba(255, 255, 255, 0.08); }
+        .college-pill:hover { color: #ffffff; background: rgba(212, 175, 55, 0.12); }
 
         .college-pill.active {
-            background: #0066ff;
-            color: #ffffff;
-            border-color: #0066ff;
-            box-shadow: 0 4px 15px rgba(0, 102, 255, 0.35);
+            background: linear-gradient(135deg, #d4af37, #b8860b);
+            color: #120307;
+            font-weight: 700;
+            border-color: #d4af37;
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.35);
         }
 
         #college-search-input:focus {

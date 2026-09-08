@@ -52,11 +52,11 @@
 
         body {
             min-height: 100vh;
-            background-color: #090c10;
+            background-color: #120307;
             background-image: 
-                radial-gradient(circle at 50% 0%, rgba(32, 40, 54, 0.45) 0%, transparent 60%),
-                radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-            background-size: 100% 100%, 24px 24px;
+                radial-gradient(circle at 50% 0%, rgba(136, 19, 55, 0.42) 0%, transparent 65%),
+                radial-gradient(rgba(212, 175, 55, 0.07) 1px, transparent 1px);
+            background-size: 100% 100%, 28px 28px;
             color: #ffffff;
         }
 
@@ -65,12 +65,16 @@
             justify-content: space-between;
             align-items: center;
             padding: 20px 40px;
-            background: #071426;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            background: rgba(26, 6, 13, 0.96);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.22);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
         }
 
         header h1 {
             font-size: 28px;
+            background: linear-gradient(135deg, #ffffff 40%, #d4af37 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         header button {
@@ -100,16 +104,17 @@
         }
 
         .card {
-            background: #0d2039;
+            background: #1c060d;
+            border: 1px solid rgba(212, 175, 55, 0.18);
             padding: 25px;
             border-radius: 18px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.35);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
         }
 
         .card h2 {
             font-size: 18px;
             margin-bottom: 10px;
-            color: #9dc8ff;
+            color: #d4af37;
         }
 
         .card span {
@@ -120,7 +125,7 @@
         .section-title {
             margin: 30px 0 15px 0;
             font-size: 20px;
-            color: #38bdf8;
+            color: #d4af37;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -134,11 +139,15 @@
             width: 100%;
             padding: 15px;
             border-radius: 12px;
-            border: none;
+            border: 1px solid rgba(212, 175, 55, 0.2);
             font-size: 16px;
-            background: #122947;
+            background: #140307;
             color: white;
             outline: none;
+            transition: border-color 0.2s;
+        }
+        .search input:focus {
+            border-color: #d4af37;
         }
 
         .table-responsive {
@@ -151,12 +160,14 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            background: #081624;
+            background: #1c060d;
+            border: 1px solid rgba(212, 175, 55, 0.18);
             white-space: nowrap;
         }
 
         thead {
-            background: #0066ff;
+            background: linear-gradient(135deg, #881337, #5c0d24);
+            border-bottom: 2px solid #d4af37;
         }
 
         th {
