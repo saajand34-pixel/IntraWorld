@@ -49,12 +49,13 @@
             display: flex; 
             flex-direction: column; 
             min-height: 100vh; 
-            background-color: #030712; 
-            color: #ffffff; 
+            background-color: #090c10; 
+            color: #f8fafc; 
             padding-top: 100px;
-            background-image: radial-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px);
-            background-size: 24px 24px;
-            color: #ffffff;
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(32, 40, 54, 0.45) 0%, transparent 60%),
+                radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 100% 100%, 24px 24px;
         }
 
         /* ===== FLOATING NAVBAR CONTAINER ===== */
@@ -72,10 +73,13 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #081b2e;
-            padding: 8px 12px;
+            background: rgba(14, 18, 25, 0.88);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            padding: 8px 14px;
             border-radius: 50px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.08);
         }
 
         /* Nav Links Group */
@@ -124,12 +128,12 @@
         .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
 
         .content { flex: 1; padding: 35px; width: 100%; max-width: 900px; margin: 0 auto; overflow-y: auto; }
-        .create-post-card { background: #081b2e; padding: 25px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 30px; width: 100%; }
+        .create-post-card { background: #11151c; padding: 25px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 30px; width: 100%; }
         .post-input-header { display: flex; align-items: flex-start; gap: 18px; }
         .user-avatar { width: 50px; height: 50px; border-radius: 50%; background: #0066ff; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; color: white; flex-shrink: 0; }
-        .create-post-card textarea { width: 100%; height: 90px; background: #102b45; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 14px; color: white; resize: none; outline: none; font-size: 15px; font-family: Poppins, sans-serif; }
+        .create-post-card textarea { width: 100%; height: 90px; background: #0d1117; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 14px; color: white; resize: none; outline: none; font-size: 15px; font-family: Poppins, sans-serif; }
 
-        .github-input-box { display: flex; align-items: center; gap: 10px; background: #102b45; border: 1px solid rgba(255,255,255,0.1); padding: 8px 14px; border-radius: 8px; margin-top: 12px; }
+        .github-input-box { display: flex; align-items: center; gap: 10px; background: #0d1117; border: 1px solid rgba(255,255,255,0.1); padding: 8px 14px; border-radius: 8px; margin-top: 12px; }
         .github-input-box input { background: transparent; border: none; color: white; width: 100%; outline: none; font-size: 14px; }
 
         .media-preview-container { margin-top: 14px; display: none; position: relative; width: max-content; max-width: 100%; }
@@ -149,7 +153,7 @@
         .ai-shield-status.warning { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
         .ai-shield-status.success { background: rgba(74, 222, 128, 0.2); color: #4ade80; border: 1px solid #22c55e; }
 
-        .post-card { background: #081b2e; padding: 25px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 22px; width: 100%; }
+        .post-card { background: #11151c; box-shadow: 0 6px 24px rgba(0,0,0,0.4); padding: 25px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 22px; width: 100%; }
         .post-header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; gap: 12px; flex-wrap: wrap; }
         .post-author { display: flex; align-items: center; gap: 14px; margin-bottom: 0; }
         .post-author .user-avatar { width: 45px; height: 45px; font-size: 18px; }
@@ -166,8 +170,8 @@
 
         .post-content { font-size: 15px; line-height: 1.6; margin-bottom: 18px; color: #e0e0e0; }
         .post-media { width: 100%; border-radius: 12px; max-height: 400px; object-fit: cover; margin-bottom: 18px; }
-        .github-card { display: flex; align-items: center; gap: 12px; background: #0d2137; padding: 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.15); margin-bottom: 18px; text-decoration: none; color: #38bdf8; }
-        .pdf-card { display: flex; align-items: center; gap: 12px; background: #0d2137; padding: 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.15); margin-bottom: 18px; text-decoration: none; color: #f87171; }
+        .github-card { display: flex; align-items: center; gap: 12px; background: #0e1218; padding: 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.15); margin-bottom: 18px; text-decoration: none; color: #38bdf8; }
+        .pdf-card { display: flex; align-items: center; gap: 12px; background: #0e1218; padding: 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.15); margin-bottom: 18px; text-decoration: none; color: #f87171; }
 
         .post-header-actions { display: flex; align-items: center; gap: 10px; }
         .btn-delete-post { background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.35); color: #f87171; width: 32px; height: 32px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; font-size: 13px; }

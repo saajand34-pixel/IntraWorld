@@ -53,11 +53,13 @@
             display: flex; 
             flex-direction: column; 
             min-height: 100vh; 
-            background-color: #030712; 
+            background-color: #090c10;
+            background-image: radial-gradient(circle at 50% 0%, rgba(32, 40, 54, 0.45) 0%, transparent 60%), radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 100% 100%, 24px 24px; 
             color: #ffffff; 
             padding-top: 100px;
-            background-image: radial-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px);
-            background-size: 24px 24px;
+            
+            
         }
 
         /* ===== FLOATING NAVBAR CONTAINER ===== */
@@ -75,7 +77,10 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #081b2e;
+            background: rgba(14, 18, 25, 0.88);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             padding: 8px 12px;
             border-radius: 50px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.1);
@@ -137,7 +142,7 @@
         }
 
         .card { 
-            background: #081b2e; 
+            background: #11151c; border: 1px solid rgba(255,255,255,0.08); 
             padding: 26px; 
             border-radius: 16px; 
             border: 1px solid rgba(255,255,255,0.08); 
@@ -252,7 +257,7 @@
         }
 
         .info-field input {
-            background: #040e1a;
+            background: #0d1117;
             border: 1px solid rgba(255, 255, 255, 0.12);
             color: #ffffff;
             padding: 12px 14px;
@@ -262,7 +267,7 @@
         }
 
         .info-field input:disabled {
-            background: #020812;
+            background: #090c10;
             color: #cbd5e1;
             border-color: rgba(255, 255, 255, 0.08);
         }
@@ -458,7 +463,7 @@
 
     <!-- CONFIRMATION MODAL -->
     <div id="deactivateModal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(6px); z-index: 2000; align-items: center; justify-content: center; padding: 20px;">
-        <div style="background: #081b2e; border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 18px; max-width: 480px; width: 100%; padding: 28px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8); text-align: center;">
+        <div style="background: #11151c; border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 18px; max-width: 480px; width: 100%; padding: 28px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8); text-align: center;">
             <div style="width: 60px; height: 60px; border-radius: 50%; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto; font-size: 26px; color: #ef4444;">
                 <i class="fa-solid fa-triangle-exclamation"></i>
             </div>

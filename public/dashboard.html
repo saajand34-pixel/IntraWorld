@@ -58,12 +58,13 @@
             display: flex; 
             flex-direction: column; 
             min-height: 100vh; 
-            background-color: #030712; 
-            color: #ffffff; 
+            background-color: #090c10; 
+            color: #f8fafc; 
             padding-top: 100px;
-            background-image: radial-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px);
-            background-size: 24px 24px;
-            color: #ffffff;
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(32, 40, 54, 0.45) 0%, transparent 60%),
+                radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 100% 100%, 24px 24px;
         }
 
         /* ===== FLOATING NAVBAR CONTAINER ===== */
@@ -80,10 +81,14 @@
         .floating-navbar {
             display: flex;
             align-items: center;
-            background: #081b2e;
-            padding: 8px 16px;
+            justify-content: center;
+            background: rgba(14, 18, 25, 0.88);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            padding: 8px 14px;
             border-radius: 50px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.08);
             box-sizing: border-box;
         }
 
@@ -151,7 +156,7 @@
         .banner p { font-size: 14px; color: #8fa8bf; font-weight: 500; letter-spacing: 0.5px; }
 
         .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
-        .card { background: linear-gradient(135deg, rgba(6, 21, 36, 0.8), rgba(16, 43, 69, 0.6)); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 28px; transition: all 0.3s ease; }
+        .card { background: #11151c; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 28px; transition: all 0.3s ease; }
         .card:hover { border-color: rgba(0, 102, 255, 0.3); box-shadow: 0 12px 30px rgba(0, 102, 255, 0.15); transform: translateY(-2px); }
         .card h3 { font-size: 12px; color: #8fa8bf; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; margin-bottom: 12px; }
         .card h2 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
@@ -212,7 +217,7 @@
     <main class="main">
         <section class="content">
             <!-- MODERN HERO DASHBOARD BANNER -->
-            <div class="banner" style="background: linear-gradient(135deg, rgba(8, 27, 46, 0.9), rgba(16, 43, 69, 0.5)); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 20px; padding: 32px 28px; box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4); margin-bottom: 35px;">
+            <div class="banner" style="background: linear-gradient(135deg, #131822, #0d1117); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 32px 28px; box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4); margin-bottom: 35px;">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px;">
                     <div>
                         <div style="display: inline-flex; align-items: center; gap: 8px; font-size: 12px; background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.35); padding: 4px 12px; border-radius: 20px; font-weight: 700; margin-bottom: 12px;">
