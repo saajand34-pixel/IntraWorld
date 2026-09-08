@@ -49,14 +49,16 @@
             display: flex; 
             flex-direction: column; 
             min-height: 100vh; 
-            background-color: #140103; 
+            background-color: #160205; 
             color: #f8fafc; 
             padding-top: 100px;
             background-image: 
-                radial-gradient(circle at 50% 0%, rgba(120, 0, 15, 0.45) 0%, transparent 65%),
-                radial-gradient(rgba(212, 175, 55, 0.07) 1px, transparent 1px);
-            background-size: 100% 100%, 28px 28px;
-        }
+                radial-gradient(circle at 50% 0%, rgba(220, 20, 45, 0.52) 0%, rgba(160, 10, 25, 0.22) 48%, transparent 75%),
+                radial-gradient(circle at 100% 100%, rgba(245, 158, 11, 0.14) 0%, transparent 45%),
+                radial-gradient(rgba(245, 158, 11, 0.09) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 28px 28px;
+            background-attachment: fixed;
+            }
 
         /* ===== FLOATING NAVBAR CONTAINER ===== */
         .nav-container {
@@ -73,13 +75,13 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: rgba(26, 2, 6, 0.94);
+            background: rgba(28, 3, 8, 0.94);
             backdrop-filter: blur(18px);
             -webkit-backdrop-filter: blur(18px);
             padding: 8px 14px;
             border-radius: 50px;
-            border: 1px solid rgba(212, 175, 55, 0.28);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(212, 175, 55, 0.15);
+            border: 1px solid rgba(245, 158, 11, 0.35);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(245, 158, 11, 0.18);
         }
 
         /* Nav Links Group */
@@ -104,15 +106,15 @@
         }
 
         .nav-links a:hover { 
-            color: #d4af37; 
-            background: rgba(212, 175, 55, 0.1); 
+            color: #f59e0b; 
+            background: rgba(245, 158, 11, 0.12); 
         }
 
         .nav-links a.active { 
-            color: #140103; 
-            background: linear-gradient(135deg, #d4af37, #b8860b); 
+            color: #160205; 
+            background: linear-gradient(135deg, #ffd700 0%, #f59e0b 50%, #d97706 100%); 
             font-weight: 700;
-            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.35);
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.45);
         }
 
         .nav-links a.logout { 
@@ -130,23 +132,23 @@
         .content { padding: 30px; flex: 1; overflow-y: auto; max-width: 1200px; margin: 0 auto; width: 100%; }
 
         .header-title { font-size: 28px; margin-bottom: 10px; }
-        .header-desc { color: #d4af37; margin-bottom: 30px; }
-        .contact-box { background: #230308; border: 1px solid rgba(212, 175, 55, 0.25); padding: 25px; border-radius: 18px; margin-bottom: 30px; display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
-        .contact-box input { flex: 1; min-width: 250px; padding: 14px 18px; background: #190104; border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 12px; color: white; font-size: 14px; outline: none; }
-        .contact-box input:focus { border-color: #d4af37; }
-        .contact-box button { padding: 14px 25px; background: linear-gradient(135deg, #d4af37, #b8860b); color: #140103; border: none; border-radius: 12px; cursor: pointer; font-weight: 700; transition: 0.2s; white-space: nowrap; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.35); }
-        .contact-box button:hover { background: linear-gradient(135deg, #f59e0b, #d4af37); }
+        .header-desc { color: #f59e0b; margin-bottom: 30px; }
+        .contact-box { background: #240309; border: 1px solid rgba(245, 158, 11, 0.3); padding: 25px; border-radius: 18px; margin-bottom: 30px; display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
+        .contact-box input { flex: 1; min-width: 250px; padding: 14px 18px; background: #190206; border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 12px; color: white; font-size: 14px; outline: none; }
+        .contact-box input:focus { border-color: #f59e0b; }
+        .contact-box button { padding: 14px 25px; background: linear-gradient(135deg, #ffd700 0%, #f59e0b 50%, #d97706 100%); color: #160205; border: none; border-radius: 12px; cursor: pointer; font-weight: 700; transition: 0.2s; white-space: nowrap; box-shadow: 0 4px 15px rgba(255, 215, 0, 0.45); }
+        .contact-box button:hover { background: linear-gradient(135deg, #fef08a 0%, #ffd700 50%, #f59e0b 100%); }
 
         /* Incoming Connection Requests Section */
-        .requests-section { background: #230308; border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 18px; padding: 24px; margin-bottom: 30px; }
+        .requests-section { background: #240309; border: 1px solid rgba(245, 158, 11, 0.38); border-radius: 18px; padding: 24px; margin-bottom: 30px; }
         .requests-section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-        .requests-section-title { font-size: 18px; font-weight: 600; color: #d4af37; display: flex; align-items: center; gap: 10px; }
-        .badge-count { background: linear-gradient(135deg, #d4af37, #b8860b); color: #140103; font-size: 12px; padding: 3px 10px; border-radius: 20px; font-weight: 700; }
+        .requests-section-title { font-size: 18px; font-weight: 600; color: #f59e0b; display: flex; align-items: center; gap: 10px; }
+        .badge-count { background: linear-gradient(135deg, #ffd700 0%, #f59e0b 50%, #d97706 100%); color: #160205; font-size: 12px; padding: 3px 10px; border-radius: 20px; font-weight: 700; }
         .requests-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
-        .request-card { background: #280309; border: 1px solid rgba(212, 175, 55, 0.25); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; align-items: center; text-align: center; }
-        .request-card .req-avatar { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #d4af37, #78000f); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; color: white; margin-bottom: 10px; border: 2px solid rgba(212, 175, 55, 0.35); }
+        .request-card { background: #2a030a; border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .request-card .req-avatar { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #f59e0b, #c41226); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; color: white; margin-bottom: 10px; border: 2px solid rgba(255, 215, 0, 0.45); }
         .request-card h4 { font-size: 16px; margin-bottom: 4px; color: #fff; }
-        .request-card .regid-text { font-size: 12px; color: #d4af37; background: rgba(212, 175, 55, 0.12); border: 1px solid rgba(212, 175, 55, 0.25); padding: 3px 10px; border-radius: 20px; margin-bottom: 14px; }
+        .request-card .regid-text { font-size: 12px; color: #f59e0b; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); padding: 3px 10px; border-radius: 20px; margin-bottom: 14px; }
         .req-btn-group { display: flex; gap: 10px; width: 100%; }
         .btn-accept { flex: 1; padding: 9px; background: #16a34a; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 500; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; }
         .btn-accept:hover { background: #15803d; }
@@ -155,14 +157,14 @@
 
         /* Student Grid & Cards */
         .student-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        .student-card { background: #230308; padding: 25px; border-radius: 18px; border: 1px solid rgba(212, 175, 55, 0.25); display: flex; flex-direction: column; align-items: center; text-align: center; transition: all 0.3s; }
+        .student-card { background: #240309; padding: 25px; border-radius: 18px; border: 1px solid rgba(245, 158, 11, 0.3); display: flex; flex-direction: column; align-items: center; text-align: center; transition: all 0.3s; }
         .student-card:hover { border-color: rgba(212, 175, 55, 0.45); transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
-        .student-avatar { width: 70px; height: 70px; border-radius: 50%; background: linear-gradient(135deg, #d4af37, #78000f); display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: bold; color: white; margin-bottom: 15px; border: 2px solid rgba(212, 175, 55, 0.35); }
+        .student-avatar { width: 70px; height: 70px; border-radius: 50%; background: linear-gradient(135deg, #f59e0b, #c41226); display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: bold; color: white; margin-bottom: 15px; border: 2px solid rgba(255, 215, 0, 0.45); }
         .student-card h3 { font-size: 18px; margin-bottom: 5px; }
-        .student-card p { color: #d4af37; font-size: 13px; margin-bottom: 8px; }
-        .student-regid-tag { font-size: 12px; color: #d4af37; background: rgba(212, 175, 55, 0.12); border: 1px solid rgba(212, 175, 55, 0.25); padding: 4px 12px; border-radius: 20px; margin-bottom: 14px; display: inline-flex; align-items: center; gap: 6px; }
-        .connect-btn { width: 100%; padding: 10px; background: linear-gradient(135deg, #d4af37, #b8860b); color: #140103; font-weight: 700; border: none; border-radius: 10px; cursor: pointer; font-size: 14px; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3); }
-        .connect-btn:hover { background: linear-gradient(135deg, #f59e0b, #d4af37); }
+        .student-card p { color: #f59e0b; font-size: 13px; margin-bottom: 8px; }
+        .student-regid-tag { font-size: 12px; color: #f59e0b; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); padding: 4px 12px; border-radius: 20px; margin-bottom: 14px; display: inline-flex; align-items: center; gap: 6px; }
+        .connect-btn { width: 100%; padding: 10px; background: linear-gradient(135deg, #ffd700 0%, #f59e0b 50%, #d97706 100%); color: #160205; font-weight: 700; border: none; border-radius: 10px; cursor: pointer; font-size: 14px; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.38); }
+        .connect-btn:hover { background: linear-gradient(135deg, #fef08a 0%, #ffd700 50%, #f59e0b 100%); }
         .connect-btn.connected { background: #16a34a !important; cursor: default; }
         .connect-btn.pending { background: #f59e0b !important; color: #fff; cursor: default; }
 
@@ -219,7 +221,7 @@
             <p class="header-desc">Find and connect with classmates using Registration ID. Connections require mutual approval.</p>
 
             <div class="contact-box">
-                <i class="fa-solid fa-id-card" style="color: #d4af37; font-size: 20px;"></i>
+                <i class="fa-solid fa-id-card" style="color: #f59e0b; font-size: 20px;"></i>
                 <input type="text" id="regIdSearchInput" placeholder="Search by Student Registration ID (e.g. 24CA018)...">
                 <button id="searchRegIdBtn"><i class="fa-solid fa-magnifying-glass"></i> Search Reg ID</button>
             </div>
@@ -237,7 +239,7 @@
             </div>
 
             <div class="student-grid" id="studentGrid">
-                <div style="color: #d4af37;">Loading registered students...</div>
+                <div style="color: #f59e0b;">Loading registered students...</div>
             </div>
         </section>
     </main>

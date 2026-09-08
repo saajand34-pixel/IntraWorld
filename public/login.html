@@ -22,11 +22,13 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #140103;
+            background: #160205;
             background-image: 
-                radial-gradient(circle at 50% 0%, rgba(120, 0, 15, 0.45) 0%, transparent 65%),
-                radial-gradient(rgba(212, 175, 55, 0.07) 1px, transparent 1px);
-            background-size: 100% 100%, 28px 28px;
+                radial-gradient(circle at 50% 0%, rgba(220, 20, 45, 0.52) 0%, rgba(160, 10, 25, 0.22) 48%, transparent 75%),
+                radial-gradient(circle at 100% 100%, rgba(245, 158, 11, 0.14) 0%, transparent 45%),
+                radial-gradient(rgba(245, 158, 11, 0.09) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 28px 28px;
+            background-attachment: fixed;
             color: #ffffff;
             padding: 20px;
         }
@@ -35,11 +37,11 @@
             width: 100%;
             max-width: 440px;
             padding: 40px;
-            background: rgba(35, 3, 8, 0.95);
-            border: 1px solid rgba(212, 175, 55, 0.28);
+            background: rgba(36, 3, 9, 0.95);
+            border: 1px solid rgba(245, 158, 11, 0.35);
             border-radius: 24px;
             backdrop-filter: blur(20px);
-            box-shadow: 0 16px 45px rgba(0, 0, 0, 0.75), 0 0 35px rgba(212, 175, 55, 0.12);
+            box-shadow: 0 16px 45px rgba(0, 0, 0, 0.8), 0 0 35px rgba(220, 20, 45, 0.22), inset 0 1px 0 rgba(255, 215, 0, 0.2);
             position: relative;
         }
 
@@ -67,7 +69,7 @@
             font-size: 28px;
             font-weight: 700;
             margin-bottom: 4px;
-            background: linear-gradient(135deg, #ffffff 40%, #d4af37 100%);
+            background: linear-gradient(135deg, #ffffff 30%, #ffd700 75%, #f59e0b 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -99,15 +101,15 @@
         .field-wrapper .icon {
             position: absolute;
             left: 14px;
-            color: #d4af37;
+            color: #f59e0b;
             font-size: 14px;
         }
 
         .field-wrapper input {
             width: 100%;
             padding: 12px 40px 12px 40px;
-            background: #190104;
-            border: 1px solid rgba(212, 175, 55, 0.2);
+            background: #190206;
+            border: 1px solid rgba(245, 158, 11, 0.28);
             border-radius: 10px;
             color: #ffffff;
             font-size: 15px;
@@ -116,9 +118,9 @@
         }
 
         .field-wrapper input:focus {
-            border-color: #d4af37;
+            border-color: #f59e0b;
             background: rgba(212, 175, 55, 0.06);
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.25);
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
         }
 
         .toggle-password {
@@ -130,7 +132,7 @@
         }
 
         .toggle-password:hover {
-            color: #d4af37;
+            color: #f59e0b;
         }
 
         .forgot-wrapper {
@@ -142,7 +144,7 @@
 
         .forgot-link {
             font-size: 14px;
-            color: #d4af37;
+            color: #f59e0b;
             text-decoration: none;
             transition: color 0.3s ease;
         }
@@ -159,10 +161,10 @@
             align-items: center;
             justify-content: center;
             gap: 10px;
-            background: linear-gradient(135deg, #d4af37, #b8860b);
-            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.35);
+            background: linear-gradient(135deg, #ffd700 0%, #f59e0b 50%, #d97706 100%);
+            box-shadow: 0 4px 18px rgba(245, 158, 11, 0.45);
             border-radius: 10px;
-            color: #140103;
+            color: #160205;
             border: none;
             cursor: pointer;
             font-weight: 700;
@@ -171,8 +173,8 @@
         }
 
         .btn-submit:hover:not(:disabled) {
-            box-shadow: 0 6px 22px rgba(212, 175, 55, 0.55);
-            background: linear-gradient(135deg, #f59e0b, #d4af37);
+            box-shadow: 0 6px 22px rgba(255, 215, 0, 0.65);
+            background: linear-gradient(135deg, #fef08a 0%, #ffd700 50%, #f59e0b 100%);
             transform: translateY(-1px);
         }
 
@@ -189,7 +191,7 @@
         }
 
         .footer-link a {
-            color: #d4af37;
+            color: #f59e0b;
             font-weight: 600;
             text-decoration: none;
             transition: color 0.3s ease;

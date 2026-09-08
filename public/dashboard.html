@@ -58,14 +58,16 @@
             display: flex; 
             flex-direction: column; 
             min-height: 100vh; 
-            background-color: #140103; 
+            background-color: #160205; 
             color: #f8fafc; 
             padding-top: 100px;
             background-image: 
-                radial-gradient(circle at 50% 0%, rgba(120, 0, 15, 0.45) 0%, transparent 65%),
-                radial-gradient(rgba(212, 175, 55, 0.07) 1px, transparent 1px);
-            background-size: 100% 100%, 28px 28px;
-        }
+                radial-gradient(circle at 50% 0%, rgba(220, 20, 45, 0.52) 0%, rgba(160, 10, 25, 0.22) 48%, transparent 75%),
+                radial-gradient(circle at 100% 100%, rgba(245, 158, 11, 0.14) 0%, transparent 45%),
+                radial-gradient(rgba(245, 158, 11, 0.09) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 28px 28px;
+            background-attachment: fixed;
+            }
 
         /* ===== FLOATING NAVBAR CONTAINER ===== */
         .nav-container {
@@ -82,13 +84,13 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: rgba(26, 2, 6, 0.94);
+            background: rgba(28, 3, 8, 0.94);
             backdrop-filter: blur(18px);
             -webkit-backdrop-filter: blur(18px);
             padding: 8px 14px;
             border-radius: 50px;
-            border: 1px solid rgba(212, 175, 55, 0.28);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(212, 175, 55, 0.15);
+            border: 1px solid rgba(245, 158, 11, 0.35);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(245, 158, 11, 0.18);
             box-sizing: border-box;
         }
 
@@ -126,15 +128,15 @@
         }
 
         .nav-links a:hover { 
-            color: #d4af37; 
-            background: rgba(212, 175, 55, 0.1); 
+            color: #f59e0b; 
+            background: rgba(245, 158, 11, 0.12); 
         }
 
         .nav-links a.active { 
-            color: #140103; 
-            background: linear-gradient(135deg, #d4af37, #b8860b); 
+            color: #160205; 
+            background: linear-gradient(135deg, #ffd700 0%, #f59e0b 50%, #d97706 100%); 
             font-weight: 700;
-            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.35);
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.45);
         }
 
         .nav-links a.logout { 
@@ -157,8 +159,8 @@
         .banner p { font-size: 14px; color: #8fa8bf; font-weight: 500; letter-spacing: 0.5px; }
 
         .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
-        .card { background: #230308; border: 1px solid rgba(212, 175, 55, 0.25); border-radius: 16px; padding: 28px; transition: all 0.3s ease; }
-        .card:hover { border-color: rgba(212, 175, 55, 0.45); box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(212, 175, 55, 0.15); transform: translateY(-2px); }
+        .card { background: #240309; border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 16px; padding: 28px; transition: all 0.3s ease; }
+        .card:hover { border-color: rgba(212, 175, 55, 0.45); box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(245, 158, 11, 0.18); transform: translateY(-2px); }
         .card h3 { font-size: 12px; color: #d6d3d1; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; margin-bottom: 12px; }
         .card h2 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
         .card p { font-size: 13px; color: #a8a29e; line-height: 1.6; }
@@ -218,25 +220,25 @@
     <main class="main">
         <section class="content">
             <!-- MODERN HERO DASHBOARD BANNER -->
-            <div class="banner" style="background: linear-gradient(135deg, #2d040a, #230308); border: 1px solid rgba(212, 175, 55, 0.28); border-radius: 20px; padding: 32px 28px; box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4); margin-bottom: 35px;">
+            <div class="banner" style="background: linear-gradient(135deg, #2f040c, #240309); border: 1px solid rgba(245, 158, 11, 0.35); border-radius: 20px; padding: 32px 28px; box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4); margin-bottom: 35px;">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px;">
                     <div>
-                        <div style="display: inline-flex; align-items: center; gap: 8px; font-size: 12px; background: rgba(212, 175, 55, 0.12); color: #d4af37; border: 1px solid rgba(212, 175, 55, 0.35); padding: 4px 12px; border-radius: 20px; font-weight: 700; margin-bottom: 12px;">
+                        <div style="display: inline-flex; align-items: center; gap: 8px; font-size: 12px; background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(255, 215, 0, 0.45); padding: 4px 12px; border-radius: 20px; font-weight: 700; margin-bottom: 12px;">
                             <i class="fa-solid fa-circle-check"></i> Verified Genuine Student
                         </div>
                         <h1 style="font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 800; color: #fff; margin-bottom: 6px; letter-spacing: -0.5px;">
-                            Welcome back, <span id="welcomeStudentName" style="background: linear-gradient(135deg, #ffffff 40%, #d4af37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Student</span> 👋
+                            Welcome back, <span id="welcomeStudentName" style="background: linear-gradient(135deg, #ffffff 40%, #f59e0b 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Student</span> 👋
                         </h1>
-                        <p id="studentCollegeBadge" style="font-size: 14px; color: #d4af37; display: flex; align-items: center; gap: 8px; margin-top: 4px;">
-                            <i class="fa-solid fa-building-columns" style="color: #d4af37;"></i> <span id="studentCollegeText">Campus Community Enrolled</span>
+                        <p id="studentCollegeBadge" style="font-size: 14px; color: #f59e0b; display: flex; align-items: center; gap: 8px; margin-top: 4px;">
+                            <i class="fa-solid fa-building-columns" style="color: #f59e0b;"></i> <span id="studentCollegeText">Campus Community Enrolled</span>
                         </p>
                     </div>
                     
                     <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                        <a href="posts.html" class="btn" style="background: linear-gradient(135deg, #d4af37, #b8860b); color: #140103; text-decoration: none; padding: 10px 18px; border-radius: 12px; font-size: 13.5px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.35);">
+                        <a href="posts.html" class="btn" style="background: linear-gradient(135deg, #ffd700 0%, #f59e0b 50%, #d97706 100%); color: #160205; text-decoration: none; padding: 10px 18px; border-radius: 12px; font-size: 13.5px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(255, 215, 0, 0.45);">
                             <i class="fa-solid fa-newspaper"></i> Social Feed
                         </a>
-                        <a href="community.html" class="btn" style="background: rgba(212, 175, 55, 0.08); color: #fff; border: 1px solid rgba(212, 175, 55, 0.25); text-decoration: none; padding: 10px 18px; border-radius: 12px; font-size: 13.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
+                        <a href="community.html" class="btn" style="background: rgba(245, 158, 11, 0.1); color: #fff; border: 1px solid rgba(245, 158, 11, 0.3); text-decoration: none; padding: 10px 18px; border-radius: 12px; font-size: 13.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
                             <i class="fa-solid fa-building-columns"></i> My Campus Hub
                         </a>
                     </div>
@@ -248,7 +250,7 @@
                 <div class="card" style="border-radius: 16px; position: relative; overflow: hidden;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                         <h3>Student Connections</h3>
-                        <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(212, 175, 55, 0.12); color: #d4af37; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                        <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(245, 158, 11, 0.15); color: #f59e0b; display: flex; align-items: center; justify-content: center; font-size: 16px;">
                             <i class="fa-solid fa-user-group"></i>
                         </div>
                     </div>
@@ -259,7 +261,7 @@
                 <div class="card" style="border-radius: 16px; position: relative; overflow: hidden;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                         <h3>Projects & Repos</h3>
-                        <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(212, 175, 55, 0.12); color: #d4af37; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                        <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(245, 158, 11, 0.15); color: #f59e0b; display: flex; align-items: center; justify-content: center; font-size: 16px;">
                             <i class="fa-solid fa-diagram-project"></i>
                         </div>
                     </div>
@@ -270,7 +272,7 @@
                 <div class="card" style="border-radius: 16px; position: relative; overflow: hidden;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                         <h3>Research & Publications</h3>
-                        <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(212, 175, 55, 0.12); color: #d4af37; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                        <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(245, 158, 11, 0.15); color: #f59e0b; display: flex; align-items: center; justify-content: center; font-size: 16px;">
                             <i class="fa-solid fa-book-bookmark"></i>
                         </div>
                     </div>
@@ -281,7 +283,7 @@
                 <div class="card" style="border-radius: 16px; position: relative; overflow: hidden;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                         <h3>Direct Messages</h3>
-                        <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(212, 175, 55, 0.12); color: #d4af37; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                        <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(245, 158, 11, 0.15); color: #f59e0b; display: flex; align-items: center; justify-content: center; font-size: 16px;">
                             <i class="fa-solid fa-comment-dots"></i>
                         </div>
                     </div>

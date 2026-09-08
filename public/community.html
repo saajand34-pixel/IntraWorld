@@ -49,9 +49,13 @@
             display: flex; 
             flex-direction: column; 
             min-height: 100vh; 
-            background-color: #140103;
-            background-image: radial-gradient(circle at 50% 0%, rgba(120, 0, 15, 0.45) 0%, transparent 65%), radial-gradient(rgba(212, 175, 55, 0.07) 1px, transparent 1px);
-            background-size: 100% 100%, 28px 28px; 
+            background-color: #160205;
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(220, 20, 45, 0.52) 0%, rgba(160, 10, 25, 0.22) 48%, transparent 75%),
+                radial-gradient(circle at 100% 100%, rgba(245, 158, 11, 0.14) 0%, transparent 45%),
+                radial-gradient(rgba(245, 158, 11, 0.09) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 28px 28px;
+            background-attachment: fixed;
             color: #ffffff; 
             padding-top: 100px;
         }
@@ -71,13 +75,13 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: rgba(26, 2, 6, 0.94);
+            background: rgba(28, 3, 8, 0.94);
             backdrop-filter: blur(18px);
             -webkit-backdrop-filter: blur(18px);
-            border: 1px solid rgba(212, 175, 55, 0.28);
+            border: 1px solid rgba(245, 158, 11, 0.35);
             padding: 8px 12px;
             border-radius: 50px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.75), inset 0 0 0 1px rgba(212, 175, 55, 0.15);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.75), inset 0 0 0 1px rgba(245, 158, 11, 0.18);
         }
 
         .nav-links { display: flex; align-items: center; gap: 6px; }
@@ -96,13 +100,13 @@
             transition: all 0.2s ease; 
         }
 
-        .nav-links a:hover { color: #d4af37; background: rgba(212, 175, 55, 0.1); }
+        .nav-links a:hover { color: #f59e0b; background: rgba(245, 158, 11, 0.12); }
 
         .nav-links a.active { 
-            color: #140103; 
-            background: linear-gradient(135deg, #d4af37, #b8860b); 
+            color: #160205; 
+            background: linear-gradient(135deg, #ffd700 0%, #f59e0b 50%, #d97706 100%); 
             font-weight: 700;
-            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.35);
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.45);
         }
 
         .nav-links a.logout { 
@@ -118,8 +122,8 @@
         .content { flex: 1; padding: 35px; width: 100%; max-width: 900px; margin: 0 auto; overflow-y: auto; }
 
         .card { 
-            background: #230308; 
-            border: 1px solid rgba(212, 175, 55, 0.25); 
+            background: #240309; 
+            border: 1px solid rgba(245, 158, 11, 0.3); 
             padding: 25px; 
             border-radius: 16px; 
             margin-bottom: 22px; 
@@ -134,11 +138,11 @@
             gap: 15px;
         }
 
-        .status-msg { font-size: 13px; color: #d4af37; margin-top: 4px; }
+        .status-msg { font-size: 13px; color: #f59e0b; margin-top: 4px; }
 
         .btn {
-            background: linear-gradient(135deg, #d4af37, #b8860b);
-            color: #140103;
+            background: linear-gradient(135deg, #ffd700 0%, #f59e0b 50%, #d97706 100%);
+            color: #160205;
             border: none;
             padding: 10px 20px;
             border-radius: 10px;
@@ -149,21 +153,21 @@
             align-items: center;
             gap: 8px;
             transition: 0.2s;
-            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.35);
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.45);
         }
 
-        .btn:hover { background: linear-gradient(135deg, #f59e0b, #d4af37); }
+        .btn:hover { background: linear-gradient(135deg, #fef08a 0%, #ffd700 50%, #f59e0b 100%); }
         .btn:disabled { background: rgba(255,255,255,0.1); color: #8fa8bf; cursor: not-allowed; }
 
         /* College Pills Styling */
-        .pills-title { font-size: 14px; font-weight: 500; color: #d4af37; margin-bottom: 12px; }
+        .pills-title { font-size: 14px; font-weight: 500; color: #f59e0b; margin-bottom: 12px; }
         .pills-container {
             display: flex;
             gap: 10px;
             overflow-x: auto;
             padding-bottom: 10px;
             scrollbar-width: thin;
-            scrollbar-color: #d4af37 rgba(212, 175, 55, 0.1);
+            scrollbar-color: #f59e0b rgba(245, 158, 11, 0.12);
         }
 
         .pills-container::-webkit-scrollbar {
@@ -176,13 +180,13 @@
         }
 
         .pills-container::-webkit-scrollbar-thumb {
-            background: #d4af37;
+            background: #f59e0b;
             border-radius: 10px;
         }
 
         .college-pill {
-            background: #190104;
-            border: 1px solid rgba(212, 175, 55, 0.25);
+            background: #190206;
+            border: 1px solid rgba(245, 158, 11, 0.3);
             color: #d6d3d1;
             border-radius: 20px;
             padding: 8px 16px;
@@ -192,14 +196,14 @@
             transition: all 0.2s;
         }
 
-        .college-pill:hover { color: #ffffff; background: rgba(212, 175, 55, 0.12); }
+        .college-pill:hover { color: #ffffff; background: rgba(245, 158, 11, 0.15); }
 
         .college-pill.active {
-            background: linear-gradient(135deg, #d4af37, #b8860b);
-            color: #140103;
+            background: linear-gradient(135deg, #ffd700 0%, #f59e0b 50%, #d97706 100%);
+            color: #160205;
             font-weight: 700;
-            border-color: #d4af37;
-            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.35);
+            border-color: #f59e0b;
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.45);
         }
 
         #college-search-input:focus {

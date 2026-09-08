@@ -52,11 +52,13 @@
 
         body {
             min-height: 100vh;
-            background-color: #140103;
+            background-color: #160205;
             background-image: 
-                radial-gradient(circle at 50% 0%, rgba(120, 0, 15, 0.45) 0%, transparent 65%),
-                radial-gradient(rgba(212, 175, 55, 0.07) 1px, transparent 1px);
-            background-size: 100% 100%, 28px 28px;
+                radial-gradient(circle at 50% 0%, rgba(220, 20, 45, 0.52) 0%, rgba(160, 10, 25, 0.22) 48%, transparent 75%),
+                radial-gradient(circle at 100% 100%, rgba(245, 158, 11, 0.14) 0%, transparent 45%),
+                radial-gradient(rgba(245, 158, 11, 0.09) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 28px 28px;
+            background-attachment: fixed;
             color: #ffffff;
         }
 
@@ -66,13 +68,13 @@
             align-items: center;
             padding: 20px 40px;
             background: rgba(26, 6, 13, 0.96);
-            border-bottom: 1px solid rgba(212, 175, 55, 0.28);
+            border-bottom: 1px solid rgba(245, 158, 11, 0.35);
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
         }
 
         header h1 {
             font-size: 28px;
-            background: linear-gradient(135deg, #ffffff 40%, #d4af37 100%);
+            background: linear-gradient(135deg, #ffffff 40%, #f59e0b 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -104,8 +106,8 @@
         }
 
         .card {
-            background: #230308;
-            border: 1px solid rgba(212, 175, 55, 0.25);
+            background: #240309;
+            border: 1px solid rgba(245, 158, 11, 0.3);
             padding: 25px;
             border-radius: 18px;
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
@@ -114,7 +116,7 @@
         .card h2 {
             font-size: 18px;
             margin-bottom: 10px;
-            color: #d4af37;
+            color: #f59e0b;
         }
 
         .card span {
@@ -125,7 +127,7 @@
         .section-title {
             margin: 30px 0 15px 0;
             font-size: 20px;
-            color: #d4af37;
+            color: #f59e0b;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -139,15 +141,15 @@
             width: 100%;
             padding: 15px;
             border-radius: 12px;
-            border: 1px solid rgba(212, 175, 55, 0.2);
+            border: 1px solid rgba(245, 158, 11, 0.25);
             font-size: 16px;
-            background: #190104;
+            background: #190206;
             color: white;
             outline: none;
             transition: border-color 0.2s;
         }
         .search input:focus {
-            border-color: #d4af37;
+            border-color: #f59e0b;
         }
 
         .table-responsive {
@@ -160,14 +162,14 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            background: #230308;
-            border: 1px solid rgba(212, 175, 55, 0.25);
+            background: #240309;
+            border: 1px solid rgba(245, 158, 11, 0.3);
             white-space: nowrap;
         }
 
         thead {
-            background: linear-gradient(135deg, #78000f, #4d000a);
-            border-bottom: 2px solid #d4af37;
+            background: linear-gradient(135deg, #c41226, #4d000a);
+            border-bottom: 2px solid #f59e0b;
         }
 
         th {
