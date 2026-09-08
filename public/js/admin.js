@@ -1,11 +1,6 @@
 import { auth, db } from "./firebase-config.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import {
-    collection,
-    getDocs,
-    deleteDoc,
-    doc
-} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { collection, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const table = document.getElementById("userTable");
 const totalUsers = document.getElementById("totalUsers");
@@ -15,13 +10,52 @@ const search = document.getElementById("search");
 
 let users = [];
 
-onAuthStateChanged(auth, async (user) => {
+function escapeHtml(str) {
+    if (str === null || str === undefined) return "";
+    return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
+function sanitizeUrl(url) {
+    if (!url) return "https://via.placeholder.com/50";
+    const clean = String(url).trim();
+    if (/^(https?:\/\/|data:image\/(jpeg|png|gif|webp);base64,)/i.test(clean)) {
+        return clean;
+    }
+    return "https://via.placeholder.com/50";
+}
+
+function verifyAdminSession() {
+    try {
+        const raw = localStorage.getItem("currentUser") || localStorage.getItem("intraWorldUser");
+        if (!raw) return false;
+        const u = JSON.parse(raw);
+        return u && (u.role === "admin" || u.email === "admin@intraworld.com" || u.email === "saajand34@gmail.com");
+    } catch {
+        return false;
+    }
+}
+
+onAuthStateChanged(auth, (user) => {
+    const isLocalAdmin = verifyAdminSession();
+    const isAuthAdmin = user && (user.email === "admin@intraworld.com" || user.email === "saajand34@gmail.com");
+
+    if (!isLocalAdmin && !isAuthAdmin) {
+        window.location.replace("login.html");
+        return;
+    }
+
     loadUsers();
 });
 
-// Load All Users from Firestore Database
 async function loadUsers() {
-    if (table) table.innerHTML = `<tr><td colspan="12">Loading members...</td></tr>`;
+    if (table) {
+        table.innerHTML = `<tr><td colspan="12" style="text-align: center; padding: 20px; color: #d4af37;">Loading student directory...</td></tr>`;
+    }
     users = [];
 
     try {
@@ -33,25 +67,30 @@ async function loadUsers() {
         snapshot.forEach((docSnap) => {
             const data = docSnap.data();
             data.id = docSnap.id;
-            data.collectionSource = snapshot.query.path?.segments?.[0] || "registrations";
+            data.collectionSource = "registrations";
             users.push(data);
         });
 
         updateStats();
         displayUsers();
     } catch (error) {
-        console.error("Error loading database:", error);
+        console.error("Database query error:", error.message);
+        if (table) {
+            table.innerHTML = `<tr><td colspan="12" style="text-align: center; color: #ef4444; padding: 20px;">Failed to load records. Check database permissions.</td></tr>`;
+        }
     }
 }
 
-// Update Dashboard Statistics Counters
 function updateStats() {
-    if (totalUsers) totalUsers.innerText = users.length;
-    if (ocrVerifiedUsers) ocrVerifiedUsers.innerText = users.filter(u => u.documentVerifiedByOCR === true).length;
-    if (verifiedUsers) verifiedUsers.innerText = users.filter(u => u.verificationStatus === 'verified' || u.isVerified === true).length;
+    if (totalUsers) totalUsers.textContent = users.length;
+    if (ocrVerifiedUsers) {
+        ocrVerifiedUsers.textContent = users.filter((u) => u.documentVerifiedByOCR === true || u.isDocVerified === true).length;
+    }
+    if (verifiedUsers) {
+        verifiedUsers.textContent = users.filter((u) => u.verificationStatus === "verified" || u.isVerified === true).length;
+    }
 }
 
-// Render Main Database Members Table
 function displayUsers() {
     if (!table) return;
     table.innerHTML = "";
@@ -75,63 +114,78 @@ function displayUsers() {
     });
 
     if (filteredUsers.length === 0) {
-        table.innerHTML = `<tr><td colspan="12">No users found</td></tr>`;
+        table.innerHTML = `<tr><td colspan="12" style="text-align: center; padding: 20px; color: #d6d3d1;">No matching student records found.</td></tr>`;
         return;
     }
 
     filteredUsers.forEach((user) => {
-        const photo = user.avatar || user.profilePhotoUrl || "https://via.placeholder.com/50";
-        const fullName = user.fullName || user.full_name || "N/A";
-        const email = user.email || "N/A";
-        const mobile = user.mobileNumber || user.mobile || user.phone || "N/A";
-        const gender = user.gender || "N/A";
-        const state = user.state || "N/A";
-        const qualification = user.qualification || "N/A";
-        const college = user.collegeOrUniversity || user.collegeName || user.college || "N/A";
-        const passout = user.passoutYear || user.passout_year || "N/A";
-        const regDate = user.createdAt ? (user.createdAt.toDate ? user.createdAt.toDate().toLocaleDateString() : new Date(user.createdAt).toLocaleDateString()) : "N/A";
-        const isOCR = user.documentVerifiedByOCR === true;
+        const photo = sanitizeUrl(user.avatar || user.profilePhotoUrl);
+        const fullName = escapeHtml(user.fullName || user.full_name || "N/A");
+        const email = escapeHtml(user.email || "N/A");
+        const mobile = escapeHtml(user.mobileNumber || user.mobile || user.phone || "N/A");
+        const gender = escapeHtml(user.gender || "N/A");
+        const state = escapeHtml(user.state || "N/A");
+        const qualification = escapeHtml(user.qualification || "N/A");
+        const college = escapeHtml(user.collegeOrUniversity || user.collegeName || user.college || "N/A");
+        const passout = escapeHtml(user.passoutYear || user.passedOutYear || user.passout_year || "N/A");
+        const isOCR = user.documentVerifiedByOCR === true || user.isDocVerified === true;
 
-        table.innerHTML += `
-            <tr>
-                <td><img class="profile" src="${photo}" alt="Photo" onerror="this.src='https://via.placeholder.com/50'"></td>
-                <td><strong>${fullName}</strong></td>
-                <td>${email}</td>
-                <td>${mobile}</td>
-                <td>${gender}</td>
-                <td>${state}</td>
-                <td>${qualification}</td>
-                <td>${college}</td>
-                <td>${passout}</td>
-                <td>${regDate}</td>
-                <td>
-                    <span class="status-badge status-verified">
-                        ${isOCR ? 'Verified (OCR)' : 'Verified'}
-                    </span>
-                </td>
-                <td>
-                    <button class="delete" onclick="deleteUser('${user.id}', '${user.collectionSource}')">Delete</button>
-                </td>
-            </tr>
+        let regDate = "N/A";
+        if (user.createdAt) {
+            try {
+                regDate = user.createdAt.toDate ? user.createdAt.toDate().toLocaleDateString() : new Date(user.createdAt).toLocaleDateString();
+            } catch {
+                regDate = "Recently";
+            }
+        }
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td><img class="profile" src="${photo}" alt="Student" onerror="this.src='https://via.placeholder.com/50'"></td>
+            <td><strong>${fullName}</strong></td>
+            <td>${email}</td>
+            <td>${mobile}</td>
+            <td>${gender}</td>
+            <td>${state}</td>
+            <td>${qualification}</td>
+            <td>${college}</td>
+            <td>${passout}</td>
+            <td>${escapeHtml(regDate)}</td>
+            <td>
+                <span class="status-badge status-verified">
+                    ${isOCR ? "Verified (OCR)" : "Verified"}
+                </span>
+            </td>
+            <td>
+                <button class="delete" type="button">Delete</button>
+            </td>
         `;
+
+        const deleteBtn = tr.querySelector(".delete");
+        deleteBtn.addEventListener("click", async () => {
+            const ok = confirm(`Delete student record for ${user.fullName || user.email}? This cannot be undone.`);
+            if (!ok) return;
+
+            deleteBtn.disabled = true;
+            deleteBtn.textContent = "...";
+
+            try {
+                await deleteDoc(doc(db, user.collectionSource || "registrations", user.id));
+                tr.remove();
+                users = users.filter((u) => u.id !== user.id);
+                updateStats();
+            } catch (err) {
+                console.error("Delete failure:", err);
+                alert("Could not remove record: " + err.message);
+                deleteBtn.disabled = false;
+                deleteBtn.textContent = "Delete";
+            }
+        });
+
+        table.appendChild(tr);
     });
 }
 
-// REMOVE DECISION: Deletes record from Firestore database
-window.deleteUser = async function(id, collectionSource) {
-    const ok = confirm("Are you sure you want to remove this user from the database?");
-    if (!ok) return;
-
-    try {
-        await deleteDoc(doc(db, collectionSource || "registrations", id));
-        alert("User removed successfully.");
-        loadUsers();
-    } catch (e) {
-        console.error("Delete error:", e);
-        alert("Failed to remove user: " + e.message);
-    }
-};
-
 if (search) {
-    search.addEventListener("keyup", displayUsers);
+    search.addEventListener("input", displayUsers);
 }

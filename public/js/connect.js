@@ -58,9 +58,7 @@ onAuthStateChanged(auth, async (firebaseUser) => {
     await loadAllStudents();
 });
 
-// ==========================================
 // CONNECTIONS & REQUESTS REAL-TIME LISTENERS
-// ==========================================
 
 // Listen to my accepted connections
 async function listenToConnections() {
@@ -140,9 +138,7 @@ function listenToConnectionRequests() {
     }
 }
 
-// ==========================================
 // RENDER INCOMING REQUESTS (MUTUAL APPROVAL)
-// ==========================================
 function renderIncomingRequests() {
     const section = document.getElementById("incomingRequestsSection");
     const grid = document.getElementById("requestsGrid");
@@ -279,9 +275,7 @@ async function handleDeclineRequest(req, btnElement) {
     }
 }
 
-// ==========================================
 // LOAD & RENDER STUDENTS (SEARCH BY REG ID)
-// ==========================================
 let currentRegIdSearchTerm = "";
 
 async function loadAllStudents() {
@@ -457,17 +451,25 @@ function renderStudentCards() {
 }
 
 function escapeHtml(str) {
-    if (!str) return "";
+    if (str === null || str === undefined) return "";
     return String(str)
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;");
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
 }
 
-// ==========================================
+function sanitizeUrl(url) {
+    if (!url) return "";
+    const clean = String(url).trim();
+    if (/^(https?:\/\/|data:image\/(jpeg|png|gif|webp);base64,)/i.test(clean)) {
+        return clean;
+    }
+    return "";
+}
+
 // REGISTRATION ID SEARCH EVENT LISTENERS
-// ==========================================
 document.addEventListener("DOMContentLoaded", () => {
     const searchBtn = document.getElementById("searchRegIdBtn");
     const searchInput = document.getElementById("regIdSearchInput");

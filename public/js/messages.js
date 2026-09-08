@@ -266,7 +266,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 item.style.cssText = "display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.06); cursor: pointer; transition: background 0.2s;";
                 item.innerHTML = `
                     <div style="width: 42px; height: 42px; border-radius: 50%; overflow: hidden; background: #0066ff; display: flex; align-items: center; justify-content: center; font-weight: 600; flex-shrink: 0; border: 1.5px solid rgba(56,189,248,0.4);">
-                        ${avatar ? `<img src="${avatar}" style="width: 100%; height: 100%; object-fit: cover;" />` : name.charAt(0).toUpperCase()}
+                        ${avatar && sanitizeUrl(avatar) ? `<img src="${sanitizeUrl(avatar)}" style="width: 100%; height: 100%; object-fit: cover;" alt="${escapeHtml(name)}" />` : escapeHtml(name.charAt(0).toUpperCase())}
                     </div>
                     <div style="flex: 1; min-width: 0;">
                         <div style="font-size: 14px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${name}</div>
@@ -303,7 +303,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (activeEmailEl) activeEmailEl.textContent = email;
         if (activeAvatarEl) {
             if (avatar) {
-                activeAvatarEl.innerHTML = `<img src="${avatar}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" />`;
+                const safeAv = sanitizeUrl(avatar); if (safeAv) { activeAvatarEl.innerHTML = `<img src="${safeAv}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" alt="${escapeHtml(name)}" />`; } else { activeAvatarEl.textContent = name.charAt(0).toUpperCase(); }
             } else {
                 activeAvatarEl.textContent = name.charAt(0).toUpperCase();
             }
@@ -402,24 +402,32 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                     let mediaHtml = "";
                     if (msg.mediaUrl) {
-                        mediaHtml = `
-                            <div class="msg-media-container">
-                                <img src="${msg.mediaUrl}" class="msg-media-img" alt="Shared media" onclick="window.open('${msg.mediaUrl}', '_blank')" />
-                            </div>
-                        `;
+                        const safeMedia = sanitizeUrl(msg.mediaUrl);
+                        if (safeMedia) {
+                            mediaHtml = `
+                                <div class="msg-media-container">
+                                    <a href="${safeMedia}" target="_blank" rel="noopener noreferrer">
+                                        <img src="${safeMedia}" class="msg-media-img" alt="Shared media" />
+                                    </a>
+                                </div>
+                            `;
+                        }
                     }
 
                     let docHtml = "";
                     if (msg.docUrl) {
-                        docHtml = `
-                            <a href="${msg.docUrl}" target="_blank" download="${escapeHtml(msg.docName || 'document.pdf')}" class="msg-doc-card">
-                                <i class="fa-solid fa-file-pdf"></i>
-                                <div>
-                                    <strong style="display: block; font-size: 13px; color: #fff;">${escapeHtml(msg.docName || "Attachment Document")}</strong>
-                                    <span style="font-size: 11px; color: #7db7ff;">Click to view / download</span>
-                                </div>
-                            </a>
-                        `;
+                        const safeDoc = sanitizeUrl(msg.docUrl);
+                        if (safeDoc) {
+                            docHtml = `
+                                <a href="${safeDoc}" target="_blank" rel="noopener noreferrer" download="${escapeHtml(msg.docName || 'document.pdf')}" class="msg-doc-card">
+                                    <i class="fa-solid fa-file-pdf"></i>
+                                    <div>
+                                        <strong style="display: block; font-size: 13px; color: #fff;">${escapeHtml(msg.docName || "Attachment Document")}</strong>
+                                        <span style="font-size: 11px; color: #7db7ff;">Click to view / download</span>
+                                    </div>
+                                </a>
+                            `;
+                        }
                     }
 
                     bubbleHtml = `
@@ -505,6 +513,10 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (!selectedPeer || !messageInput) return;
 
             const text = messageInput.value.trim();
+            if (text.length > 2000) {
+                alert("⚠️ Message is too long (maximum 2,000 characters).");
+                return;
+            }
             if (!text && !selectedChatFile) return;
 
             const sendBtn = chatForm.querySelector("button[type='submit']");

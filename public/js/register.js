@@ -1,11 +1,19 @@
+function escapeHtml(str) {
+  if (str === null || str === undefined) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 /**
  * IntraWorld - College Fee Receipt OCR Extractor & Academic Batch Validator
  * Path: C:\Intraworld\public\js\register.js
  */
 
-// ==========================================
 // 1. API KEYS & FIREBASE INITIALIZATION
-// ==========================================
 const WEB3FORMS_ACCESS_KEY = "bb00ad90-e756-4918-b4b5-caf2bab0b818";
 const TWOFACTOR_API_KEY = "33d4086d-a553-11f1-9cb1-0200cd936042";
 
@@ -105,15 +113,13 @@ function handleDegreeChange(value) {
   }
 }
 
-// ==========================================
 // 2. DOCUMENT FILE SELECTION HANDLER
-// ==========================================
 function handleAcademicDocSelected(event) {
   const file = event.target.files[0];
   if (!file) return;
 
   selectedAcademicFile = file;
-  document.getElementById('academicUploadLabel').innerHTML = `✅ <strong>Selected Receipt:</strong> ${file.name}`;
+  document.getElementById('academicUploadLabel').innerHTML = `✅ <strong>Selected Receipt:</strong> ${escapeHtml(file.name)}`;
   
   const statusEl = document.getElementById('academicStatusMsg');
   statusEl.innerText = `📄 Fee Receipt "${file.name}" ready. Click "Run Fee Receipt OCR Verification" below.`;
@@ -602,9 +608,7 @@ async function runRealOcrVerification() {
   }
 }
 
-// ==========================================
 // 5. DYNAMIC AUTHENTICITY SCORE GAUGE
-// ==========================================
 function calculateTrustScore() {
   let score = 0;
 
@@ -645,9 +649,7 @@ function calculateTrustScore() {
 }
 
 
-// =============================================================
 // UNIQUE FIELD VALIDATORS (GMAIL, MOBILE NUMBER, REG ID)
-// =============================================================
 
 async function isEmailAlreadyRegistered(email) {
   if (!db || !email) return false;
@@ -752,9 +754,7 @@ async function isRegIdAlreadyRegistered(regId) {
   return false;
 }
 
-// ==========================================
 // 6. GMAIL OTP DISPATCH
-// ==========================================
 function autoFillEmailOtp() {
   const otpInput = document.getElementById('enteredEmailOtp');
   if (otpInput && currentEmailOtp) {
@@ -863,7 +863,7 @@ async function sendGmailOtp() {
     }).catch(() => {});
   } catch (err) {}
 
-  console.log(`🔐 [IntraWorld Security] OTP generated for ${email}: ${currentEmailOtp}`);
+  // OTP dispatched to student email
 
   const otpInput = document.getElementById('enteredEmailOtp');
   otpInput.value = '';
@@ -879,7 +879,7 @@ async function sendGmailOtp() {
 
   otpInput.focus();
 
-  statusEl.innerHTML = `✅ 6-digit OTP generated for <strong>${email}</strong>! Check your Gmail, or click <strong>⚡ Auto-Fill Code</strong> below.`;
+  statusEl.innerHTML = `✅ 6-digit OTP generated for <strong>${escapeHtml(email)}</strong>! Check your Gmail, or click <strong>⚡ Auto-Fill Code</strong> below.`;
   statusEl.className = 'status-msg success';
   startEmailCountdown(60);
 }
@@ -926,9 +926,7 @@ function verifyGmailOtp() {
   }
 }
 
-// ==========================================
 // 7. PHONE SMS OTP DISPATCH
-// ==========================================
 async function sendSmsOtp() {
   const phone = document.getElementById('mobileNumber').value.trim();
   const cleanPhone = phone.replace(/[^0-9]/g, '');
@@ -1040,9 +1038,7 @@ function completePhoneVerification() {
   calculateTrustScore();
 }
 
-// ==========================================
 // 8. CLOUDFLARE TURNSTILE & HELPERS
-// ==========================================
 function triggerCloudflareCheck() {
   if (isCloudflareVerified) return;
 
@@ -1050,13 +1046,13 @@ function triggerCloudflareCheck() {
   const cfTitle = document.getElementById('cfTitle');
 
   cfCheck.innerText = '⏳';
-  cfTitle.innerText = 'Evaluating browser fingerprint and security token...';
+  cfTitle.innerText = 'Verifying student session and security token...';
 
   setTimeout(() => {
     isCloudflareVerified = true;
     cfCheck.innerText = '✓';
     cfCheck.classList.add('active');
-    cfTitle.innerText = 'Verification Complete (Human Student Confirmed)';
+    cfTitle.innerText = 'Verification Complete (Student Session Confirmed)';
     calculateTrustScore();
   }, 1000);
 }
@@ -1092,9 +1088,7 @@ function showAlert(msg) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// =============================================================
 // 9. FINAL REGISTRATION & FIRESTORE DATABASE STORAGE
-// =============================================================
 async function handleRegistrationSubmit(event) {
   event.preventDefault();
 

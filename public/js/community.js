@@ -228,14 +228,33 @@ document.addEventListener("DOMContentLoaded", () => {
     // Merge preset and custom communities
     let collegesData = [...PRESET_COLLEGES, ...getStoredCustomCommunities()];
 
-    // HTML sanitizer
+    // HTML and URL sanitizers
     function escapeHtml(str) {
-        return String(str || "")
+        if (str === null || str === undefined) return "";
+        return String(str)
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
             .replace(/>/g, "&gt;")
             .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
+            .replace(/'/g, "&#39;");
+    }
+
+    function sanitizeUrl(url) {
+        if (!url) return "";
+        const clean = String(url).trim();
+        if (/^(https?:\/\/|data:image\/(jpeg|png|gif|webp);base64,|data:application\/pdf;base64,)/i.test(clean)) {
+            return clean;
+        }
+        return "";
+    }
+
+    function sanitizeExternalUrl(url) {
+        if (!url) return "";
+        const clean = String(url).trim();
+        if (/^https?:\/\//i.test(clean)) {
+            return clean;
+        }
+        return "";
     }
 
     // Retrieve active logged in student details
@@ -453,14 +472,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 <h4 style="color: #fff; margin: 10px 0 8px 0; font-size: 1.15rem; font-weight: 600;">${escapeHtml(post.title)}</h4>
                 <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; margin-bottom: 14px;">${escapeHtml(post.content)}</p>
                 
-                ${post.image ? `
+                ${post.image && sanitizeUrl(post.image) ? `
                 <div style="margin-bottom: 16px; border-radius: 10px; overflow: hidden; max-height: 320px; border: 1px solid rgba(255, 255, 255, 0.08);">
-                    <img src="${post.image}" alt="${escapeHtml(post.title)}" style="width: 100%; height: 260px; object-fit: cover; display: block;" onerror="this.style.display='none'" />
+                    <img src="${sanitizeUrl(post.image)}" alt="${escapeHtml(post.title || 'Community Attachment')}" style="width: 100%; height: 260px; object-fit: cover; display: block;" onerror="this.style.display='none'" />
                 </div>
                 ` : ''}
 
-                ${post.docUrl ? `
-                <a href="${post.docUrl}" target="_blank" download="${escapeHtml(post.docName || 'document.pdf')}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; margin-bottom: 16px; border-radius: 10px; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.1); color: #fff; text-decoration: none;">
+                ${post.docUrl && sanitizeUrl(post.docUrl) ? `
+                <a href="${sanitizeUrl(post.docUrl)}" target="_blank" rel="noopener noreferrer" download="${escapeHtml(post.docName || 'document.pdf')}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; margin-bottom: 16px; border-radius: 10px; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.1); color: #fff; text-decoration: none;">
                     <i class="fa-solid fa-file-pdf fa-2x" style="color: #ef4444;"></i>
                     <div>
                         <strong style="display: block; font-size: 13px;">${escapeHtml(post.docName || "Download Document Attachment")}</strong>
@@ -469,8 +488,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 </a>
                 ` : ''}
 
-                ${post.githubUrl ? `
-                <a href="${escapeHtml(post.githubUrl)}" target="_blank" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; margin-bottom: 16px; border-radius: 10px; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.1); color: #fff; text-decoration: none;">
+                ${post.githubUrl && sanitizeExternalUrl(post.githubUrl) ? `
+                <a href="${sanitizeExternalUrl(post.githubUrl)}" target="_blank" rel="noopener noreferrer" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; margin-bottom: 16px; border-radius: 10px; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.1); color: #fff; text-decoration: none;">
                     <i class="fa-brands fa-github fa-2x" style="color: #fff;"></i>
                     <div>
                         <strong style="display: block; font-size: 13px;">GitHub Repository Project</strong>

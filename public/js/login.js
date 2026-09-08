@@ -1,4 +1,4 @@
-﻿import { auth, db } from "./firebase-config.js";
+import { auth, db } from "./firebase-config.js";
 import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { 
     collection, 
@@ -10,6 +10,28 @@ import {
     setDoc, 
     updateDoc 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+function escapeHtml(str) {
+    if (str === null || str === undefined) return "";
+    return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
+async function sha256Hex(message) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(message);
+    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+    return Array.from(new Uint8Array(hashBuffer))
+        .map(b => b.toString(16).padStart(2, "0"))
+        .join("");
+}
+
+// Hash of admin password for secure offline/client verification
+const ADMIN_HASH = "d10435560c9675ad162bde3213f107af2cce8371990745ed9a97780ed5408235";
 
 document.addEventListener("DOMContentLoaded", () => {
     const loginForm = document.getElementById("loginForm");
@@ -31,17 +53,17 @@ document.addEventListener("DOMContentLoaded", () => {
             alertBox.style.background = "rgba(239, 68, 68, 0.15)";
             alertBox.style.border = "1px solid rgba(239, 68, 68, 0.4)";
             alertBox.style.color = "#f87171";
-            alertBox.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> <span>${message}</span>`;
+            alertBox.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> <span>${escapeHtml(message)}</span>`;
         } else if (type === "success") {
             alertBox.style.background = "rgba(34, 197, 94, 0.15)";
             alertBox.style.border = "1px solid rgba(34, 197, 94, 0.4)";
             alertBox.style.color = "#4ade80";
-            alertBox.innerHTML = `<i class="fa-solid fa-circle-check"></i> <span>${message}</span>`;
+            alertBox.innerHTML = `<i class="fa-solid fa-circle-check"></i> <span>${escapeHtml(message)}</span>`;
         } else {
             alertBox.style.background = "rgba(56, 189, 248, 0.15)";
             alertBox.style.border = "1px solid rgba(56, 189, 248, 0.4)";
             alertBox.style.color = "#38bdf8";
-            alertBox.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>${message}</span>`;
+            alertBox.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>${escapeHtml(message)}</span>`;
         }
     }
 
@@ -63,16 +85,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (submitBtn) {
             submitBtn.disabled = true;
-            submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Scanning Database & Verifying...`;
+            submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Authenticating...`;
         }
 
         try {
-            // ==========================================
-            // 1. ADMIN LOGIN ROUTE
-            // ==========================================
+            // Admin authentication flow
             if (email === "admin@intraworld.com") {
-                if (password !== "intra.2026") {
-                    showAlert("Incorrect password for System Admin account.");
+                const inputHash = await sha256Hex(password);
+                if (inputHash !== ADMIN_HASH) {
+                    showAlert("Invalid credentials for system administrator.");
                     return;
                 }
 
@@ -80,7 +101,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     try {
                         await signInWithEmailAndPassword(auth, email, password);
                     } catch (authErr) {
-                        console.warn("Admin Firebase Auth note:", authErr.message);
+                        console.warn("Firebase Auth notice:", authErr.code || authErr.message);
                     }
                 }
 
@@ -94,16 +115,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 localStorage.setItem("currentUser", JSON.stringify(adminSession));
                 localStorage.setItem("intraWorldUser", JSON.stringify(adminSession));
 
-                showAlert("Admin verified! Redirecting to dashboard...", "success");
+                showAlert("Administrator verified. Opening admin panel...", "success");
                 setTimeout(() => {
                     window.location.replace("admin.html");
                 }, 350);
                 return;
             }
 
-            // ==========================================
-            // 2. FIREBASE AUTHENTICATION (OPTIONAL / COMPATIBLE)
-            // ==========================================
+            // Student Firebase Auth verification
             let authSuccess = false;
             if (auth) {
                 try {
@@ -114,16 +133,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             }
 
-            // ==========================================
-            // 3. SCAN FIRESTORE COLLECTIONS (registrations, students, users)
-            // ==========================================
+            // Student profile verification across registrations, students, and users
             let regData = null;
             let studData = null;
             let uData = null;
             let primaryDocSnap = null;
 
             if (db) {
-                // Check 1: 'registrations' collection
                 try {
                     const regSnap = await getDocs(query(collection(db, "registrations"), where("email", "==", email)));
                     if (!regSnap.empty) {
@@ -131,10 +147,9 @@ document.addEventListener("DOMContentLoaded", () => {
                         regData = primaryDocSnap.data();
                     }
                 } catch (err) {
-                    console.warn("Registrations collection scan note:", err.message);
+                    console.warn("Registration lookup note:", err.message);
                 }
 
-                // Check 2: 'students' collection
                 try {
                     const studSnap = await getDocs(query(collection(db, "students"), where("email", "==", email)));
                     if (!studSnap.empty) {
@@ -142,10 +157,9 @@ document.addEventListener("DOMContentLoaded", () => {
                         studData = studSnap.docs[0].data();
                     }
                 } catch (err) {
-                    console.warn("Students collection scan note:", err.message);
+                    console.warn("Student lookup note:", err.message);
                 }
 
-                // Check 3: 'users' collection (doc by email or query)
                 try {
                     const userDocSnap = await getDoc(doc(db, "users", email));
                     if (userDocSnap.exists()) {
@@ -159,7 +173,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         }
                     }
                 } catch (err) {
-                    console.warn("Users collection scan note:", err.message);
+                    console.warn("User document lookup note:", err.message);
                 }
             }
 
@@ -168,11 +182,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 ? { ...regData, ...studData, ...uData } 
                 : null;
 
-            // ==========================================
-            // 4. VERIFY CREDENTIALS & STORE LOGGED-IN SESSION
-            // ==========================================
             if (userData) {
-                // Gather all candidate passwords stored across collections
                 const candidatePasswords = [
                     uData?.password ? String(uData.password).trim() : null,
                     studData?.password ? String(studData.password).trim() : null,
@@ -182,11 +192,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 const isPasswordMatch = candidatePasswords.includes(password) || authSuccess;
 
                 if (!isPasswordMatch) {
-                    showAlert("Incorrect password. Please verify and try again.");
+                    showAlert("Incorrect password. Please verify your credentials and try again.");
                     return;
                 }
 
-                // If entered password matches, ensure ALL collections are synchronized to this password!
+                // Sync password updates if needed
                 if (candidatePasswords.length > 0 && candidatePasswords.some(p => p !== password)) {
                     try {
                         if (regData && String(regData.password).trim() !== password) {
@@ -205,7 +215,7 @@ document.addEventListener("DOMContentLoaded", () => {
                             await setDoc(doc(db, "users", email), { password: password }, { merge: true });
                         }
                     } catch (syncErr) {
-                        console.warn("Auto password resync note:", syncErr.message);
+                        console.warn("Password sync note:", syncErr.message);
                     }
                 }
 
@@ -229,19 +239,18 @@ document.addEventListener("DOMContentLoaded", () => {
                 localStorage.setItem("currentUser", JSON.stringify(sessionData));
                 localStorage.setItem("intraWorldUser", JSON.stringify(sessionData));
 
-                showAlert(`🎉 Verified! Welcome back, ${sessionData.fullName}. Opening Dashboard...`, "success");
+                showAlert(`Welcome back, ${sessionData.fullName}! Opening dashboard...`, "success");
                 if (submitBtn) {
                     submitBtn.style.background = "#22c55e";
-                    submitBtn.innerHTML = `<i class="fa-solid fa-circle-check"></i> Verified! Redirecting...`;
+                    submitBtn.innerHTML = `<i class="fa-solid fa-circle-check"></i> Redirecting...`;
                 }
 
                 setTimeout(() => {
                     window.location.replace("dashboard.html");
-                }, 400);
+                }, 350);
                 return;
             }
 
-            // If Firebase Auth succeeded without Firestore doc
             if (authSuccess) {
                 const sessionData = {
                     email: email,
@@ -253,19 +262,18 @@ document.addEventListener("DOMContentLoaded", () => {
                 localStorage.setItem("currentUser", JSON.stringify(sessionData));
                 localStorage.setItem("intraWorldUser", JSON.stringify(sessionData));
 
-                showAlert("🎉 Login verified! Opening Dashboard...", "success");
+                showAlert("Login verified. Opening dashboard...", "success");
                 setTimeout(() => {
                     window.location.replace("dashboard.html");
-                }, 400);
+                }, 350);
                 return;
             }
 
-            // If not found in database and auth failed
-            showAlert(`No registered account found with email "${email}". Please click Register to create your account.`);
+            showAlert(`No registered student found for "${email}". Please register to create an account.`);
 
         } catch (error) {
             console.error("Login verification error:", error);
-            showAlert("Verification error: " + (error.message || "Failed to communicate with database."));
+            showAlert("Login error: " + (error.message || "Failed to reach server."));
         } finally {
             if (submitBtn && submitBtn.innerHTML.indexOf("Redirecting") === -1) {
                 submitBtn.disabled = false;

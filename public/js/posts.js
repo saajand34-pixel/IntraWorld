@@ -1,8 +1,6 @@
-// ==========================================
 // GLOBAL ERROR VISIBILITY (debug aid)
 // If firebase-config.js or an import fails, this makes it loud
 // instead of silently killing every listener below.
-// ==========================================
 window.addEventListener("error", (e) => {
     console.error("🔴 Uncaught error in posts.js pipeline:", e.message, e.filename, e.lineno);
 });
@@ -288,12 +286,10 @@ function showShieldStatus(message, isWarning = false) {
     if (!aiShieldStatus) return;
     aiShieldStatus.style.display = "block";
     aiShieldStatus.className = `ai-shield-status ${isWarning ? "warning" : "success"}`;
-    aiShieldStatus.innerHTML = message;
+    aiShieldStatus.textContent = message;
 }
 
-// ==========================================
 // MEDIA PREVIEW SELECTION LOGIC
-// ==========================================
 
 // 1. Image Selection
 if (imageUpload) {
@@ -354,9 +350,7 @@ if (removeMediaBtn) {
     });
 }
 
-// ==========================================
 // GEMINI MULTIMODAL AI PERCENTAGE DETECTION
-// ==========================================
 
 async function getGeminiApiKey() {
     if (window.GEMINI_API_KEY && typeof window.GEMINI_API_KEY === "string" && window.GEMINI_API_KEY.length > 20) {
@@ -673,12 +667,10 @@ function renderAiPercentageBadge(aiScore, aiReasoning) {
     `;
 }
 
-// ==========================================
 // SCAN & POST PUBLISH HANDLER
-// ==========================================
 if (publishPostBtn) {
     publishPostBtn.addEventListener("click", async () => {
-        console.log("🖱️ Scan & Post clicked");
+        
 
         if (!currentUser) {
             alert("❌ You must be logged in to post.");
@@ -688,13 +680,22 @@ if (publishPostBtn) {
         const textContent = postContentInput.value.trim();
         const githubUrl = githubLinkInput.value.trim();
 
+        if (textContent.length > 5000) {
+            alert("⚠️ Post content is too long. Please keep it under 5,000 characters.");
+            return;
+        }
+        if (githubUrl && githubUrl.length > 500) {
+            alert("⚠️ Link is too long.");
+            return;
+        }
+
         if (!textContent && !selectedFile && !githubUrl) {
             alert("❌ Please write text, upload media/document, or attach a GitHub link.");
             return;
         }
 
         publishPostBtn.disabled = true;
-        publishPostBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Analyzing & Posting...`;
+        publishPostBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Publishing...`;
 
         let mediaUrl = "";
         let docUrl = "";
@@ -753,7 +754,7 @@ if (publishPostBtn) {
             githubBox.style.display = "none";
             removeMediaBtn.click();
 
-            showShieldStatus(`✅ Published with ${aiPercentage}% AI verification!`, false);
+            showShieldStatus(`✅ Post published successfully!`, false);
             setTimeout(() => { if (aiShieldStatus) aiShieldStatus.style.display = "none"; }, 3500);
 
             loadPosts();
@@ -763,14 +764,12 @@ if (publishPostBtn) {
             alert("❌ Failed to post: " + err.message);
         } finally {
             publishPostBtn.disabled = false;
-            publishPostBtn.innerHTML = `<i class="fa-solid fa-shield-halved"></i> Scan & Post`;
+            publishPostBtn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Publish Post`;
         }
     });
 }
 
-// ==========================================
 // SHARE MODAL MANAGEMENT
-// ==========================================
 let activeShareContext = null;
 let cachedPeers = null;
 
@@ -927,9 +926,7 @@ async function openShareModal(postId, authorName, content) {
     });
 }
 
-// ==========================================
 // LOAD FEED WITH LIKES, COMMENTS, DELETE & SHARE
-// ==========================================
 // Feed Filtering Function
 function filterAndRenderPosts() {
     if (!postsFeed) return;
@@ -1032,6 +1029,9 @@ function renderSinglePostCard(post) {
 
     const isCommPost = post.postType === "community" || post.audience === "community";
     const collegeTag = post.targetCollege || post.authorCollege || post.collegeName || "College Community";
+    const safeMedia = sanitizeUrl(post.mediaUrl);
+    const safeDoc = sanitizeUrl(post.docUrl);
+    const safeGithub = sanitizeExternalUrl(post.githubUrl);
 
     postCard.innerHTML = `
         <div class="post-header-row">
@@ -1063,10 +1063,10 @@ function renderSinglePostCard(post) {
 
         <div class="post-content">${escapeHtml(post.content || "")}</div>
 
-        ${post.mediaUrl ? `<img src="${post.mediaUrl}" class="post-media" alt="Post media">` : ""}
+        ${safeMedia ? `<img src="${safeMedia}" class="post-media" alt="Post attachment">` : ""}
 
-        ${post.docUrl ? `
-            <a href="${post.docUrl}" target="_blank" download="${escapeHtml(post.docName || "document.pdf")}" class="pdf-card">
+        ${safeDoc ? `
+            <a href="${safeDoc}" target="_blank" rel="noopener noreferrer" download="${escapeHtml(post.docName || "document.pdf")}" class="pdf-card">
                 <i class="fa-solid fa-file-pdf fa-2x"></i>
                 <div>
                     <strong>Attachment Document:</strong>
@@ -1075,8 +1075,8 @@ function renderSinglePostCard(post) {
             </a>
         ` : ""}
 
-        ${post.githubUrl ? `
-            <a href="${escapeHtml(post.githubUrl)}" target="_blank" class="github-card">
+        ${safeGithub ? `
+            <a href="${safeGithub}" target="_blank" rel="noopener noreferrer" class="github-card">
                 <i class="fa-brands fa-github fa-2x"></i>
                 <div>
                     <strong>GitHub Repository Project:</strong>
@@ -1217,6 +1217,10 @@ function renderSinglePostCard(post) {
         }
         const text = (commentInput?.value || "").trim();
         if (!text) return;
+        if (text.length > 1000) {
+            alert("⚠️ Comment is too long. Maximum 1,000 characters.");
+            return;
+        }
 
         commentInput.value = "";
 
@@ -1286,10 +1290,29 @@ function renderSinglePostCard(post) {
 }
 
 function escapeHtml(str) {
-    if (!str) return "";
+    if (str === null || str === undefined) return "";
     return String(str)
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;");
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
+function sanitizeUrl(url) {
+    if (!url) return "";
+    const clean = String(url).trim();
+    if (/^(https?:\/\/|data:image\/(jpeg|png|gif|webp);base64,|data:application\/pdf;base64,)/i.test(clean)) {
+        return clean;
+    }
+    return "";
+}
+
+function sanitizeExternalUrl(url) {
+    if (!url) return "";
+    const clean = String(url).trim();
+    if (/^https?:\/\//i.test(clean)) {
+        return clean;
+    }
+    return "";
 }

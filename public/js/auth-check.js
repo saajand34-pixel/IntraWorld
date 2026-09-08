@@ -1,8 +1,6 @@
 /**
- * IntraWorld Universal Authentication & Session Security Guard
- * Ensures unauthenticated visitors cannot view protected pages,
- * prevents back-button navigation after logout (BFCache defense),
- * and provides universal instant logout across all pages.
+ * IntraWorld Authentication & Session Guard
+ * Protects authenticated routes and manages session lifecycle.
  */
 
 import { auth } from "./firebase-config.js";

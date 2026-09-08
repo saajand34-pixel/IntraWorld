@@ -10,6 +10,25 @@ import {
     getDocs 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
+function escapeHtml(str) {
+    if (str === null || str === undefined) return "";
+    return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
+function sanitizeUrl(url) {
+    if (!url) return "";
+    const clean = String(url).trim();
+    if (/^(https?:\/\/|data:image\/(jpeg|png|gif|webp);base64,)/i.test(clean)) {
+        return clean;
+    }
+    return "";
+}
+
 const DEFAULT_AVATAR = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2338bdf8'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-3.8-.85-5.05-2.2.03-1.68 3.37-2.6 5.05-2.6s5.02.92 5.05 2.6C15.8 19.15 14.03 20 12 20z'/></svg>";
 
 let selectedBase64Photo = null;
@@ -45,7 +64,7 @@ function renderFields(user) {
     if (collegeEl) collegeEl.value = college;
     if (passoutEl) passoutEl.value = passout;
 
-    if (preview && avatar) preview.src = avatar;
+    if (preview && avatar) preview.src = sanitizeUrl(avatar) || DEFAULT_AVATAR;
 
     const isVerified = user.isVerified === true || user.isFeeReceiptVerified === true || user.verificationStatus === "verified";
     const badgeEl = document.getElementById("dbVerificationBadge");
@@ -132,7 +151,7 @@ function setupPhotoUpload() {
         toastMsg.style.background = isSuccess ? "rgba(34, 197, 94, 0.15)" : "rgba(239, 68, 68, 0.15)";
         toastMsg.style.border = isSuccess ? "1px solid rgba(34, 197, 94, 0.4)" : "1px solid rgba(239, 68, 68, 0.4)";
         toastMsg.style.color = isSuccess ? "#4ade80" : "#f87171";
-        toastMsg.innerHTML = `<i class="fa-solid ${isSuccess ? 'fa-circle-check' : 'fa-triangle-exclamation'}"></i> <span>${msg}</span>`;
+        toastMsg.innerHTML = `<i class="fa-solid ${isSuccess ? 'fa-circle-check' : 'fa-triangle-exclamation'}"></i> <span>${escapeHtml(msg)}</span>`;
         
         setTimeout(() => {
             toastMsg.style.display = "none";

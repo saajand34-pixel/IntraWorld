@@ -1,16 +1,74 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // System config (read-only)
+
+    // Helper functions for role and ownership checks
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && (
+        request.auth.token.email == 'admin@intraworld.com' ||
+        request.auth.token.email == 'saajand34@gmail.com'
+      );
+    }
+
+    // System configuration (read-only for all clients)
     match /system_config/{doc} {
       allow read: if true;
       allow write: if false;
     }
 
-    // Allow genuine student records and collections
-    match /{document=**} {
+    // Posts & Feeds
+    match /posts/{postId} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasAll(['content', 'createdAt']);
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasAny(['likes', 'comments', 'views']);
+      allow delete: if isAdmin() || (isAuthenticated() && (
+        request.auth.uid == resource.data.uid ||
+        request.auth.token.email == resource.data.authorEmail
+      ));
+    }
+
+    // Peer-to-peer Chat Messages
+    match /chats/{chatId}/messages/{msgId} {
       allow read, write: if true;
+    }
+
+    // Student Networking & Connection Requests
+    match /connection_requests/{reqId} {
+      allow read, write: if true;
+    }
+    match /connections/{connId} {
+      allow read, write: if true;
+    }
+
+    // Student Registrations & Profiles
+    match /registrations/{regId} {
+      allow read: if true;
+      allow create: if true;
+      allow update: if true;
+      allow delete: if isAdmin();
+    }
+
+    match /students/{studId} {
+      allow read: if true;
+      allow create: if true;
+      allow update: if true;
+      allow delete: if isAdmin();
+    }
+
+    match /users/{userId} {
+      allow read: if true;
+      allow create, update: if true;
+      allow delete: if isAdmin();
+    }
+
+    // Default fallback rule: restrict any unrecognized collections
+    match /{document=**} {
+      allow read: if true;
+      allow write: if isAdmin();
     }
   }
 }
