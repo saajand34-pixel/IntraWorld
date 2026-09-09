@@ -248,6 +248,32 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
+    // Fullscreen Image Lightbox Modal Handlers
+    const imageLightboxModal = document.getElementById("imageLightboxModal");
+    const lightboxImg = document.getElementById("lightboxImg");
+    const closeLightboxBtn = document.getElementById("closeLightboxBtn");
+    const downloadLightboxBtn = document.getElementById("downloadLightboxBtn");
+
+    function openLightbox(src) {
+        if (!imageLightboxModal || !lightboxImg) return;
+        lightboxImg.src = src;
+        if (downloadLightboxBtn) downloadLightboxBtn.href = src;
+        imageLightboxModal.style.display = "flex";
+    }
+
+    function closeLightbox() {
+        if (!imageLightboxModal) return;
+        imageLightboxModal.style.display = "none";
+        if (lightboxImg) lightboxImg.src = "";
+    }
+
+    if (closeLightboxBtn) closeLightboxBtn.addEventListener("click", closeLightbox);
+    if (imageLightboxModal) {
+        imageLightboxModal.addEventListener("click", (e) => {
+            if (e.target === imageLightboxModal) closeLightbox();
+        });
+    }
+
     // 1. Load Registered Students Across All Collections (Deduplicated)
     async function loadRegisteredStudents() {
         if (!userListEl) return;
@@ -436,10 +462,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                         const safeMedia = sanitizeUrl(msg.mediaUrl);
                         if (safeMedia) {
                             mediaHtml = `
-                                <div class="msg-media-container">
-                                    <a href="${safeMedia}" target="_blank" rel="noopener noreferrer">
-                                        <img src="${safeMedia}" class="msg-media-img" alt="Shared media" />
-                                    </a>
+                                <div class="msg-media-container" data-full-src="${safeMedia}" title="Click to view full photo">
+                                    <img src="${safeMedia}" class="msg-media-img" alt="Shared media" />
                                 </div>
                             `;
                         }
@@ -499,6 +523,15 @@ document.addEventListener("DOMContentLoaded", async () => {
                     if (btnDelete) {
                         btnDelete.addEventListener("click", () => {
                             openDeleteModal(msgId, chatId, isMe);
+                        });
+                    }
+
+                    // Click on photo opens WhatsApp-style lightbox modal
+                    const mediaEl = row.querySelector(".msg-media-container");
+                    if (mediaEl) {
+                        mediaEl.addEventListener("click", () => {
+                            const fullSrc = mediaEl.getAttribute("data-full-src");
+                            if (fullSrc) openLightbox(fullSrc);
                         });
                     }
 

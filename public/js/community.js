@@ -1,4 +1,4 @@
-﻿import { db } from "../firebase-config.js";
+import { db } from "../firebase-config.js";
 import { 
     collection, 
     getDocs, 
@@ -297,8 +297,7 @@ document.addEventListener("DOMContentLoaded", () => {
             .trim();
     }
 
-    // Compare searched college with the student's registered college
-    function isSameCollege(searched, userCollege) {
+    function checkSingleCollegeMatch(searched, userCollege) {
         if (!searched || !userCollege) return false;
 
         const sClean = cleanCollegeStr(searched);
@@ -332,6 +331,40 @@ document.addEventListener("DOMContentLoaded", () => {
         if (sTokens.length > 0 && uTokens.length > 0) {
             const matchingTokens = sTokens.filter(t => uTokens.some(ut => ut.includes(t) || t.includes(ut)));
             if (matchingTokens.length > 0) return true;
+        }
+
+        return false;
+    }
+
+    // Compare searched college with the student's registered college (supporting multi-course records)
+    function isSameCollege(searched, userCollege) {
+        if (!searched || !userCollege) return false;
+        if (checkSingleCollegeMatch(searched, userCollege)) return true;
+
+        // Extract sub-tokens from comma-separated or parenthesis notation e.g. "BCA(SFGC), MCA(BMSIT)"
+        function extractParts(str) {
+            const parts = [];
+            const rawParts = String(str).split(/[,&/]/);
+            for (const p of rawParts) {
+                const trimmed = p.trim();
+                if (trimmed) {
+                    parts.push(trimmed);
+                    const parenMatch = trimmed.match(/\(([^)]+)\)/);
+                    if (parenMatch && parenMatch[1]) {
+                        parts.push(parenMatch[1].trim());
+                    }
+                }
+            }
+            return parts;
+        }
+
+        const sList = extractParts(searched);
+        const uList = extractParts(userCollege);
+
+        for (const s of sList) {
+            for (const u of uList) {
+                if (checkSingleCollegeMatch(s, u)) return true;
+            }
         }
 
         return false;
@@ -407,20 +440,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
         feedContainer.innerHTML = banner + statusNotice + '<div style="text-align: center; padding: 30px; color: #7db7ff;"><i class="fa-solid fa-spinner fa-spin"></i> Loading community feed...</div>';
 
-        // Fetch live community posts from Firestore
+        // Fetch live community posts from Firestore safely (no compound index required)
         let livePosts = [];
         try {
-            const q = query(
-                collection(db, "posts"), 
-                where("postType", "==", "community"),
-                orderBy("createdAt", "desc")
-            );
-            const snap = await getDocs(q);
+            let snap;
+            try {
+                const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
+                snap = await getDocs(q);
+            } catch (queryErr) {
+                console.warn("Ordered query fallback note:", queryErr.message);
+                snap = await getDocs(collection(db, "posts"));
+            }
+
             snap.forEach(d => {
                 const data = d.data();
-                if (isSameCollege(data.targetCollege, college.name) || isSameCollege(data.authorCollege, college.name)) {
+                const isComm = (data.postType === "community" || data.audience === "community");
+                const targetCol = data.targetCollege || data.authorCollege || data.collegeName || "";
+
+                if (isComm && (isSameCollege(targetCol, college.name) || (college.shortName && isSameCollege(targetCol, college.shortName)) || isSameCollege(data.authorCollege, college.name) || isSameCollege(data.collegeName, college.name))) {
                     livePosts.push({
-                        author: data.authorEmail ? data.authorEmail.split("@")[0] : "Student",
+                        author: data.authorName || (data.authorEmail ? data.authorEmail.split("@")[0] : "Student"),
                         role: "Enrolled Student",
                         tag: data.aiLabel ? `${data.aiLabel}` : "Community Post",
                         time: data.createdAt ? new Date(data.createdAt).toLocaleDateString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "Recently",
@@ -430,10 +469,13 @@ document.addEventListener("DOMContentLoaded", () => {
                         docUrl: data.docUrl || null,
                         docName: data.docName || null,
                         githubUrl: data.githubUrl || null,
-                        aiPercentage: data.aiPercentage
+                        aiPercentage: data.aiPercentage,
+                        createdAt: data.createdAt || ""
                     });
                 }
             });
+
+            livePosts.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
         } catch (err) {
             console.warn("Could not fetch live Firestore community posts:", err);
         }
@@ -473,8 +515,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; margin-bottom: 14px;">${escapeHtml(post.content)}</p>
                 
                 ${post.image && sanitizeUrl(post.image) ? `
-                <div style="margin-bottom: 16px; border-radius: 10px; overflow: hidden; max-height: 320px; border: 1px solid rgba(255, 255, 255, 0.08);">
-                    <img src="${sanitizeUrl(post.image)}" alt="${escapeHtml(post.title || 'Community Attachment')}" style="width: 100%; height: 260px; object-fit: cover; display: block;" onerror="this.style.display='none'" />
+                <div style="margin-bottom: 16px; border-radius: 12px; overflow: hidden; max-height: 480px; border: 1px solid rgba(245, 158, 11, 0.2); background: rgba(16, 2, 5, 0.6);">
+                    <img src="${sanitizeUrl(post.image)}" alt="${escapeHtml(post.title || 'Community Attachment')}" style="width: 100%; max-height: 480px; height: auto; object-fit: contain; display: block;" onerror="this.style.display='none'" />
                 </div>
                 ` : ''}
 
@@ -711,6 +753,22 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Initial render on page load
-    renderCollegePills(collegesData, collegesData[0]);
+    // Initial render on page load: automatically select student's enrolled college community
+    const currentStudent = getLoggedInStudent();
+    if (currentStudent && currentStudent.userCollege) {
+        let myCollege = collegesData.find(c => isSameCollege(c.name, currentStudent.userCollege) || (c.shortName && isSameCollege(c.shortName, currentStudent.userCollege)));
+        if (!myCollege) {
+            myCollege = {
+                name: currentStudent.userCollege,
+                shortName: currentStudent.userCollege.split(/[(,]/)[0].trim(),
+                posts: []
+            };
+            saveCustomCommunity(myCollege);
+            collegesData.unshift(myCollege);
+        }
+        activeCollege = myCollege;
+        renderCollegePills(collegesData, myCollege);
+    } else {
+        renderCollegePills(collegesData, collegesData[0]);
+    }
 });

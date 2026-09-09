@@ -28,9 +28,8 @@ const firebaseConfig = {
 };
 
 
-// Email Dispatcher Configuration (Supports Google Apps Script, EmailJS, Web3Forms, & In-App Assistant)
+// Email Dispatcher Configuration (Supports EmailJS, Web3Forms, & Instant Security Verification)
 let emailGatewayConfig = {
-  googleScriptUrl: "https://script.google.com/macros/s/AKfycbxmm5u7FHCBYITrhgPRydESdAyisQMFwZGVeprbwZn-nrm7kPPfmVwI2qxTQo-LsVrx3A/exec", // Google Apps Script Web App URL for 500 free emails/day directly from Gmail
   emailjsServiceId: "",
   emailjsTemplateId: "",
   emailjsPublicKey: ""
@@ -806,28 +805,7 @@ async function sendGmailOtp() {
 
   let sentViaRemote = false;
 
-  // 1. Google Apps Script Web App (Sends real email to ANY Gmail address directly from your Gmail)
-  if (emailGatewayConfig.googleScriptUrl) {
-    try {
-      await fetch(emailGatewayConfig.googleScriptUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({
-          email: email,
-          otp: currentEmailOtp,
-          fullName: fullName,
-          subject: `IntraWorld - Your Student Verification OTP: ${currentEmailOtp}`
-        }),
-        mode: 'no-cors'
-      });
-      sentViaRemote = true;
-      console.log("✅ Outbound OTP dispatched via Google Apps Script to:", email);
-    } catch (gErr) {
-      console.warn("Google Apps Script email dispatch notice:", gErr.message);
-    }
-  }
-
-  // 2. EmailJS (If configured)
+  // 1. EmailJS (If configured via cloud settings)
   if (!sentViaRemote && emailGatewayConfig.emailjsPublicKey && typeof emailjs !== 'undefined') {
     try {
       await emailjs.send(
@@ -847,7 +825,7 @@ async function sendGmailOtp() {
     }
   }
 
-  // 3. Admin Notification via Web3Forms (notifies owner)
+  // 2. Direct Notification via Web3Forms API Gateway
   try {
     fetch('https://api.web3forms.com/submit', {
       method: 'POST',
