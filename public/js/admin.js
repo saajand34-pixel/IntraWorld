@@ -108,7 +108,6 @@ function displayUsers() {
             name.includes(filter) ||
             email.includes(filter) ||
             college.includes(filter) ||
-            state.includes(filter) ||
             qualification.includes(filter)
         );
     });
@@ -123,8 +122,6 @@ function displayUsers() {
         const fullName = escapeHtml(user.fullName || user.full_name || "N/A");
         const email = escapeHtml(user.email || "N/A");
         const mobile = escapeHtml(user.mobileNumber || user.mobile || user.phone || "N/A");
-        const gender = escapeHtml(user.gender || "N/A");
-        const state = escapeHtml(user.state || "N/A");
         const qualification = escapeHtml(user.qualification || "N/A");
         const college = escapeHtml(user.collegeOrUniversity || user.collegeName || user.college || "N/A");
         const passout = escapeHtml(user.passoutYear || user.passedOutYear || user.passout_year || "N/A");
@@ -145,8 +142,6 @@ function displayUsers() {
             <td><strong>${fullName}</strong></td>
             <td>${email}</td>
             <td>${mobile}</td>
-            <td>${gender}</td>
-            <td>${state}</td>
             <td>${qualification}</td>
             <td>${college}</td>
             <td>${passout}</td>
