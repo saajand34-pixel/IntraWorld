@@ -14,6 +14,25 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getAuthenticatedUser } from "./auth-check.js";
 
+function escapeHtml(str) {
+    if (str === null || str === undefined) return "";
+    return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
+function sanitizeUrl(url) {
+    if (!url) return "";
+    const clean = String(url).trim();
+    if (/^(https?:\/\/|data:image\/(jpeg|png|gif|webp);base64,)/i.test(clean)) {
+        return clean;
+    }
+    return "";
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
     const currentUser = getAuthenticatedUser();
     if (!currentUser) return;
@@ -229,54 +248,66 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
-    // 1. Load Registered Students
+    // 1. Load Registered Students Across All Collections (Deduplicated)
     async function loadRegisteredStudents() {
         if (!userListEl) return;
-        userListEl.innerHTML = '<div style="padding: 20px; color: #7db7ff;"><i class="fa-solid fa-spinner fa-spin"></i> Loading students...</div>';
+        userListEl.innerHTML = '<div style="padding: 20px; color: #f59e0b;"><i class="fa-solid fa-spinner fa-spin"></i> Loading registered peers...</div>';
 
         try {
-            const peers = [];
-            const myEmail = (currentUser.email || "").toLowerCase();
+            const myEmail = (currentUser.email || "").toLowerCase().trim();
+            const peerMap = new Map();
 
-            let snap = await getDocs(collection(db, "registrations"));
-            if (snap.empty) snap = await getDocs(collection(db, "students"));
-            if (snap.empty) snap = await getDocs(collection(db, "users"));
-
-            snap.forEach(docSnap => {
-                const data = docSnap.data();
-                const email = (data.email || "").toLowerCase();
-                if (email && email !== myEmail) {
-                    peers.push({ id: docSnap.id, ...data });
+            // Collect peers from registrations, students, and users safely
+            const collectionsToScan = ["registrations", "students", "users"];
+            for (const colName of collectionsToScan) {
+                try {
+                    const snap = await getDocs(collection(db, colName));
+                    snap.forEach(docSnap => {
+                        const data = docSnap.data();
+                        const email = (data.email || "").toLowerCase().trim();
+                        if (email && email !== myEmail && !peerMap.has(email)) {
+                            peerMap.set(email, {
+                                id: docSnap.id,
+                                ...data,
+                                email: email
+                            });
+                        }
+                    });
+                } catch (colErr) {
+                    console.warn(`Scan collection ${colName} note:`, colErr.message);
                 }
-            });
+            }
+
+            const peers = Array.from(peerMap.values());
 
             if (peers.length === 0) {
-                userListEl.innerHTML = '<div style="padding: 20px; color: #94a3b8; font-size: 13px;">No other registered students yet.</div>';
+                userListEl.innerHTML = '<div style="padding: 20px; color: #8fa8bf; font-size: 13px; text-align: center;">No other student peers found.</div>';
                 return;
             }
 
             userListEl.innerHTML = "";
             peers.forEach(peer => {
-                const name = peer.fullName || peer.full_name || peer.name || "Student";
-                const college = peer.collegeName || peer.college || "";
+                const name = peer.fullName || peer.full_name || peer.name || "Student Peer";
+                const college = peer.collegeName || peer.collegeOrUniversity || peer.college || peer.qualification || "";
                 const avatar = peer.avatar || peer.profilePhotoUrl;
+                const safeAvatarUrl = sanitizeUrl(avatar);
                 
                 const item = document.createElement("div");
                 item.className = "user-item";
-                item.style.cssText = "display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.06); cursor: pointer; transition: background 0.2s;";
+                item.style.cssText = "display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid rgba(245, 158, 11, 0.12); cursor: pointer; transition: background 0.2s;";
                 item.innerHTML = `
-                    <div style="width: 42px; height: 42px; border-radius: 50%; overflow: hidden; background: #0066ff; display: flex; align-items: center; justify-content: center; font-weight: 600; flex-shrink: 0; border: 1.5px solid rgba(56,189,248,0.4);">
-                        ${avatar && sanitizeUrl(avatar) ? `<img src="${sanitizeUrl(avatar)}" style="width: 100%; height: 100%; object-fit: cover;" alt="${escapeHtml(name)}" />` : escapeHtml(name.charAt(0).toUpperCase())}
+                    <div style="width: 42px; height: 42px; border-radius: 50%; overflow: hidden; background: linear-gradient(135deg, #c41226, #4d000a); display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; flex-shrink: 0; border: 1.5px solid rgba(245, 158, 11, 0.45);">
+                        ${safeAvatarUrl ? `<img src="${safeAvatarUrl}" style="width: 100%; height: 100%; object-fit: cover;" alt="${escapeHtml(name)}" onerror="this.onerror=null; this.parentElement.innerHTML='${escapeHtml(name.charAt(0).toUpperCase())}';" />` : escapeHtml(name.charAt(0).toUpperCase())}
                     </div>
                     <div style="flex: 1; min-width: 0;">
-                        <div style="font-size: 14px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${name}</div>
-                        <div style="font-size: 12px; color: #8fa8bf; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${college || peer.email}</div>
+                        <div style="font-size: 14px; font-weight: 600; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(name)}</div>
+                        <div style="font-size: 12px; color: #f59e0b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(college || peer.email)}</div>
                     </div>
                 `;
 
                 item.addEventListener("click", () => {
                     document.querySelectorAll(".user-item").forEach(el => el.style.background = "transparent");
-                    item.style.background = "rgba(0, 102, 255, 0.15)";
+                    item.style.background = "#220308";
                     selectPeer(peer);
                 });
 
@@ -284,7 +315,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             });
         } catch (err) {
             console.error("Load peers error:", err);
-            userListEl.innerHTML = '<div style="padding: 20px; color: #f87171; font-size: 13px;">Failed to load student profiles.</div>';
+            userListEl.innerHTML = '<div style="padding: 20px; color: #ef4444; font-size: 13px;">Failed to load student profiles. Please check connection.</div>';
         }
     }
 
@@ -596,8 +627,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
-    function escapeHtml(str) {
-        return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    const logoutBtn = document.getElementById("logoutBtn");
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            localStorage.clear();
+            sessionStorage.clear();
+            window.location.replace("index.html");
+        });
     }
 
     loadRegisteredStudents();

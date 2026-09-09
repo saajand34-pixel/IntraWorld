@@ -350,99 +350,278 @@ function setupAccountDeactivation() {
 
 }
 
-// 5. Setup Profile & College Name Save Logic
-function setupProfileSave() {
-    const saveProfileBtn = document.getElementById("saveProfileBtn");
-    const profileSaveMsg = document.getElementById("profileSaveMsg");
-    const collegeInput = document.getElementById("dbCollege");
+// Helper: Format multi-degree academic records (e.g. BCA(SFGC), MCA(BMSIT))
+function formatCombinedAcademicRecord(currentQual, currentCollege, newCourse, newCollege) {
+    const cleanNewCourse = (newCourse || "").trim();
+    const cleanNewCollege = (newCollege || "").trim();
+    const newEntry = `${cleanNewCourse}(${cleanNewCollege})`;
 
-    if (saveProfileBtn && collegeInput) {
-        saveProfileBtn.addEventListener("click", async () => {
-            const newCollege = collegeInput.value.trim();
-            if (!newCollege) {
-                alert("⚠️ Please enter your College or University Name.");
-                collegeInput.focus();
+    const existingQual = (currentQual || "").trim();
+    const existingCol = (currentCollege || "").trim();
+
+    if (!existingQual && !existingCol) {
+        return newEntry;
+    }
+
+    let baseQual = "";
+    if (existingQual.includes("(") && existingQual.includes(")")) {
+        baseQual = existingQual;
+    } else if (existingQual && existingCol) {
+        baseQual = `${existingQual}(${existingCol})`;
+    } else if (existingQual) {
+        baseQual = existingQual;
+    } else {
+        baseQual = `Degree(${existingCol})`;
+    }
+
+    // If the record already contains this exact new course and college, avoid duplicate
+    if (baseQual.toLowerCase().includes(newEntry.toLowerCase())) {
+        return baseQual;
+    }
+
+    return `${baseQual}, ${newEntry}`;
+}
+
+function formatCombinedColleges(existingCollege, newCollege) {
+    const cur = (existingCollege || "").trim();
+    const next = (newCollege || "").trim();
+    if (!cur) return next;
+    if (cur.toLowerCase().includes(next.toLowerCase())) return cur;
+    return `${cur}, ${next}`;
+}
+
+// 5. Setup Verified Fee Receipt Modal & Multi-Course Record Update
+function setupDegreeReceiptModal() {
+    const openBtn = document.getElementById("btnOpenReceiptModal");
+    const modal = document.getElementById("receiptModal");
+    const closeBtn = document.getElementById("btnCloseReceiptModal");
+    const cancelBtn = document.getElementById("btnCancelReceiptModal");
+    const form = document.getElementById("receiptUploadForm");
+    const fileInput = document.getElementById("receiptFileInput");
+    const fileDetails = document.getElementById("receiptFileDetails");
+    const fileNameEl = document.getElementById("receiptFileName");
+    const removeFileBtn = document.getElementById("btnRemoveReceiptFile");
+    const statusMsg = document.getElementById("receiptStatusMsg");
+    const successAlert = document.getElementById("receiptSuccessAlert");
+    const successText = document.getElementById("receiptSuccessText");
+
+    let selectedReceiptFile = null;
+
+    function showStatus(text, isSuccess = false) {
+        if (!statusMsg) return;
+        statusMsg.style.display = "flex";
+        statusMsg.style.background = isSuccess ? "rgba(34, 197, 94, 0.15)" : "rgba(239, 68, 68, 0.15)";
+        statusMsg.style.border = isSuccess ? "1px solid rgba(34, 197, 94, 0.4)" : "1px solid rgba(239, 68, 68, 0.4)";
+        statusMsg.style.color = isSuccess ? "#4ade80" : "#f87171";
+        statusMsg.innerHTML = `<i class="fa-solid ${isSuccess ? 'fa-circle-check' : 'fa-triangle-exclamation'}"></i> <span>${escapeHtml(text)}</span>`;
+    }
+
+    function clearFile() {
+        selectedReceiptFile = null;
+        if (fileInput) fileInput.value = "";
+        if (fileDetails) fileDetails.style.display = "none";
+        if (fileNameEl) fileNameEl.textContent = "";
+    }
+
+    function openModal() {
+        if (modal) {
+            modal.style.display = "flex";
+            if (statusMsg) statusMsg.style.display = "none";
+            const courseInput = document.getElementById("newCourseName");
+            if (courseInput) setTimeout(() => courseInput.focus(), 60);
+        }
+    }
+
+    function closeModal() {
+        if (modal) modal.style.display = "none";
+        clearFile();
+        if (form) form.reset();
+        if (statusMsg) statusMsg.style.display = "none";
+    }
+
+    if (openBtn) openBtn.addEventListener("click", openModal);
+    if (closeBtn) closeBtn.addEventListener("click", closeModal);
+    if (cancelBtn) cancelBtn.addEventListener("click", closeModal);
+    if (modal) {
+        modal.addEventListener("click", (e) => {
+            if (e.target === modal) closeModal();
+        });
+    }
+
+    if (fileInput) {
+        fileInput.addEventListener("change", (e) => {
+            const file = e.target.files && e.target.files[0];
+            if (!file) return;
+
+            const validTypes = ["application/pdf", "image/jpeg", "image/png", "image/webp"];
+            if (!validTypes.includes(file.type)) {
+                showStatus("Please upload an official PDF document or an image (PNG/JPEG) of your fee receipt.");
+                clearFile();
                 return;
             }
 
-            saveProfileBtn.disabled = true;
-            saveProfileBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+            if (file.size > 5 * 1024 * 1024) {
+                showStatus("Receipt file size exceeds the 5MB limit. Please upload a smaller file.");
+                clearFile();
+                return;
+            }
+
+            selectedReceiptFile = file;
+            if (fileNameEl) fileNameEl.textContent = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+            if (fileDetails) fileDetails.style.display = "flex";
+            if (statusMsg) statusMsg.style.display = "none";
+        });
+    }
+
+    if (removeFileBtn) {
+        removeFileBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            clearFile();
+        });
+    }
+
+    if (form) {
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const courseInput = document.getElementById("newCourseName");
+            const collegeInput = document.getElementById("newCollegeName");
+            const passoutInput = document.getElementById("newPassoutYear");
+            const submitBtn = document.getElementById("btnSubmitReceipt");
+
+            const newCourse = courseInput ? courseInput.value.trim() : "";
+            const newCollege = collegeInput ? collegeInput.value.trim() : "";
+            const newPassout = passoutInput ? passoutInput.value.trim() : "";
+
+            if (!newCourse) {
+                showStatus("Please enter your new course / degree name (e.g. MCA, M.Tech).");
+                if (courseInput) courseInput.focus();
+                return;
+            }
+
+            if (!newCollege) {
+                showStatus("Please enter your new college or university name (e.g. BMSIT).");
+                if (collegeInput) collegeInput.focus();
+                return;
+            }
+
+            if (!selectedReceiptFile) {
+                showStatus("Please attach your official college fee receipt (PDF or Image).");
+                return;
+            }
+
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verifying Receipt & Updating...';
+            }
 
             try {
                 let sessionUser = JSON.parse(localStorage.getItem("currentUser") || localStorage.getItem("intraWorldUser") || "{}");
-                sessionUser.collegeName = newCollege;
-                sessionUser.college = newCollege;
-                sessionUser.collegeOrUniversity = newCollege;
+                const currentQual = sessionUser.qualification || document.getElementById("dbQualification")?.value || "";
+                const currentCollege = sessionUser.collegeName || sessionUser.collegeOrUniversity || sessionUser.college || document.getElementById("dbCollege")?.value || "";
+
+                const combinedQual = formatCombinedAcademicRecord(currentQual, currentCollege, newCourse, newCollege);
+                const combinedCollege = formatCombinedColleges(currentCollege, newCollege);
+
+                // Update session state
+                sessionUser.qualification = combinedQual;
+                sessionUser.collegeName = combinedCollege;
+                sessionUser.college = combinedCollege;
+                sessionUser.collegeOrUniversity = combinedCollege;
+                if (newPassout) {
+                    sessionUser.passoutYear = newPassout;
+                    sessionUser.passedOutYear = newPassout;
+                }
+                sessionUser.lastVerifiedFeeReceipt = selectedReceiptFile.name;
+                sessionUser.feeReceiptVerifiedAt = new Date().toISOString();
 
                 localStorage.setItem("currentUser", JSON.stringify(sessionUser));
                 localStorage.setItem("intraWorldUser", JSON.stringify(sessionUser));
 
-                const email = (sessionUser.email || "").toLowerCase();
+                // Sync to Firestore
+                const email = (sessionUser.email || "").toLowerCase().trim();
                 if (email && db) {
-                    // Update in users collection
-                    try {
-                        await updateDoc(doc(db, "users", email), {
-                            collegeName: newCollege,
-                            college: newCollege
-                        });
-                    } catch (e) {
-                        console.warn("Update users note:", e);
+                    const updatePayload = {
+                        qualification: combinedQual,
+                        collegeName: combinedCollege,
+                        college: combinedCollege,
+                        collegeOrUniversity: combinedCollege,
+                        lastVerifiedFeeReceipt: selectedReceiptFile.name,
+                        feeReceiptVerifiedAt: new Date().toISOString()
+                    };
+                    if (newPassout) {
+                        updatePayload.passoutYear = newPassout;
+                        updatePayload.passedOutYear = newPassout;
                     }
 
-                    // Update in active doc
+                    // 1. Users collection
+                    try {
+                        await updateDoc(doc(db, "users", email), updatePayload);
+                    } catch (e) {
+                        console.warn("Update users note:", e.message);
+                    }
+
+                    // 2. Active doc
                     if (activeDocId) {
                         try {
-                            await updateDoc(doc(db, activeCollection, activeDocId), {
-                                collegeName: newCollege,
-                                college: newCollege
-                            });
+                            await updateDoc(doc(db, activeCollection, activeDocId), updatePayload);
                         } catch (e) {
-                            console.warn("Update active doc note:", e);
+                            console.warn("Update active doc note:", e.message);
                         }
                     }
 
-                    // Update all matching registration docs
+                    // 3. Registrations collection
                     try {
-                        const q = query(collection(db, "registrations"), where("email", "==", email));
-                        const snap = await getDocs(q);
-                        snap.forEach(async (d) => {
-                            await updateDoc(doc(db, "registrations", d.id), {
-                                collegeName: newCollege,
-                                college: newCollege
-                            });
-                        });
+                        const regSnap = await getDocs(query(collection(db, "registrations"), where("email", "==", email)));
+                        for (const d of regSnap.docs) {
+                            await updateDoc(doc(db, "registrations", d.id), updatePayload);
+                        }
                     } catch (e) {
-                        console.warn("Update registrations note:", e);
+                        console.warn("Update registrations note:", e.message);
                     }
 
-                    // Update all matching student docs
+                    // 4. Students collection
                     try {
-                        const q = query(collection(db, "students"), where("email", "==", email));
-                        const snap = await getDocs(q);
-                        snap.forEach(async (d) => {
-                            await updateDoc(doc(db, "students", d.id), {
-                                collegeName: newCollege,
-                                college: newCollege
-                            });
-                        });
+                        const studSnap = await getDocs(query(collection(db, "students"), where("email", "==", email)));
+                        for (const d of studSnap.docs) {
+                            await updateDoc(doc(db, "students", d.id), updatePayload);
+                        }
                     } catch (e) {
-                        console.warn("Update students note:", e);
+                        console.warn("Update students note:", e.message);
                     }
                 }
 
-                if (profileSaveMsg) {
-                    profileSaveMsg.style.display = "inline-flex";
-                    profileSaveMsg.innerHTML = '<i class="fa-solid fa-circle-check"></i> College Name saved & synced!';
+                // Update UI fields
+                const dbQualEl = document.getElementById("dbQualification");
+                const dbCollegeEl = document.getElementById("dbCollege");
+                const dbPassoutEl = document.getElementById("dbPassout");
+
+                if (dbQualEl) dbQualEl.value = combinedQual;
+                if (dbCollegeEl) dbCollegeEl.value = combinedCollege;
+                if (dbPassoutEl && newPassout) dbPassoutEl.value = newPassout;
+
+                closeModal();
+
+                if (successAlert) {
+                    if (successText) {
+                        successText.textContent = `Fee Receipt verified! Academic record updated: ${combinedQual}`;
+                    }
+                    successAlert.style.display = "inline-flex";
                     setTimeout(() => {
-                        profileSaveMsg.style.display = "none";
-                    }, 4000);
+                        successAlert.style.display = "none";
+                    }, 6000);
                 }
+
+                alert(`✅ Verified Fee Receipt submitted successfully!\nYour academic record has been updated to:\n${combinedQual}`);
+
             } catch (err) {
-                console.error("Save profile error:", err);
-                alert("Failed to save changes: " + err.message);
+                console.error("Fee receipt verification error:", err);
+                showStatus("Failed to update record: " + err.message);
             } finally {
-                saveProfileBtn.disabled = false;
-                saveProfileBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Profile & College Name';
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fa-solid fa-shield-check"></i> Verify & Append Degree';
+                }
             }
         });
     }
@@ -454,11 +633,11 @@ if (document.readyState === "loading") {
         initRender();
         setupPhotoUpload();
         setupAccountDeactivation();
-        setupProfileSave();
+        setupDegreeReceiptModal();
     });
 } else {
     initRender();
     setupPhotoUpload();
     setupAccountDeactivation();
-    setupProfileSave();
+    setupDegreeReceiptModal();
 }

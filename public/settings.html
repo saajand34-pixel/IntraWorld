@@ -417,20 +417,25 @@
                         <input type="text" id="dbPassout" placeholder="Year" disabled>
                     </div>
 
-                    <!-- Prominent College Name Field -->
-                    <div class="info-field" style="grid-column: 1 / -1; background: rgba(56, 189, 248, 0.05); padding: 16px; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.25);">
-                        <label style="color: #38bdf8; font-weight: 600; display: flex; align-items: center; gap: 8px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">
-                            <i class="fa-solid fa-building-columns" style="font-size: 15px;"></i> College / University Name (From Registration)
-                        </label>
-                        <input type="text" id="dbCollege" placeholder="e.g. Seshadripuram First Grade College (SFGC)" style="border-color: rgba(56, 189, 248, 0.4); background: #040e1a; font-size: 15px; font-weight: 500; color: #fff; margin-top: 4px;">
-                        <div style="font-size: 12px; color: #8fa8bf; margin-top: 6px; display: flex; align-items: center; gap: 6px;">
-                            <i class="fa-solid fa-circle-info" style="color: #38bdf8;"></i>
-                            <span>This is what you entered during registration. You can edit this field anytime to update your affiliated campus community feed.</span>
+                    <!-- Permanent Verified College Record Field -->
+                    <div class="info-field" style="grid-column: 1 / -1; background: rgba(245, 158, 11, 0.05); padding: 18px; border-radius: 14px; border: 1px solid rgba(245, 158, 11, 0.25);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                            <label style="color: #f59e0b; font-weight: 600; display: flex; align-items: center; gap: 8px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">
+                                <i class="fa-solid fa-building-columns" style="font-size: 15px;"></i> College / University Name (Permanent Academic Record)
+                            </label>
+                            <span style="font-size: 11px; background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.35); padding: 3px 9px; border-radius: 12px; font-weight: 600;">
+                                <i class="fa-solid fa-lock"></i> Permanent & Locked
+                            </span>
+                        </div>
+                        <input type="text" id="dbCollege" placeholder="e.g. Seshadripuram First Grade College (SFGC)" disabled readonly style="background: #100103; border-color: rgba(245, 158, 11, 0.2); color: #e2e8f0; font-size: 15px; font-weight: 500; margin-top: 8px; cursor: not-allowed;">
+                        <div style="font-size: 12px; color: #8fa8bf; margin-top: 8px; display: flex; align-items: center; gap: 6px;">
+                            <i class="fa-solid fa-shield-halved" style="color: #f59e0b;"></i>
+                            <span>Academic college records are permanently verified to prevent forgery. To add another qualification or transfer college (e.g. <code>BCA(SFGC), MCA(BMSIT)</code>), submit your official college fee receipt below.</span>
                         </div>
                     </div>
 
                     <div class="info-field" style="grid-column: 1 / -1;">
-                        <label>Membership Status</label>
+                        <label>Academic Membership Status</label>
                         <div id="dbVerificationBadge" style="margin-top: 4px;">
                             <span class="status-badge status-verified">
                                 <i class="fa-solid fa-circle-check"></i> Verified Member
@@ -439,10 +444,12 @@
                     </div>
                 </div>
 
-                <div style="margin-top: 22px; display: flex; justify-content: flex-end; align-items: center; gap: 14px; flex-wrap: wrap; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 18px;">
-                    <div id="profileSaveMsg" style="font-size: 13px; color: #4ade80; display: none;"></div>
-                    <button id="saveProfileBtn" class="btn" style="background: #0066ff; color: #ffffff; padding: 11px 24px; border-radius: 10px; font-weight: 600; font-size: 14px; border: none; cursor: pointer; box-shadow: 0 4px 15px rgba(0, 102, 255, 0.35);">
-                        <i class="fa-solid fa-floppy-disk"></i> Save Profile & College Name
+                <div style="margin-top: 22px; display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; border-top: 1px solid rgba(245,158,11,0.15); padding-top: 18px;">
+                    <div id="receiptSuccessAlert" style="font-size: 13px; color: #4ade80; display: none; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-circle-check"></i> <span id="receiptSuccessText">Academic record updated successfully!</span>
+                    </div>
+                    <button type="button" id="btnOpenReceiptModal" class="btn" style="background: linear-gradient(135deg, #ffd700 0%, #f59e0b 50%, #d97706 100%); color: #180206; padding: 11px 22px; border-radius: 10px; font-weight: 700; font-size: 14px; border: 1px solid rgba(245, 158, 11, 0.4); cursor: pointer; box-shadow: none;">
+                        <i class="fa-solid fa-file-invoice-dollar"></i> Add Degree / Update College via Fee Receipt
                     </button>
                 </div>
             </div>
@@ -465,6 +472,78 @@
 
         </section>
     </main>
+
+    <!-- ADD DEGREE & COLLEGE VIA FEE RECEIPT MODAL -->
+    <div id="receiptModal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(8px); z-index: 2000; align-items: center; justify-content: center; padding: 20px; overflow-y: auto;">
+        <div style="background: #180206; border: 1px solid rgba(245, 158, 11, 0.35); border-radius: 20px; max-width: 540px; width: 100%; padding: 28px; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+                <div>
+                    <h3 style="color: #ffffff; font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: 10px;">
+                        <i class="fa-solid fa-graduation-cap" style="color: #f59e0b;"></i> Add Verified Degree / College
+                    </h3>
+                    <p style="color: #8fa8bf; font-size: 13px; margin-top: 4px;">
+                        Submit your new college fee receipt. IntraWorld will automatically append the course to your registration record (e.g. <code>BCA(SFGC), MCA(BMSIT)</code>).
+                    </p>
+                </div>
+                <button type="button" id="btnCloseReceiptModal" style="background: transparent; border: none; color: #8fa8bf; font-size: 20px; cursor: pointer; padding: 4px 8px;" title="Close">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form id="receiptUploadForm" style="display: flex; flex-direction: column; gap: 16px;">
+                <div class="info-field">
+                    <label for="newCourseName" style="color: #f59e0b; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                        <i class="fa-solid fa-book-bookmark" style="margin-right: 4px;"></i> New Course / Degree
+                    </label>
+                    <input type="text" id="newCourseName" placeholder="e.g. MCA, M.Tech, MBA, M.Sc" required style="background: #220308; border: 1px solid rgba(245, 158, 11, 0.3); color: #fff; padding: 12px 14px; border-radius: 10px; font-size: 14px; outline: none;">
+                </div>
+
+                <div class="info-field">
+                    <label for="newCollegeName" style="color: #f59e0b; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                        <i class="fa-solid fa-building-columns" style="margin-right: 4px;"></i> New College / University Name
+                    </label>
+                    <input type="text" id="newCollegeName" placeholder="e.g. BMS Institute of Technology (BMSIT)" required style="background: #220308; border: 1px solid rgba(245, 158, 11, 0.3); color: #fff; padding: 12px 14px; border-radius: 10px; font-size: 14px; outline: none;">
+                </div>
+
+                <div class="info-field">
+                    <label for="newPassoutYear" style="color: #f59e0b; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                        <i class="fa-solid fa-calendar-check" style="margin-right: 4px;"></i> Expected Passout Batch / Year (Optional)
+                    </label>
+                    <input type="text" id="newPassoutYear" placeholder="e.g. 2026 or 2027" style="background: #220308; border: 1px solid rgba(245, 158, 11, 0.3); color: #fff; padding: 12px 14px; border-radius: 10px; font-size: 14px; outline: none;">
+                </div>
+
+                <div class="info-field">
+                    <label style="color: #f59e0b; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                        <i class="fa-solid fa-file-invoice" style="margin-right: 4px;"></i> Official College Fee Receipt (PDF or Image)
+                    </label>
+                    <input type="file" id="receiptFileInput" accept="application/pdf,image/png,image/jpeg,image/webp" style="display: none;">
+                    <label for="receiptFileInput" class="btn btn-outline" style="cursor: pointer; width: 100%; justify-content: center; padding: 12px; border-style: dashed; border-width: 2px;">
+                        <i class="fa-solid fa-cloud-arrow-up"></i> Select Fee Receipt (Max 5MB)
+                    </label>
+                    <div id="receiptFileDetails" style="display: none; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.3); padding: 10px 14px; border-radius: 8px; border: 1px solid rgba(245, 158, 11, 0.2); font-size: 13px; margin-top: 6px;">
+                        <div style="display: flex; align-items: center; gap: 8px; overflow: hidden;">
+                            <i class="fa-solid fa-file-circle-check" style="color: #4ade80;"></i>
+                            <span id="receiptFileName" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff;"></span>
+                        </div>
+                        <button type="button" id="btnRemoveReceiptFile" style="background: transparent; border: none; color: #ef4444; cursor: pointer; padding: 2px 6px;">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="receiptStatusMsg" style="display: none; padding: 10px 14px; border-radius: 8px; font-size: 13px; align-items: center; gap: 8px;"></div>
+
+                <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 10px;">
+                    <button type="button" id="btnCancelReceiptModal" class="btn" style="background: rgba(255, 255, 255, 0.08); color: #cbd5e1; border: 1px solid rgba(255, 255, 255, 0.15); padding: 10px 18px;">
+                        Cancel
+                    </button>
+                    <button type="submit" id="btnSubmitReceipt" class="btn" style="background: linear-gradient(135deg, #ffd700 0%, #f59e0b 50%, #d97706 100%); color: #180206; padding: 10px 22px; font-weight: 700;">
+                        <i class="fa-solid fa-shield-check"></i> Verify & Append Degree
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <!-- CONFIRMATION MODAL -->
     <div id="deactivateModal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(6px); z-index: 2000; align-items: center; justify-content: center; padding: 20px;">

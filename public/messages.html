@@ -388,23 +388,23 @@
     <main class="main">
         <div class="chat-container">
             <div class="user-list-pane">
-                <div class="pane-header">Registered Users</div>
+                <div class="pane-header"><i class="fa-solid fa-users" style="color: #f59e0b; margin-right: 6px;"></i> Registered Peers</div>
                 <div class="user-list" id="userList">
-                    <div style="padding: 20px; color: #7db7ff;">Loading registered profiles...</div>
+                    <div style="padding: 20px; color: #f59e0b; font-size: 13px;"><i class="fa-solid fa-spinner fa-spin"></i> Loading student profiles...</div>
                 </div>
             </div>
 
             <div class="chat-pane" id="chatPane">
                 <div class="no-chat-selected" id="noChatPlaceholder">
-                    Select a user profile from the left to start chatting
+                    Select a student profile from the left to start direct messaging
                 </div>
 
                 <div id="activeChatContent" style="display: none; height: 100%; flex-direction: column;">
                     <div class="chat-header">
                         <div class="user-avatar" id="activeUserAvatar">U</div>
                         <div>
-                            <h3 id="activeUserName">User Name</h3>
-                            <p style="font-size: 11px; color: #7db7ff;" id="activeUserEmail">user@example.com</p>
+                            <h3 id="activeUserName">Student Name</h3>
+                            <p style="font-size: 12px; color: #f59e0b;" id="activeUserEmail">student@example.com</p>
                         </div>
                     </div>
 
