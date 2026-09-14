@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>IntraWorld - Student Registration & Document Verification</title>
+  <link rel="icon" type="image/png" href="logo.png">
   
   <!-- Fonts & Confetti -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -391,11 +392,11 @@
 
     <!-- SUCCESS VERIFIED DASHBOARD -->
     <div id="successView" class="success-panel hidden">
-      <div style="font-size: 40px;"></div>
+      <div style="font-size: 40px;"><i class="fa-solid fa-circle-check" style="color: #34d399;"></i></div>
       <div>
-        <h2 style="font-size: 24px; font-weight: 800; color: #fff;">Student Profile Authenticated!</h2>
+        <h2 style="font-size: 24px; font-weight: 800; color: #fff;">Student Account Created!</h2>
         <p style="font-size: 13px; color: #94a3b8; margin-top: 4px;">
-          Document OCR Verification completed with <strong id="successScoreText" style="color: #34d399;">100% Trust Rating</strong>.
+          Your student account has been registered with <strong id="successScoreText" style="color: #34d399;">100% Trust Rating</strong>.
         </p>
       </div>
 
@@ -405,43 +406,41 @@
           <div class="holo-avatar" id="holoAvatar">S</div>
           <div class="holo-info">
             <h3 id="holoName">Student Name ✓</h3>
-            <div class="college" id="holoCollege">University Name</div>
-            <div class="degree" id="holoDegree">Degree • Specialization</div>
+            <div class="college" id="holoGender" style="color: #f59e0b; font-weight: 600;">Gender: Male</div>
+            <div class="degree" id="holoEmail">student@gmail.com</div>
           </div>
         </div>
 
         <div class="holo-stats-grid">
           <div>
-            <span class="stat-label">Student Reg ID:</span>
-            <span class="stat-val" id="holoRegNo" style="color: #38bdf8; font-family: 'JetBrains Mono', monospace;">24CA018</span>
+            <span class="stat-label">Mobile:</span>
+            <span class="stat-val" id="holoPhone" style="color: #38bdf8; font-family: 'JetBrains Mono', monospace;">XXXXXXXXXX</span>
           </div>
           <div>
-            <span class="stat-label">Academic Batch:</span>
-            <span class="stat-val" id="holoBatch" style="color: #38bdf8;">2024-2027</span>
+            <span class="stat-label">Account Status:</span>
+            <span class="stat-val" style="color: #34d399;">ACTIVE_STUDENT</span>
           </div>
           <div>
             <span class="stat-label">Gmail Auth:</span>
-            <span class="stat-val">✓ Web3Forms Pass</span>
+            <span class="stat-val" style="color: #34d399;">✓ SMTP OTP Verified</span>
           </div>
           <div>
-            <span class="stat-label">Phone Auth:</span>
-            <span class="stat-val">✓ 2Factor SMS Pass</span>
+            <span class="stat-label">SMS Auth:</span>
+            <span class="stat-val" style="color: #34d399;">✓ Verified</span>
           </div>
           <div>
-            <span class="stat-label">OCR Match:</span>
-            <span class="stat-val" style="color: #34d399;">✓ Name + Reg + Degree + College</span>
+            <span class="stat-label">Academic Profile:</span>
+            <span class="stat-val" style="color: #f59e0b;">Add via Profile Settings</span>
           </div>
           <div>
-            <span class="stat-label">Student Status:</span>
-            <span class="stat-val" style="color: #38bdf8;">GENUINE_STUDENT</span>
+            <span class="stat-label">Security Shield:</span>
+            <span class="stat-val" style="color: #38bdf8;">Cloudflare Protected</span>
           </div>
         </div>
-
-        <div class="chip-container" id="holoSkills"></div>
       </div>
 
-      <div style="display: flex; justify-content: center; gap: 12px; margin-top: 10px;">
-        <button class="btn btn-secondary" onclick="window.location.reload()">Register Another Student</button>
+      <div style="display: flex; justify-content: center; gap: 12px; margin-top: 14px; flex-wrap: wrap;">
+        <button class="btn btn-secondary" onclick="window.location.reload()">Register Another</button>
         <button class="btn btn-cyan" onclick="window.location.href='login.html'">Proceed to Sign In</button>
       </div>
     </div>
@@ -472,21 +471,34 @@
 
         <!-- 1. PERSONAL INFORMATION -->
         <div class="form-section-title">
-          <span>1. Personal Information</span>
+          <span>1. Student Contact &amp; Identity</span>
         </div>
 
-        <div class="form-group">
-          <label>Full Name <span class="req">*</span></label>
-          <div class="input-wrapper">
-            <span class="input-icon"></span>
-            <input type="text" id="fullName" required placeholder="Enter your Name" oninput="calculateTrustScore()">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Full Name <span class="req">*</span></label>
+            <div class="input-wrapper">
+              <span class="input-icon"></span>
+              <input type="text" id="fullName" required placeholder="Enter your Name" oninput="calculateTrustScore()">
+            </div>
+          </div>
+
+          <div class="form-group no-icon">
+            <label>Gender <span class="req">*</span></label>
+            <select id="gender" required onchange="calculateTrustScore()">
+              <option value="" disabled selected>-- Select Gender --</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+              <option value="Prefer not to say">Prefer not to say</option>
+            </select>
           </div>
         </div>
 
         <div class="form-group">
           <label>
             Gmail Address <span class="req">*</span>
-            <span class="helper">(Unique • Instant Gmail OTP)</span>
+            <span class="helper">(Unique • Real SMTP Email OTP)</span>
           </label>
           <div style="display: flex; gap: 8px;">
             <div class="input-wrapper" style="flex: 1;">
@@ -499,15 +511,11 @@
           <div id="emailOtpBox" class="otp-card hidden">
             <div style="display: flex; justify-content: space-between; font-size: 11px; color: #38bdf8;">
               <span>Enter 6-digit OTP received in Gmail:</span>
-              <span id="emailGatewayBadge" style="color: #94a3b8;">Email OTP Gateway</span>
+              <span id="emailGatewayBadge" style="color: #94a3b8;">SMTP Protocol Gateway</span>
             </div>
             <div class="otp-row">
-              <input type="text" id="enteredEmailOtp" maxlength="6" placeholder="------" class="otp-input">
+              <input type="text" id="enteredEmailOtp" maxlength="6" inputmode="numeric" placeholder="------" class="otp-input">
               <button type="button" class="btn btn-success" onclick="verifyGmailOtp()">Verify OTP</button>
-            </div>
-            <div id="emailOtpHelper" class="hidden" style="margin-top: 6px; padding: 7px 10px; background: rgba(56, 189, 248, 0.08); border: 1px dashed rgba(56, 189, 248, 0.35); border-radius: 8px; font-size: 11.5px; display: flex; align-items: center; justify-content: space-between; gap: 8px;">
-              <span>Verification Code: <strong id="emailOtpCodePreview" style="color: #34d399; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; letter-spacing: 0.12em;">------</strong></span>
-              <button type="button" class="btn btn-secondary" onclick="autoFillEmailOtp()" style="padding: 3px 9px; font-size: 11px; border-radius: 6px;">⚡ Auto-Fill Code</button>
             </div>
           </div>
           <div id="emailStatusMsg" class="status-msg"></div>
@@ -515,13 +523,13 @@
 
         <div class="form-group">
           <label>
-            Mobile Number (with Country Code) <span class="req">*</span>
-            <span class="helper">(Unique • Real 2Factor SMS OTP)</span>
+            Mobile Number <span class="req">*</span>
+            <span class="helper">(Numbers only • 10 Digits)</span>
           </label>
           <div style="display: flex; gap: 8px;">
             <div class="input-wrapper" style="flex: 1;">
               <span class="input-icon"></span>
-              <input type="text" id="mobileNumber" required placeholder="+XX XXXXXXXXXX" oninput="calculateTrustScore()">
+              <input type="tel" id="mobileNumber" required maxlength="10" inputmode="numeric" pattern="[0-9]{10}" placeholder="Enter 10-digit number" oninput="calculateTrustScore()">
             </div>
             <button type="button" id="sendSmsOtpBtn" class="btn btn-cyan" onclick="sendSmsOtp()">Send SMS</button>
           </div>
@@ -532,163 +540,16 @@
               <span style="color: #94a3b8;">2Factor Gateway</span>
             </div>
             <div class="otp-row">
-              <input type="text" id="enteredSmsOtp" maxlength="6" placeholder="------" class="otp-input">
+              <input type="text" id="enteredSmsOtp" maxlength="6" inputmode="numeric" placeholder="------" class="otp-input">
               <button type="button" class="btn btn-success" onclick="verifySmsOtp()">Verify SMS</button>
             </div>
           </div>
           <div id="smsStatusMsg" class="status-msg"></div>
         </div>
 
-        <!-- 2. ACADEMIC DETAILS -->
+        <!-- 2. SECURITY PURPOSE QUESTIONS (FOR ACCOUNT RECOVERY) -->
         <div class="form-section-title">
-          <span>2. Academic Details</span>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group no-icon">
-            <label>Qualification / Degree <span class="req">*</span></label>
-            <select id="qualification" onchange="handleDegreeChange(this.value)">
-              <option value="" disabled selected>-- Select Your Degree / Course --</option>
-              
-              <optgroup label="Computer & Information Technology">
-                <option value="Bachelor of Computer Applications (BCA)">Bachelor of Computer Applications (BCA)</option>
-                <option value="Master of Computer Applications (MCA)">Master of Computer Applications (MCA)</option>
-                <option value="B.Sc in Computer Science / IT">B.Sc in Computer Science / IT</option>
-                <option value="M.Sc in Computer Science / IT">M.Sc in Computer Science / IT</option>
-              </optgroup>
-
-              <optgroup label="Engineering & Technology">
-                <option value="Bachelor of Technology (B.Tech)">Bachelor of Technology (B.Tech)</option>
-                <option value="Bachelor of Engineering (B.E.)">Bachelor of Engineering (B.E.)</option>
-                <option value="Master of Technology (M.Tech)">Master of Technology (M.Tech)</option>
-                <option value="Diploma in Engineering">Diploma in Engineering</option>
-              </optgroup>
-
-              <optgroup label="Commerce & Business Management">
-                <option value="Bachelor of Commerce (B.Com)">Bachelor of Commerce (B.Com)</option>
-                <option value="Bachelor of Business Administration (BBA)">Bachelor of Business Administration (BBA)</option>
-                <option value="Master of Business Administration (MBA)">Master of Business Administration (MBA)</option>
-              </optgroup>
-
-              <optgroup label="Science & Mathematics">
-                <option value="Bachelor of Science (B.Sc)">Bachelor of Science (B.Sc)</option>
-                <option value="Master of Science (M.Sc)">Master of Science (M.Sc)</option>
-              </optgroup>
-
-              <optgroup label="Arts & Humanities">
-                <option value="Bachelor of Arts (B.A.)">Bachelor of Arts (B.A.)</option>
-                <option value="Master of Arts (M.A.)">Master of Arts (M.A.)</option>
-              </optgroup>
-
-              <optgroup label="Other Courses">
-                <option value="OTHER_SPECIFY">Other (Specify Custom Degree Below)</option>
-              </optgroup>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label>Specialization / Branch <span class="req">*</span></label>
-            <div class="input-wrapper">
-              <span class="input-icon"></span>
-              <input type="text" id="specialization" required placeholder="e.g. Ai etc">
-            </div>
-          </div>
-        </div>
-
-        <div id="customDegreeContainer" class="form-group hidden">
-          <label>Specify Your Degree Name <span class="req">*</span></label>
-          <div class="input-wrapper">
-            <span class="input-icon"></span>
-            <input type="text" id="customDegreeInput" placeholder="Enter your official degree name">
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label>College / University Name <span class="req">*</span></label>
-            <div class="input-wrapper">
-              <span class="input-icon"></span>
-              <input type="text" id="collegeName" required placeholder="e.g. College Name">
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>Student Roll No / Reg ID <span class="req">*</span> <span class="helper">(Unique • e.g. 24CA018)</span></label>
-            <div class="input-wrapper">
-              <span class="input-icon"></span>
-              <input type="text" id="studentRegId" required placeholder="e.g. XXXXXXX" oninput="calculateTrustScore()">
-            </div>
-            <div id="regIdStatusMsg" class="status-msg"></div>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label>Skills (comma-separated) <span class="req">*</span></label>
-            <div class="input-wrapper">
-              <span class="input-icon"></span>
-              <input type="text" id="skills" required placeholder="e.g. Python etc">
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>Academic Batch Year <span class="req">*</span></label>
-            <div class="input-wrapper">
-              <span class="input-icon"></span>
-              <input type="text" id="passedOutYear" required placeholder="e.g. YYYY - YYYY">
-            </div>
-          </div>
-        </div>
-
-        <!-- 3. COLLEGE FEE RECEIPT VERIFICATION -->
-        <div class="form-section-title">
-          <span>3. College Fee Receipt Verification</span>
-          <span style="font-size: 10.5px; color: #34d399; font-weight: 700;">Official Receipt Validator</span>
-        </div>
-
-        <div class="ocr-registry-box">
-          <p style="font-size: 12px; color: #cbd5e1; line-height: 1.5;">
-            Upload your official <strong>College Fee Receipt Voucher</strong> (PDF, PNG, JPG).
-            Extracts <strong>Student Name</strong>, <strong>College Name</strong>, <strong>Course</strong>, and validates that the <strong>Fee Payment Date</strong> falls within your <strong>Academic Batch Year</strong>:
-          </p>
-
-          <input type="file" id="academicDocInput" style="display: none;" accept=".png, .jpg, .jpeg, .webp, .pdf" onchange="handleAcademicDocSelected(event)">
-
-          <label for="academicDocInput" class="upload-box-dash" id="uploadLabelCard">
-            <div style="font-size: 28px; color: #38bdf8; margin-bottom: 6px;"></div>
-            <div id="academicUploadLabel" style="font-size: 13.5px; font-weight: 600; color: #f1f5f9;">
-              Click here to choose College Fee Receipt Voucher (PDF, PNG, JPG)
-            </div>
-            <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;">Supports official fee vouchers, challans, and receipts (PDF / Image)</div>
-          </label>
-
-          <button type="button" id="verifyDocBtn" class="btn btn-cyan" style="width: 100%; padding: 13px;" onclick="runRealOcrVerification()">
-            Run Fee Receipt OCR Verification
-          </button>
-
-          <div id="academicStatusMsg" class="status-msg"></div>
-
-          <!-- Verified Certificate HUD -->
-          <div id="academicCertCard" class="cert-badge-hud hidden">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <div style="font-size: 13px; font-weight: 700; color: #34d399;">
-                 College Fee Receipt Authenticated (100 Pts)
-              </div>
-              <span style="font-size: 10px; font-family: 'JetBrains Mono', monospace; color: #38bdf8;">VOUCHER_VERIFIED</span>
-            </div>
-            <div style="font-size: 11.5px; color: #cbd5e1; margin-top: 6px; line-height: 1.6;">
-              • Verified Student: <strong id="certStudentName" style="color: #fff;">Student Name</strong><br>
-              • Institution: <strong id="certCollegeName" style="color: #fff;">College Name</strong><br>
-              • Class / Course: <strong id="certCourseName" style="color: #38bdf8;">Class / Degree</strong><br>
-              • Batch Check: <span style="color: #34d399;" id="certBatchStatus">✓ Fee Payment Valid for Academic Batch</span><br>
-              • Verification Status: <span style="color: #34d399;" id="certMatchReason">Active Enrolled Student Confirmed</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- 4. SECURITY PURPOSE QUESTIONS (FOR ACCOUNT RECOVERY) -->
-        <div class="form-section-title">
-          <span>4. Security Questions (For Password Recovery)</span>
+          <span>2. Security Recovery Questions</span>
         </div>
 
         <div class="form-row">
@@ -696,7 +557,7 @@
             <label>Favourite Sport <span class="req">*</span> <span class="helper">(Case-Insensitive)</span></label>
             <div class="input-wrapper">
               <span class="input-icon"></span>
-              <input type="text" id="favouriteSport" required placeholder="e.g. Cricket, Football, Chess">
+              <input type="text" id="favouriteSport" required placeholder="e.g. Cricket, Football, Chess" oninput="calculateTrustScore()">
             </div>
           </div>
 
@@ -704,14 +565,14 @@
             <label>Primary Ambition <span class="req">*</span> <span class="helper">(Case-Insensitive)</span></label>
             <div class="input-wrapper">
               <span class="input-icon"></span>
-              <input type="text" id="ambition" required placeholder="e.g.IAS etc">
+              <input type="text" id="ambition" required placeholder="e.g. Software Engineer, IAS" oninput="calculateTrustScore()">
             </div>
           </div>
         </div>
 
-        <!-- 5. ANTI-BOT SECURITY -->
+        <!-- 3. ANTI-BOT SECURITY -->
         <div class="form-section-title">
-          <span>⚡ 5. Anti-Bot Security Challenge</span>
+          <span>⚡ 3. Anti-Bot Security Challenge</span>
         </div>
 
         <div class="cloud-flare-box" id="cfBoxWrap" onclick="triggerCloudflareCheck()">
@@ -721,15 +582,15 @@
               <div style="font-size: 12.5px; font-weight: 600; color: #f1f5f9;" id="cfTitle">
                 Verify you are a Student (Cloudflare)
               </div>
-              <div style="font-size: 10.5px; color: #94a3b8;">Protects against automated bot registrations & farm spam</div>
+              <div style="font-size: 10.5px; color: #94a3b8;">Protects against automated bot registrations &amp; farm spam</div>
             </div>
           </div>
           <div style="font-size: 10px; font-family: 'JetBrains Mono', monospace; color: #64748b;">Cloudflare</div>
         </div>
 
-        <!-- 6. PASSWORD -->
+        <!-- 4. PASSWORD -->
         <div class="form-section-title">
-          <span>6. Password</span>
+          <span>4. Password</span>
         </div>
 
         <div class="form-row">
@@ -755,7 +616,7 @@
 
         <!-- SUBMIT BUTTON -->
         <button type="submit" id="submitBtn" class="btn btn-submit">
-           Create Account & Verify Student Status
+           Create Student Account
         </button>
 
         <!-- SIGN IN LINK -->
@@ -763,11 +624,37 @@
           Already have an account? <a href="login.html">Sign In</a>
         </div>
 
+        <!-- PRIVACY POLICY & TERMS FOOTER -->
+        <div style="margin-top: 24px; text-align: center; font-size: 12px; color: #94a3b8; border-top: 1px solid rgba(245, 158, 11, 0.2); padding-top: 16px;">
+          <a href="javascript:void(0)" onclick="openLegalModal('privacy')" style="color: #f59e0b; text-decoration: none; font-weight: 600;">Privacy Policy</a>
+          <span style="margin: 0 10px; color: rgba(255,255,255,0.3);">•</span>
+          <a href="javascript:void(0)" onclick="openLegalModal('terms')" style="color: #f59e0b; text-decoration: none; font-weight: 600;">Terms &amp; Conditions</a>
+          <p style="margin-top: 8px; font-size: 11px; color: #8fa8bf; line-height: 1.5;">
+            College name, degree, and verified academic credentials can be managed anytime inside <strong>View Profile &amp; Settings</strong>.
+          </p>
+        </div>
+
       </form>
     </div>
 
   </div>
 
-  <script src="js/register.js?v=27.0"></script>
+  <!-- LEGAL MODAL (PRIVACY POLICY & TERMS) -->
+  <div id="legalModal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 5000; align-items: center; justify-content: center; padding: 20px;">
+    <div style="background: #220308; border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 20px; max-width: 580px; width: 100%; max-height: 80vh; display: flex; flex-direction: column; box-shadow: 0 25px 60px rgba(0,0,0,0.85);">
+      <div style="padding: 20px 24px; border-bottom: 1px solid rgba(245, 158, 11, 0.25); display: flex; justify-content: space-between; align-items: center;">
+        <h3 id="legalModalTitle" style="font-size: 17px; font-weight: 700; color: #f59e0b; margin: 0;">Privacy Policy</h3>
+        <button type="button" onclick="closeLegalModal()" style="background: transparent; border: none; color: #94a3b8; font-size: 20px; cursor: pointer;">✕</button>
+      </div>
+      <div id="legalModalBody" style="padding: 24px; overflow-y: auto; font-size: 13px; line-height: 1.7; color: #e2e8f0;">
+        <!-- Injected dynamically via JS -->
+      </div>
+      <div style="padding: 16px 24px; border-top: 1px solid rgba(245, 158, 11, 0.2); text-align: right;">
+        <button type="button" class="btn btn-cyan" onclick="closeLegalModal()" style="padding: 8px 20px;">I Understand</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/register.js?v=28.0"></script>
 </body>
 </html>

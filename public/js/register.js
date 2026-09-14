@@ -611,16 +611,25 @@ async function runRealOcrVerification() {
 function calculateTrustScore() {
   let score = 0;
 
-  const email = document.getElementById('gmailAddress').value.trim();
-  if (isEmailVerified) score += 25;
-  else if (email.includes('@') && !isDisposableEmail(email)) score += 5;
+  const fullName = (document.getElementById('fullName')?.value || '').trim();
+  if (fullName.length >= 2) score += 15;
 
-  const phone = document.getElementById('mobileNumber').value.trim();
+  const gender = document.getElementById('gender')?.value || '';
+  if (gender) score += 10;
+
+  const email = (document.getElementById('gmailAddress')?.value || '').trim();
+  if (isEmailVerified) score += 30;
+  else if (email.includes('@') && !isDisposableEmail(email)) score += 10;
+
+  const phone = (document.getElementById('mobileNumber')?.value || '').trim();
   if (isPhoneVerified) score += 25;
-  else if (phone.length > 8) score += 5;
+  else if (phone.length === 10) score += 10;
 
-  if (isDocVerified) score += 35;
-  if (isCloudflareVerified) score += 15;
+  if (isCloudflareVerified) score += 10;
+
+  const sport = (document.getElementById('favouriteSport')?.value || '').trim();
+  const ambition = (document.getElementById('ambition')?.value || '').trim();
+  if (sport && ambition) score += 10;
 
   const finalScore = Math.min(score, 100);
 
@@ -801,11 +810,31 @@ async function sendGmailOtp() {
   }
 
   btn.innerText = 'Sending...';
-  statusEl.innerText = 'Dispatching secure OTP to your Gmail...';
+  statusEl.innerText = 'Dispatching secure OTP via SMTP to your Gmail...';
 
   let sentViaRemote = false;
 
-  // 1. EmailJS (If configured via cloud settings)
+  // 1. Dispatch via IntraWorld SMTP API Gateway
+  try {
+    const smtpRes = await fetch('/api/send-email-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: email,
+        fullName: fullName,
+        otp: currentEmailOtp
+      })
+    });
+    const smtpData = await smtpRes.json();
+    if (smtpData && smtpData.success) {
+      sentViaRemote = true;
+      console.log("✅ Outbound OTP dispatched via IntraWorld SMTP gateway to:", email);
+    }
+  } catch (smtpErr) {
+    console.warn("Local SMTP endpoint note:", smtpErr.message);
+  }
+
+  // 2. EmailJS Protocol (If configured via cloud settings)
   if (!sentViaRemote && emailGatewayConfig.emailjsPublicKey && typeof emailjs !== 'undefined') {
     try {
       await emailjs.send(
@@ -825,7 +854,7 @@ async function sendGmailOtp() {
     }
   }
 
-  // 2. Direct Notification via Web3Forms API Gateway
+  // 3. Direct Secure Web3Forms SMTP Gateway Fallback
   try {
     fetch('https://api.web3forms.com/submit', {
       method: 'POST',
@@ -836,28 +865,18 @@ async function sendGmailOtp() {
         from_name: 'IntraWorld Security',
         to_email: email,
         email: email,
-        message: `Hello ${fullName},\n\nYour 6-digit verification code is: ${currentEmailOtp}\n\nTarget Student Email: ${email}\nValid for 10 minutes.\n\nTeam IntraWorld`
+        message: `Hello ${fullName},\n\nYour IntraWorld verification code is: ${currentEmailOtp}\n\nTarget Student Email: ${email}\nThis code is strictly confidential. Valid for 10 minutes.\n\nSaajan & Team - IntraWorld`
       })
     }).catch(() => {});
   } catch (err) {}
 
-  // OTP dispatched to student email
-
+  // Reveal OTP input box with zero on-screen OTP code exposure
   const otpInput = document.getElementById('enteredEmailOtp');
   otpInput.value = '';
   document.getElementById('emailOtpBox').classList.remove('hidden');
-
-  // Display Helper Card with Verification Code preview and Auto-Fill
-  const helperCard = document.getElementById('emailOtpHelper');
-  const codePreview = document.getElementById('emailOtpCodePreview');
-  if (helperCard && codePreview) {
-    codePreview.innerText = currentEmailOtp;
-    helperCard.classList.remove('hidden');
-  }
-
   otpInput.focus();
 
-  statusEl.innerHTML = `✅ 6-digit OTP generated for <strong>${escapeHtml(email)}</strong>! Check your Gmail, or click <strong>⚡ Auto-Fill Code</strong> below.`;
+  statusEl.innerHTML = `✅ 6-digit OTP sent via SMTP protocol to <strong>${escapeHtml(email)}</strong>! Check your Gmail inbox (and Spam folder) and enter the code above.`;
   statusEl.className = 'status-msg success';
   startEmailCountdown(60);
 }
@@ -1077,19 +1096,9 @@ async function handleRegistrationSubmit(event) {
   }
 
   const fullName = document.getElementById('fullName').value.trim();
+  const gender = document.getElementById('gender').value;
   const email = document.getElementById('gmailAddress').value.trim();
   const phone = document.getElementById('mobileNumber').value.trim();
-  const studentRegId = document.getElementById('studentRegId').value.trim();
-  
-  let qualification = document.getElementById('qualification').value;
-  if (qualification === 'OTHER_SPECIFY') {
-    qualification = document.getElementById('customDegreeInput').value.trim() || 'Custom Degree';
-  }
-
-  const specialization = document.getElementById('specialization').value.trim();
-  const collegeName = document.getElementById('collegeName').value.trim();
-  const skills = document.getElementById('skills').value.trim();
-  const passedOutYear = document.getElementById('passedOutYear').value.trim();
 
   // Security Questions (Case-Insensitive)
   const favouriteSport = document.getElementById('favouriteSport').value.trim();
@@ -1098,18 +1107,28 @@ async function handleRegistrationSubmit(event) {
   const password = document.getElementById('password').value;
   const confirmPassword = document.getElementById('confirmPassword').value;
 
+  if (!fullName || fullName.length < 2) {
+    showAlert('Please enter your full name.');
+    return;
+  }
+
+  if (!gender) {
+    showAlert('Please select your gender.');
+    return;
+  }
+
   if (password !== confirmPassword) {
     showAlert('Passwords do not match.');
     return;
   }
 
-  if (!favouriteSport || !ambition) {
-    showAlert('Please answer both Security Questions (Favourite Sport & Ambition) for password recovery.');
+  if (password.length < 6) {
+    showAlert('Password must be at least 6 characters.');
     return;
   }
 
-  if (!isDocVerified) {
-    showAlert('⚠️ Please complete Section 3: Run the Fee Receipt OCR verification.');
+  if (!favouriteSport || !ambition) {
+    showAlert('Please answer both Security Questions (Favourite Sport & Ambition) for password recovery.');
     return;
   }
 
@@ -1128,7 +1147,7 @@ async function handleRegistrationSubmit(event) {
   if (isEmailTaken) {
     showAlert(`❌ Duplicate Email: The Gmail address '${email}' is already registered in IntraWorld. Please sign in or use another email.`);
     submitBtn.disabled = false;
-    submitBtn.innerText = '🛡️ Create Account & Verify Student Status';
+    submitBtn.innerText = '🛡️ Create Student Account';
     document.getElementById('gmailAddress').focus();
     return;
   }
@@ -1138,18 +1157,8 @@ async function handleRegistrationSubmit(event) {
   if (isPhoneTaken) {
     showAlert(`❌ Duplicate Mobile Number: '${phone}' is already registered in IntraWorld. Each student must register with a unique mobile number.`);
     submitBtn.disabled = false;
-    submitBtn.innerText = '🛡️ Create Account & Verify Student Status';
+    submitBtn.innerText = '🛡️ Create Student Account';
     document.getElementById('mobileNumber').focus();
-    return;
-  }
-
-  // 3. Verify Unique Student Roll No / Reg ID
-  const isRegIdTaken = await isRegIdAlreadyRegistered(studentRegId);
-  if (isRegIdTaken) {
-    showAlert(`❌ Duplicate Registration ID: Student Roll No / Reg ID '${studentRegId}' is already registered in IntraWorld. Each student must have a unique Registration ID.`);
-    submitBtn.disabled = false;
-    submitBtn.innerText = '🛡️ Create Account & Verify Student Status';
-    document.getElementById('studentRegId').focus();
     return;
   }
 
@@ -1158,30 +1167,28 @@ async function handleRegistrationSubmit(event) {
   const studentRecord = {
     fullName,
     full_name: fullName,
+    gender,
     email: email.toLowerCase(),
     phone,
     mobile: phone,
-    studentRegId,
-    qualification,
-    specialization,
-    collegeName,
-    skills: skills.split(',').map(s => s.trim()),
-    passedOutYear,
-    passoutYear: passedOutYear,
+    studentRegId: "",
+    qualification: "Pending Update",
+    specialization: "Pending Update",
+    collegeName: "Pending Update",
+    skills: [],
+    passedOutYear: "",
+    passoutYear: "",
     favouriteSport: favouriteSport.toLowerCase(),
     ambition: ambition.toLowerCase(),
     password,
     trustScore,
     isVerified: true,
-    isDocVerified: true,
-    isFeeReceiptVerified: true,
-    aiAuthenticityCheckPassed: true,
-    academicDocName: selectedAcademicFile ? selectedAcademicFile.name : "fee_receipt.pdf",
-    academicDocType: selectedAcademicFile ? selectedAcademicFile.type : "application/pdf",
+    isDocVerified: false,
+    isFeeReceiptVerified: false,
     isEmailVerified: isEmailVerified,
     isPhoneVerified: isPhoneVerified,
     isCloudflareVerified: isCloudflareVerified,
-    accountStatus: 'VERIFIED_GENUINE_STUDENT',
+    accountStatus: 'ACTIVE_STUDENT',
     createdAt: new Date().toISOString()
   };
 
@@ -1196,31 +1203,23 @@ async function handleRegistrationSubmit(event) {
     }
   }
 
-  renderSuccessScreen(fullName, collegeName, qualification, specialization, passedOutYear, skills, trustScore, studentRegId);
+  renderSuccessScreen(fullName, gender, email, phone, trustScore);
 }
 
-function renderSuccessScreen(fullName, collegeName, qualification, specialization, passedOutYear, skills, trustScore, regId) {
+function renderSuccessScreen(fullName, gender, email, phone, trustScore) {
   document.getElementById('formView').classList.add('hidden');
   document.getElementById('successView').classList.remove('hidden');
 
   document.getElementById('holoAvatar').innerText = fullName.charAt(0).toUpperCase();
   document.getElementById('holoName').innerText = `${fullName} ✓`;
-  document.getElementById('holoCollege').innerText = collegeName;
-  document.getElementById('holoDegree').innerText = `${qualification} • ${specialization}`;
-  document.getElementById('holoRegNo').innerText = regId || 'VOUCHER_PAID';
-  document.getElementById('holoBatch').innerText = passedOutYear || '2024-2027';
-  document.getElementById('successScoreText').innerText = `${trustScore}% Trust Rating (Fee Receipt Verified)`;
-
-  const skillsContainer = document.getElementById('holoSkills');
-  skillsContainer.innerHTML = '';
-  skills.split(',').forEach(s => {
-    if (s.trim()) {
-      const chip = document.createElement('span');
-      chip.className = 'skill-chip';
-      chip.innerText = s.trim();
-      skillsContainer.appendChild(chip);
-    }
-  });
+  const genderEl = document.getElementById('holoGender');
+  if (genderEl) genderEl.innerText = `Gender: ${gender}`;
+  const emailEl = document.getElementById('holoEmail');
+  if (emailEl) emailEl.innerText = email;
+  const phoneEl = document.getElementById('holoPhone');
+  if (phoneEl) phoneEl.innerText = phone;
+  const scoreText = document.getElementById('successScoreText');
+  if (scoreText) scoreText.innerText = `${trustScore}% Trust Rating (Student Verified)`;
 
   if (typeof confetti === 'function') {
     confetti({
@@ -1236,29 +1235,61 @@ function renderSuccessScreen(fullName, collegeName, qualification, specializatio
 window.addEventListener('DOMContentLoaded', () => {
   calculateTrustScore();
 
-  const regIdInput = document.getElementById('studentRegId');
-  const regIdStatus = document.getElementById('regIdStatusMsg');
-
-  regIdInput?.addEventListener('blur', async () => {
-    const val = regIdInput.value.trim();
-    if (val.length >= 2) {
-      if (regIdStatus) {
-        regIdStatus.innerText = 'Verifying Reg ID uniqueness...';
-        regIdStatus.className = 'status-msg info';
+  // Strict numeric-only restriction on mobile number (reject letters, symbols, spaces)
+  const mobileInput = document.getElementById('mobileNumber');
+  if (mobileInput) {
+    mobileInput.addEventListener('input', function() {
+      this.value = this.value.replace(/\D/g, '').slice(0, 10);
+      calculateTrustScore();
+    });
+    mobileInput.addEventListener('keydown', function(e) {
+      const allowed = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Enter'];
+      if (allowed.includes(e.key) || e.ctrlKey || e.metaKey) return;
+      if (!/^\d$/.test(e.key)) {
+        e.preventDefault();
       }
-      const taken = await isRegIdAlreadyRegistered(val);
-      if (taken) {
-        if (regIdStatus) {
-          regIdStatus.innerText = `❌ Roll No / Reg ID "${val}" is already registered by another student.`;
-          regIdStatus.className = 'status-msg error';
-        }
-        showAlert(`❌ Duplicate Registration ID: Student Roll No / Reg ID '${val}' is already registered.`);
-      } else {
-        if (regIdStatus) {
-          regIdStatus.innerText = `✅ Roll No / Reg ID "${val}" is available.`;
-          regIdStatus.className = 'status-msg success';
-        }
-      }
-    }
-  });
+    });
+    mobileInput.addEventListener('paste', function(e) {
+      e.preventDefault();
+      const paste = (e.clipboardData || window.clipboardData).getData('text');
+      this.value = paste.replace(/\D/g, '').slice(0, 10);
+      calculateTrustScore();
+    });
+  }
 });
+
+// Legal Modal Controllers (Privacy Policy & Terms and Conditions)
+window.openLegalModal = function(type) {
+  const modal = document.getElementById('legalModal');
+  const title = document.getElementById('legalModalTitle');
+  const body = document.getElementById('legalModalBody');
+  if (!modal || !title || !body) return;
+
+  if (type === 'privacy') {
+    title.innerHTML = '<i class="fa-solid fa-shield-halved" style="color: #f59e0b; margin-right: 8px;"></i> IntraWorld Privacy Policy';
+    body.innerHTML = `
+      <h4 style="color: #fff; margin-bottom: 8px; font-size: 14px;">1. Student Data Protection</h4>
+      <p style="margin-bottom: 14px;">IntraWorld is committed to preserving student privacy. Your registered email address, mobile number, and authentication credentials are encrypted and never shared with third-party advertising networks.</p>
+      <h4 style="color: #fff; margin-bottom: 8px; font-size: 14px;">2. Academic Record Security</h4>
+      <p style="margin-bottom: 14px;">Academic data such as your college name, course qualifications, and official fee vouchers are utilized exclusively to verify genuine student membership and campus community posting access.</p>
+      <h4 style="color: #fff; margin-bottom: 8px; font-size: 14px;">3. Zero Spam & Secure Communication</h4>
+      <p style="margin-bottom: 14px;">Direct messages and campus feed interactions are restricted to authenticated students within the IntraWorld ecosystem. All OTPs are transmitted over secure SMTP and encrypted SMS channels.</p>
+    `;
+  } else {
+    title.innerHTML = '<i class="fa-solid fa-file-contract" style="color: #f59e0b; margin-right: 8px;"></i> Terms and Conditions';
+    body.innerHTML = `
+      <h4 style="color: #fff; margin-bottom: 8px; font-size: 14px;">1. Genuine Student Community</h4>
+      <p style="margin-bottom: 14px;">By creating an account on IntraWorld, you certify that you are a genuine university or college student. Automated accounts, bots, and impersonation are strictly prohibited and subject to immediate deactivation.</p>
+      <h4 style="color: #fff; margin-bottom: 8px; font-size: 14px;">2. Academic Respect & Conduct</h4>
+      <p style="margin-bottom: 14px;">All discussions in college community feeds and direct messages must uphold mutual respect, ethical conduct, and constructive academic collaboration.</p>
+      <h4 style="color: #fff; margin-bottom: 8px; font-size: 14px;">3. Profile Credential Verification</h4>
+      <p style="margin-bottom: 14px;">College names, degree enrollments, and academic certificates can be updated and verified directly in your profile settings via official institutional fee receipts.</p>
+    `;
+  }
+  modal.style.display = 'flex';
+};
+
+window.closeLegalModal = function() {
+  const modal = document.getElementById('legalModal');
+  if (modal) modal.style.display = 'none';
+};

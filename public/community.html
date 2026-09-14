@@ -40,6 +40,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>College Community - Intra World</title>
+    <link rel="icon" type="image/png" href="logo.png">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
 
@@ -285,6 +286,17 @@
 
     
     
+
+    <!-- WhatsApp-Style Full Image Lightbox Modal -->
+    <div id="imageLightboxModal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.92); backdrop-filter: blur(8px); z-index: 3000; align-items: center; justify-content: center; padding: 20px;">
+        <button id="closeLightboxBtn" type="button" style="position: absolute; top: 20px; right: 24px; background: rgba(255,255,255,0.15); border: none; color: #fff; width: 44px; height: 44px; border-radius: 50%; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 3010; transition: background 0.2s;" title="Close">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+        <a id="downloadLightboxBtn" href="#" download="community-photo.jpg" target="_blank" rel="noopener noreferrer" style="position: absolute; top: 20px; right: 80px; background: rgba(245,158,11,0.25); border: 1px solid rgba(245,158,11,0.4); color: #f59e0b; width: 44px; height: 44px; border-radius: 50%; font-size: 18px; display: flex; align-items: center; justify-content: center; z-index: 3010; text-decoration: none; transition: background 0.2s;" title="Download photo">
+            <i class="fa-solid fa-download"></i>
+        </a>
+        <img id="lightboxImg" src="" style="max-width: 90vw; max-height: 85vh; object-fit: contain; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.85); border: 1px solid rgba(245, 158, 11, 0.35); cursor: zoom-out;" alt="Full Preview">
+    </div>
 
     <script type="module" src="js/firebase-config.js"></script>
     <script type="module" src="js/auth-check.js"></script>

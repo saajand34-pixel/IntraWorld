@@ -39,6 +39,7 @@ function renderFields(user) {
     if (!user) return;
     
     const name = user.fullName || user.full_name || "Student User";
+    const gender = user.gender || "";
     const email = user.email || "";
     const phone = user.mobileNumber || user.mobile || user.phone || "";
     const regId = user.studentRegId || user.regId || user.regid || user.registerNo || user.regNumber || user.registrationNumber || user.studentId || "";
@@ -48,6 +49,7 @@ function renderFields(user) {
     const avatar = user.avatar || user.profilePhotoUrl || DEFAULT_AVATAR;
 
     const nameEl = document.getElementById("dbFullName");
+    const genderEl = document.getElementById("dbGender");
     const emailEl = document.getElementById("dbEmail");
     const mobileEl = document.getElementById("dbMobile");
     const regIdEl = document.getElementById("dbRegId");
@@ -57,6 +59,7 @@ function renderFields(user) {
     const preview = document.getElementById("avatarPreview");
 
     if (nameEl) nameEl.value = name;
+    if (genderEl && gender) genderEl.value = gender;
     if (emailEl) emailEl.value = email;
     if (mobileEl) mobileEl.value = phone;
     if (regIdEl) regIdEl.value = regId;
@@ -627,6 +630,154 @@ function setupDegreeReceiptModal() {
     }
 }
 
+// 6. Inline Personal Credentials & Profile Editor
+function setupPersonalCredentialsEditor() {
+    const btnEdit = document.getElementById("btnEditCredentials");
+    const btnSave = document.getElementById("btnSaveCredentials");
+    const btnCancel = document.getElementById("btnCancelEdit");
+
+    const nameEl = document.getElementById("dbFullName");
+    const genderEl = document.getElementById("dbGender");
+    const regIdEl = document.getElementById("dbRegId");
+    const qualEl = document.getElementById("dbQualification");
+    const passoutEl = document.getElementById("dbPassout");
+    const collegeEl = document.getElementById("dbCollege");
+
+    let originalValues = {};
+
+    function toggleEdit(isEditing) {
+        if (btnEdit) btnEdit.style.display = isEditing ? "none" : "inline-flex";
+        if (btnSave) btnSave.style.display = isEditing ? "inline-flex" : "none";
+        if (btnCancel) btnCancel.style.display = isEditing ? "inline-flex" : "none";
+
+        [nameEl, genderEl, regIdEl, qualEl, passoutEl, collegeEl].forEach(el => {
+            if (el) {
+                el.disabled = !isEditing;
+                el.style.borderColor = isEditing ? "#f59e0b" : "rgba(245, 158, 11, 0.2)";
+                if (isEditing) {
+                    el.removeAttribute("readonly");
+                }
+            }
+        });
+    }
+
+    if (btnEdit) {
+        btnEdit.addEventListener("click", () => {
+            originalValues = {
+                fullName: nameEl?.value || "",
+                gender: genderEl?.value || "",
+                studentRegId: regIdEl?.value || "",
+                qualification: qualEl?.value || "",
+                passoutYear: passoutEl?.value || "",
+                collegeName: collegeEl?.value || ""
+            };
+            toggleEdit(true);
+            nameEl?.focus();
+        });
+    }
+
+    if (btnCancel) {
+        btnCancel.addEventListener("click", () => {
+            if (nameEl) nameEl.value = originalValues.fullName || "";
+            if (genderEl) genderEl.value = originalValues.gender || "";
+            if (regIdEl) regIdEl.value = originalValues.studentRegId || "";
+            if (qualEl) qualEl.value = originalValues.qualification || "";
+            if (passoutEl) passoutEl.value = originalValues.passoutYear || "";
+            if (collegeEl) collegeEl.value = originalValues.collegeName || "";
+            toggleEdit(false);
+        });
+    }
+
+    if (btnSave) {
+        btnSave.addEventListener("click", async () => {
+            const updatedName = (nameEl?.value || "").trim();
+            const updatedGender = genderEl?.value || "";
+            const updatedRegId = (regIdEl?.value || "").trim();
+            const updatedQual = (qualEl?.value || "").trim();
+            const updatedPassout = (passoutEl?.value || "").trim();
+            const updatedCollege = (collegeEl?.value || "").trim();
+
+            if (!updatedName) {
+                alert("Please enter your Full Name.");
+                nameEl?.focus();
+                return;
+            }
+
+            btnSave.disabled = true;
+            btnSave.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+
+            try {
+                const sessionRaw = localStorage.getItem("currentUser") || localStorage.getItem("intraWorldUser");
+                const currentUser = sessionRaw ? JSON.parse(sessionRaw) : {};
+                const userEmail = (currentUser.email || "").toLowerCase();
+
+                const updatedData = {
+                    fullName: updatedName,
+                    full_name: updatedName,
+                    gender: updatedGender,
+                    studentRegId: updatedRegId,
+                    qualification: updatedQual,
+                    passoutYear: updatedPassout,
+                    passedOutYear: updatedPassout,
+                    collegeName: updatedCollege,
+                    updatedAt: new Date().toISOString()
+                };
+
+                // 1. Update Firestore collections
+                if (userEmail && db) {
+                    try {
+                        const regSnap = await getDocs(query(collection(db, "registrations"), where("email", "==", userEmail)));
+                        for (const d of regSnap.docs) {
+                            await updateDoc(doc(db, "registrations", d.id), updatedData);
+                        }
+                    } catch (e) {
+                        console.warn("Update registrations note:", e);
+                    }
+
+                    try {
+                        const studSnap = await getDocs(query(collection(db, "students"), where("email", "==", userEmail)));
+                        for (const d of studSnap.docs) {
+                            await updateDoc(doc(db, "students", d.id), updatedData);
+                        }
+                    } catch (e) {
+                        console.warn("Update students note:", e);
+                    }
+
+                    try {
+                        await updateDoc(doc(db, "users", userEmail), updatedData);
+                    } catch (e) {
+                        console.warn("Update users doc note:", e);
+                    }
+                }
+
+                // 2. Update local storage session
+                const merged = { ...currentUser, ...updatedData };
+                localStorage.setItem("currentUser", JSON.stringify(merged));
+                localStorage.setItem("intraWorldUser", JSON.stringify(merged));
+
+                toggleEdit(false);
+
+                const successAlert = document.getElementById("receiptSuccessAlert");
+                const successText = document.getElementById("receiptSuccessText");
+                if (successAlert && successText) {
+                    successText.textContent = "Personal credentials saved successfully!";
+                    successAlert.style.display = "inline-flex";
+                    setTimeout(() => { successAlert.style.display = "none"; }, 5000);
+                }
+
+                alert("✅ Personal credentials and academic details updated successfully!");
+
+            } catch (err) {
+                console.error("Save credentials error:", err);
+                alert("Failed to save changes: " + err.message);
+            } finally {
+                btnSave.disabled = false;
+                btnSave.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Changes';
+            }
+        });
+    }
+}
+
 // Initialize on DOM Ready
 if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", () => {
@@ -634,10 +785,12 @@ if (document.readyState === "loading") {
         setupPhotoUpload();
         setupAccountDeactivation();
         setupDegreeReceiptModal();
+        setupPersonalCredentialsEditor();
     });
 } else {
     initRender();
     setupPhotoUpload();
     setupAccountDeactivation();
     setupDegreeReceiptModal();
+    setupPersonalCredentialsEditor();
 }

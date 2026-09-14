@@ -1125,6 +1125,16 @@ function renderSinglePostCard(post) {
         </div>
     `;
 
+    // WhatsApp-Style Post Image Lightbox Click
+    const mediaImg = postCard.querySelector(".post-media");
+    if (mediaImg) {
+        mediaImg.addEventListener("click", () => {
+            if (window.openPostLightbox) {
+                window.openPostLightbox(mediaImg.src);
+            }
+        });
+    }
+
     // 1. Delete Handler
     const deleteBtn = postCard.querySelector(".btn-delete-post");
     if (deleteBtn) {
@@ -1316,3 +1326,41 @@ function sanitizeExternalUrl(url) {
     }
     return "";
 }
+
+// WhatsApp-Style Post Image Lightbox Controller
+function initPostLightbox() {
+    const modal = document.getElementById("imageLightboxModal");
+    const img = document.getElementById("lightboxImg");
+    const closeBtn = document.getElementById("closeLightboxBtn");
+    const downloadBtn = document.getElementById("downloadLightboxBtn");
+
+    if (!modal || !img) return;
+
+    window.openPostLightbox = function(src) {
+        if (!src) return;
+        img.src = src;
+        if (downloadBtn) {
+            downloadBtn.href = src;
+        }
+        modal.style.display = "flex";
+    };
+
+    window.closePostLightbox = function() {
+        modal.style.display = "none";
+        img.src = "";
+    };
+
+    if (closeBtn) closeBtn.addEventListener("click", window.closePostLightbox);
+    modal.addEventListener("click", (e) => {
+        if (e.target === modal || e.target === img) {
+            window.closePostLightbox();
+        }
+    });
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && modal.style.display === "flex") {
+            window.closePostLightbox();
+        }
+    });
+}
+
+initPostLightbox();

@@ -515,8 +515,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; margin-bottom: 14px;">${escapeHtml(post.content)}</p>
                 
                 ${post.image && sanitizeUrl(post.image) ? `
-                <div style="margin-bottom: 16px; border-radius: 12px; overflow: hidden; max-height: 480px; border: 1px solid rgba(245, 158, 11, 0.2); background: rgba(16, 2, 5, 0.6);">
-                    <img src="${sanitizeUrl(post.image)}" alt="${escapeHtml(post.title || 'Community Attachment')}" style="width: 100%; max-height: 480px; height: auto; object-fit: contain; display: block;" onerror="this.style.display='none'" />
+                <div style="margin-bottom: 16px; border-radius: 12px; overflow: hidden; max-height: 480px; border: 1px solid rgba(245, 158, 11, 0.2); background: rgba(16, 2, 5, 0.6); cursor: pointer;">
+                    <img src="${sanitizeUrl(post.image)}" class="community-post-img" data-full-src="${sanitizeUrl(post.image)}" alt="${escapeHtml(post.title || 'Community Attachment')}" style="width: 100%; max-height: 480px; height: auto; object-fit: contain; display: block; cursor: pointer; transition: transform 0.2s ease;" onerror="this.style.display='none'" />
                 </div>
                 ` : ''}
 
@@ -553,6 +553,14 @@ document.addEventListener("DOMContentLoaded", () => {
         `).join("");
 
         feedContainer.innerHTML = banner + statusNotice + postsHtml;
+
+        // Attach WhatsApp-style popup lightbox to community post images
+        feedContainer.querySelectorAll(".community-post-img").forEach(imgEl => {
+            imgEl.addEventListener("click", () => {
+                const src = imgEl.getAttribute("data-full-src") || imgEl.src;
+                if (window.openCommunityLightbox) window.openCommunityLightbox(src);
+            });
+        });
     }
 
     // Render when no matching community is found
@@ -771,4 +779,43 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
         renderCollegePills(collegesData, collegesData[0]);
     }
+
+    // Initialize WhatsApp-style lightbox for community post images
+    initCommunityLightbox();
 });
+
+// WhatsApp-Style Community Image Lightbox Controller
+function initCommunityLightbox() {
+    const modal = document.getElementById("imageLightboxModal");
+    const img = document.getElementById("lightboxImg");
+    const closeBtn = document.getElementById("closeLightboxBtn");
+    const downloadBtn = document.getElementById("downloadLightboxBtn");
+
+    if (!modal || !img) return;
+
+    window.openCommunityLightbox = function(src) {
+        if (!src) return;
+        img.src = src;
+        if (downloadBtn) {
+            downloadBtn.href = src;
+        }
+        modal.style.display = "flex";
+    };
+
+    window.closeCommunityLightbox = function() {
+        modal.style.display = "none";
+        img.src = "";
+    };
+
+    if (closeBtn) closeBtn.addEventListener("click", window.closeCommunityLightbox);
+    modal.addEventListener("click", (e) => {
+        if (e.target === modal || e.target === img) {
+            window.closeCommunityLightbox();
+        }
+    });
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && modal.style.display === "flex") {
+            window.closeCommunityLightbox();
+        }
+    });
+}

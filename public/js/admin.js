@@ -120,6 +120,7 @@ function displayUsers() {
     filteredUsers.forEach((user) => {
         const photo = sanitizeUrl(user.avatar || user.profilePhotoUrl);
         const fullName = escapeHtml(user.fullName || user.full_name || "N/A");
+        const gender = escapeHtml(user.gender || "Not Specified");
         const email = escapeHtml(user.email || "N/A");
         const mobile = escapeHtml(user.mobileNumber || user.mobile || user.phone || "N/A");
         const qualification = escapeHtml(user.qualification || "N/A");
@@ -140,6 +141,7 @@ function displayUsers() {
         tr.innerHTML = `
             <td><img class="profile" src="${photo}" alt="Student" onerror="this.src='https://via.placeholder.com/50'"></td>
             <td><strong>${fullName}</strong></td>
+            <td><span style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; padding: 3px 8px; border-radius: 12px; font-size: 11.5px; font-weight: 600;">${gender}</span></td>
             <td>${email}</td>
             <td>${mobile}</td>
             <td>${qualification}</td>

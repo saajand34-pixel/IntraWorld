@@ -43,6 +43,7 @@
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
     <title>Account Settings - Intra World</title>
+    <link rel="icon" type="image/png" href="logo.png">
 
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
@@ -374,9 +375,20 @@
 
             <!-- PERSONAL REGISTRATION DATABASE VIEW -->
             <div class="card" style="border: 1px solid rgba(56, 189, 248, 0.2); box-shadow: 0 10px 30px rgba(0,0,0,0.35);">
-                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 6px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
                     <div class="card-title" style="margin-bottom: 0;">
                         <i class="fa-solid fa-id-card-clip" style="color: #38bdf8;"></i> Personal User Record
+                    </div>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <button type="button" id="btnEditCredentials" class="btn" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.35); padding: 7px 16px; border-radius: 8px; font-size: 12.5px; font-weight: 600; cursor: pointer;">
+                            <i class="fa-solid fa-pen-to-square"></i> Edit Credentials
+                        </button>
+                        <button type="button" id="btnSaveCredentials" class="btn" style="display: none; background: linear-gradient(135deg, #ffd700 0%, #f59e0b 100%); color: #180206; border: none; padding: 7px 16px; border-radius: 8px; font-size: 12.5px; font-weight: 700; cursor: pointer;">
+                            <i class="fa-solid fa-floppy-disk"></i> Save Changes
+                        </button>
+                        <button type="button" id="btnCancelEdit" class="btn" style="display: none; background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.35); padding: 7px 14px; border-radius: 8px; font-size: 12.5px; font-weight: 600; cursor: pointer;">
+                            Cancel
+                        </button>
                     </div>
                 </div>
 
@@ -387,40 +399,52 @@
                     </div>
 
                     <div class="info-field">
+                        <label><i class="fa-solid fa-venus-mars" style="color: #8fa8bf; margin-right: 4px;"></i> Gender</label>
+                        <select id="dbGender" disabled style="background: #100103; border: 1px solid rgba(245, 158, 11, 0.2); color: #e2e8f0; font-size: 14px; font-weight: 500; padding: 10px 14px; border-radius: 8px; width: 100%;">
+                            <option value="">Not Specified</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                            <option value="Prefer not to say">Prefer not to say</option>
+                        </select>
+                    </div>
+
+                    <div class="info-field">
                         <label><i class="fa-solid fa-envelope" style="color: #8fa8bf; margin-right: 4px;"></i> Email Address</label>
-                        <input type="email" id="dbEmail" placeholder="student@example.com" disabled>
+                        <input type="email" id="dbEmail" placeholder="student@example.com" disabled readonly>
                     </div>
 
                     <div class="info-field">
                         <label><i class="fa-solid fa-phone" style="color: #8fa8bf; margin-right: 4px;"></i> Mobile Number</label>
-                        <input type="text" id="dbMobile" placeholder="Contact number" disabled>
+                        <input type="text" id="dbMobile" placeholder="Contact number" disabled readonly>
                     </div>
 
                     <div class="info-field">
                         <label><i class="fa-solid fa-id-badge" style="color: #8fa8bf; margin-right: 4px;"></i> Student Roll No / Reg ID</label>
-                        <input type="text" id="dbRegId" placeholder="Reg ID" disabled>
+                        <input type="text" id="dbRegId" placeholder="Reg ID (e.g. 24CA018)" disabled>
                     </div>
 
                     <div class="info-field">
                         <label><i class="fa-solid fa-graduation-cap" style="color: #8fa8bf; margin-right: 4px;"></i> Enrolled Qualification</label>
-                        <input type="text" id="dbQualification" placeholder="Degree / Course" disabled>
+                        <input type="text" id="dbQualification" placeholder="Degree / Course (e.g. BCA, MCA)" disabled>
                     </div>
 
                     <div class="info-field">
                         <label><i class="fa-solid fa-calendar-days" style="color: #8fa8bf; margin-right: 4px;"></i> Passout Year / Batch</label>
-                        <input type="text" id="dbPassout" placeholder="Year" disabled>
+                        <input type="text" id="dbPassout" placeholder="e.g. 2024-2027" disabled>
                     </div>
 
-                    <!-- Permanent Verified College Record Field -->
+                    <!-- Verified College Record Field -->
                     <div class="info-field" style="grid-column: 1 / -1; background: rgba(245, 158, 11, 0.05); padding: 18px; border-radius: 14px; border: 1px solid rgba(245, 158, 11, 0.25);">
                         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
                             <label style="color: #f59e0b; font-weight: 600; display: flex; align-items: center; gap: 8px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">
                                 <i class="fa-solid fa-building-columns" style="font-size: 15px;"></i> College / University Name
                             </label>
-                            <span style="font-size: 11px; background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.35); padding: 3px 9px; border-radius: 12px; font-weight: 600;">
+                            <span id="collegeLockBadge" style="font-size: 11px; background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.35); padding: 3px 9px; border-radius: 12px; font-weight: 600;">
+                                <i class="fa-solid fa-id-badge"></i> Campus Affiliation
                             </span>
                         </div>
-                        <input type="text" id="dbCollege" placeholder="College Name" disabled readonly style="background: #100103; border-color: rgba(245, 158, 11, 0.2); color: #e2e8f0; font-size: 15px; font-weight: 500; margin-top: 8px; cursor: not-allowed;">
+                        <input type="text" id="dbCollege" placeholder="Enter College Name (e.g. SFGC, BMSIT)" disabled style="background: #100103; border-color: rgba(245, 158, 11, 0.2); color: #e2e8f0; font-size: 15px; font-weight: 500; margin-top: 8px;">
                     </div>
 
                     <div class="info-field" style="grid-column: 1 / -1;">
