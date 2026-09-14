@@ -40,9 +40,10 @@ function renderFields(user) {
     
     const name = user.fullName || user.full_name || "Student User";
     const gender = user.gender || "";
-    const email = user.email || "";
-    const phone = user.mobileNumber || user.mobile || user.phone || "";
-    const regId = user.studentRegId || user.regId || user.regid || user.registerNo || user.regNumber || user.registrationNumber || user.studentId || "";
+    let phone = user.mobileNumber || user.mobile || user.phone || "";
+    if (phone && !phone.startsWith("+") && phone.replace(/\D/g, "").length === 10) {
+        phone = "+91 " + phone.replace(/\D/g, "");
+    }
     const qual = user.qualification || "";
     const college = user.collegeName || user.collegeOrUniversity || user.college || user.institution || "";
     const passout = user.passoutYear || user.passedOutYear || user.passout_year || "";

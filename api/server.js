@@ -54,7 +54,12 @@ app.post('/api/send-email-otp', async (req, res) => {
 app.post('/api/send-sms-otp', async (req, res) => {
   try {
     const { phone } = req.body;
-    const cleanPhone = phone.replace(/[^0-9]/g, '');
+    let cleanPhone = String(phone || '').replace(/[^0-9]/g, '');
+    if (cleanPhone.length === 12 && cleanPhone.startsWith('91')) {
+      cleanPhone = cleanPhone.slice(2);
+    } else if (cleanPhone.length === 11 && cleanPhone.startsWith('0')) {
+      cleanPhone = cleanPhone.slice(1);
+    }
     const res2f = await fetch(`https://2factor.in/API/V1/${TWOFACTOR_API_KEY}/SMS/${cleanPhone}/AUTOGEN/STUDENT_VERIFY`);
     const data = await res2f.json();
     return res.json({ success: true, sessionId: data.Details });

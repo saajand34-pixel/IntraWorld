@@ -121,9 +121,11 @@ function displayUsers() {
         const photo = sanitizeUrl(user.avatar || user.profilePhotoUrl);
         const fullName = escapeHtml(user.fullName || user.full_name || "N/A");
         const gender = escapeHtml(user.gender || "Not Specified");
-        const email = escapeHtml(user.email || "N/A");
-        const mobile = escapeHtml(user.mobileNumber || user.mobile || user.phone || "N/A");
-        const qualification = escapeHtml(user.qualification || "N/A");
+        let rawPhone = user.mobileNumber || user.mobile || user.phone || "";
+        if (rawPhone && !rawPhone.startsWith("+") && rawPhone.replace(/\D/g, "").length === 10) {
+            rawPhone = "+91 " + rawPhone.replace(/\D/g, "");
+        }
+        const mobile = escapeHtml(rawPhone || "N/A");
         const college = escapeHtml(user.collegeOrUniversity || user.collegeName || user.college || "N/A");
         const passout = escapeHtml(user.passoutYear || user.passedOutYear || user.passout_year || "N/A");
         const isOCR = user.documentVerifiedByOCR === true || user.isDocVerified === true;

@@ -607,6 +607,18 @@ async function runRealOcrVerification() {
   }
 }
 
+// Helper to normalize 10-digit Indian phone numbers (handles +91, 91, or leading 0 cleanly)
+function sanitizeIndianPhone(val) {
+  if (!val) return '';
+  let digits = String(val).replace(/\D/g, '');
+  if (digits.length === 12 && digits.startsWith('91')) {
+    digits = digits.slice(2);
+  } else if (digits.length === 11 && digits.startsWith('0')) {
+    digits = digits.slice(1);
+  }
+  return digits.slice(0, 10);
+}
+
 // 5. DYNAMIC AUTHENTICITY SCORE GAUGE
 function calculateTrustScore() {
   let score = 0;
@@ -621,9 +633,10 @@ function calculateTrustScore() {
   if (isEmailVerified) score += 30;
   else if (email.includes('@') && !isDisposableEmail(email)) score += 10;
 
-  const phone = (document.getElementById('mobileNumber')?.value || '').trim();
+  const rawPhone = (document.getElementById('mobileNumber')?.value || '').trim();
+  const phoneDigits = sanitizeIndianPhone(rawPhone);
   if (isPhoneVerified) score += 25;
-  else if (phone.length === 10) score += 10;
+  else if (phoneDigits.length === 10) score += 10;
 
   if (isCloudflareVerified) score += 10;
 
@@ -925,13 +938,13 @@ function verifyGmailOtp() {
 
 // 7. PHONE SMS OTP DISPATCH
 async function sendSmsOtp() {
-  const phone = document.getElementById('mobileNumber').value.trim();
-  const cleanPhone = phone.replace(/[^0-9]/g, '');
+  const rawPhone = document.getElementById('mobileNumber').value.trim();
+  const cleanPhone = sanitizeIndianPhone(rawPhone);
   const statusEl = document.getElementById('smsStatusMsg');
   const btn = document.getElementById('sendSmsOtpBtn');
 
-  if (cleanPhone.length < 8) {
-    showAlert('Please enter a valid mobile number with country code.');
+  if (cleanPhone.length !== 10) {
+    showAlert('Please enter a valid 10-digit Indian mobile number.');
     return;
   }
 
@@ -942,13 +955,13 @@ async function sendSmsOtp() {
   statusEl.innerText = 'Verifying mobile number uniqueness...';
   statusEl.className = 'status-msg info';
 
-  const phoneTaken = await isPhoneAlreadyRegistered(phone);
+  const phoneTaken = await isPhoneAlreadyRegistered(cleanPhone);
   if (phoneTaken) {
     btn.disabled = false;
     btn.innerText = 'Send SMS';
-    statusEl.innerText = `❌ The mobile number "${phone}" is already registered.`;
+    statusEl.innerText = `❌ The mobile number "+91 ${cleanPhone}" is already registered.`;
     statusEl.className = 'status-msg error';
-    showAlert(`❌ Duplicate Mobile Number: The mobile number '${phone}' is already registered in IntraWorld. Each student must register with a unique mobile number.`);
+    showAlert(`❌ Duplicate Mobile Number: The mobile number '+91 ${cleanPhone}' is already registered in IntraWorld. Each student must register with a unique mobile number.`);
     return;
   }
 
@@ -970,7 +983,7 @@ async function sendSmsOtp() {
   document.getElementById('smsOtpBox').classList.remove('hidden');
   smsInput.focus();
 
-  statusEl.innerText = `✅ 6-digit SMS OTP dispatched to ${phone}. Please check your SMS.`;
+  statusEl.innerText = `✅ 6-digit SMS OTP dispatched to +91 ${cleanPhone}. Please check your SMS.`;
   statusEl.className = 'status-msg success';
   startSmsCountdown(60);
 }
@@ -1153,9 +1166,18 @@ async function handleRegistrationSubmit(event) {
   }
 
   // 2. Verify Unique Mobile Number
-  const isPhoneTaken = await isPhoneAlreadyRegistered(phone);
+  const cleanPhone = sanitizeIndianPhone(phone);
+  if (cleanPhone.length !== 10) {
+    showAlert('Please enter a valid 10-digit Indian mobile number.');
+    submitBtn.disabled = false;
+    submitBtn.innerText = '🛡️ Create Student Account';
+    document.getElementById('mobileNumber').focus();
+    return;
+  }
+
+  const isPhoneTaken = await isPhoneAlreadyRegistered(cleanPhone);
   if (isPhoneTaken) {
-    showAlert(`❌ Duplicate Mobile Number: '${phone}' is already registered in IntraWorld. Each student must register with a unique mobile number.`);
+    showAlert(`❌ Duplicate Mobile Number: '+91 ${cleanPhone}' is already registered in IntraWorld. Each student must register with a unique mobile number.`);
     submitBtn.disabled = false;
     submitBtn.innerText = '🛡️ Create Student Account';
     document.getElementById('mobileNumber').focus();
@@ -1164,13 +1186,16 @@ async function handleRegistrationSubmit(event) {
 
   submitBtn.innerText = 'Saving Verified Profile to Firestore...';
 
+  const formattedPhone = `+91 ${cleanPhone}`;
+
   const studentRecord = {
     fullName,
     full_name: fullName,
     gender,
     email: email.toLowerCase(),
-    phone,
-    mobile: phone,
+    phone: formattedPhone,
+    mobile: formattedPhone,
+    rawPhone: cleanPhone,
     studentRegId: "",
     qualification: "Pending Update",
     specialization: "Pending Update",
@@ -1183,7 +1208,7 @@ async function handleRegistrationSubmit(event) {
     password,
     trustScore,
     isVerified: true,
-    isDocVerified: false,
+    documentVerifiedByOCR: false,
     isFeeReceiptVerified: false,
     isEmailVerified: isEmailVerified,
     isPhoneVerified: isPhoneVerified,
@@ -1203,7 +1228,7 @@ async function handleRegistrationSubmit(event) {
     }
   }
 
-  renderSuccessScreen(fullName, gender, email, phone, trustScore);
+  renderSuccessScreen(fullName, gender, email, formattedPhone, trustScore);
 }
 
 function renderSuccessScreen(fullName, gender, email, phone, trustScore) {
@@ -1235,11 +1260,11 @@ function renderSuccessScreen(fullName, gender, email, phone, trustScore) {
 window.addEventListener('DOMContentLoaded', () => {
   calculateTrustScore();
 
-  // Strict numeric-only restriction on mobile number (reject letters, symbols, spaces)
+  // Strict numeric-only restriction on mobile number (reject letters, symbols, spaces, auto-handle +91 / 0 on paste/input)
   const mobileInput = document.getElementById('mobileNumber');
   if (mobileInput) {
     mobileInput.addEventListener('input', function() {
-      this.value = this.value.replace(/\D/g, '').slice(0, 10);
+      this.value = sanitizeIndianPhone(this.value);
       calculateTrustScore();
     });
     mobileInput.addEventListener('keydown', function(e) {
@@ -1252,7 +1277,7 @@ window.addEventListener('DOMContentLoaded', () => {
     mobileInput.addEventListener('paste', function(e) {
       e.preventDefault();
       const paste = (e.clipboardData || window.clipboardData).getData('text');
-      this.value = paste.replace(/\D/g, '').slice(0, 10);
+      this.value = sanitizeIndianPhone(paste);
       calculateTrustScore();
     });
   }
