@@ -386,6 +386,10 @@
       display: flex; align-items: center; gap: 8px;
       background: rgba(244, 63, 94, 0.12); border: 1px solid rgba(244, 63, 94, 0.3); color: #fda4af;
     }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body>
@@ -593,9 +597,56 @@
           </div>
         </div>
 
-        <!-- 3. ANTI-BOT SECURITY -->
+        <!-- 3. FEES RECEIPT OCR VERIFICATION (OPTIONAL) -->
         <div class="form-section-title">
-          <span>⚡ 3. Anti-Bot Security Challenge</span>
+          <span>3. Fees Receipt Scan <span style="font-size: 10.5px; color: #94a3b8; font-weight: 400;">(Optional — Auto-fills College &amp; Course)</span></span>
+        </div>
+
+        <div id="receiptUploadArea" style="border: 1.5px dashed rgba(245, 158, 11, 0.35); border-radius: 16px; padding: 20px; background: rgba(24,2,6,0.6); text-align: center; cursor: pointer; transition: border-color 0.2s;" onclick="document.getElementById('feesReceiptFile').click()" ondragover="event.preventDefault(); this.style.borderColor='#f59e0b';" ondragleave="this.style.borderColor='rgba(245,158,11,0.35)';" ondrop="handleReceiptDrop(event)">
+          <div style="font-size: 28px; margin-bottom: 6px;">📄</div>
+          <div style="font-size: 13px; font-weight: 600; color: #f59e0b;">Upload College Fees Receipt</div>
+          <div style="font-size: 11.5px; color: #94a3b8; margin-top: 4px;">PNG, JPG, or PDF &nbsp;•&nbsp; Drag &amp; drop or click to browse</div>
+          <input type="file" id="feesReceiptFile" accept="image/*,application/pdf" style="display: none;" onchange="handleReceiptUpload(event)">
+        </div>
+
+        <div id="ocrProgressArea" style="display: none; margin-top: 12px;">
+          <div style="display: flex; align-items: center; gap: 10px; font-size: 12.5px; color: #94a3b8; margin-bottom: 8px;">
+            <div id="ocrSpinner" style="width: 16px; height: 16px; border: 2px solid rgba(245,158,11,0.25); border-top-color: #f59e0b; border-radius: 50%; animation: spin 0.8s linear infinite; flex-shrink: 0;"></div>
+            <span id="ocrStatusText">Initialising OCR engine…</span>
+          </div>
+          <div style="height: 4px; background: rgba(245,158,11,0.15); border-radius: 999px; overflow: hidden;">
+            <div id="ocrProgressBar" style="height: 100%; width: 0%; background: #f59e0b; border-radius: 999px; transition: width 0.3s ease;"></div>
+          </div>
+        </div>
+
+        <div id="ocrResultCard" style="display: none; margin-top: 12px; background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.3); border-radius: 14px; padding: 14px 16px;">
+          <div style="font-size: 12px; font-weight: 700; color: #10b981; margin-bottom: 10px;">✅ OCR Scan Complete — Fields Auto-Filled</div>
+          <div id="ocrFieldsGrid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div class="form-group" style="margin: 0;">
+              <label style="font-size: 11px; color: #94a3b8; margin-bottom: 4px; display: block;">College Name</label>
+              <input type="text" id="ocrCollegeName" placeholder="Detected college name" style="width: 100%; background: #180206; border: 1px solid rgba(245,158,11,0.25); border-radius: 10px; padding: 8px 12px; color: #f8fafc; font-size: 12.5px; outline: none;">
+            </div>
+            <div class="form-group" style="margin: 0;">
+              <label style="font-size: 11px; color: #94a3b8; margin-bottom: 4px; display: block;">Course / Degree</label>
+              <input type="text" id="ocrCourse" placeholder="Detected course" style="width: 100%; background: #180206; border: 1px solid rgba(245,158,11,0.25); border-radius: 10px; padding: 8px 12px; color: #f8fafc; font-size: 12.5px; outline: none;">
+            </div>
+            <div class="form-group" style="margin: 0;">
+              <label style="font-size: 11px; color: #94a3b8; margin-bottom: 4px; display: block;">Roll No / Reg No</label>
+              <input type="text" id="ocrRollNo" placeholder="Detected roll number" style="width: 100%; background: #180206; border: 1px solid rgba(245,158,11,0.25); border-radius: 10px; padding: 8px 12px; color: #f8fafc; font-size: 12.5px; outline: none;">
+            </div>
+            <div class="form-group" style="margin: 0;">
+              <label style="font-size: 11px; color: #94a3b8; margin-bottom: 4px; display: block;">Academic Year / Batch</label>
+              <input type="text" id="ocrBatch" placeholder="Detected batch year" style="width: 100%; background: #180206; border: 1px solid rgba(245,158,11,0.25); border-radius: 10px; padding: 8px 12px; color: #f8fafc; font-size: 12.5px; outline: none;">
+            </div>
+          </div>
+          <div style="margin-top: 10px; font-size: 11px; color: #94a3b8;">You can edit any field above before submitting.</div>
+        </div>
+
+        <div id="ocrErrorMsg" style="display: none; margin-top: 10px; font-size: 12px; color: #ef4444; background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); border-radius: 10px; padding: 10px 14px;"></div>
+
+        <!-- 4. ANTI-BOT SECURITY -->
+        <div class="form-section-title">
+          <span>⚡ 4. Anti-Bot Security Challenge</span>
         </div>
 
         <div class="cloud-flare-box" id="cfBoxWrap" onclick="triggerCloudflareCheck()">
@@ -613,7 +664,7 @@
 
         <!-- 4. PASSWORD -->
         <div class="form-section-title">
-          <span>4. Password</span>
+          <span>5. Password</span>
         </div>
 
         <div class="form-row">
@@ -678,6 +729,6 @@
     </div>
   </div>
 
-  <script src="js/register.js?v=28.0"></script>
+  <script src="js/register.js?v=29.0"></script>
 </body>
 </html>

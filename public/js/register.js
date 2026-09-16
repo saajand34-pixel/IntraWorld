@@ -60,6 +60,12 @@ try {
   console.warn("Firebase Init:", e.message);
 }
 
+// PDF.js Worker Configuration (required for PDF parsing to work in browser)
+if (typeof window !== 'undefined' && window.pdfjsLib) {
+  window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+}
+
 // Fetch Gemini Key from Firestore or Fallback
 async function getGeminiKey() {
   if (db) {
@@ -644,6 +650,9 @@ function calculateTrustScore() {
   const ambition = (document.getElementById('ambition')?.value || '').trim();
   if (sport && ambition) score += 10;
 
+  // OCR receipt scan bonus
+  if (isReceiptScanned) score += 10;
+
   const finalScore = Math.min(score, 100);
 
   const meterCircle = document.getElementById('trustMeterCircle');
@@ -1098,6 +1107,201 @@ function showAlert(msg) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+// 8. FEES RECEIPT OCR ENGINE (PDF.js + Tesseract.js)
+let ocrScannedData = {};
+let isReceiptScanned = false;
+
+function setOcrProgress(percent, statusText) {
+  const bar = document.getElementById('ocrProgressBar');
+  const txt = document.getElementById('ocrStatusText');
+  if (bar) bar.style.width = percent + '%';
+  if (txt) txt.innerText = statusText;
+}
+
+function showOcrError(msg) {
+  const errEl = document.getElementById('ocrErrorMsg');
+  const progressArea = document.getElementById('ocrProgressArea');
+  if (errEl) {
+    errEl.innerText = msg;
+    errEl.style.display = 'block';
+  }
+  if (progressArea) progressArea.style.display = 'none';
+}
+
+async function renderPdfPageToCanvas(file) {
+  const arrayBuffer = await file.arrayBuffer();
+  const pdfDoc = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  const page = await pdfDoc.getPage(1);
+  const viewport = page.getViewport({ scale: 2.5 });
+  const canvas = document.createElement('canvas');
+  canvas.width = viewport.width;
+  canvas.height = viewport.height;
+  const ctx = canvas.getContext('2d');
+  await page.render({ canvasContext: ctx, viewport }).promise;
+  return canvas;
+}
+
+function extractFieldFromText(rawText) {
+  const lines = rawText.split('\n').map(l => l.trim()).filter(l => l.length > 1);
+  const fullText = rawText.toUpperCase();
+
+  let college = '';
+  let course = '';
+  let rollNo = '';
+  let batch = '';
+
+  // College detection — look for known college keywords
+  const collegeKeywords = ['college', 'institute', 'university', 'school of', 'academy'];
+  for (const line of lines) {
+    const lower = line.toLowerCase();
+    if (collegeKeywords.some(k => lower.includes(k))) {
+      college = line.replace(/[^a-zA-Z0-9\s\(\)\-,\.]/g, '').trim();
+      break;
+    }
+  }
+
+  // Course / Degree detection — look for common degree abbreviations
+  const coursePattern = /\b(B\.?C\.?A|M\.?C\.?A|B\.?Sc|M\.?Sc|B\.?Com|M\.?Com|B\.?Tech|M\.?Tech|B\.?E|MBA|BBA|B\.?A|M\.?A|Ph\.?D|PGDM|B\.?Pharm|M\.?Pharm|B\.?Ed|M\.?Ed|Diploma)\b/gi;
+  const courseMatch = rawText.match(coursePattern);
+  if (courseMatch && courseMatch.length > 0) {
+    course = courseMatch[0].replace(/\./g, '').trim();
+  }
+
+  // Roll / Registration number — numeric or alphanumeric after keywords
+  const rollPattern = /(?:roll\s*no\.?|reg(?:istration)?\s*no\.?|usn|htno|enroll(?:ment)?\s*no\.?)[:\s#]*([A-Z0-9]{5,18})/gi;
+  const rollMatch = rawText.match(rollPattern);
+  if (rollMatch) {
+    const val = rollMatch[0].replace(/roll\s*no\.?|reg(?:istration)?\s*no\.?|usn|htno|enroll(?:ment)?\s*no\.?/gi, '').replace(/[:\s#]/g, '').trim();
+    rollNo = val.toUpperCase();
+  }
+
+  // Academic batch / year — look for patterns like 2023-24, 2022-2026, or standalone 4-digit year
+  const batchPattern = /\b(20\d{2}[\-–](?:20)?\d{2})\b/;
+  const batchMatch = rawText.match(batchPattern);
+  if (batchMatch) {
+    batch = batchMatch[1];
+  } else {
+    const yearPattern = /\b(20\d{2})\b/g;
+    const years = [...rawText.matchAll(yearPattern)].map(m => m[1]);
+    if (years.length > 0) batch = years[years.length - 1];
+  }
+
+  return { college, course, rollNo, batch };
+}
+
+function populateOcrFields(data) {
+  const set = (id, val) => {
+    const el = document.getElementById(id);
+    if (el && val) el.value = val;
+  };
+  set('ocrCollegeName', data.college);
+  set('ocrCourse', data.course);
+  set('ocrRollNo', data.rollNo);
+  set('ocrBatch', data.batch);
+
+  ocrScannedData = data;
+  isReceiptScanned = true;
+
+  document.getElementById('ocrProgressArea').style.display = 'none';
+  document.getElementById('ocrResultCard').style.display = 'block';
+
+  // Update upload box to show success state
+  const uploadBox = document.getElementById('receiptUploadArea');
+  if (uploadBox) {
+    uploadBox.style.borderColor = '#10b981';
+    uploadBox.style.background = 'rgba(16,185,129,0.06)';
+    uploadBox.querySelector('div').innerText = '✅';
+    uploadBox.querySelectorAll('div')[1].innerText = 'Receipt scanned — click to re-scan';
+  }
+
+  calculateTrustScore();
+}
+
+async function runOCROnCanvas(canvas) {
+  const worker = await Tesseract.createWorker('eng', 1, {
+    logger: m => {
+      if (m.status === 'recognizing text') {
+        const pct = Math.round((m.progress || 0) * 100);
+        setOcrProgress(30 + Math.round(pct * 0.7), `Reading document text… ${pct}%`);
+      }
+    }
+  });
+  const result = await worker.recognize(canvas);
+  await worker.terminate();
+  return result.data.text;
+}
+
+async function handleReceiptUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  await processReceiptFile(file);
+}
+
+async function handleReceiptDrop(event) {
+  event.preventDefault();
+  document.getElementById('receiptUploadArea').style.borderColor = 'rgba(245,158,11,0.35)';
+  const file = event.dataTransfer.files[0];
+  if (!file) return;
+  if (!file.type.match(/image\/(png|jpe?g|webp|bmp|gif)/) && file.type !== 'application/pdf') {
+    showOcrError('Unsupported file type. Please upload a PNG, JPG, or PDF fees receipt.');
+    return;
+  }
+  await processReceiptFile(file);
+}
+
+async function processReceiptFile(file) {
+  const progressArea = document.getElementById('ocrProgressArea');
+  const errEl = document.getElementById('ocrErrorMsg');
+  const resultCard = document.getElementById('ocrResultCard');
+
+  // Reset previous state
+  if (errEl) errEl.style.display = 'none';
+  if (resultCard) resultCard.style.display = 'none';
+  progressArea.style.display = 'block';
+  setOcrProgress(5, 'Loading fees receipt file…');
+
+  try {
+    let canvas;
+
+    if (file.type === 'application/pdf') {
+      setOcrProgress(15, 'Rendering PDF page…');
+      canvas = await renderPdfPageToCanvas(file);
+      setOcrProgress(30, 'PDF rendered — starting text recognition…');
+    } else {
+      setOcrProgress(15, 'Decoding image…');
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+        img.src = url;
+      });
+      canvas = document.createElement('canvas');
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      canvas.getContext('2d').drawImage(img, 0, 0);
+      URL.revokeObjectURL(url);
+      setOcrProgress(30, 'Image decoded — starting text recognition…');
+    }
+
+    const rawText = await runOCROnCanvas(canvas);
+    setOcrProgress(100, 'Extraction complete.');
+
+    if (!rawText || rawText.trim().length < 20) {
+      showOcrError('Could not extract readable text from the document. Please upload a clearer image or PDF.');
+      return;
+    }
+
+    const extracted = extractFieldFromText(rawText);
+    populateOcrFields(extracted);
+
+  } catch (err) {
+    console.error('OCR Error:', err);
+    showOcrError('An error occurred while scanning the receipt. Please try again with a clearer image.');
+    if (progressArea) progressArea.style.display = 'none';
+  }
+}
+
 // 9. FINAL REGISTRATION & FIRESTORE DATABASE STORAGE
 async function handleRegistrationSubmit(event) {
   event.preventDefault();
@@ -1196,20 +1400,20 @@ async function handleRegistrationSubmit(event) {
     phone: formattedPhone,
     mobile: formattedPhone,
     rawPhone: cleanPhone,
-    studentRegId: "",
-    qualification: "Pending Update",
-    specialization: "Pending Update",
-    collegeName: "Pending Update",
+    studentRegId: (document.getElementById('ocrRollNo')?.value || '').trim(),
+    qualification: (document.getElementById('ocrCourse')?.value || 'Pending Update').trim() || 'Pending Update',
+    specialization: (document.getElementById('ocrCourse')?.value || 'Pending Update').trim() || 'Pending Update',
+    collegeName: (document.getElementById('ocrCollegeName')?.value || 'Pending Update').trim() || 'Pending Update',
     skills: [],
-    passedOutYear: "",
-    passoutYear: "",
+    passedOutYear: (document.getElementById('ocrBatch')?.value || '').trim(),
+    passoutYear: (document.getElementById('ocrBatch')?.value || '').trim(),
     favouriteSport: favouriteSport.toLowerCase(),
     ambition: ambition.toLowerCase(),
     password,
     trustScore,
     isVerified: true,
-    documentVerifiedByOCR: false,
-    isFeeReceiptVerified: false,
+    documentVerifiedByOCR: isReceiptScanned,
+    isFeeReceiptVerified: isReceiptScanned,
     isEmailVerified: isEmailVerified,
     isPhoneVerified: isPhoneVerified,
     isCloudflareVerified: isCloudflareVerified,
