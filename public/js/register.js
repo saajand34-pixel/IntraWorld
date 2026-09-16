@@ -1186,7 +1186,96 @@ function extractFieldFromText(rawText) {
     if (years.length > 0) batch = years[years.length - 1];
   }
 
-  return { college, course, rollNo, batch };
+  // Student name detection — look for label-prefixed name lines on the receipt
+  let studentName = '';
+  const namePattern = /(?:student[\s\-]*name|name of student|applicant|candidate|name)[:\s]+([A-Za-z]+(?: [A-Za-z]+){1,4})/gi;
+  const nameMatch = rawText.match(namePattern);
+  if (nameMatch && nameMatch.length > 0) {
+    const raw = nameMatch[0].replace(/student[\s\-]*name|name of student|applicant|candidate|name/gi, '').replace(/[:\s]+/, '').trim();
+    // Keep only alphabets and spaces, and must be at least 3 chars
+    const cleaned = raw.replace(/[^a-zA-Z\s]/g, '').trim();
+    if (cleaned.length >= 3) studentName = cleaned;
+  }
+
+  return { college, course, rollNo, batch, studentName };
+}
+
+// Track whether name comparison passed or was skipped (no name found on receipt)
+let ocrNameMatchStatus = 'skipped'; // 'matched' | 'partial' | 'mismatch' | 'skipped'
+
+function normaliseForCompare(str) {
+  return str.toLowerCase().replace(/[^a-z\s]/g, '').replace(/\s+/g, ' ').trim();
+}
+
+function wordOverlapScore(a, b) {
+  const wordsA = new Set(normaliseForCompare(a).split(' ').filter(w => w.length > 1));
+  const wordsB = new Set(normaliseForCompare(b).split(' ').filter(w => w.length > 1));
+  let matches = 0;
+  for (const word of wordsA) {
+    if (wordsB.has(word)) matches++;
+  }
+  const maxWords = Math.max(wordsA.size, wordsB.size);
+  return maxWords === 0 ? 0 : matches / maxWords;
+}
+
+function compareOcrNameWithFormName(receiptName) {
+  // Remove old badge if any
+  const oldBadge = document.getElementById('ocrNameMatchBadge');
+  if (oldBadge) oldBadge.remove();
+
+  const resultCard = document.getElementById('ocrResultCard');
+  if (!resultCard) return;
+
+  // If no name detected on the receipt, skip comparison quietly
+  if (!receiptName || receiptName.trim().length < 2) {
+    ocrNameMatchStatus = 'skipped';
+    return;
+  }
+
+  const formName = (document.getElementById('fullName')?.value || '').trim();
+  if (!formName) {
+    ocrNameMatchStatus = 'skipped';
+    return;
+  }
+
+  const score = wordOverlapScore(receiptName, formName);
+
+  let badgeHtml = '';
+  if (score >= 0.75) {
+    ocrNameMatchStatus = 'matched';
+    badgeHtml = `
+      <div id="ocrNameMatchBadge" style="margin-top: 12px; display: flex; align-items: flex-start; gap: 10px; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.35); border-radius: 10px; padding: 10px 14px;">
+        <span style="font-size: 18px; line-height: 1;">✅</span>
+        <div>
+          <div style="font-size: 12px; font-weight: 700; color: #10b981;">Name Verified — Receipt Matches Registration</div>
+          <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">Receipt: <strong style="color:#e2e8f0;">${escapeHtml(receiptName)}</strong> &nbsp;→&nbsp; Form: <strong style="color:#e2e8f0;">${escapeHtml(formName)}</strong></div>
+        </div>
+      </div>`;
+  } else if (score >= 0.4) {
+    ocrNameMatchStatus = 'partial';
+    badgeHtml = `
+      <div id="ocrNameMatchBadge" style="margin-top: 12px; display: flex; align-items: flex-start; gap: 10px; background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.35); border-radius: 10px; padding: 10px 14px;">
+        <span style="font-size: 18px; line-height: 1;">⚠️</span>
+        <div>
+          <div style="font-size: 12px; font-weight: 700; color: #f59e0b;">Partial Name Match — Please Verify</div>
+          <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">Receipt: <strong style="color:#e2e8f0;">${escapeHtml(receiptName)}</strong> &nbsp;→&nbsp; Form: <strong style="color:#e2e8f0;">${escapeHtml(formName)}</strong></div>
+          <div style="font-size: 11px; color: #f59e0b; margin-top: 4px;">Names partially match. Ensure your Full Name matches the fees receipt exactly.</div>
+        </div>
+      </div>`;
+  } else {
+    ocrNameMatchStatus = 'mismatch';
+    badgeHtml = `
+      <div id="ocrNameMatchBadge" style="margin-top: 12px; display: flex; align-items: flex-start; gap: 10px; background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.35); border-radius: 10px; padding: 10px 14px;">
+        <span style="font-size: 18px; line-height: 1;">❌</span>
+        <div>
+          <div style="font-size: 12px; font-weight: 700; color: #ef4444;">Name Mismatch — Receipt Does Not Match</div>
+          <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">Receipt: <strong style="color:#fda4af;">${escapeHtml(receiptName)}</strong> &nbsp;→&nbsp; Form: <strong style="color:#fda4af;">${escapeHtml(formName)}</strong></div>
+          <div style="font-size: 11px; color: #ef4444; margin-top: 4px;">Please correct your Full Name to match the fees receipt, or upload the correct receipt.</div>
+        </div>
+      </div>`;
+  }
+
+  resultCard.insertAdjacentHTML('beforeend', badgeHtml);
 }
 
 function populateOcrFields(data) {
@@ -1204,6 +1293,9 @@ function populateOcrFields(data) {
 
   document.getElementById('ocrProgressArea').style.display = 'none';
   document.getElementById('ocrResultCard').style.display = 'block';
+
+  // --- Name comparison ---
+  compareOcrNameWithFormName(data.studentName);
 
   // Update upload box to show success state
   const uploadBox = document.getElementById('receiptUploadArea');
@@ -1351,6 +1443,13 @@ async function handleRegistrationSubmit(event) {
 
   if (!isCloudflareVerified) {
     showAlert('Please complete the Cloudflare Anti-Bot challenge.');
+    return;
+  }
+
+  // Block registration if OCR found a name on the receipt that clearly does not match
+  if (ocrNameMatchStatus === 'mismatch') {
+    showAlert('⚠️ Name Mismatch: The name detected on your fees receipt does not match the Full Name you entered. Please correct your Full Name or upload the correct receipt.');
+    document.getElementById('ocrNameMatchBadge')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     return;
   }
 
