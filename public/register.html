@@ -137,14 +137,14 @@
     .card-header { text-align: center; margin-bottom: 32px; }
 
     .logo-container {
-      width: 90px; height: 90px; margin: 0 auto 18px;
+      width: 140px; height: auto; margin: 0 auto 16px;
       display: flex; align-items: center; justify-content: center;
       position: relative;
     }
 
     .logo-img {
-      width: 100%; height: 100%; object-fit: contain;
-      border-radius: 50%; filter: drop-shadow(0 0 15px rgba(56, 189, 248, 0.3));
+      width: 100%; height: auto; object-fit: contain;
+      border-radius: 0; filter: drop-shadow(0 4px 15px rgba(0, 0, 0, 0.45));
     }
 
     .medallion-fallback {
@@ -184,7 +184,7 @@
     .input-wrapper { position: relative; display: flex; align-items: center; }
     .input-icon { position: absolute; left: 14px; color: var(--cyan-accent); font-size: 16px; pointer-events: none; }
 
-    input[type="text"], input[type="email"], input[type="password"], select {
+    input[type="text"], input[type="email"], input[type="password"], input[type="tel"], select {
       width: 100%;
       background: var(--input-bg);
       border: 1px solid var(--input-border);
@@ -195,6 +195,7 @@
       font-family: inherit;
       outline: none;
       transition: all 0.2s ease;
+      box-sizing: border-box;
     }
 
     select {
@@ -219,18 +220,37 @@
       padding: 8px;
     }
 
-    .no-icon input, select { padding-left: 16px; }
+    .no-icon input, select, input.no-icon, .input-wrapper.no-icon input { padding-left: 16px; }
     input::placeholder { color: #475569; }
     input:focus, select:focus { border-color: var(--input-focus); box-shadow: 0 0 0 3px var(--cyan-glow); }
     input:disabled { opacity: 0.6; border-color: rgba(16, 185, 129, 0.4); color: #34d399; cursor: not-allowed; }
+
+    .country-code-box {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-radius: 14px;
+      padding: 0 16px;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--cyan-accent);
+      white-space: nowrap;
+      user-select: none;
+      box-sizing: border-box;
+      height: 48px;
+      transition: all 0.2s ease;
+    }
 
     .toggle-pwd-btn { position: absolute; right: 14px; background: none; border: none; color: #64748b; cursor: pointer; font-size: 16px; }
     .toggle-pwd-btn:hover { color: var(--cyan-accent); }
 
     .btn {
       display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-      padding: 12px 20px; border-radius: 12px; font-size: 12.5px; font-weight: 600;
+      padding: 12px 20px; border-radius: 14px; font-size: 12.5px; font-weight: 600;
       border: none; cursor: pointer; transition: all 0.2s; font-family: inherit; white-space: nowrap;
+      box-sizing: border-box; height: 48px;
     }
 
     .btn-cyan {
@@ -526,13 +546,12 @@
             Mobile Number <span class="req">*</span>
             <span class="helper">(+91 India • 10-Digit Mobile)</span>
           </label>
-          <div style="display: flex; gap: 8px;">
-            <div style="display: flex; align-items: center; justify-content: center; gap: 6px; background: #180206; border: 1px solid rgba(245, 158, 11, 0.35); border-radius: 10px; padding: 0 14px; font-weight: 700; color: #f59e0b; font-size: 14px; white-space: nowrap; user-select: none;">
-              <span>🇮🇳 +91</span>
+          <div style="display: flex; gap: 8px; align-items: stretch;">
+            <div class="country-code-box">
+              <span>+91</span>
             </div>
-            <div class="input-wrapper" style="flex: 1;">
-              <span class="input-icon"></span>
-              <input type="tel" id="mobileNumber" required maxlength="10" inputmode="numeric" pattern="[0-9]{10}" placeholder="Enter 10-digit mobile number" oninput="calculateTrustScore()">
+            <div class="input-wrapper no-icon" style="flex: 1;">
+              <input type="tel" id="mobileNumber" class="no-icon" required maxlength="10" inputmode="numeric" pattern="[0-9]{10}" placeholder="Enter 10-digit mobile number" oninput="calculateTrustScore()">
             </div>
             <button type="button" id="sendSmsOtpBtn" class="btn btn-cyan" onclick="sendSmsOtp()">Send SMS</button>
           </div>
