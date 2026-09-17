@@ -2,6 +2,7 @@ import { db, auth } from "./firebase-config.js";
 import { onAuthStateChanged, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { 
     doc, 
+    setDoc,
     updateDoc, 
     deleteDoc,
     collection, 
@@ -40,6 +41,8 @@ function renderFields(user) {
     
     const name = user.fullName || user.full_name || "Student User";
     const gender = user.gender || "";
+    const email = user.email || "";
+    const regId = user.studentRegId || user.regId || user.rollNo || "";
     let phone = user.mobileNumber || user.mobile || user.phone || "";
     if (phone && !phone.startsWith("+") && phone.replace(/\D/g, "").length === 10) {
         phone = "+91 " + phone.replace(/\D/g, "");
@@ -221,24 +224,55 @@ function setupPhotoUpload() {
                 localStorage.setItem("currentUser", JSON.stringify(sessionUser));
                 localStorage.setItem("intraWorldUser", JSON.stringify(sessionUser));
 
-                // Save to Firestore
-                if (activeDocId && db) {
-                    await updateDoc(doc(db, activeCollection, activeDocId), {
-                        avatar: selectedBase64Photo,
-                        profilePhotoUrl: selectedBase64Photo
-                    });
-                } else if (sessionUser.email && db) {
+                const userEmail = (sessionUser.email || "").toLowerCase().trim();
+                const photoPayload = {
+                    avatar: selectedBase64Photo,
+                    profilePhotoUrl: selectedBase64Photo,
+                    updatedAt: new Date().toISOString()
+                };
+
+                // Permanently update Firestore across all collections
+                if (userEmail && db) {
+                    // 1. registrations
                     try {
-                        const q = query(collection(db, "registrations"), where("email", "==", sessionUser.email));
-                        const snap = await getDocs(q);
-                        if (!snap.empty) {
-                            await updateDoc(doc(db, "registrations", snap.docs[0].id), {
-                                avatar: selectedBase64Photo,
-                                profilePhotoUrl: selectedBase64Photo
-                            });
+                        const regSnap = await getDocs(query(collection(db, "registrations"), where("email", "==", userEmail)));
+                        for (const d of regSnap.docs) {
+                            await updateDoc(doc(db, "registrations", d.id), photoPayload);
                         }
-                    } catch (err) {}
+                    } catch (e) {
+                        console.warn("Update registrations photo note:", e.message);
+                    }
+
+                    // 2. students
+                    try {
+                        const studSnap = await getDocs(query(collection(db, "students"), where("email", "==", userEmail)));
+                        for (const d of studSnap.docs) {
+                            await updateDoc(doc(db, "students", d.id), photoPayload);
+                        }
+                    } catch (e) {
+                        console.warn("Update students photo note:", e.message);
+                    }
+
+                    // 3. users (use setDoc with merge so it creates or merges permanently)
+                    try {
+                        await setDoc(doc(db, "users", userEmail), photoPayload, { merge: true });
+                    } catch (e) {
+                        console.warn("Update users doc photo note:", e.message);
+                    }
+
+                    // 4. active document if different
+                    if (activeDocId) {
+                        try {
+                            await updateDoc(doc(db, activeCollection, activeDocId), photoPayload);
+                        } catch (e) {
+                            console.warn("Update active doc photo note:", e.message);
+                        }
+                    }
                 }
+
+                // Update avatar previews across page
+                const preview = document.getElementById("avatarPreview");
+                if (preview) preview.src = selectedBase64Photo;
 
                 showToast("Profile picture updated and saved permanently!");
                 saveDpBtn.style.display = "none";
@@ -560,7 +594,7 @@ function setupDegreeReceiptModal() {
 
                     // 1. Users collection
                     try {
-                        await updateDoc(doc(db, "users", email), updatePayload);
+                        await setDoc(doc(db, "users", email), updatePayload, { merge: true });
                     } catch (e) {
                         console.warn("Update users note:", e.message);
                     }
@@ -710,21 +744,28 @@ function setupPersonalCredentialsEditor() {
             try {
                 const sessionRaw = localStorage.getItem("currentUser") || localStorage.getItem("intraWorldUser");
                 const currentUser = sessionRaw ? JSON.parse(sessionRaw) : {};
-                const userEmail = (currentUser.email || "").toLowerCase();
+                const userEmail = (currentUser.email || "").toLowerCase().trim();
 
                 const updatedData = {
                     fullName: updatedName,
                     full_name: updatedName,
                     gender: updatedGender,
                     studentRegId: updatedRegId,
+                    regId: updatedRegId,
+                    rollNo: updatedRegId,
                     qualification: updatedQual,
+                    enrolledQualification: updatedQual,
+                    course: updatedQual,
                     passoutYear: updatedPassout,
                     passedOutYear: updatedPassout,
                     collegeName: updatedCollege,
+                    college: updatedCollege,
+                    collegeOrUniversity: updatedCollege,
+                    institution: updatedCollege,
                     updatedAt: new Date().toISOString()
                 };
 
-                // 1. Update Firestore collections
+                // 1. Update Firestore collections permanently
                 if (userEmail && db) {
                     try {
                         const regSnap = await getDocs(query(collection(db, "registrations"), where("email", "==", userEmail)));
@@ -732,7 +773,7 @@ function setupPersonalCredentialsEditor() {
                             await updateDoc(doc(db, "registrations", d.id), updatedData);
                         }
                     } catch (e) {
-                        console.warn("Update registrations note:", e);
+                        console.warn("Update registrations note:", e.message);
                     }
 
                     try {
@@ -741,13 +782,21 @@ function setupPersonalCredentialsEditor() {
                             await updateDoc(doc(db, "students", d.id), updatedData);
                         }
                     } catch (e) {
-                        console.warn("Update students note:", e);
+                        console.warn("Update students note:", e.message);
                     }
 
                     try {
-                        await updateDoc(doc(db, "users", userEmail), updatedData);
+                        await setDoc(doc(db, "users", userEmail), updatedData, { merge: true });
                     } catch (e) {
-                        console.warn("Update users doc note:", e);
+                        console.warn("Update users doc note:", e.message);
+                    }
+
+                    if (activeDocId) {
+                        try {
+                            await updateDoc(doc(db, activeCollection, activeDocId), updatedData);
+                        } catch (e) {
+                            console.warn("Update active doc note:", e.message);
+                        }
                     }
                 }
 
@@ -757,6 +806,7 @@ function setupPersonalCredentialsEditor() {
                 localStorage.setItem("intraWorldUser", JSON.stringify(merged));
 
                 toggleEdit(false);
+                renderFields(merged);
 
                 const successAlert = document.getElementById("receiptSuccessAlert");
                 const successText = document.getElementById("receiptSuccessText");

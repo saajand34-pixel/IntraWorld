@@ -1224,15 +1224,59 @@ function extractFieldFromText(rawText) {
     rollNo = val.toUpperCase();
   }
 
-  // Academic batch / year — look for patterns like 2023-24, 2022-2026, or standalone 4-digit year
-  const batchPattern = /\b(20\d{2}[\-–](?:20)?\d{2})\b/;
-  const batchMatch = rawText.match(batchPattern);
-  if (batchMatch) {
-    batch = batchMatch[1];
+  // Academic year raw from receipt — look for patterns like 2025-26, 2025-2026
+  let academicYearRaw = '';
+  const acYearPattern = /\b(20\d{2}[\-–](?:20)?\d{2})\b/;
+  const acYearMatch = rawText.match(acYearPattern);
+  if (acYearMatch) {
+    academicYearRaw = acYearMatch[1];
+    batch = acYearMatch[1]; // default batch = what's on receipt (will be overwritten if we can compute full span)
   } else {
-    const yearPattern = /\b(20\d{2})\b/g;
-    const years = [...rawText.matchAll(yearPattern)].map(m => m[1]);
-    if (years.length > 0) batch = years[years.length - 1];
+    const standAloneYear = /\b(20\d{2})\b/g;
+    const years = [...rawText.matchAll(standAloneYear)].map(m => m[1]);
+    if (years.length > 0) {
+      academicYearRaw = years[years.length - 1];
+      batch = academicYearRaw;
+    }
+  }
+
+  // Year-of-study detection — supports ordinals (2nd), roman (II), plain number, and semester→year conversion
+  let currentYearOfStudy = null;
+  const romanToNum = { 'I': 1, 'II': 2, 'III': 3, 'IV': 4, 'V': 5, 'VI': 6 };
+
+  // "2nd Year", "3rd Year", "1st Year", "4th Year"
+  const ordinalYearMatch = rawText.match(/\b([1-6])(?:st|nd|rd|th)\s*(?:year|yr)\b/i);
+  if (ordinalYearMatch) {
+    currentYearOfStudy = parseInt(ordinalYearMatch[1]);
+  }
+
+  if (!currentYearOfStudy) {
+    // "II Year", "III Year", "I Year"
+    const romanYearMatch = rawText.match(/\b(VI?|IV|I{1,3})\s*(?:year|yr)\b/i);
+    if (romanYearMatch) {
+      const key = romanYearMatch[1].toUpperCase();
+      currentYearOfStudy = romanToNum[key] || null;
+    }
+  }
+
+  if (!currentYearOfStudy) {
+    // "Year 2", "Year-3", "Year II"
+    const yearNumMatch = rawText.match(/\byear[\s\-]*([1-6])\b/i);
+    const yearRomMatch = rawText.match(/\byear[\s\-]*(VI?|IV|I{1,3})\b/i);
+    if (yearNumMatch) currentYearOfStudy = parseInt(yearNumMatch[1]);
+    else if (yearRomMatch) currentYearOfStudy = romanToNum[yearRomMatch[1].toUpperCase()] || null;
+  }
+
+  if (!currentYearOfStudy) {
+    // "Semester 3", "Sem-3", "Sem III" → year = ceil(semNum / 2)
+    const semNumMatch = rawText.match(/\b(?:semester|sem)[\s\-]*([1-8])\b/i);
+    const semRomMatch = rawText.match(/\b(?:semester|sem)[\s\-]*(VI{0,2}|IV|I{1,3})\b/i);
+    if (semNumMatch) {
+      currentYearOfStudy = Math.ceil(parseInt(semNumMatch[1]) / 2);
+    } else if (semRomMatch) {
+      const semNum = romanToNum[semRomMatch[1].toUpperCase()] || 1;
+      currentYearOfStudy = Math.ceil(semNum / 2);
+    }
   }
 
   // Student name detection — look for label-prefixed name lines on the receipt
@@ -1241,12 +1285,42 @@ function extractFieldFromText(rawText) {
   const nameMatch = rawText.match(namePattern);
   if (nameMatch && nameMatch.length > 0) {
     const raw = nameMatch[0].replace(/student[\s\-]*name|name of student|applicant|candidate|name/gi, '').replace(/[:\s]+/, '').trim();
-    // Keep only alphabets and spaces, and must be at least 3 chars
     const cleaned = raw.replace(/[^a-zA-Z\s]/g, '').trim();
     if (cleaned.length >= 3) studentName = cleaned;
   }
 
-  return { college, course, rollNo, batch, studentName };
+  // Course duration table for multi-year batch span calculation
+  const COURSE_DURATIONS = {
+    'BCA': 3, 'MCA': 2, 'BSC': 3, 'MSC': 2,
+    'BCOM': 3, 'MCOM': 2, 'BTECH': 4, 'BE': 4,
+    'MTECH': 2, 'ME': 2, 'BBA': 3, 'MBA': 2,
+    'BA': 3, 'MA': 2, 'BPHARM': 4, 'MPHARM': 2,
+    'BED': 2, 'MED': 2, 'DIPLOMA': 3, 'POLYTECHNIC': 3,
+    'PHD': 3
+  };
+
+  const normCourse = (course || '').toUpperCase().replace(/[^A-Z]/g, '');
+  const courseDuration = COURSE_DURATIONS[normCourse] || 3;
+
+  // Calculate full degree batch (e.g. 2nd year in 2025-2026 BCA -> 2024-2027)
+  let baseYear = null;
+  if (academicYearRaw) {
+    const ym = academicYearRaw.match(/(20\d{2})/);
+    if (ym) baseYear = parseInt(ym[1]);
+  }
+  if (!baseYear && rawText) {
+    const allYears = [...rawText.matchAll(/\b(20\d{2})\b/g)].map(m => parseInt(m[1]));
+    if (allYears.length > 0) baseYear = allYears[allYears.length - 1];
+  }
+
+  if (baseYear) {
+    const studyYear = (currentYearOfStudy && currentYearOfStudy >= 1 && currentYearOfStudy <= 6) ? currentYearOfStudy : 1;
+    const admissionYear = baseYear - (studyYear - 1);
+    const passoutYear = admissionYear + courseDuration;
+    batch = `${admissionYear}-${passoutYear}`;
+  }
+
+  return { college, course, rollNo, batch, studentName, academicYearRaw, currentYearOfStudy, courseDuration };
 }
 
 // Track whether name comparison passed or was skipped (no name found on receipt)
