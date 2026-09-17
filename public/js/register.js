@@ -1132,7 +1132,7 @@ async function renderPdfPageToCanvas(file) {
   const arrayBuffer = await file.arrayBuffer();
   const pdfDoc = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
   const page = await pdfDoc.getPage(1);
-  const viewport = page.getViewport({ scale: 2.5 });
+  const viewport = page.getViewport({ scale: 4.0 });
   const canvas = document.createElement('canvas');
   canvas.width = viewport.width;
   canvas.height = viewport.height;
@@ -1150,14 +1150,63 @@ function extractFieldFromText(rawText) {
   let rollNo = '';
   let batch = '';
 
-  // College detection — look for known college keywords
-  const collegeKeywords = ['college', 'institute', 'university', 'school of', 'academy'];
+  // ---- COLLEGE NAME (multi-pass, cleaned) ----
+  // First: collect all candidate lines that contain a college keyword
+  const collegeKeywords = ['college', 'institute', 'university', 'school of', 'academy', 'polytechnic'];
+  const collegeCandidates = [];
   for (const line of lines) {
     const lower = line.toLowerCase();
     if (collegeKeywords.some(k => lower.includes(k))) {
-      college = line.replace(/[^a-zA-Z0-9\s\(\)\-,\.]/g, '').trim();
-      break;
+      collegeCandidates.push(line);
     }
+  }
+
+  // Score each candidate: prefer longer lines with more capital words (title-case proper nouns)
+  // and penalise lines that are mostly numbers or have few real words
+  function scoreCollegeLine(line) {
+    const words = line.split(/\s+/).filter(w => w.length > 0);
+    const capitalWords = words.filter(w => /^[A-Z]/.test(w) && w.length >= 3);
+    const realWords = words.filter(w => /^[a-zA-Z]{3,}$/.test(w));
+    return (capitalWords.length * 2) + realWords.length - words.filter(w => w.length <= 2).length;
+  }
+
+  let rawCollegeLine = '';
+  if (collegeCandidates.length > 0) {
+    collegeCandidates.sort((a, b) => scoreCollegeLine(b) - scoreCollegeLine(a));
+    rawCollegeLine = collegeCandidates[0];
+  }
+
+  // Post-process: strip leading noise tokens (single chars, 1-2 char junk, digits)
+  // then find the first real proper-noun word (3+ chars, starts with letter) and start there
+  if (rawCollegeLine) {
+    // Remove non-printable chars and run of special chars
+    let cleaned = rawCollegeLine.replace(/[^a-zA-Z0-9\s\(\)\-,\.&']/g, ' ').replace(/\s+/g, ' ').trim();
+
+    // Split into tokens and find where the real college name starts
+    const tokens = cleaned.split(' ').filter(t => t.length > 0);
+    let startIdx = 0;
+
+    for (let i = 0; i < tokens.length; i++) {
+      const t = tokens[i];
+      // A legitimate college name token: at least 3 letters, no pure digits, starts with a letter
+      if (/^[a-zA-Z]/.test(t) && t.replace(/[^a-zA-Z]/g, '').length >= 3) {
+        startIdx = i;
+        break;
+      }
+    }
+
+    // Rebuild from the real start, keep tokens until we've seen the keyword
+    let result = tokens.slice(startIdx).join(' ');
+
+    // Title-case the result for neat display
+    result = result.replace(/\b([a-z])([a-z]*)/gi, (_, first, rest) => {
+      // Keep short connectors lowercase
+      const lower = (first + rest).toLowerCase();
+      if (['of', 'and', 'the', 'for', 'in', 'at'].includes(lower)) return lower;
+      return first.toUpperCase() + rest.toLowerCase();
+    });
+
+    college = result.trim();
   }
 
   // Course / Degree detection — look for common degree abbreviations
@@ -1309,7 +1358,42 @@ function populateOcrFields(data) {
   calculateTrustScore();
 }
 
+// Apply greyscale + contrast boost to the canvas image data before OCR
+// This dramatically improves Tesseract accuracy on real-world receipts
+function preprocessCanvasForOCR(sourceCanvas) {
+  const out = document.createElement('canvas');
+  out.width = sourceCanvas.width;
+  out.height = sourceCanvas.height;
+  const ctx = out.getContext('2d');
+  ctx.drawImage(sourceCanvas, 0, 0);
+
+  const imgData = ctx.getImageData(0, 0, out.width, out.height);
+  const data = imgData.data;
+  const contrastFactor = 1.6; // boost contrast
+  const brightnessBump = 10; // slight brightness boost
+
+  for (let i = 0; i < data.length; i += 4) {
+    // Convert to greyscale using human-eye luminance weights
+    const grey = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+    // Apply contrast
+    let val = contrastFactor * (grey - 128) + 128 + brightnessBump;
+    val = Math.max(0, Math.min(255, val));
+    // Binarise: if the pixel is darker than threshold treat as near-black, else near-white
+    // This turns slightly-grey text into solid black for cleaner OCR
+    const finalVal = val < 160 ? Math.max(0, val - 20) : Math.min(255, val + 20);
+    data[i] = finalVal;
+    data[i + 1] = finalVal;
+    data[i + 2] = finalVal;
+    // alpha stays as-is
+  }
+  ctx.putImageData(imgData, 0, 0);
+  return out;
+}
+
 async function runOCROnCanvas(canvas) {
+  // Pre-process the image for sharper, higher-contrast text before OCR
+  const processedCanvas = preprocessCanvasForOCR(canvas);
+
   const worker = await Tesseract.createWorker('eng', 1, {
     logger: m => {
       if (m.status === 'recognizing text') {
@@ -1318,7 +1402,16 @@ async function runOCROnCanvas(canvas) {
       }
     }
   });
-  const result = await worker.recognize(canvas);
+
+  // PSM 6: Assume a uniform block of text — better for structured fee receipts
+  // OEM 1: Use LSTM neural-net OCR engine only (highest accuracy)
+  await worker.setParameters({
+    tessedit_pageseg_mode: '6',
+    tessedit_ocr_engine_mode: '1',
+    preserve_interword_spaces: '1'
+  });
+
+  const result = await worker.recognize(processedCanvas);
   await worker.terminate();
   return result.data.text;
 }
@@ -1368,10 +1461,18 @@ async function processReceiptFile(file) {
         img.onerror = reject;
         img.src = url;
       });
+
+      // Upscale small images so OCR has enough pixels to work with
+      // Images under 1800px wide get scaled up 2x for sharper character recognition
+      const MIN_OCR_WIDTH = 1800;
+      const scaleFactor = img.naturalWidth < MIN_OCR_WIDTH ? 2.0 : 1.0;
       canvas = document.createElement('canvas');
-      canvas.width = img.naturalWidth;
-      canvas.height = img.naturalHeight;
-      canvas.getContext('2d').drawImage(img, 0, 0);
+      canvas.width = Math.round(img.naturalWidth * scaleFactor);
+      canvas.height = Math.round(img.naturalHeight * scaleFactor);
+      const ctx = canvas.getContext('2d');
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
       URL.revokeObjectURL(url);
       setOcrProgress(30, 'Image decoded — starting text recognition…');
     }
