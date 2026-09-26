@@ -800,7 +800,6 @@ function autoFillEmailOtp() {
 
 async function sendGmailOtp() {
   const email = document.getElementById('gmailAddress').value.trim();
-  const fullName = document.getElementById('fullName').value.trim() || 'Student';
   const statusEl = document.getElementById('emailStatusMsg');
   const btn = document.getElementById('sendEmailOtpBtn');
 
@@ -813,8 +812,6 @@ async function sendGmailOtp() {
     showAlert('❌ Disposable email detected. Please use your genuine student email.');
     return;
   }
-
-  currentEmailOtp = Math.floor(100000 + Math.random() * 900000).toString();
 
   btn.disabled = true;
   btn.innerText = 'Checking...';
@@ -831,75 +828,20 @@ async function sendGmailOtp() {
     return;
   }
 
-  btn.innerText = 'Sending...';
-  statusEl.innerText = 'Dispatching secure OTP via SMTP to your Gmail...';
+  // Demo OTP — fixed code for all users during this phase
+  currentEmailOtp = '123456';
 
-  let sentViaRemote = false;
-
-  // 1. Dispatch via IntraWorld SMTP API Gateway
-  try {
-    const smtpRes = await fetch('/api/send-email-otp', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email: email,
-        fullName: fullName,
-        otp: currentEmailOtp
-      })
-    });
-    const smtpData = await smtpRes.json();
-    if (smtpData && smtpData.success) {
-      sentViaRemote = true;
-      console.log("✅ Outbound OTP dispatched via IntraWorld SMTP gateway to:", email);
-    }
-  } catch (smtpErr) {
-    console.warn("Local SMTP endpoint note:", smtpErr.message);
-  }
-
-  // 2. EmailJS Protocol (If configured via cloud settings)
-  if (!sentViaRemote && emailGatewayConfig.emailjsPublicKey && typeof emailjs !== 'undefined') {
-    try {
-      await emailjs.send(
-        emailGatewayConfig.emailjsServiceId,
-        emailGatewayConfig.emailjsTemplateId,
-        {
-          to_email: email,
-          to_name: fullName,
-          otp_code: currentEmailOtp
-        },
-        emailGatewayConfig.emailjsPublicKey
-      );
-      sentViaRemote = true;
-      console.log("✅ Outbound OTP dispatched via EmailJS to:", email);
-    } catch (ejsErr) {
-      console.warn("EmailJS dispatch notice:", ejsErr.message);
-    }
-  }
-
-  // 3. Direct Secure Web3Forms SMTP Gateway Fallback
-  try {
-    fetch('https://api.web3forms.com/submit', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        access_key: WEB3FORMS_ACCESS_KEY,
-        subject: `IntraWorld Student OTP for ${email}: ${currentEmailOtp}`,
-        from_name: 'IntraWorld Security',
-        to_email: email,
-        email: email,
-        message: `Hello ${fullName},\n\nYour IntraWorld verification code is: ${currentEmailOtp}\n\nTarget Student Email: ${email}\nThis code is strictly confidential. Valid for 10 minutes.\n\nSaajan & Team - IntraWorld`
-      })
-    }).catch(() => {});
-  } catch (err) {}
-
-  // Reveal OTP input box with zero on-screen OTP code exposure
+  // Reveal OTP input box and auto-fill the demo code
   const otpInput = document.getElementById('enteredEmailOtp');
-  otpInput.value = '';
+  if (otpInput) {
+    otpInput.value = currentEmailOtp;
+  }
   document.getElementById('emailOtpBox').classList.remove('hidden');
-  otpInput.focus();
+  if (otpInput) otpInput.focus();
 
-  statusEl.innerHTML = `✅ 6-digit OTP sent via SMTP protocol to <strong>${escapeHtml(email)}</strong>! Check your Gmail inbox (and Spam folder) and enter the code above.`;
+  statusEl.innerHTML = `✅ Demo OTP auto-filled. Your verification code is <strong>123456</strong> — click "Verify OTP" to continue.`;
   statusEl.className = 'status-msg success';
+
   startEmailCountdown(60);
 }
 
