@@ -60,23 +60,34 @@ async function loadUsers() {
 
     try {
         let snapshot = await getDocs(collection(db, "registrations"));
+        let colSource = "registrations";
         if (snapshot.empty) {
             snapshot = await getDocs(collection(db, "users"));
+            colSource = "users";
         }
 
         snapshot.forEach((docSnap) => {
             const data = docSnap.data();
             data.id = docSnap.id;
-            data.collectionSource = "registrations";
+            data.collectionSource = colSource;
             users.push(data);
         });
 
         updateStats();
-        displayUsers();
     } catch (error) {
         console.error("Database query error:", error.message);
         if (table) {
-            table.innerHTML = `<tr><td colspan="12" style="text-align: center; color: #ef4444; padding: 20px;">Failed to load records. Check database permissions.</td></tr>`;
+            table.innerHTML = `<tr><td colspan="12" style="text-align: center; color: #ef4444; padding: 20px;">Failed to load records from Firestore: ${escapeHtml(error.message)}</td></tr>`;
+        }
+        return;
+    }
+
+    try {
+        displayUsers();
+    } catch (renderError) {
+        console.error("Render error:", renderError);
+        if (table) {
+            table.innerHTML = `<tr><td colspan="12" style="text-align: center; color: #ef4444; padding: 20px;">Error rendering directory table: ${escapeHtml(renderError.message)}</td></tr>`;
         }
     }
 }
@@ -118,70 +129,84 @@ function displayUsers() {
     }
 
     filteredUsers.forEach((user) => {
-        const photo = sanitizeUrl(user.avatar || user.profilePhotoUrl);
-        const fullName = escapeHtml(user.fullName || user.full_name || "N/A");
-        const gender = escapeHtml(user.gender || "Not Specified");
-        let rawPhone = user.mobileNumber || user.mobile || user.phone || "";
-        if (rawPhone && !rawPhone.startsWith("+") && rawPhone.replace(/\D/g, "").length === 10) {
-            rawPhone = "+91 " + rawPhone.replace(/\D/g, "");
-        }
-        const mobile = escapeHtml(rawPhone || "N/A");
-        const college = escapeHtml(user.collegeOrUniversity || user.collegeName || user.college || "N/A");
-        const passout = escapeHtml(user.passoutYear || user.passedOutYear || user.passout_year || "N/A");
-        const isOCR = user.documentVerifiedByOCR === true || user.isDocVerified === true;
-
-        let regDate = "N/A";
-        if (user.createdAt) {
-            try {
-                regDate = user.createdAt.toDate ? user.createdAt.toDate().toLocaleDateString() : new Date(user.createdAt).toLocaleDateString();
-            } catch {
-                regDate = "Recently";
+        try {
+            const photo = sanitizeUrl(user.avatar || user.profilePhotoUrl);
+            const fullName = escapeHtml(user.fullName || user.full_name || "N/A");
+            const gender = escapeHtml(user.gender || "Not Specified");
+            const email = escapeHtml(user.email || "N/A");
+            const qualification = escapeHtml(user.qualification || user.specialization || user.course || "N/A");
+            let rawPhone = user.mobileNumber || user.mobile || user.phone || "";
+            if (rawPhone && !rawPhone.startsWith("+") && rawPhone.replace(/\D/g, "").length === 10) {
+                rawPhone = "+91 " + rawPhone.replace(/\D/g, "");
             }
-        }
+            const mobile = escapeHtml(rawPhone || "N/A");
+            const college = escapeHtml(user.collegeOrUniversity || user.collegeName || user.college || "N/A");
+            const passout = escapeHtml(user.passoutYear || user.passedOutYear || user.passout_year || "N/A");
+            const isOCR = user.documentVerifiedByOCR === true || user.isFeeReceiptVerified === true || user.isDocVerified === true;
 
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-            <td><img class="profile" src="${photo}" alt="Student" onerror="this.src='https://via.placeholder.com/50'"></td>
-            <td><strong>${fullName}</strong></td>
-            <td><span style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; padding: 3px 8px; border-radius: 12px; font-size: 11.5px; font-weight: 600;">${gender}</span></td>
-            <td>${email}</td>
-            <td>${mobile}</td>
-            <td>${qualification}</td>
-            <td>${college}</td>
-            <td>${passout}</td>
-            <td>${escapeHtml(regDate)}</td>
-            <td>
-                <span class="status-badge status-verified">
-                    ${isOCR ? "Verified (OCR)" : "Verified"}
-                </span>
-            </td>
-            <td>
-                <button class="delete" type="button">Delete</button>
-            </td>
-        `;
+            const isPending = user.accountStatus === "PENDING_APPROVAL" || (user.adminApproved === false && user.accountStatus !== "REJECTED");
+            const isRejected = user.accountStatus === "REJECTED";
 
-        const deleteBtn = tr.querySelector(".delete");
-        deleteBtn.addEventListener("click", async () => {
-            const ok = confirm(`Delete student record for ${user.fullName || user.email}? This cannot be undone.`);
-            if (!ok) return;
-
-            deleteBtn.disabled = true;
-            deleteBtn.textContent = "...";
-
-            try {
-                await deleteDoc(doc(db, user.collectionSource || "registrations", user.id));
-                tr.remove();
-                users = users.filter((u) => u.id !== user.id);
-                updateStats();
-            } catch (err) {
-                console.error("Delete failure:", err);
-                alert("Could not remove record: " + err.message);
-                deleteBtn.disabled = false;
-                deleteBtn.textContent = "Delete";
+            let statusBadge = "";
+            if (isRejected) {
+                statusBadge = `<span class="status-badge" style="background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4);">Rejected</span>`;
+            } else if (isPending) {
+                statusBadge = `<span class="status-badge" style="background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.4);">Pending</span>`;
+            } else {
+                statusBadge = `<span class="status-badge status-verified">${isOCR ? "Verified (OCR)" : "Active"}</span>`;
             }
-        });
 
-        table.appendChild(tr);
+            let regDate = "N/A";
+            if (user.createdAt) {
+                try {
+                    regDate = user.createdAt.toDate ? user.createdAt.toDate().toLocaleDateString() : new Date(user.createdAt).toLocaleDateString();
+                } catch {
+                    regDate = "Recently";
+                }
+            }
+
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td><img class="profile" src="${photo}" alt="Student" onerror="this.src='https://via.placeholder.com/50'"></td>
+                <td><strong>${fullName}</strong></td>
+                <td><span style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; padding: 3px 8px; border-radius: 12px; font-size: 11.5px; font-weight: 600;">${gender}</span></td>
+                <td>${email}</td>
+                <td>${mobile}</td>
+                <td>${qualification}</td>
+                <td>${college}</td>
+                <td>${passout}</td>
+                <td>${escapeHtml(regDate)}</td>
+                <td>${statusBadge}</td>
+                <td>
+                    <button class="delete" type="button">Delete</button>
+                </td>
+            `;
+
+            const deleteBtn = tr.querySelector(".delete");
+            deleteBtn.addEventListener("click", async () => {
+                const ok = confirm(`Delete student record for ${user.fullName || user.email}? This cannot be undone.`);
+                if (!ok) return;
+
+                deleteBtn.disabled = true;
+                deleteBtn.textContent = "...";
+
+                try {
+                    await deleteDoc(doc(db, user.collectionSource || "registrations", user.id));
+                    tr.remove();
+                    users = users.filter((u) => u.id !== user.id);
+                    updateStats();
+                } catch (err) {
+                    console.error("Delete failure:", err);
+                    alert("Could not remove record: " + err.message);
+                    deleteBtn.disabled = false;
+                    deleteBtn.textContent = "Delete";
+                }
+            });
+
+            table.appendChild(tr);
+        } catch (rowErr) {
+            console.error("Error rendering user row:", rowErr, user);
+        }
     });
 }
 
