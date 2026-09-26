@@ -216,8 +216,13 @@
 <body>
 
     <header>
-        <h1>IntraWorld Admin Dashboard</h1>
-        <button id="logoutBtn" onclick="if(window.secureLogout)window.secureLogout(event);else{localStorage.clear();sessionStorage.clear();window.location.replace('index.html');}">Logout</button>
+        <h1>IntraWorld Admin Dashboard — Database View</h1>
+        <div style="display:flex;gap:10px;align-items:center;">
+            <a href="admin-approval.html" style="padding:9px 18px;border-radius:8px;background:rgba(245,158,11,0.18);border:1px solid rgba(245,158,11,0.45);color:#f59e0b;font-size:13px;font-weight:700;text-decoration:none;">
+                <i class="fa-solid fa-user-shield"></i> Approval Queue
+            </a>
+            <button id="logoutBtn" onclick="if(window.secureLogout)window.secureLogout(event);else{localStorage.clear();sessionStorage.clear();window.location.replace('index.html');}">Logout</button>
+        </div>
     </header>
 
     <div class="container">

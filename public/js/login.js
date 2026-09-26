@@ -242,6 +242,18 @@ document.addEventListener("DOMContentLoaded", () => {
                     return;
                 }
 
+                // Block login for accounts awaiting admin approval
+                const acctStatus = userData.accountStatus || "";
+                const isApproved = userData.adminApproved === true;
+                if (acctStatus === "PENDING_APPROVAL" || (!isApproved && acctStatus !== "ACTIVE_STUDENT" && acctStatus !== "VERIFIED_GENUINE_STUDENT")) {
+                    showAlert("⏳ Your account is pending admin approval. You will receive access once an admin reviews and approves your profile. Please check back in 24–48 hours.");
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = `<i class="fa-solid fa-right-to-bracket"></i> Login`;
+                    }
+                    return;
+                }
+
                 // Build student session
                 const sessionData = {
                     id: primaryDocSnap ? primaryDocSnap.id : email,

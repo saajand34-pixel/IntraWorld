@@ -1563,6 +1563,13 @@ async function handleRegistrationSubmit(event) {
     return;
   }
 
+  // Fees receipt is mandatory — every student must upload and scan their fee voucher
+  if (!isReceiptScanned) {
+    showAlert('⚠️ Fees Receipt is mandatory. Please upload and scan your college fees receipt under Section 3 before registering.');
+    document.getElementById('receiptUploadArea')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
   // Block registration if OCR found a name on the receipt that clearly does not match
   if (ocrNameMatchStatus === 'mismatch') {
     showAlert('⚠️ Name Mismatch: The name detected on your fees receipt does not match the Full Name you entered. Please correct your Full Name or upload the correct receipt.');
@@ -1627,13 +1634,14 @@ async function handleRegistrationSubmit(event) {
     ambition: ambition.toLowerCase(),
     password,
     trustScore,
-    isVerified: true,
+    isVerified: false,
     documentVerifiedByOCR: isReceiptScanned,
     isFeeReceiptVerified: isReceiptScanned,
     isEmailVerified: isEmailVerified,
     isPhoneVerified: isPhoneVerified,
     isCloudflareVerified: isCloudflareVerified,
-    accountStatus: 'ACTIVE_STUDENT',
+    accountStatus: 'PENDING_APPROVAL',
+    adminApproved: false,
     createdAt: new Date().toISOString()
   };
 
@@ -1664,7 +1672,13 @@ function renderSuccessScreen(fullName, gender, email, phone, trustScore) {
   const phoneEl = document.getElementById('holoPhone');
   if (phoneEl) phoneEl.innerText = phone;
   const scoreText = document.getElementById('successScoreText');
-  if (scoreText) scoreText.innerText = `${trustScore}% Trust Rating (Student Verified)`;
+  if (scoreText) scoreText.innerText = `${trustScore}% Trust Rating — Account Submitted for Admin Approval`;
+
+  // Show pending approval notice
+  const formView = document.getElementById('formView');
+  const pendingBanner = document.createElement('div');
+  pendingBanner.style.cssText = 'background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.4);border-radius:14px;padding:18px 22px;margin-top:18px;text-align:center;font-size:14px;color:#f59e0b;font-weight:600;';
+  pendingBanner.innerHTML = '⏳ Your account is under admin review. You will be able to login once an admin approves your profile. This usually takes 24–48 hours.';
 
   if (typeof confetti === 'function') {
     confetti({
