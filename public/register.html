@@ -656,18 +656,45 @@
           </div>
           <div id="ocrFieldsGrid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
             <div class="form-group" style="margin: 0;">
-              <label style="font-size: 11px; color: #10b981; margin-bottom: 4px; display: block; font-weight: 600;">Course / Degree / Branch (Auto-Filled) <span class="req">*</span></label>
-              <input type="text" id="ocrCourse" placeholder="Auto-detected from ID card" style="width: 100%; background: #180206; border: 1px solid rgba(16,185,129,0.45); border-radius: 10px; padding: 8px 12px; color: #f8fafc; font-size: 12.5px; outline: none;">
+              <label id="ocrCourseLabel" style="font-size: 11px; color: #10b981; margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between; font-weight: 600;">
+                <span>Course / Degree / Branch <span class="req">*</span></span>
+                <span id="ocrCourseLockBadge" style="font-size: 10px; color: #34d399; font-weight: 700;">🔒 Locked</span>
+              </label>
+              <input type="text" id="ocrCourse" readonly placeholder="Auto-detected from ID card" style="width: 100%; background: #130206; border: 1px solid rgba(16,185,129,0.3); border-radius: 10px; padding: 8px 12px; color: #f8fafc; font-size: 12.5px; outline: none; cursor: not-allowed; transition: all 0.2s;">
             </div>
             <div class="form-group" style="margin: 0;">
-              <label style="font-size: 11px; color: #10b981; margin-bottom: 4px; display: block; font-weight: 600;">Student Roll No / USN / Reg ID (Auto-Filled) <span class="req">*</span></label>
-              <input type="text" id="ocrRollNo" placeholder="Auto-detected from ID card" style="width: 100%; background: #180206; border: 1px solid rgba(16,185,129,0.45); border-radius: 10px; padding: 8px 12px; color: #f8fafc; font-size: 12.5px; outline: none;">
+              <label id="ocrRollLabel" style="font-size: 11px; color: #10b981; margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between; font-weight: 600;">
+                <span>Student Roll No / USN / Reg ID <span class="req">*</span></span>
+                <span id="ocrRollLockBadge" style="font-size: 10px; color: #34d399; font-weight: 700;">🔒 Locked</span>
+              </label>
+              <input type="text" id="ocrRollNo" readonly placeholder="Auto-detected from ID card" style="width: 100%; background: #130206; border: 1px solid rgba(16,185,129,0.3); border-radius: 10px; padding: 8px 12px; color: #f8fafc; font-size: 12.5px; outline: none; cursor: not-allowed; transition: all 0.2s;">
             </div>
           </div>
+
+          <!-- EDITING OPTION FOR UNCLEAR IMAGE TEXT -->
+          <div id="ocrEditActionRow" style="margin-top: 10px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; background: rgba(0,0,0,0.25); padding: 8px 12px; border-radius: 10px; border: 1px dashed rgba(245,158,11,0.25);">
+            <div id="ocrFieldLockNote" style="font-size: 11px; color: #94a3b8; display: flex; align-items: center; gap: 6px;">
+              <span>🔒</span>
+              <span>Course &amp; Roll No are locked from verified ID card.</span>
+            </div>
+            <button type="button" id="ocrToggleEditBtn" onclick="toggleOcrFieldEditing()" style="background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.4); border-radius: 8px; color: #f59e0b; font-size: 11px; font-weight: 600; padding: 5px 12px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 5px;">
+              <span>✏️ Image text unclear? Enable editing</span>
+            </button>
+          </div>
+
+          <div id="ocrUnclearNotice" style="display: none; margin-top: 10px; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 10px; padding: 10px 14px;">
+            <div style="font-size: 12px; font-weight: 700; color: #f59e0b; display: flex; align-items: center; gap: 6px;">
+              <span>⚠️</span> <span>Manual Editing Enabled (Unclear Image Text)</span>
+            </div>
+            <div style="font-size: 11px; color: #cbd5e1; margin-top: 3px; line-height: 1.4;">
+              Because card image text was blurry or incomplete, manual editing is enabled for Course &amp; Roll No. Please ensure your details accurately match your physical ID Card (IntraWorld Admins verify this before account approval).
+            </div>
+          </div>
+
           <input type="hidden" id="ocrCollegeName">
           <input type="hidden" id="ocrBatch">
           <div id="ocrAntiCheatBadges" style="margin-top: 10px;"></div>
-          <div style="margin-top: 10px; font-size: 11px; color: #94a3b8;">Course and Roll No are auto-extracted from your ID Card. You can edit them if needed.</div>
+          <div id="ocrFooterHelpText" style="margin-top: 10px; font-size: 11px; color: #94a3b8;">Course and Roll No are auto-extracted and locked to prevent tampering. Editing is only permitted if image text is unclear.</div>
         </div>
 
         <div id="ocrErrorMsg" style="display: none; margin-top: 10px; font-size: 12px; color: #ef4444; background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); border-radius: 10px; padding: 10px 14px;"></div>
@@ -757,6 +784,6 @@
     </div>
   </div>
 
-  <script src="js/register.js?v=37.0"></script>
+  <script src="js/register.js?v=38.0"></script>
 </body>
 </html>

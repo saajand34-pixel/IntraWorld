@@ -89,6 +89,8 @@ let isCloudflareVerified = false;
 let ocrCollegeMatchStatus = 'skipped'; // 'matched' | 'partial' | 'mismatch' | 'skipped'
 let lastScannedCollegeName = '';
 let lastScannedRawText = '';
+let isOcrFieldsEditingAllowed = false;
+let isOcrTextUnclearDetected = false;
 
 let selectedAcademicFile = null;
 let emailCountdownTimer = null;
@@ -1097,6 +1099,15 @@ async function renderPdfPageToCanvas(file) {
   return canvas;
 }
 
+const COLLEGE_STOP_WORDS = new Set([
+  'college', 'colleges', 'institute', 'institutes', 'institution', 'institutions',
+  'university', 'univ', 'vidyapeeth', 'academy', 'first', 'grade', 'school',
+  'of', 'and', 'for', 'in', 'at', 'the', 'autonomous', 'technology', 'technologies',
+  'engineering', 'management', 'science', 'sciences', 'arts', 'commerce', 'campus',
+  'department', 'affiliated', 'bengaluru', 'bangalore', 'india', 'state', 'central',
+  'post', 'graduate', 'studies', 'research', 'centre', 'center'
+]);
+
 // College ID Card Field Extractor
 function extractFieldFromText(rawText) {
   const lines = rawText.split('\n').map(l => l.trim()).filter(l => l.length > 1);
@@ -1142,7 +1153,16 @@ function extractFieldFromText(rawText) {
   let rawCollegeLine = '';
   if (collegeCandidates.length > 0) {
     collegeCandidates.sort((a, b) => scoreCollegeCandidate(b) - scoreCollegeCandidate(a));
-    rawCollegeLine = collegeCandidates[0].line;
+    const bestCand = collegeCandidates[0];
+    rawCollegeLine = bestCand.line;
+
+    // If candidate line is part of a multi-line header (e.g. line 0 is "Seshadripuram", line 1 is "First Grade College")
+    if (bestCand.index > 0 && lines[bestCand.index - 1]) {
+      const prevLine = lines[bestCand.index - 1].replace(/[^a-zA-Z0-9\s]/g, ' ').trim();
+      if (prevLine.length >= 3 && !/identity|student|card|sign|govt|department|trust|educational/i.test(prevLine)) {
+        rawCollegeLine = prevLine + ' ' + rawCollegeLine;
+      }
+    }
   } else {
     // If no explicit keyword, check top 3 lines (on ID cards top line is almost always college name)
     for (let i = 0; i < Math.min(3, lines.length); i++) {
@@ -1156,6 +1176,18 @@ function extractFieldFromText(rawText) {
   }
 
   if (rawCollegeLine) {
+    // If card text contains prominent institution token (e.g. Seshadripuram) not captured in line, include it
+    const enteredCollegeVal = (document.getElementById('manualCollegeName')?.value || '').trim();
+    if (enteredCollegeVal && typeof COLLEGE_STOP_WORDS !== 'undefined') {
+      const enteredWords = enteredCollegeVal.split(/\s+/).filter(w => w.length >= 4 && !COLLEGE_STOP_WORDS.has(w.toLowerCase()));
+      for (const ew of enteredWords) {
+        if (fullText.includes(ew.toUpperCase()) && !rawCollegeLine.toUpperCase().includes(ew.toUpperCase())) {
+          rawCollegeLine = ew + ' ' + rawCollegeLine;
+          break;
+        }
+      }
+    }
+
     let cleaned = rawCollegeLine.replace(/[^a-zA-Z0-9\s\(\)\-,\.&']/g, ' ').replace(/\s+/g, ' ').trim();
     const tokens = cleaned.split(' ').filter(t => t.length > 0);
     let startIdx = 0;
@@ -1321,15 +1353,6 @@ function extractFieldFromText(rawText) {
 // =========================================================================
 // ANTI-CHEAT COLLEGE & NAME VERIFICATION ENGINE
 // =========================================================================
-
-const COLLEGE_STOP_WORDS = new Set([
-  'college', 'colleges', 'institute', 'institutes', 'institution', 'institutions',
-  'university', 'univ', 'vidyapeeth', 'academy', 'first', 'grade', 'school',
-  'of', 'and', 'for', 'in', 'at', 'the', 'autonomous', 'technology', 'technologies',
-  'engineering', 'management', 'science', 'sciences', 'arts', 'commerce', 'campus',
-  'department', 'affiliated', 'bengaluru', 'bangalore', 'india', 'state', 'central',
-  'post', 'graduate', 'studies', 'research', 'centre', 'center'
-]);
 
 function getCollegeAcronym(str) {
   if (!str) return '';
@@ -1614,6 +1637,114 @@ function compareOcrNameWithFormName(idCardName) {
   badgesContainer.insertAdjacentHTML('beforeend', badgeHtml);
 }
 
+// Controls locking and manual editing of Course and Roll No
+function toggleOcrFieldEditing(forceState) {
+  const courseInput = document.getElementById('ocrCourse');
+  const rollInput = document.getElementById('ocrRollNo');
+  const toggleBtn = document.getElementById('ocrToggleEditBtn');
+  const lockNote = document.getElementById('ocrFieldLockNote');
+  const unclearNotice = document.getElementById('ocrUnclearNotice');
+  const courseBadge = document.getElementById('ocrCourseLockBadge');
+  const rollBadge = document.getElementById('ocrRollLockBadge');
+
+  if (typeof forceState === 'boolean') {
+    isOcrFieldsEditingAllowed = forceState;
+  } else {
+    isOcrFieldsEditingAllowed = !isOcrFieldsEditingAllowed;
+  }
+
+  if (isOcrFieldsEditingAllowed) {
+    // UNLOCKED STATE (Manual Editing Enabled)
+    if (courseInput) {
+      courseInput.readOnly = false;
+      courseInput.style.cursor = 'text';
+      courseInput.style.background = '#180206';
+      courseInput.style.borderColor = 'rgba(245,158,11,0.6)';
+      courseInput.style.boxShadow = '0 0 0 1px rgba(245,158,11,0.3)';
+    }
+    if (rollInput) {
+      rollInput.readOnly = false;
+      rollInput.style.cursor = 'text';
+      rollInput.style.background = '#180206';
+      rollInput.style.borderColor = 'rgba(245,158,11,0.6)';
+      rollInput.style.boxShadow = '0 0 0 1px rgba(245,158,11,0.3)';
+    }
+    if (courseBadge) {
+      courseBadge.innerText = '✏️ Unlocked';
+      courseBadge.style.color = '#f59e0b';
+    }
+    if (rollBadge) {
+      rollBadge.innerText = '✏️ Unlocked';
+      rollBadge.style.color = '#f59e0b';
+    }
+    if (toggleBtn) {
+      toggleBtn.innerHTML = '<span>🔒 Lock Fields</span>';
+      toggleBtn.style.background = 'rgba(16,185,129,0.12)';
+      toggleBtn.style.borderColor = 'rgba(16,185,129,0.4)';
+      toggleBtn.style.color = '#10b981';
+    }
+    if (lockNote) {
+      lockNote.innerHTML = '<span>✏️</span> <span style="color:#f59e0b; font-weight:600;">Manual editing active (card image text unclear)</span>';
+    }
+    if (unclearNotice) {
+      unclearNotice.style.display = 'block';
+    }
+  } else {
+    // LOCKED STATE (Fields Protected from Tampering)
+    if (courseInput) {
+      courseInput.readOnly = true;
+      courseInput.style.cursor = 'not-allowed';
+      courseInput.style.background = '#130206';
+      courseInput.style.borderColor = 'rgba(16,185,129,0.3)';
+      courseInput.style.boxShadow = 'none';
+    }
+    if (rollInput) {
+      rollInput.readOnly = true;
+      rollInput.style.cursor = 'not-allowed';
+      rollInput.style.background = '#130206';
+      rollInput.style.borderColor = 'rgba(16,185,129,0.3)';
+      rollInput.style.boxShadow = 'none';
+    }
+    if (courseBadge) {
+      courseBadge.innerText = '🔒 Locked';
+      courseBadge.style.color = '#34d399';
+    }
+    if (rollBadge) {
+      rollBadge.innerText = '🔒 Locked';
+      rollBadge.style.color = '#34d399';
+    }
+    if (toggleBtn) {
+      toggleBtn.innerHTML = '<span>✏️ Image text unclear? Enable editing</span>';
+      toggleBtn.style.background = 'rgba(245,158,11,0.12)';
+      toggleBtn.style.borderColor = 'rgba(245,158,11,0.4)';
+      toggleBtn.style.color = '#f59e0b';
+    }
+    if (lockNote) {
+      lockNote.innerHTML = '<span>🔒</span> <span>Course &amp; Roll No are locked from verified ID card.</span>';
+    }
+    if (unclearNotice) {
+      unclearNotice.style.display = 'none';
+    }
+  }
+}
+
+function attachOcrFieldLockGuards() {
+  ['ocrCourse', 'ocrRollNo'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el || el.dataset.lockGuardAttached) return;
+    el.dataset.lockGuardAttached = 'true';
+    el.addEventListener('click', () => {
+      if (!isOcrFieldsEditingAllowed) {
+        const toggleBtn = document.getElementById('ocrToggleEditBtn');
+        if (toggleBtn) {
+          toggleBtn.style.transform = 'scale(1.05)';
+          setTimeout(() => { toggleBtn.style.transform = 'scale(1)'; }, 200);
+        }
+      }
+    });
+  });
+}
+
 function populateOcrFields(data) {
   const set = (id, val) => {
     const el = document.getElementById(id);
@@ -1627,6 +1758,23 @@ function populateOcrFields(data) {
   // Hidden storage for background persistence
   set('ocrCollegeName', data.college);
   set('ocrBatch', data.batch);
+
+  // Detect whether image text was clear or unclear
+  const hasCourse = Boolean(data.course && data.course.trim().length >= 2);
+  const hasRollNo = Boolean(data.rollNo && data.rollNo.trim().length >= 3);
+  const isTextUnclear = !hasCourse || !hasRollNo || (data.scanMethod === 'OCR' && (!data.rawText || data.rawText.trim().length < 35));
+
+  isOcrTextUnclearDetected = isTextUnclear;
+
+  // If image text is unclear or missing details, automatically activate manual editing
+  // Otherwise, lock both fields securely from tampering!
+  if (isTextUnclear) {
+    toggleOcrFieldEditing(true);
+  } else {
+    toggleOcrFieldEditing(false);
+  }
+
+  attachOcrFieldLockGuards();
 
   // Pre-fill manual batch year if empty
   const manualBatchEl = document.getElementById('manualBatchYear');
@@ -2210,6 +2358,8 @@ async function handleRegistrationSubmit(event) {
     ocrScannedCollege: lastScannedCollegeName || (ocrScannedData?.college || ''),
     ocrScannedCourse: courseVal,
     ocrScannedRollNo: rollNoVal,
+    isOcrManuallyEdited: Boolean(isOcrFieldsEditingAllowed || isOcrTextUnclearDetected),
+    isOcrTextUnclear: Boolean(isOcrTextUnclearDetected),
     createdAt: new Date().toISOString()
   };
 
