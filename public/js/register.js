@@ -650,8 +650,8 @@ function calculateTrustScore() {
   const ambition = (document.getElementById('ambition')?.value || '').trim();
   if (sport && ambition) score += 10;
 
-  // OCR receipt scan bonus
-  if (isReceiptScanned) score += 10;
+  // OCR Student ID card scan bonus
+  if (isIdCardScanned || isReceiptScanned) score += 10;
 
   const finalScore = Math.min(score, 100);
 
@@ -1049,9 +1049,10 @@ function showAlert(msg) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// 8. FEES RECEIPT OCR ENGINE (PDF.js + Tesseract.js)
+// 8. ADVANCED COLLEGE ID CARD OCR ENGINE (Tesseract.js Dual-Mode + Adaptive Preprocessing)
 let ocrScannedData = {};
-let isReceiptScanned = false;
+let isIdCardScanned = false;
+let isReceiptScanned = false; // alias for backward compatibility
 
 function setOcrProgress(percent, statusText) {
   const bar = document.getElementById('ocrProgressBar');
@@ -1083,6 +1084,7 @@ async function renderPdfPageToCanvas(file) {
   return canvas;
 }
 
+// College ID Card Field Extractor
 function extractFieldFromText(rawText) {
   const lines = rawText.split('\n').map(l => l.trim()).filter(l => l.length > 1);
   const fullText = rawText.toUpperCase();
@@ -1091,144 +1093,175 @@ function extractFieldFromText(rawText) {
   let course = '';
   let rollNo = '';
   let batch = '';
+  let studentName = '';
+  let academicYearRaw = '';
+  let currentYearOfStudy = null;
 
-  // ---- COLLEGE NAME (multi-pass, cleaned) ----
-  // First: collect all candidate lines that contain a college keyword
-  const collegeKeywords = ['college', 'institute', 'university', 'school of', 'academy', 'polytechnic'];
+  // ---- 1. COLLEGE / UNIVERSITY NAME ----
+  const collegeKeywords = [
+    'college', 'institute', 'university', 'vidyapeeth', 'academy', 
+    'polytechnic', 'school of', 'campus', 'autonomous', 'first grade', 
+    'degree college', 'engineering', 'technology', 'pu college', 'p.u. college'
+  ];
+
   const collegeCandidates = [];
-  for (const line of lines) {
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
     const lower = line.toLowerCase();
+    // Exclude generic ID card boilerplate
+    if (/identity\s*card|student\s*id|identity\s*pass|smart\s*card|entry\s*pass/i.test(line)) continue;
+
     if (collegeKeywords.some(k => lower.includes(k))) {
-      collegeCandidates.push(line);
+      collegeCandidates.push({ line, index: i });
     }
   }
 
-  // Score each candidate: prefer longer lines with more capital words (title-case proper nouns)
-  // and penalise lines that are mostly numbers or have few real words
-  function scoreCollegeLine(line) {
+  function scoreCollegeCandidate(cand) {
+    const line = cand.line;
     const words = line.split(/\s+/).filter(w => w.length > 0);
     const capitalWords = words.filter(w => /^[A-Z]/.test(w) && w.length >= 3);
     const realWords = words.filter(w => /^[a-zA-Z]{3,}$/.test(w));
-    return (capitalWords.length * 2) + realWords.length - words.filter(w => w.length <= 2).length;
+    // Bonus for lines appearing near top of card (typical for header/institution)
+    const positionBonus = cand.index <= 3 ? 6 : 0;
+    return (capitalWords.length * 3) + realWords.length + positionBonus - words.filter(w => w.length <= 2).length;
   }
 
   let rawCollegeLine = '';
   if (collegeCandidates.length > 0) {
-    collegeCandidates.sort((a, b) => scoreCollegeLine(b) - scoreCollegeLine(a));
-    rawCollegeLine = collegeCandidates[0];
+    collegeCandidates.sort((a, b) => scoreCollegeCandidate(b) - scoreCollegeCandidate(a));
+    rawCollegeLine = collegeCandidates[0].line;
+  } else {
+    // If no explicit keyword, check top 3 lines (on ID cards top line is almost always college name)
+    for (let i = 0; i < Math.min(3, lines.length); i++) {
+      const topL = lines[i].replace(/[^a-zA-Z0-9\s\.\,\'\-]/g, ' ').trim();
+      const words = topL.split(/\s+/).filter(w => w.length >= 2);
+      if (words.length >= 2 && !/identity|student|card|sign|govt|department/i.test(topL)) {
+        rawCollegeLine = topL;
+        break;
+      }
+    }
   }
 
-  // Post-process: strip leading noise tokens (single chars, 1-2 char junk, digits)
-  // then find the first real proper-noun word (3+ chars, starts with letter) and start there
   if (rawCollegeLine) {
-    // Remove non-printable chars and run of special chars
     let cleaned = rawCollegeLine.replace(/[^a-zA-Z0-9\s\(\)\-,\.&']/g, ' ').replace(/\s+/g, ' ').trim();
-
-    // Split into tokens and find where the real college name starts
     const tokens = cleaned.split(' ').filter(t => t.length > 0);
     let startIdx = 0;
-
     for (let i = 0; i < tokens.length; i++) {
       const t = tokens[i];
-      // A legitimate college name token: at least 3 letters, no pure digits, starts with a letter
       if (/^[a-zA-Z]/.test(t) && t.replace(/[^a-zA-Z]/g, '').length >= 3) {
         startIdx = i;
         break;
       }
     }
-
-    // Rebuild from the real start, keep tokens until we've seen the keyword
     let result = tokens.slice(startIdx).join(' ');
-
-    // Title-case the result for neat display
     result = result.replace(/\b([a-z])([a-z]*)/gi, (_, first, rest) => {
-      // Keep short connectors lowercase
       const lower = (first + rest).toLowerCase();
       if (['of', 'and', 'the', 'for', 'in', 'at'].includes(lower)) return lower;
       return first.toUpperCase() + rest.toLowerCase();
     });
-
     college = result.trim();
   }
 
-  // Course / Degree detection — look for common degree abbreviations
-  const coursePattern = /\b(B\.?C\.?A|M\.?C\.?A|B\.?Sc|M\.?Sc|B\.?Com|M\.?Com|B\.?Tech|M\.?Tech|B\.?E|MBA|BBA|B\.?A|M\.?A|Ph\.?D|PGDM|B\.?Pharm|M\.?Pharm|B\.?Ed|M\.?Ed|Diploma)\b/gi;
-  const courseMatch = rawText.match(coursePattern);
-  if (courseMatch && courseMatch.length > 0) {
-    course = courseMatch[0].replace(/\./g, '').trim();
+  // ---- 2. COURSE / DEGREE / BRANCH ----
+  const labeledCoursePattern = /(?:course|class|branch|dept|department|programme|prog|std|degree|stream)[:\s]+([A-Za-z0-9\.\s\(\)\&\-\/]+)/i;
+  const labeledCourseMatch = rawText.match(labeledCoursePattern);
+  if (labeledCourseMatch && labeledCourseMatch[1]) {
+    const rawCourse = labeledCourseMatch[1].split(/\n|\r|;|valid|roll|reg|usn|dob|date/i)[0].trim();
+    if (rawCourse.length >= 2 && rawCourse.length <= 40) {
+      course = rawCourse.replace(/[^A-Za-z0-9\.\s\(\)\&\-\/]/g, '').trim();
+    }
   }
 
-  // Roll / Registration number — numeric or alphanumeric after keywords
-  const rollPattern = /(?:roll\s*no\.?|reg(?:istration)?\s*no\.?|usn|htno|enroll(?:ment)?\s*no\.?)[:\s#]*([A-Z0-9]{5,18})/gi;
-  const rollMatch = rawText.match(rollPattern);
+  // Fallback to standalone degree recognition
+  if (!course) {
+    const coursePattern = /\b(B\.?C\.?A|M\.?C\.?A|B\.?Sc|M\.?Sc|B\.?Com|M\.?Com|B\.?Tech|M\.?Tech|B\.?E|MBA|BBA|B\.?A|M\.?A|Ph\.?D|PGDM|B\.?Pharm|M\.?Pharm|B\.?Ed|M\.?Ed|Diploma|Polytechnic|PUC)\b/gi;
+    const courseMatch = rawText.match(coursePattern);
+    if (courseMatch && courseMatch.length > 0) {
+      course = courseMatch[0].replace(/\./g, '').trim();
+    }
+  }
+
+  // ---- 3. STUDENT ROLL NO / USN / REG ID ----
+  const rollLabelPattern = /(?:roll\s*no\.?|reg(?:istration)?\s*no\.?|usn|id\s*no\.?|student\s*id|adm(?:ission)?\s*no\.?|enroll(?:ment)?\s*no\.?|htno|prn|urn|card\s*no|s\.?no)[:\s#]*([A-Z0-9\/\-]{4,22})/i;
+  const rollMatch = rawText.match(rollLabelPattern);
   if (rollMatch) {
-    const val = rollMatch[0].replace(/roll\s*no\.?|reg(?:istration)?\s*no\.?|usn|htno|enroll(?:ment)?\s*no\.?/gi, '').replace(/[:\s#]/g, '').trim();
-    rollNo = val.toUpperCase();
-  }
-
-  // Academic year raw from receipt — look for patterns like 2025-26, 2025-2026
-  let academicYearRaw = '';
-  const acYearPattern = /\b(20\d{2}[\-–](?:20)?\d{2})\b/;
-  const acYearMatch = rawText.match(acYearPattern);
-  if (acYearMatch) {
-    academicYearRaw = acYearMatch[1];
-    batch = acYearMatch[1]; // default batch = what's on receipt (will be overwritten if we can compute full span)
+    rollNo = rollMatch[1].replace(/[:\s#]/g, '').toUpperCase().trim();
   } else {
-    const standAloneYear = /\b(20\d{2})\b/g;
-    const years = [...rawText.matchAll(standAloneYear)].map(m => m[1]);
-    if (years.length > 0) {
-      academicYearRaw = years[years.length - 1];
-      batch = academicYearRaw;
+    // University USN/Roll formats: e.g. 1SG21CA001, 24CA018, 01FE20BCS001, 2021BCA045
+    const usnPattern = /\b([0-9][A-Z]{2}[0-9]{2}[A-Z]{2}[0-9]{3}|[0-9]{2}[A-Z]{2,4}[0-9]{3,6}|[A-Z]{2,4}[0-9]{4,8})\b/i;
+    const usnMatch = rawText.match(usnPattern);
+    if (usnMatch) {
+      rollNo = usnMatch[1].toUpperCase().trim();
     }
   }
 
-  // Year-of-study detection — supports ordinals (2nd), roman (II), plain number, and semester→year conversion
-  let currentYearOfStudy = null;
+  // ---- 4. ACADEMIC BATCH / VALIDITY / YEAR ----
+  // ID cards typically have "Valid Upto: 2027", "Validity: 2024-2027", "Batch: 2024-2027" or "2025-26"
+  const batchRangePattern = /\b(20\d{2}[\-–](?:20)?\d{2})\b/;
+  const batchMatch = rawText.match(batchRangePattern);
+  if (batchMatch) {
+    academicYearRaw = batchMatch[1];
+    batch = batchMatch[1];
+  } else {
+    const validUptoPattern = /(?:valid\s*(?:upto|till|thru|through)|validity|expires|exp)[:\s]*([A-Za-z0-9\s,\-\/]*\b(20\d{2})\b)/i;
+    const validMatch = rawText.match(validUptoPattern);
+    if (validMatch && validMatch[2]) {
+      academicYearRaw = validMatch[2];
+      batch = validMatch[2];
+    } else {
+      const standAloneYear = /\b(20\d{2})\b/g;
+      const years = [...rawText.matchAll(standAloneYear)].map(m => m[1]);
+      if (years.length > 0) {
+        academicYearRaw = years[years.length - 1];
+        batch = academicYearRaw;
+      }
+    }
+  }
+
+  // Detect current year of study from ID card text
   const romanToNum = { 'I': 1, 'II': 2, 'III': 3, 'IV': 4, 'V': 5, 'VI': 6 };
-
-  // "2nd Year", "3rd Year", "1st Year", "4th Year"
   const ordinalYearMatch = rawText.match(/\b([1-6])(?:st|nd|rd|th)\s*(?:year|yr)\b/i);
-  if (ordinalYearMatch) {
-    currentYearOfStudy = parseInt(ordinalYearMatch[1]);
-  }
+  if (ordinalYearMatch) currentYearOfStudy = parseInt(ordinalYearMatch[1]);
 
   if (!currentYearOfStudy) {
-    // "II Year", "III Year", "I Year"
     const romanYearMatch = rawText.match(/\b(VI?|IV|I{1,3})\s*(?:year|yr)\b/i);
-    if (romanYearMatch) {
-      const key = romanYearMatch[1].toUpperCase();
-      currentYearOfStudy = romanToNum[key] || null;
-    }
+    if (romanYearMatch) currentYearOfStudy = romanToNum[romanYearMatch[1].toUpperCase()] || null;
   }
-
   if (!currentYearOfStudy) {
-    // "Year 2", "Year-3", "Year II"
     const yearNumMatch = rawText.match(/\byear[\s\-]*([1-6])\b/i);
     const yearRomMatch = rawText.match(/\byear[\s\-]*(VI?|IV|I{1,3})\b/i);
     if (yearNumMatch) currentYearOfStudy = parseInt(yearNumMatch[1]);
     else if (yearRomMatch) currentYearOfStudy = romanToNum[yearRomMatch[1].toUpperCase()] || null;
   }
-
   if (!currentYearOfStudy) {
-    // "Semester 3", "Sem-3", "Sem III" → year = ceil(semNum / 2)
     const semNumMatch = rawText.match(/\b(?:semester|sem)[\s\-]*([1-8])\b/i);
     const semRomMatch = rawText.match(/\b(?:semester|sem)[\s\-]*(VI{0,2}|IV|I{1,3})\b/i);
-    if (semNumMatch) {
-      currentYearOfStudy = Math.ceil(parseInt(semNumMatch[1]) / 2);
-    } else if (semRomMatch) {
-      const semNum = romanToNum[semRomMatch[1].toUpperCase()] || 1;
-      currentYearOfStudy = Math.ceil(semNum / 2);
-    }
+    if (semNumMatch) currentYearOfStudy = Math.ceil(parseInt(semNumMatch[1]) / 2);
+    else if (semRomMatch) currentYearOfStudy = Math.ceil((romanToNum[semRomMatch[1].toUpperCase()] || 1) / 2);
   }
 
-  // Student name detection — look for label-prefixed name lines on the receipt
-  let studentName = '';
-  const namePattern = /(?:student[\s\-]*name|name of student|applicant|candidate|name)[:\s]+([A-Za-z]+(?: [A-Za-z]+){1,4})/gi;
-  const nameMatch = rawText.match(namePattern);
-  if (nameMatch && nameMatch.length > 0) {
-    const raw = nameMatch[0].replace(/student[\s\-]*name|name of student|applicant|candidate|name/gi, '').replace(/[:\s]+/, '').trim();
-    const cleaned = raw.replace(/[^a-zA-Z\s]/g, '').trim();
+  // ---- 5. STUDENT NAME DETECTION ----
+  const nameLabelPattern = /(?:student[\s\-]*name|name of student|holder|candidate|name)[:\s]+([A-Za-z]+(?: [A-Za-z]+){1,4})/i;
+  const nameMatch = rawText.match(nameLabelPattern);
+  if (nameMatch && nameMatch[1]) {
+    const cleaned = nameMatch[1].replace(/[^a-zA-Z\s]/g, '').trim();
     if (cleaned.length >= 3) studentName = cleaned;
+  }
+
+  // If label didn't match, check against the form's Full Name (cross-comparison)
+  const formFullName = (document.getElementById('fullName')?.value || '').trim();
+  if (!studentName && formFullName) {
+    const formTokens = formFullName.toLowerCase().split(/\s+/).filter(t => t.length >= 3);
+    for (const line of lines) {
+      const lineLower = line.toLowerCase();
+      if (formTokens.some(t => lineLower.includes(t)) && !collegeKeywords.some(k => lineLower.includes(k))) {
+        const cleanedLine = line.replace(/[^a-zA-Z\s]/g, '').trim();
+        if (cleanedLine.length >= 3) {
+          studentName = cleanedLine;
+          break;
+        }
+      }
+    }
   }
 
   // Course duration table for multi-year batch span calculation
@@ -1238,13 +1271,13 @@ function extractFieldFromText(rawText) {
     'MTECH': 2, 'ME': 2, 'BBA': 3, 'MBA': 2,
     'BA': 3, 'MA': 2, 'BPHARM': 4, 'MPHARM': 2,
     'BED': 2, 'MED': 2, 'DIPLOMA': 3, 'POLYTECHNIC': 3,
-    'PHD': 3
+    'PHD': 3, 'PUC': 2
   };
 
   const normCourse = (course || '').toUpperCase().replace(/[^A-Z]/g, '');
   const courseDuration = COURSE_DURATIONS[normCourse] || 3;
 
-  // Calculate full degree batch (e.g. 2nd year in 2025-2026 BCA -> 2024-2027)
+  // Calculate full degree batch (e.g. 2nd year in 2025-2026 BCA -> 2024-2027, or validity 2027 BCA -> 2024-2027)
   let baseYear = null;
   if (academicYearRaw) {
     const ym = academicYearRaw.match(/(20\d{2})/);
@@ -1256,16 +1289,23 @@ function extractFieldFromText(rawText) {
   }
 
   if (baseYear) {
-    const studyYear = (currentYearOfStudy && currentYearOfStudy >= 1 && currentYearOfStudy <= 6) ? currentYearOfStudy : 1;
-    const admissionYear = baseYear - (studyYear - 1);
-    const passoutYear = admissionYear + courseDuration;
-    batch = `${admissionYear}-${passoutYear}`;
+    // If card shows validity year (e.g. 2027), then graduation = 2027, admission = 2027 - courseDuration
+    if (/valid|expiry|upto|till/i.test(rawText) && baseYear > new Date().getFullYear()) {
+      const graduationYear = baseYear;
+      const admissionYear = graduationYear - courseDuration;
+      batch = `${admissionYear}-${graduationYear}`;
+    } else {
+      const studyYear = (currentYearOfStudy && currentYearOfStudy >= 1 && currentYearOfStudy <= 6) ? currentYearOfStudy : 1;
+      const admissionYear = baseYear - (studyYear - 1);
+      const passoutYear = admissionYear + courseDuration;
+      batch = `${admissionYear}-${passoutYear}`;
+    }
   }
 
   return { college, course, rollNo, batch, studentName, academicYearRaw, currentYearOfStudy, courseDuration };
 }
 
-// Track whether name comparison passed or was skipped (no name found on receipt)
+// Track whether name comparison passed or was skipped
 let ocrNameMatchStatus = 'skipped'; // 'matched' | 'partial' | 'mismatch' | 'skipped'
 
 function normaliseForCompare(str) {
@@ -1283,16 +1323,14 @@ function wordOverlapScore(a, b) {
   return maxWords === 0 ? 0 : matches / maxWords;
 }
 
-function compareOcrNameWithFormName(receiptName) {
-  // Remove old badge if any
+function compareOcrNameWithFormName(idCardName) {
   const oldBadge = document.getElementById('ocrNameMatchBadge');
   if (oldBadge) oldBadge.remove();
 
   const resultCard = document.getElementById('ocrResultCard');
   if (!resultCard) return;
 
-  // If no name detected on the receipt, skip comparison quietly
-  if (!receiptName || receiptName.trim().length < 2) {
+  if (!idCardName || idCardName.trim().length < 2) {
     ocrNameMatchStatus = 'skipped';
     return;
   }
@@ -1303,7 +1341,7 @@ function compareOcrNameWithFormName(receiptName) {
     return;
   }
 
-  const score = wordOverlapScore(receiptName, formName);
+  const score = wordOverlapScore(idCardName, formName);
 
   let badgeHtml = '';
   if (score >= 0.75) {
@@ -1312,19 +1350,19 @@ function compareOcrNameWithFormName(receiptName) {
       <div id="ocrNameMatchBadge" style="margin-top: 12px; display: flex; align-items: flex-start; gap: 10px; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.35); border-radius: 10px; padding: 10px 14px;">
         <span style="font-size: 18px; line-height: 1;">✅</span>
         <div>
-          <div style="font-size: 12px; font-weight: 700; color: #10b981;">Name Verified — Receipt Matches Registration</div>
-          <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">Receipt: <strong style="color:#e2e8f0;">${escapeHtml(receiptName)}</strong> &nbsp;→&nbsp; Form: <strong style="color:#e2e8f0;">${escapeHtml(formName)}</strong></div>
+          <div style="font-size: 12px; font-weight: 700; color: #10b981;">Name Verified — ID Card Matches Registration</div>
+          <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">ID Card: <strong style="color:#e2e8f0;">${escapeHtml(idCardName)}</strong> &nbsp;→&nbsp; Form: <strong style="color:#e2e8f0;">${escapeHtml(formName)}</strong></div>
         </div>
       </div>`;
-  } else if (score >= 0.4) {
+  } else if (score >= 0.35) {
     ocrNameMatchStatus = 'partial';
     badgeHtml = `
       <div id="ocrNameMatchBadge" style="margin-top: 12px; display: flex; align-items: flex-start; gap: 10px; background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.35); border-radius: 10px; padding: 10px 14px;">
         <span style="font-size: 18px; line-height: 1;">⚠️</span>
         <div>
-          <div style="font-size: 12px; font-weight: 700; color: #f59e0b;">Partial Name Match — Please Verify</div>
-          <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">Receipt: <strong style="color:#e2e8f0;">${escapeHtml(receiptName)}</strong> &nbsp;→&nbsp; Form: <strong style="color:#e2e8f0;">${escapeHtml(formName)}</strong></div>
-          <div style="font-size: 11px; color: #f59e0b; margin-top: 4px;">Names partially match. Ensure your Full Name matches the fees receipt exactly.</div>
+          <div style="font-size: 12px; font-weight: 700; color: #f59e0b;">Partial Name Match — Please Verify ID Card</div>
+          <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">ID Card: <strong style="color:#e2e8f0;">${escapeHtml(idCardName)}</strong> &nbsp;→&nbsp; Form: <strong style="color:#e2e8f0;">${escapeHtml(formName)}</strong></div>
+          <div style="font-size: 11px; color: #f59e0b; margin-top: 4px;">Make sure your Full Name accurately reflects your College ID Card.</div>
         </div>
       </div>`;
   } else {
@@ -1333,9 +1371,9 @@ function compareOcrNameWithFormName(receiptName) {
       <div id="ocrNameMatchBadge" style="margin-top: 12px; display: flex; align-items: flex-start; gap: 10px; background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.35); border-radius: 10px; padding: 10px 14px;">
         <span style="font-size: 18px; line-height: 1;">❌</span>
         <div>
-          <div style="font-size: 12px; font-weight: 700; color: #ef4444;">Name Mismatch — Receipt Does Not Match</div>
-          <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">Receipt: <strong style="color:#fda4af;">${escapeHtml(receiptName)}</strong> &nbsp;→&nbsp; Form: <strong style="color:#fda4af;">${escapeHtml(formName)}</strong></div>
-          <div style="font-size: 11px; color: #ef4444; margin-top: 4px;">Please correct your Full Name to match the fees receipt, or upload the correct receipt.</div>
+          <div style="font-size: 12px; font-weight: 700; color: #ef4444;">Name Mismatch — ID Card Name Does Not Match</div>
+          <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">ID Card: <strong style="color:#fda4af;">${escapeHtml(idCardName)}</strong> &nbsp;→&nbsp; Form: <strong style="color:#fda4af;">${escapeHtml(formName)}</strong></div>
+          <div style="font-size: 11px; color: #ef4444; margin-top: 4px;">Please correct your Full Name or upload the correct ID Card.</div>
         </div>
       </div>`;
   }
@@ -1354,12 +1392,13 @@ function populateOcrFields(data) {
   set('ocrBatch', data.batch);
 
   ocrScannedData = data;
-  isReceiptScanned = true;
+  isIdCardScanned = true;
+  isReceiptScanned = true; // backward compatibility
 
   document.getElementById('ocrProgressArea').style.display = 'none';
   document.getElementById('ocrResultCard').style.display = 'block';
 
-  // --- Name comparison ---
+  // Name comparison
   compareOcrNameWithFormName(data.studentName);
 
   // Update upload box to show success state
@@ -1367,15 +1406,45 @@ function populateOcrFields(data) {
   if (uploadBox) {
     uploadBox.style.borderColor = '#10b981';
     uploadBox.style.background = 'rgba(16,185,129,0.06)';
-    uploadBox.querySelector('div').innerText = '✅';
-    uploadBox.querySelectorAll('div')[1].innerText = 'Receipt scanned — click to re-scan';
+    const iconDiv = uploadBox.querySelector('div');
+    if (iconDiv) iconDiv.innerText = '✅';
+    const textDivs = uploadBox.querySelectorAll('div');
+    if (textDivs.length > 1) textDivs[1].innerText = 'College ID Card verified — click to re-scan';
+  }
+
+  // Live recalculate batch if course is changed manually
+  const courseInput = document.getElementById('ocrCourse');
+  if (courseInput && !courseInput.dataset.listenerBound) {
+    courseInput.dataset.listenerBound = 'true';
+    courseInput.addEventListener('input', () => {
+      const newCourse = (courseInput.value || '').trim();
+      const durations = {
+        'BCA': 3, 'MCA': 2, 'BSC': 3, 'MSC': 2,
+        'BCOM': 3, 'MCOM': 2, 'BTECH': 4, 'BE': 4,
+        'MTECH': 2, 'ME': 2, 'BBA': 3, 'MBA': 2,
+        'BA': 3, 'MA': 2, 'BPHARM': 4, 'MPHARM': 2,
+        'BED': 2, 'MED': 2, 'DIPLOMA': 3, 'POLYTECHNIC': 3,
+        'PHD': 3, 'PUC': 2
+      };
+      const dur = durations[newCourse.toUpperCase().replace(/[^A-Z]/g, '')] || 3;
+      if (ocrScannedData.academicYearRaw) {
+        const ym = ocrScannedData.academicYearRaw.match(/(20\d{2})/);
+        if (ym) {
+          const baseYear = parseInt(ym[1]);
+          const studyYear = (ocrScannedData.currentYearOfStudy && ocrScannedData.currentYearOfStudy >= 1 && ocrScannedData.currentYearOfStudy <= 6) ? ocrScannedData.currentYearOfStudy : 1;
+          const admissionYear = baseYear - (studyYear - 1);
+          const passoutYear = admissionYear + dur;
+          const batchEl = document.getElementById('ocrBatch');
+          if (batchEl) batchEl.value = `${admissionYear}-${passoutYear}`;
+        }
+      }
+    });
   }
 
   calculateTrustScore();
 }
 
-// Apply greyscale + contrast boost to the canvas image data before OCR
-// This dramatically improves Tesseract accuracy on real-world receipts
+// Adaptive Contrast & High-Frequency Image Preprocessing for College ID Cards
 function preprocessCanvasForOCR(sourceCanvas) {
   const out = document.createElement('canvas');
   out.width = sourceCanvas.width;
@@ -1385,91 +1454,129 @@ function preprocessCanvasForOCR(sourceCanvas) {
 
   const imgData = ctx.getImageData(0, 0, out.width, out.height);
   const data = imgData.data;
-  const contrastFactor = 1.6; // boost contrast
-  const brightnessBump = 10; // slight brightness boost
+  const len = data.length;
 
-  for (let i = 0; i < data.length; i += 4) {
-    // Convert to greyscale using human-eye luminance weights
-    const grey = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
-    // Apply contrast
-    let val = contrastFactor * (grey - 128) + 128 + brightnessBump;
-    val = Math.max(0, Math.min(255, val));
-    // Binarise: if the pixel is darker than threshold treat as near-black, else near-white
-    // This turns slightly-grey text into solid black for cleaner OCR
-    const finalVal = val < 160 ? Math.max(0, val - 20) : Math.min(255, val + 20);
-    data[i] = finalVal;
-    data[i + 1] = finalVal;
-    data[i + 2] = finalVal;
-    // alpha stays as-is
+  // 1. Calculate luminance histogram (ITU-R BT.709)
+  let minLum = 255;
+  let maxLum = 0;
+  const lumArray = new Uint8ClampedArray(len / 4);
+
+  for (let i = 0, j = 0; i < len; i += 4, j++) {
+    const lum = Math.round(0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2]);
+    lumArray[j] = lum;
+    if (lum < minLum) minLum = lum;
+    if (lum > maxLum) maxLum = lum;
   }
+
+  // Adaptive range stretching
+  const range = Math.max(maxLum - minLum, 45);
+  const scale = 255 / range;
+
+  // 2. Continuous Sigmoidal Contrast Mapping (preserves fine font strokes across colored badges)
+  for (let i = 0, j = 0; i < len; i += 4, j++) {
+    const rawLum = lumArray[j];
+    let stretched = (rawLum - minLum) * scale;
+    let enhanced = stretched < 128
+      ? (stretched * stretched) / 128
+      : 255 - ((255 - stretched) * (255 - stretched)) / 128;
+
+    enhanced = Math.max(0, Math.min(255, Math.round(enhanced)));
+
+    data[i] = enhanced;
+    data[i + 1] = enhanced;
+    data[i + 2] = enhanced;
+  }
+
   ctx.putImageData(imgData, 0, 0);
   return out;
 }
 
+// Dual-Mode Tesseract OCR Runner (PSM 11 Sparse Text for Cards + PSM 3 Automatic Segmentation)
 async function runOCROnCanvas(canvas) {
-  // Pre-process the image for sharper, higher-contrast text before OCR
   const processedCanvas = preprocessCanvasForOCR(canvas);
 
   const worker = await Tesseract.createWorker('eng', 1, {
     logger: m => {
       if (m.status === 'recognizing text') {
         const pct = Math.round((m.progress || 0) * 100);
-        setOcrProgress(30 + Math.round(pct * 0.7), `Reading document text… ${pct}%`);
+        setOcrProgress(30 + Math.round(pct * 0.65), `Scanning ID Card details… ${pct}%`);
       }
     }
   });
 
-  // PSM 6: Assume a uniform block of text — better for structured fee receipts
-  // OEM 1: Use LSTM neural-net OCR engine only (highest accuracy)
+  // Layer 1: PSM 11 (Sparse text) — optimal for ID cards with photos, badges, multi-column layout
   await worker.setParameters({
-    tessedit_pageseg_mode: '6',
+    tessedit_pageseg_mode: '11',
     tessedit_ocr_engine_mode: '1',
     preserve_interword_spaces: '1'
   });
 
-  const result = await worker.recognize(processedCanvas);
+  let result = await worker.recognize(processedCanvas);
+  let text = (result && result.data && result.data.text) ? result.data.text : '';
+
+  // Layer 2: If text is short (< 40 chars), run fallback PSM 3 (Automatic Page Segmentation)
+  if (text.trim().length < 40) {
+    setOcrProgress(75, 'Deep scanning ID Card (Layer 2)…');
+    try {
+      await worker.setParameters({
+        tessedit_pageseg_mode: '3',
+        preserve_interword_spaces: '1'
+      });
+      const result2 = await worker.recognize(canvas);
+      if (result2 && result2.data && result2.data.text && result2.data.text.length > text.length) {
+        text = result2.data.text + '\n' + text;
+      }
+    } catch (e) {
+      console.warn('OCR Layer 2 fallback notice:', e);
+    }
+  }
+
   await worker.terminate();
-  return result.data.text;
+  return text;
 }
 
 async function handleReceiptUpload(event) {
   const file = event.target.files[0];
   if (!file) return;
-  await processReceiptFile(file);
+  await processIdCardFile(file);
 }
+
+const handleIdCardUpload = handleReceiptUpload;
 
 async function handleReceiptDrop(event) {
   event.preventDefault();
-  document.getElementById('receiptUploadArea').style.borderColor = 'rgba(245,158,11,0.35)';
+  const box = document.getElementById('receiptUploadArea');
+  if (box) box.style.borderColor = 'rgba(245,158,11,0.35)';
   const file = event.dataTransfer.files[0];
   if (!file) return;
   if (!file.type.match(/image\/(png|jpe?g|webp|bmp|gif)/) && file.type !== 'application/pdf') {
-    showOcrError('Unsupported file type. Please upload a PNG, JPG, or PDF fees receipt.');
+    showOcrError('Unsupported file format. Please upload a clear JPG, PNG, or PDF of your Student ID Card.');
     return;
   }
-  await processReceiptFile(file);
+  await processIdCardFile(file);
 }
 
-async function processReceiptFile(file) {
+const handleIdCardDrop = handleReceiptDrop;
+
+async function processIdCardFile(file) {
   const progressArea = document.getElementById('ocrProgressArea');
   const errEl = document.getElementById('ocrErrorMsg');
   const resultCard = document.getElementById('ocrResultCard');
 
-  // Reset previous state
   if (errEl) errEl.style.display = 'none';
   if (resultCard) resultCard.style.display = 'none';
   progressArea.style.display = 'block';
-  setOcrProgress(5, 'Loading fees receipt file…');
+  setOcrProgress(5, 'Loading ID Card image…');
 
   try {
     let canvas;
 
     if (file.type === 'application/pdf') {
-      setOcrProgress(15, 'Rendering PDF page…');
+      setOcrProgress(15, 'Rendering ID Card PDF…');
       canvas = await renderPdfPageToCanvas(file);
-      setOcrProgress(30, 'PDF rendered — starting text recognition…');
+      setOcrProgress(30, 'Starting AI text recognition…');
     } else {
-      setOcrProgress(15, 'Decoding image…');
+      setOcrProgress(15, 'Decoding & optimizing ID Card…');
       const img = new Image();
       const url = URL.createObjectURL(file);
       await new Promise((resolve, reject) => {
@@ -1478,10 +1585,9 @@ async function processReceiptFile(file) {
         img.src = url;
       });
 
-      // Upscale small images so OCR has enough pixels to work with
-      // Images under 1800px wide get scaled up 2x for sharper character recognition
-      const MIN_OCR_WIDTH = 1800;
-      const scaleFactor = img.naturalWidth < MIN_OCR_WIDTH ? 2.0 : 1.0;
+      // Upscale ID Card to at least 2200px width for maximum OCR character resolution
+      const TARGET_WIDTH = 2200;
+      const scaleFactor = img.naturalWidth < TARGET_WIDTH ? (TARGET_WIDTH / img.naturalWidth) : 1.0;
       canvas = document.createElement('canvas');
       canvas.width = Math.round(img.naturalWidth * scaleFactor);
       canvas.height = Math.round(img.naturalHeight * scaleFactor);
@@ -1490,14 +1596,14 @@ async function processReceiptFile(file) {
       ctx.imageSmoothingQuality = 'high';
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
       URL.revokeObjectURL(url);
-      setOcrProgress(30, 'Image decoded — starting text recognition…');
+      setOcrProgress(30, 'Starting AI text recognition…');
     }
 
     const rawText = await runOCROnCanvas(canvas);
-    setOcrProgress(100, 'Extraction complete.');
+    setOcrProgress(100, 'ID Card scan complete.');
 
-    if (!rawText || rawText.trim().length < 20) {
-      showOcrError('Could not extract readable text from the document. Please upload a clearer image or PDF.');
+    if (!rawText || rawText.trim().length < 15) {
+      showOcrError('Could not read details clearly from the ID Card. Please upload a brighter, high-resolution photo of your College ID Card.');
       return;
     }
 
@@ -1505,11 +1611,13 @@ async function processReceiptFile(file) {
     populateOcrFields(extracted);
 
   } catch (err) {
-    console.error('OCR Error:', err);
-    showOcrError('An error occurred while scanning the receipt. Please try again with a clearer image.');
+    console.error('ID Card OCR Error:', err);
+    showOcrError('An error occurred while scanning the ID Card. Please upload a clear, well-lit photo.');
     if (progressArea) progressArea.style.display = 'none';
   }
 }
+
+const processReceiptFile = processIdCardFile;
 
 // 9. FINAL REGISTRATION & FIRESTORE DATABASE STORAGE
 async function handleRegistrationSubmit(event) {
@@ -1563,16 +1671,16 @@ async function handleRegistrationSubmit(event) {
     return;
   }
 
-  // Fees receipt is mandatory — every student must upload and scan their fee voucher
-  if (!isReceiptScanned) {
-    showAlert('⚠️ Fees Receipt is mandatory. Please upload and scan your college fees receipt under Section 3 before registering.');
+  // College ID Card is mandatory — every student must upload and scan their Student ID Card
+  if (!isIdCardScanned && !isReceiptScanned) {
+    showAlert('⚠️ College ID Card is mandatory. Please upload and scan your Student ID Card under Section 3 before registering.');
     document.getElementById('receiptUploadArea')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     return;
   }
 
-  // Block registration if OCR found a name on the receipt that clearly does not match
+  // Block registration if OCR found a name on the ID card that clearly does not match
   if (ocrNameMatchStatus === 'mismatch') {
-    showAlert('⚠️ Name Mismatch: The name detected on your fees receipt does not match the Full Name you entered. Please correct your Full Name or upload the correct receipt.');
+    showAlert('⚠️ Name Mismatch: The name detected on your College ID Card does not match the Full Name you entered. Please correct your Full Name or upload the correct ID card.');
     document.getElementById('ocrNameMatchBadge')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     return;
   }
@@ -1635,8 +1743,9 @@ async function handleRegistrationSubmit(event) {
     password,
     trustScore,
     isVerified: false,
-    documentVerifiedByOCR: isReceiptScanned,
-    isFeeReceiptVerified: isReceiptScanned,
+    documentVerifiedByOCR: isIdCardScanned || isReceiptScanned,
+    isIdCardVerified: isIdCardScanned || isReceiptScanned,
+    isFeeReceiptVerified: isIdCardScanned || isReceiptScanned,
     isEmailVerified: isEmailVerified,
     isPhoneVerified: isPhoneVerified,
     isCloudflareVerified: isCloudflareVerified,

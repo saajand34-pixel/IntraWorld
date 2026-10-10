@@ -153,7 +153,7 @@ function displayUsers() {
             } else if (isPending) {
                 statusBadge = `<span class="status-badge" style="background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.4);">Pending</span>`;
             } else {
-                statusBadge = `<span class="status-badge status-verified">${isOCR ? "Verified (OCR)" : "Active"}</span>`;
+                statusBadge = `<span class="status-badge status-verified">${isOCR ? "Verified (ID Card)" : "Active"}</span>`;
             }
 
             let regDate = "N/A";

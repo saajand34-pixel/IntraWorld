@@ -129,7 +129,7 @@ function renderCards() {
         const gender  = escapeHtml(user.gender || "Not Specified");
         const phone   = escapeHtml(user.mobile || user.phone || "");
         const score   = user.trustScore || 0;
-        const ocrOk   = user.documentVerifiedByOCR === true || user.isFeeReceiptVerified === true;
+        const ocrOk   = user.documentVerifiedByOCR === true || user.isFeeReceiptVerified === true || user.isIdCardVerified === true;
         const avatar  = sanitizeUrl(user.avatar || user.profilePhotoUrl);
         const status  = user.accountStatus || "PENDING_APPROVAL";
         const isApproved = user.adminApproved === true && status !== "REJECTED";
@@ -189,7 +189,7 @@ function renderCards() {
 
             <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
                 <span style="font-size:11px;padding:3px 9px;border-radius:10px;font-weight:600;${ocrOk ? 'background:rgba(16,185,129,0.12);color:#10b981;border:1px solid rgba(16,185,129,0.3);' : 'background:rgba(239,68,68,0.1);color:#f87171;border:1px solid rgba(239,68,68,0.25);'}">
-                    ${ocrOk ? "🧾 Receipt Scanned" : "📄 No Receipt"}
+                    ${ocrOk ? "🪪 ID Card Scanned" : "📄 No ID Card"}
                 </span>
                 <span style="font-size:11px;padding:3px 9px;border-radius:10px;font-weight:600;background:rgba(245,158,11,0.1);color:#f59e0b;border:1px solid rgba(245,158,11,0.25);">
                     Trust: ${score}%
