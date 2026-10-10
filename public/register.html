@@ -577,9 +577,32 @@
           <div id="smsStatusMsg" class="status-msg"></div>
         </div>
 
-        <!-- 2. SECURITY PURPOSE QUESTIONS (FOR ACCOUNT RECOVERY) -->
+        <!-- 2. COLLEGE & ACADEMIC INFORMATION (MANUAL ENTRY) -->
         <div class="form-section-title">
-          <span>2. Security Recovery Questions</span>
+          <span>2. College &amp; Academic Information <span style="font-size: 10.5px; color: #94a3b8; font-weight: 400;">(Manual Entry)</span></span>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>College / University Name <span class="req">*</span> <span class="helper">(Will be verified against ID card)</span></label>
+            <div class="input-wrapper">
+              <span class="input-icon"></span>
+              <input type="text" id="manualCollegeName" required placeholder="e.g. Seshadripuram First Grade College, BMSIT" oninput="handleManualCollegeInput(); calculateTrustScore();">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Academic Batch / Passout Year <span class="req">*</span> <span class="helper">(Manual Entry)</span></label>
+            <div class="input-wrapper">
+              <span class="input-icon"></span>
+              <input type="text" id="manualBatchYear" required placeholder="e.g. 2024-2027 or 2025" oninput="calculateTrustScore();">
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. SECURITY PURPOSE QUESTIONS (FOR ACCOUNT RECOVERY) -->
+        <div class="form-section-title">
+          <span>3. Security Recovery Questions</span>
         </div>
 
         <div class="form-row">
@@ -600,9 +623,9 @@
           </div>
         </div>
 
-        <!-- 3. STUDENT COLLEGE ID CARD SCAN (MANDATORY) -->
+        <!-- 4. STUDENT COLLEGE ID CARD SCAN (MANDATORY) -->
         <div class="form-section-title">
-          <span>🪪 3. Student College ID Card Scan <span style="font-size: 10.5px; color: #f59e0b; font-weight: 500;">(Mandatory — AI OCR Verification)</span></span>
+          <span>🪪 4. Student College ID Card Scan <span style="font-size: 10.5px; color: #f59e0b; font-weight: 500;">(Mandatory — Auto-Fills Course &amp; Roll No)</span></span>
         </div>
 
         <div id="receiptUploadArea" style="border: 1.5px dashed rgba(245, 158, 11, 0.35); border-radius: 16px; padding: 22px; background: rgba(24,2,6,0.6); text-align: center; cursor: pointer; transition: all 0.2s;" onclick="document.getElementById('feesReceiptFile').click()" ondragover="event.preventDefault(); this.style.borderColor='#f59e0b';" ondragleave="this.style.borderColor='rgba(245,158,11,0.35)';" ondrop="handleReceiptDrop(event)">
@@ -627,36 +650,31 @@
           <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px; background: rgba(0,0,0,0.25); padding: 10px 14px; border-radius: 10px;">
             <img id="cardThumbPreview" style="display: none; width: 64px; height: 42px; border-radius: 6px; border: 1.5px solid rgba(245,158,11,0.5); object-fit: cover;" alt="ID Card Thumbnail">
             <div>
-              <div style="font-size: 12.5px; font-weight: 700; color: #10b981;" id="ocrSuccessTitle">✅ ID Card Verified — Details Auto-Filled</div>
+              <div style="font-size: 12.5px; font-weight: 700; color: #10b981;" id="ocrSuccessTitle">✅ ID Card Verified — Course &amp; Roll No Auto-Filled</div>
               <div style="font-size: 11px; color: #94a3b8;" id="ocrEngineUsedNote">Dual Engine: QR Code &amp; AI Neural OCR</div>
             </div>
           </div>
           <div id="ocrFieldsGrid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
             <div class="form-group" style="margin: 0;">
-              <label style="font-size: 11px; color: #94a3b8; margin-bottom: 4px; display: block;">College / University Name</label>
-              <input type="text" id="ocrCollegeName" placeholder="Detected college name" style="width: 100%; background: #180206; border: 1px solid rgba(245,158,11,0.25); border-radius: 10px; padding: 8px 12px; color: #f8fafc; font-size: 12.5px; outline: none;">
+              <label style="font-size: 11px; color: #10b981; margin-bottom: 4px; display: block; font-weight: 600;">Course / Degree / Branch (Auto-Filled) <span class="req">*</span></label>
+              <input type="text" id="ocrCourse" placeholder="Auto-detected from ID card" style="width: 100%; background: #180206; border: 1px solid rgba(16,185,129,0.45); border-radius: 10px; padding: 8px 12px; color: #f8fafc; font-size: 12.5px; outline: none;">
             </div>
             <div class="form-group" style="margin: 0;">
-              <label style="font-size: 11px; color: #94a3b8; margin-bottom: 4px; display: block;">Course / Degree / Branch</label>
-              <input type="text" id="ocrCourse" placeholder="Detected course" style="width: 100%; background: #180206; border: 1px solid rgba(245,158,11,0.25); border-radius: 10px; padding: 8px 12px; color: #f8fafc; font-size: 12.5px; outline: none;">
-            </div>
-            <div class="form-group" style="margin: 0;">
-              <label style="font-size: 11px; color: #94a3b8; margin-bottom: 4px; display: block;">Student Roll No / USN / Reg ID</label>
-              <input type="text" id="ocrRollNo" placeholder="Detected roll number" style="width: 100%; background: #180206; border: 1px solid rgba(245,158,11,0.25); border-radius: 10px; padding: 8px 12px; color: #f8fafc; font-size: 12.5px; outline: none;">
-            </div>
-            <div class="form-group" style="margin: 0;">
-              <label style="font-size: 11px; color: #94a3b8; margin-bottom: 4px; display: block;">Academic Batch / Validity</label>
-              <input type="text" id="ocrBatch" placeholder="Detected batch year" style="width: 100%; background: #180206; border: 1px solid rgba(245,158,11,0.25); border-radius: 10px; padding: 8px 12px; color: #f8fafc; font-size: 12.5px; outline: none;">
+              <label style="font-size: 11px; color: #10b981; margin-bottom: 4px; display: block; font-weight: 600;">Student Roll No / USN / Reg ID (Auto-Filled) <span class="req">*</span></label>
+              <input type="text" id="ocrRollNo" placeholder="Auto-detected from ID card" style="width: 100%; background: #180206; border: 1px solid rgba(16,185,129,0.45); border-radius: 10px; padding: 8px 12px; color: #f8fafc; font-size: 12.5px; outline: none;">
             </div>
           </div>
-          <div style="margin-top: 10px; font-size: 11px; color: #94a3b8;">Fields are auto-detected from your ID card. You can edit any field above before submitting.</div>
+          <input type="hidden" id="ocrCollegeName">
+          <input type="hidden" id="ocrBatch">
+          <div id="ocrAntiCheatBadges" style="margin-top: 10px;"></div>
+          <div style="margin-top: 10px; font-size: 11px; color: #94a3b8;">Course and Roll No are auto-extracted from your ID Card. You can edit them if needed.</div>
         </div>
 
         <div id="ocrErrorMsg" style="display: none; margin-top: 10px; font-size: 12px; color: #ef4444; background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); border-radius: 10px; padding: 10px 14px;"></div>
 
-        <!-- 4. ANTI-BOT SECURITY -->
+        <!-- 5. ANTI-BOT SECURITY -->
         <div class="form-section-title">
-          <span>⚡ 4. Anti-Bot Security Challenge</span>
+          <span>⚡ 5. Anti-Bot Security Challenge</span>
         </div>
 
         <div class="cloud-flare-box" id="cfBoxWrap" onclick="triggerCloudflareCheck()">
@@ -672,9 +690,9 @@
           <div style="font-size: 10px; font-family: 'JetBrains Mono', monospace; color: #64748b;">Cloudflare</div>
         </div>
 
-        <!-- 4. PASSWORD -->
+        <!-- 6. PASSWORD -->
         <div class="form-section-title">
-          <span>5. Password</span>
+          <span>6. Password</span>
         </div>
 
         <div class="form-row">
@@ -739,6 +757,6 @@
     </div>
   </div>
 
-  <script src="js/register.js?v=36.0"></script>
+  <script src="js/register.js?v=37.0"></script>
 </body>
 </html>

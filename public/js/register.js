@@ -86,6 +86,9 @@ let isEmailVerified = false;
 let isPhoneVerified = false;
 let isDocVerified = false;
 let isCloudflareVerified = false;
+let ocrCollegeMatchStatus = 'skipped'; // 'matched' | 'partial' | 'mismatch' | 'skipped'
+let lastScannedCollegeName = '';
+let lastScannedRawText = '';
 
 let selectedAcademicFile = null;
 let emailCountdownTimer = null;
@@ -630,28 +633,38 @@ function calculateTrustScore() {
   let score = 0;
 
   const fullName = (document.getElementById('fullName')?.value || '').trim();
-  if (fullName.length >= 2) score += 15;
+  if (fullName.length >= 2) score += 10;
 
   const gender = document.getElementById('gender')?.value || '';
-  if (gender) score += 10;
+  if (gender) score += 5;
 
   const email = (document.getElementById('gmailAddress')?.value || '').trim();
-  if (isEmailVerified) score += 30;
+  if (isEmailVerified) score += 25;
   else if (email.includes('@') && !isDisposableEmail(email)) score += 10;
 
   const rawPhone = (document.getElementById('mobileNumber')?.value || '').trim();
   const phoneDigits = sanitizeIndianPhone(rawPhone);
-  if (isPhoneVerified) score += 25;
+  if (isPhoneVerified) score += 20;
   else if (phoneDigits.length === 10) score += 10;
+
+  // Manual College & Batch validation
+  const manualCollege = (document.getElementById('manualCollegeName')?.value || '').trim();
+  if (manualCollege.length >= 3) score += 10;
+
+  const manualBatch = (document.getElementById('manualBatchYear')?.value || '').trim();
+  if (manualBatch.length >= 2) score += 5;
 
   if (isCloudflareVerified) score += 10;
 
   const sport = (document.getElementById('favouriteSport')?.value || '').trim();
   const ambition = (document.getElementById('ambition')?.value || '').trim();
-  if (sport && ambition) score += 10;
+  if (sport && ambition) score += 5;
 
   // OCR Student ID card scan bonus
-  if (isIdCardScanned || isReceiptScanned) score += 10;
+  if (isIdCardScanned || isReceiptScanned) score += 5;
+
+  // Anti-cheat verified college match bonus
+  if (ocrCollegeMatchStatus === 'matched') score += 5;
 
   const finalScore = Math.min(score, 100);
 
@@ -1305,6 +1318,226 @@ function extractFieldFromText(rawText) {
   return { college, course, rollNo, batch, studentName, academicYearRaw, currentYearOfStudy, courseDuration };
 }
 
+// =========================================================================
+// ANTI-CHEAT COLLEGE & NAME VERIFICATION ENGINE
+// =========================================================================
+
+const COLLEGE_STOP_WORDS = new Set([
+  'college', 'colleges', 'institute', 'institutes', 'institution', 'institutions',
+  'university', 'univ', 'vidyapeeth', 'academy', 'first', 'grade', 'school',
+  'of', 'and', 'for', 'in', 'at', 'the', 'autonomous', 'technology', 'technologies',
+  'engineering', 'management', 'science', 'sciences', 'arts', 'commerce', 'campus',
+  'department', 'affiliated', 'bengaluru', 'bangalore', 'india', 'state', 'central',
+  'post', 'graduate', 'studies', 'research', 'centre', 'center'
+]);
+
+function getCollegeAcronym(str) {
+  if (!str) return '';
+  const clean = String(str).trim();
+  const upperOnly = clean.replace(/[^A-Za-z]/g, '');
+  if (/^[A-Z]{2,7}$/.test(upperOnly) && clean.toUpperCase() === clean) {
+    return upperOnly.toUpperCase();
+  }
+  const words = clean.split(/[\s\-_\/\.]+/).filter(Boolean);
+  const initials = [];
+  for (const w of words) {
+    const lw = w.toLowerCase().replace(/[^a-z]/g, '');
+    if (['of', 'and', 'the', 'for', 'in', 'at'].includes(lw)) continue;
+    if (/^[A-Za-z]/.test(w)) {
+      initials.push(w[0].toUpperCase());
+    }
+  }
+  return initials.join('');
+}
+
+function normaliseCollegeString(str) {
+  if (!str) return { raw: '', cleaned: '', words: [], coreTokens: [], acronym: '' };
+  const raw = String(str).trim();
+  const cleaned = raw.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
+  const words = cleaned.split(' ').filter(w => w.length > 0);
+  const coreTokens = words.filter(w => !COLLEGE_STOP_WORDS.has(w) && w.length >= 2);
+  const acronym = getCollegeAcronym(raw);
+  return { raw, cleaned, words, coreTokens, acronym };
+}
+
+function calculateCollegeMatchScore(scannedCollege, enteredCollege, cardRawText) {
+  if (!scannedCollege && !cardRawText) return { score: 1.0, reason: 'skipped' };
+  if (!enteredCollege) return { score: 0.0, reason: 'missing_entered' };
+
+  const normEntered = normaliseCollegeString(enteredCollege);
+  const normScanned = normaliseCollegeString(scannedCollege);
+  const fullRawTextClean = (cardRawText || '').toLowerCase().replace(/[^a-z0-9\s]/g, ' ');
+
+  // 1. Direct normalized string containment
+  if (normEntered.cleaned && normScanned.cleaned) {
+    if (normEntered.cleaned === normScanned.cleaned) {
+      return { score: 1.0, reason: 'exact_string' };
+    }
+    if (normEntered.cleaned.length >= 5 && normScanned.cleaned.includes(normEntered.cleaned)) {
+      return { score: 0.95, reason: 'substring_scanned' };
+    }
+    if (normScanned.cleaned.length >= 5 && normEntered.cleaned.includes(normScanned.cleaned)) {
+      return { score: 0.95, reason: 'substring_entered' };
+    }
+  }
+
+  // 2. Acronym Match (e.g. SFGC <-> Seshadripuram First Grade College, BMSIT <-> BMS Institute of Technology)
+  const entAcr = (normEntered.acronym || '').toUpperCase();
+  const scnAcr = (normScanned.acronym || '').toUpperCase();
+
+  if (entAcr.length >= 2 && scnAcr.length >= 2) {
+    if (entAcr === scnAcr) {
+      return { score: 1.0, reason: 'acronym_exact' };
+    }
+    if (entAcr.includes(scnAcr) || scnAcr.includes(entAcr)) {
+      return { score: 0.9, reason: 'acronym_subset' };
+    }
+  }
+
+  // Check if entered acronym appears anywhere in card raw text
+  if (entAcr.length >= 2 && fullRawTextClean.includes(entAcr.toLowerCase())) {
+    return { score: 0.92, reason: 'acronym_in_raw_card' };
+  }
+
+  // 3. Core Distinct Token Overlap (e.g. "Seshadripuram", "BMS", "Oxford", "Channabasaveshwara")
+  const enteredCore = normEntered.coreTokens;
+  const scannedCore = normScanned.coreTokens;
+
+  let matchedCoreCount = 0;
+  for (const token of enteredCore) {
+    if (token.length < 3) continue;
+    // Check in scanned core tokens
+    if (scannedCore.some(st => st.includes(token) || token.includes(st) || levenshteinDist(token, st) <= 1)) {
+      matchedCoreCount++;
+    } else if (fullRawTextClean.includes(token)) {
+      // Token found anywhere in OCR text of the card
+      matchedCoreCount++;
+    }
+  }
+
+  if (enteredCore.length > 0) {
+    const coreRatio = matchedCoreCount / enteredCore.length;
+    if (coreRatio >= 0.5) {
+      return { score: 0.88, reason: 'core_tokens_match' };
+    }
+    if (matchedCoreCount >= 1) {
+      return { score: 0.78, reason: 'single_strong_token_match' };
+    }
+  }
+
+  // Check if any scanned core token appears in entered string
+  for (const st of scannedCore) {
+    if (st.length >= 4 && normEntered.cleaned.includes(st)) {
+      return { score: 0.85, reason: 'scanned_token_in_entered' };
+    }
+  }
+
+  // If card has recognizable distinct college name, but user entered a completely conflicting institution
+  if (scannedCore.length > 0 && enteredCore.length > 0 && matchedCoreCount === 0) {
+    return { score: 0.05, reason: 'conflicting_institutions' };
+  }
+
+  // Fallback Levenshtein on cleaned string
+  if (normEntered.cleaned.length >= 4 && normScanned.cleaned.length >= 4) {
+    const dist = levenshteinDist(normEntered.cleaned, normScanned.cleaned);
+    const maxLen = Math.max(normEntered.cleaned.length, normScanned.cleaned.length);
+    const sim = 1 - (dist / maxLen);
+    if (sim >= 0.65) {
+      return { score: sim, reason: 'fuzzy_levenshtein' };
+    }
+  }
+
+  return { score: 0.1, reason: 'no_match' };
+}
+
+function compareOcrCollegeWithFormCollege(scannedCollege, cardRawText) {
+  lastScannedCollegeName = scannedCollege || lastScannedCollegeName || '';
+  lastScannedRawText = cardRawText || lastScannedRawText || '';
+
+  const badgesContainer = document.getElementById('ocrAntiCheatBadges');
+  if (!badgesContainer) return;
+
+  const oldBadge = document.getElementById('ocrCollegeMatchBadge');
+  if (oldBadge) oldBadge.remove();
+
+  const enteredCollege = (document.getElementById('manualCollegeName')?.value || '').trim();
+
+  // If card had no recognizable college name and no text, mark as unverified without hard-blocking
+  if (!lastScannedCollegeName && !lastScannedRawText) {
+    ocrCollegeMatchStatus = 'skipped';
+    const badgeHtml = `
+      <div id="ocrCollegeMatchBadge" style="margin-top: 10px; display: flex; align-items: flex-start; gap: 10px; background: rgba(56,189,248,0.08); border: 1px solid rgba(56,189,248,0.3); border-radius: 10px; padding: 10px 14px;">
+        <span style="font-size: 18px; line-height: 1;">ℹ️</span>
+        <div>
+          <div style="font-size: 12px; font-weight: 700; color: #38bdf8;">College Name: ID Card Scanned</div>
+          <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">Institution text will be verified by Administrator upon submission.</div>
+        </div>
+      </div>`;
+    badgesContainer.insertAdjacentHTML('beforeend', badgeHtml);
+    return;
+  }
+
+  // If user hasn't entered anything yet in manual field, prompt them
+  if (!enteredCollege) {
+    ocrCollegeMatchStatus = 'pending';
+    const badgeHtml = `
+      <div id="ocrCollegeMatchBadge" style="margin-top: 10px; display: flex; align-items: flex-start; gap: 10px; background: rgba(56,189,248,0.08); border: 1px solid rgba(56,189,248,0.3); border-radius: 10px; padding: 10px 14px;">
+        <span style="font-size: 18px; line-height: 1;">ℹ️</span>
+        <div>
+          <div style="font-size: 12px; font-weight: 700; color: #38bdf8;">College Anti-Cheat: Verification Ready</div>
+          <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">Please enter your College Name under Section 2 above to complete anti-cheat cross-verification.</div>
+        </div>
+      </div>`;
+    badgesContainer.insertAdjacentHTML('beforeend', badgeHtml);
+    return;
+  }
+
+  const { score } = calculateCollegeMatchScore(lastScannedCollegeName, enteredCollege, lastScannedRawText);
+
+  let badgeHtml = '';
+  if (score >= 0.70) {
+    ocrCollegeMatchStatus = 'matched';
+    badgeHtml = `
+      <div id="ocrCollegeMatchBadge" style="margin-top: 10px; display: flex; align-items: flex-start; gap: 10px; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.35); border-radius: 10px; padding: 10px 14px;">
+        <span style="font-size: 18px; line-height: 1;">🛡️</span>
+        <div>
+          <div style="font-size: 12px; font-weight: 700; color: #10b981;">College Anti-Cheat Verified — Matches Uploaded ID Card</div>
+          <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">Entered: <strong style="color:#e2e8f0;">${escapeHtml(enteredCollege)}</strong> &nbsp;↔&nbsp; ID Card: <strong style="color:#e2e8f0;">${escapeHtml(lastScannedCollegeName || 'Verified on Card')}</strong></div>
+        </div>
+      </div>`;
+  } else if (score >= 0.40) {
+    ocrCollegeMatchStatus = 'partial';
+    badgeHtml = `
+      <div id="ocrCollegeMatchBadge" style="margin-top: 10px; display: flex; align-items: flex-start; gap: 10px; background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.35); border-radius: 10px; padding: 10px 14px;">
+        <span style="font-size: 18px; line-height: 1;">⚠️</span>
+        <div>
+          <div style="font-size: 12px; font-weight: 700; color: #f59e0b;">Partial College Match — Review Recommended</div>
+          <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">Entered: <strong style="color:#e2e8f0;">${escapeHtml(enteredCollege)}</strong> &nbsp;↔&nbsp; ID Card: <strong style="color:#e2e8f0;">${escapeHtml(lastScannedCollegeName || 'Card Scanned')}</strong></div>
+          <div style="font-size: 11px; color: #f59e0b; margin-top: 4px;">Please ensure your entered College Name matches the institution printed on your ID card.</div>
+        </div>
+      </div>`;
+  } else {
+    ocrCollegeMatchStatus = 'mismatch';
+    badgeHtml = `
+      <div id="ocrCollegeMatchBadge" style="margin-top: 10px; display: flex; align-items: flex-start; gap: 10px; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.45); border-radius: 10px; padding: 10px 14px;">
+        <span style="font-size: 18px; line-height: 1;">🚨</span>
+        <div>
+          <div style="font-size: 12px; font-weight: 700; color: #ef4444;">Anti-Cheat Alert: College Name Mismatch Detected!</div>
+          <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">Entered College: <strong style="color:#fda4af;">${escapeHtml(enteredCollege)}</strong> &nbsp;≠&nbsp; ID Card Institution: <strong style="color:#fda4af;">${escapeHtml(lastScannedCollegeName || 'Different Institution')}</strong></div>
+          <div style="font-size: 11px; color: #ef4444; margin-top: 4px; font-weight: 600;">The college you entered does not match your uploaded ID card. Please enter your genuine college or upload your own ID card.</div>
+        </div>
+      </div>`;
+  }
+
+  badgesContainer.insertAdjacentHTML('beforeend', badgeHtml);
+}
+
+function handleManualCollegeInput() {
+  if (lastScannedCollegeName || lastScannedRawText) {
+    compareOcrCollegeWithFormCollege(lastScannedCollegeName, lastScannedRawText);
+  }
+}
+
 // Track whether name comparison passed or was skipped
 let ocrNameMatchStatus = 'skipped'; // 'matched' | 'partial' | 'mismatch' | 'skipped'
 
@@ -1324,11 +1557,11 @@ function wordOverlapScore(a, b) {
 }
 
 function compareOcrNameWithFormName(idCardName) {
+  const badgesContainer = document.getElementById('ocrAntiCheatBadges') || document.getElementById('ocrResultCard');
+  if (!badgesContainer) return;
+
   const oldBadge = document.getElementById('ocrNameMatchBadge');
   if (oldBadge) oldBadge.remove();
-
-  const resultCard = document.getElementById('ocrResultCard');
-  if (!resultCard) return;
 
   if (!idCardName || idCardName.trim().length < 2) {
     ocrNameMatchStatus = 'skipped';
@@ -1347,7 +1580,7 @@ function compareOcrNameWithFormName(idCardName) {
   if (score >= 0.75) {
     ocrNameMatchStatus = 'matched';
     badgeHtml = `
-      <div id="ocrNameMatchBadge" style="margin-top: 12px; display: flex; align-items: flex-start; gap: 10px; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.35); border-radius: 10px; padding: 10px 14px;">
+      <div id="ocrNameMatchBadge" style="margin-top: 10px; display: flex; align-items: flex-start; gap: 10px; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.35); border-radius: 10px; padding: 10px 14px;">
         <span style="font-size: 18px; line-height: 1;">✅</span>
         <div>
           <div style="font-size: 12px; font-weight: 700; color: #10b981;">Name Verified — ID Card Matches Registration</div>
@@ -1357,7 +1590,7 @@ function compareOcrNameWithFormName(idCardName) {
   } else if (score >= 0.35) {
     ocrNameMatchStatus = 'partial';
     badgeHtml = `
-      <div id="ocrNameMatchBadge" style="margin-top: 12px; display: flex; align-items: flex-start; gap: 10px; background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.35); border-radius: 10px; padding: 10px 14px;">
+      <div id="ocrNameMatchBadge" style="margin-top: 10px; display: flex; align-items: flex-start; gap: 10px; background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.35); border-radius: 10px; padding: 10px 14px;">
         <span style="font-size: 18px; line-height: 1;">⚠️</span>
         <div>
           <div style="font-size: 12px; font-weight: 700; color: #f59e0b;">Partial Name Match — Please Verify ID Card</div>
@@ -1368,7 +1601,7 @@ function compareOcrNameWithFormName(idCardName) {
   } else {
     ocrNameMatchStatus = 'mismatch';
     badgeHtml = `
-      <div id="ocrNameMatchBadge" style="margin-top: 12px; display: flex; align-items: flex-start; gap: 10px; background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.35); border-radius: 10px; padding: 10px 14px;">
+      <div id="ocrNameMatchBadge" style="margin-top: 10px; display: flex; align-items: flex-start; gap: 10px; background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.35); border-radius: 10px; padding: 10px 14px;">
         <span style="font-size: 18px; line-height: 1;">❌</span>
         <div>
           <div style="font-size: 12px; font-weight: 700; color: #ef4444;">Name Mismatch — ID Card Name Does Not Match</div>
@@ -1378,7 +1611,7 @@ function compareOcrNameWithFormName(idCardName) {
       </div>`;
   }
 
-  resultCard.insertAdjacentHTML('beforeend', badgeHtml);
+  badgesContainer.insertAdjacentHTML('beforeend', badgeHtml);
 }
 
 function populateOcrFields(data) {
@@ -1386,22 +1619,31 @@ function populateOcrFields(data) {
     const el = document.getElementById(id);
     if (el && val) el.value = val;
   };
-  set('ocrCollegeName', data.college);
+
+  // Auto-fill STRICTLY Course and Roll No as requested
   set('ocrCourse', data.course);
   set('ocrRollNo', data.rollNo);
+
+  // Hidden storage for background persistence
+  set('ocrCollegeName', data.college);
   set('ocrBatch', data.batch);
 
-  // Auto-fill student name in main form if not already typed (matching bca.sfgc.in behavior)
+  // Pre-fill manual batch year if empty
+  const manualBatchEl = document.getElementById('manualBatchYear');
+  if (manualBatchEl && !manualBatchEl.value.trim() && data.batch) {
+    manualBatchEl.value = data.batch;
+    manualBatchEl.dataset.autoFilled = 'true';
+  }
+
+  // Auto-fill student name in main form if not already typed
   const fullNameInput = document.getElementById('fullName');
-  if (fullNameInput && data.studentName) {
-    if (!fullNameInput.value.trim()) {
-      fullNameInput.value = data.studentName;
-    }
+  if (fullNameInput && data.studentName && !fullNameInput.value.trim()) {
+    fullNameInput.value = data.studentName;
   }
 
   ocrScannedData = data;
   isIdCardScanned = true;
-  isReceiptScanned = true; // backward compatibility
+  isReceiptScanned = true;
 
   document.getElementById('ocrProgressArea').style.display = 'none';
   const resultCard = document.getElementById('ocrResultCard');
@@ -1413,15 +1655,20 @@ function populateOcrFields(data) {
   if (successTitle) {
     successTitle.innerText = data.scanMethod === 'QR' 
       ? '✅ ID Card Verified via QR Code (100% Accuracy)' 
-      : '✅ ID Card Scan Complete — Student Details Verified';
+      : '✅ ID Card Scan Complete — Course & Roll No Auto-Filled';
   }
   if (engineNote) {
     engineNote.innerText = data.scanMethod === 'QR'
-      ? 'Verified from card digital QR barcode • 100% accurate'
+      ? 'Verified from card digital QR barcode • Course & Roll No extracted'
       : 'Extracted via High-Resolution AI OCR Neural Engine';
   }
 
-  // Name comparison badge
+  // Cross-compare College Name against manual entry (Anti-Cheat)
+  lastScannedCollegeName = data.college || '';
+  lastScannedRawText = data.rawQr || data.rawText || '';
+  compareOcrCollegeWithFormCollege(lastScannedCollegeName, lastScannedRawText);
+
+  // Cross-compare Student Name against manual entry
   compareOcrNameWithFormName(data.studentName);
 
   // Update upload box to show success state
@@ -1439,7 +1686,7 @@ function populateOcrFields(data) {
     }
   }
 
-  // Live recalculate batch if course is changed manually
+  // Live recalculate batch if course is changed manually in ocrCourse
   const courseInput = document.getElementById('ocrCourse');
   if (courseInput && !courseInput.dataset.listenerBound) {
     courseInput.dataset.listenerBound = 'true';
@@ -1454,7 +1701,7 @@ function populateOcrFields(data) {
         'PHD': 3, 'PUC': 2
       };
       const dur = durations[newCourse.toUpperCase().replace(/[^A-Z]/g, '')] || 3;
-      if (ocrScannedData.academicYearRaw) {
+      if (ocrScannedData && ocrScannedData.academicYearRaw) {
         const ym = ocrScannedData.academicYearRaw.match(/(20\d{2})/);
         if (ym) {
           const baseYear = parseInt(ym[1]);
@@ -1463,6 +1710,11 @@ function populateOcrFields(data) {
           const passoutYear = admissionYear + dur;
           const batchEl = document.getElementById('ocrBatch');
           if (batchEl) batchEl.value = `${admissionYear}-${passoutYear}`;
+          const mBatchEl = document.getElementById('manualBatchYear');
+          if (mBatchEl && (!mBatchEl.value.trim() || mBatchEl.dataset.autoFilled === 'true')) {
+            mBatchEl.value = `${admissionYear}-${passoutYear}`;
+            mBatchEl.dataset.autoFilled = 'true';
+          }
         }
       }
     });
@@ -1754,7 +2006,7 @@ async function processIdCardFile(file) {
     }
 
     const extracted = extractFieldFromText(rawText);
-    populateOcrFields({ ...extracted, scanMethod: 'OCR' });
+    populateOcrFields({ ...extracted, rawText, scanMethod: 'OCR' });
 
   } catch (err) {
     console.error('ID Card OCR Error:', err);
@@ -1780,20 +2032,88 @@ async function handleRegistrationSubmit(event) {
   const email = document.getElementById('gmailAddress').value.trim();
   const phone = document.getElementById('mobileNumber').value.trim();
 
-  // Security Questions (Case-Insensitive)
+  // Section 2: College & Academic Information (Manual Entry)
+  const manualCollege = (document.getElementById('manualCollegeName')?.value || '').trim();
+  const manualBatch = (document.getElementById('manualBatchYear')?.value || '').trim();
+
+  // Section 3: Security Questions (Case-Insensitive)
   const favouriteSport = document.getElementById('favouriteSport').value.trim();
   const ambition = document.getElementById('ambition').value.trim();
+
+  // Section 4: OCR Scanned Course & Roll No
+  const courseVal = (document.getElementById('ocrCourse')?.value || '').trim();
+  const rollNoVal = (document.getElementById('ocrRollNo')?.value || '').trim();
 
   const password = document.getElementById('password').value;
   const confirmPassword = document.getElementById('confirmPassword').value;
 
   if (!fullName || fullName.length < 2) {
-    showAlert('Please enter your full name.');
+    showAlert('Please enter your full name under Section 1.');
+    document.getElementById('fullName')?.focus();
     return;
   }
 
   if (!gender) {
     showAlert('Please select your gender.');
+    document.getElementById('gender')?.focus();
+    return;
+  }
+
+  // Section 2 validations
+  if (!manualCollege || manualCollege.length < 3) {
+    showAlert('Please enter your College / University Name under Section 2.');
+    document.getElementById('manualCollegeName')?.focus();
+    return;
+  }
+
+  if (!manualBatch || manualBatch.length < 2) {
+    showAlert('Please enter your Academic Batch / Passout Year under Section 2 (e.g. 2024-2027 or 2025).');
+    document.getElementById('manualBatchYear')?.focus();
+    return;
+  }
+
+  if (!favouriteSport || !ambition) {
+    showAlert('Please answer both Security Questions (Favourite Sport & Ambition) for password recovery.');
+    return;
+  }
+
+  // Section 4: College ID Card is mandatory
+  if (!isIdCardScanned && !isReceiptScanned) {
+    showAlert('⚠️ College ID Card is mandatory. Please upload and scan your Student ID Card under Section 4 before registering.');
+    document.getElementById('receiptUploadArea')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
+  if (!courseVal) {
+    showAlert('Please specify your Course / Degree in the ID Card verification section.');
+    document.getElementById('ocrCourse')?.focus();
+    return;
+  }
+
+  if (!rollNoVal) {
+    showAlert('Please specify your Student Roll No / USN / Reg ID in the ID Card verification section.');
+    document.getElementById('ocrRollNo')?.focus();
+    return;
+  }
+
+  // ANTI-CHEAT CHECK 1: College Name Comparison
+  // If the user's entered college clearly contradicts the ID card institution, BLOCK registration!
+  if (ocrCollegeMatchStatus === 'mismatch') {
+    showAlert('🚨 College Name Mismatch: The college on your uploaded ID Card does not match the College Name you entered. Please enter your genuine college name or upload your own College ID Card.');
+    document.getElementById('ocrCollegeMatchBadge')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
+  // ANTI-CHEAT CHECK 2: Student Name Comparison
+  // Block registration if OCR found a name on the ID card that clearly does not match
+  if (ocrNameMatchStatus === 'mismatch') {
+    showAlert('🚨 Name Mismatch: The name detected on your College ID Card does not match the Full Name you entered. Please correct your Full Name or upload your own College ID Card.');
+    document.getElementById('ocrNameMatchBadge')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
+  if (!isCloudflareVerified) {
+    showAlert('Please complete the Cloudflare Anti-Bot challenge.');
     return;
   }
 
@@ -1804,30 +2124,6 @@ async function handleRegistrationSubmit(event) {
 
   if (password.length < 6) {
     showAlert('Password must be at least 6 characters.');
-    return;
-  }
-
-  if (!favouriteSport || !ambition) {
-    showAlert('Please answer both Security Questions (Favourite Sport & Ambition) for password recovery.');
-    return;
-  }
-
-  if (!isCloudflareVerified) {
-    showAlert('Please complete the Cloudflare Anti-Bot challenge.');
-    return;
-  }
-
-  // College ID Card is mandatory — every student must upload and scan their Student ID Card
-  if (!isIdCardScanned && !isReceiptScanned) {
-    showAlert('⚠️ College ID Card is mandatory. Please upload and scan your Student ID Card under Section 3 before registering.');
-    document.getElementById('receiptUploadArea')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    return;
-  }
-
-  // Block registration if OCR found a name on the ID card that clearly does not match
-  if (ocrNameMatchStatus === 'mismatch') {
-    showAlert('⚠️ Name Mismatch: The name detected on your College ID Card does not match the Full Name you entered. Please correct your Full Name or upload the correct ID card.');
-    document.getElementById('ocrNameMatchBadge')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     return;
   }
 
@@ -1865,6 +2161,18 @@ async function handleRegistrationSubmit(event) {
     return;
   }
 
+  // 3. Verify Unique Student Roll No / USN
+  if (rollNoVal) {
+    const isRollTaken = await isRegIdAlreadyRegistered(rollNoVal);
+    if (isRollTaken) {
+      showAlert(`❌ Duplicate Student Roll No: The USN / Roll No '${rollNoVal}' is already registered in IntraWorld. Each student must have a unique roll number.`);
+      submitBtn.disabled = false;
+      submitBtn.innerText = '🛡️ Create Student Account';
+      document.getElementById('ocrRollNo').focus();
+      return;
+    }
+  }
+
   submitBtn.innerText = 'Saving Verified Profile to Firestore...';
 
   const formattedPhone = `+91 ${cleanPhone}`;
@@ -1877,13 +2185,13 @@ async function handleRegistrationSubmit(event) {
     phone: formattedPhone,
     mobile: formattedPhone,
     rawPhone: cleanPhone,
-    studentRegId: (document.getElementById('ocrRollNo')?.value || '').trim(),
-    qualification: (document.getElementById('ocrCourse')?.value || 'Pending Update').trim() || 'Pending Update',
-    specialization: (document.getElementById('ocrCourse')?.value || 'Pending Update').trim() || 'Pending Update',
-    collegeName: (document.getElementById('ocrCollegeName')?.value || 'Pending Update').trim() || 'Pending Update',
+    studentRegId: rollNoVal,
+    qualification: courseVal,
+    specialization: courseVal,
+    collegeName: manualCollege,
     skills: [],
-    passedOutYear: (document.getElementById('ocrBatch')?.value || '').trim(),
-    passoutYear: (document.getElementById('ocrBatch')?.value || '').trim(),
+    passedOutYear: manualBatch,
+    passoutYear: manualBatch,
     favouriteSport: favouriteSport.toLowerCase(),
     ambition: ambition.toLowerCase(),
     password,
@@ -1897,6 +2205,11 @@ async function handleRegistrationSubmit(event) {
     isCloudflareVerified: isCloudflareVerified,
     accountStatus: 'PENDING_APPROVAL',
     adminApproved: false,
+    collegeMatchStatus: ocrCollegeMatchStatus,
+    nameMatchStatus: ocrNameMatchStatus,
+    ocrScannedCollege: lastScannedCollegeName || (ocrScannedData?.college || ''),
+    ocrScannedCourse: courseVal,
+    ocrScannedRollNo: rollNoVal,
     createdAt: new Date().toISOString()
   };
 
