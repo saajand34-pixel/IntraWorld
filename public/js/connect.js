@@ -164,27 +164,86 @@ function renderIncomingRequests() {
         const card = document.createElement("div");
         card.className = "request-card";
         card.id = `req-${req.id}`;
+        const avatarUrl = sanitizeUrl(student.avatar);
         card.innerHTML = `
-            <div class="req-avatar">${escapeHtml(initial)}</div>
-            <h4>${escapeHtml(senderName)}</h4>
-            <div class="regid-text"><i class="fa-solid fa-id-card"></i> ${escapeHtml(senderRegId)}</div>
-            <div class="req-btn-group">
-                <button class="btn-accept" id="accept-${req.id}">
-                    <i class="fa-solid fa-check"></i> Accept
-                </button>
-                <button class="btn-decline" id="decline-${req.id}">
-                    <i class="fa-solid fa-xmark"></i> Decline
+            <div class="student-avatar" style="cursor: pointer; overflow: hidden;" title="Click to view posts & profile">
+                ${avatarUrl ? `<img src="${avatarUrl}" style="width: 100%; height: 100%; object-fit: cover;" alt="${escapeHtml(student.name)}" onerror="this.onerror=null; this.parentElement.innerHTML='${escapeHtml(student.name.charAt(0).toUpperCase())}';" />` : escapeHtml(student.name.charAt(0).toUpperCase())}
+            </div>
+            <h3 style="cursor: pointer;" title="Click to view posts & profile">${escapeHtml(student.name)}</h3>
+            <div class="student-regid-tag">
+                <i class="fa-solid fa-id-card"></i> Reg ID: ${escapeHtml(student.regId || "Not Registered")}
+            </div>
+            <p>${escapeHtml(student.college)}</p>
+            <div style="width: 100%; display: flex; flex-direction: column; gap: 8px;">
+                ${actionButtonHTML}
+                <button type="button" class="view-posts-btn" id="btn-posts-${student.id}" title="View ${escapeHtml(student.name)}'s public & college posts">
+                    <i class="fa-solid fa-newspaper"></i> View Posts
                 </button>
             </div>
         `;
 
-        // Accept connection request -> mutual connection created!
-        const acceptBtn = card.querySelector(`#accept-${req.id}`);
-        acceptBtn.addEventListener("click", () => handleAcceptRequest(req, acceptBtn));
+        // Click on DP, Name, or View Posts button opens User Profile & Posts Modal
+        const avatarEl = card.querySelector(".student-avatar");
+        const nameHeaderEl = card.querySelector("h3");
+        const viewPostsBtn = card.querySelector(`#btn-posts-${student.id}`);
+        [avatarEl, nameHeaderEl, viewPostsBtn].forEach(el => {
+            if (el) el.addEventListener("click", () => openUserProfileModal(student));
+        });
 
-        // Decline connection request
-        const declineBtn = card.querySelector(`#decline-${req.id}`);
-        declineBtn.addEventListener("click", () => handleDeclineRequest(req, declineBtn));
+        // Connect button handler (Sends connection request for mutual approval)
+        const connectBtn = card.querySelector(`#btn-connect-${student.id}`);
+        if (connectBtn) {
+            connectBtn.addEventListener("click", async () => {
+                if (!currentUser || !currentUser.email) {
+                    alert("Please log in to connect.");
+                    return;
+                }
+
+                connectBtn.disabled = true;
+                connectBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Sending Request...`;
+
+                try {
+                    const myEmail = currentUser.email.toLowerCase();
+                    const targetEmail = studentEmail;
+
+                    const requestPayload = {
+                        fromEmail: myEmail,
+                        fromName: myFullName,
+                        fromUid: currentUser.uid || "",
+                        fromRegId: myRegId || "",
+                        toEmail: targetEmail,
+                        toName: student.name,
+                        toUid: student.id,
+                        toRegId: student.regId || "",
+                        status: "pending",
+                        createdAt: new Date().toISOString()
+                    };
+
+                    const docRef = await addDoc(collection(db, "connection_requests"), requestPayload);
+                    sentPendingRequests.set(targetEmail, docRef.id);
+
+                    connectBtn.className = "connect-btn pending";
+                    connectBtn.innerHTML = `<i class="fa-solid fa-clock"></i> Request Sent`;
+                    alert(`Connection request sent to ${student.name}! They will be notified to accept.`);
+                } catch (err) {
+                    console.error("Send request error:", err);
+                    alert("Failed to send request: " + err.message);
+                    connectBtn.disabled = false;
+                    connectBtn.innerHTML = `<i class="fa-solid fa-user-plus"></i> Connect`;
+                }
+            });
+        }
+
+        // View in requests handler
+        const respondBtn = card.querySelector(`#btn-respond-${student.id}`);
+        if (respondBtn) {
+            respondBtn.addEventListener("click", () => {
+                const reqSec = document.getElementById("incomingRequestsSection");
+                if (reqSec) {
+                    reqSec.scrollIntoView({ behavior: "smooth" });
+                }
+            });
+        }
 
         grid.appendChild(card);
     });
@@ -495,3 +554,195 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
+
+// USER PROFILE & POSTS MODAL (PUBLIC & COLLEGE POSTS)
+async function openUserProfileModal(user) {
+    const modal = document.getElementById("userProfileModal");
+    if (!modal) return;
+
+    const avatarEl = document.getElementById("profileModalAvatar");
+    const nameEl = document.getElementById("profileModalName");
+    const collegeEl = document.getElementById("profileModalCollege");
+    const regIdEl = document.getElementById("profileModalRegId");
+    const container = document.getElementById("profilePostsContainer");
+
+    const name = user.name || user.fullName || user.full_name || (user.email ? user.email.split("@")[0] : "Student");
+    const college = user.college || user.collegeName || user.qualification || "Registered Student";
+    const regId = user.regId || user.studentRegId || user.registerNo || "";
+    const avatar = user.avatar || user.profilePhotoUrl || "";
+
+    if (nameEl) nameEl.textContent = name;
+    if (collegeEl) collegeEl.innerHTML = `<i class="fa-solid fa-building-columns"></i> ${escapeHtml(college)}`;
+    if (regIdEl) {
+        if (regId) {
+            regIdEl.style.display = "inline-flex";
+            regIdEl.innerHTML = `<i class="fa-solid fa-id-card"></i> Reg ID: ${escapeHtml(regId)}`;
+        } else {
+            regIdEl.style.display = "none";
+        }
+    }
+    if (avatarEl) {
+        const safeAv = sanitizeUrl(avatar);
+        if (safeAv) {
+            avatarEl.innerHTML = `<img src="${safeAv}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" alt="${escapeHtml(name)}"/>`;
+        } else {
+            avatarEl.textContent = name.charAt(0).toUpperCase();
+        }
+    }
+
+    modal.style.display = "flex";
+    if (container) {
+        container.innerHTML = `<div style="text-align:center; padding:30px; color:#f59e0b;"><i class="fa-solid fa-spinner fa-spin"></i> Loading ${escapeHtml(name)}'s posts...</div>`;
+    }
+
+    try {
+        const targetEmail = (user.email || "").toLowerCase().trim();
+        const targetUid = user.id || user.uid || "";
+
+        const postsRef = collection(db, "posts");
+        const snap = await getDocs(postsRef);
+
+        let userPosts = [];
+        snap.forEach(docSnap => {
+            const data = docSnap.data();
+            const postEmail = (data.authorEmail || "").toLowerCase().trim();
+            const postUid = data.uid || "";
+
+            if ((targetEmail && postEmail === targetEmail) || (targetUid && postUid === targetUid)) {
+                userPosts.push({ id: docSnap.id, ...data });
+            }
+        });
+
+        // Sort posts newest first
+        userPosts.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+
+        let currentModalTab = "all";
+
+        function renderModalPosts() {
+            const filtered = userPosts.filter(p => {
+                if (currentModalTab === "all") return true;
+                const isComm = p.postType === "community" || p.audience === "community";
+                if (currentModalTab === "public") return !isComm;
+                if (currentModalTab === "community") return isComm;
+                return true;
+            });
+
+            const countAll = document.getElementById("countAllPosts");
+            const countPub = document.getElementById("countPublicPosts");
+            const countComm = document.getElementById("countCommPosts");
+            if (countAll) countAll.textContent = userPosts.length;
+            if (countPub) countPub.textContent = userPosts.filter(p => p.postType !== "community" && p.audience !== "community").length;
+            if (countComm) countComm.textContent = userPosts.filter(p => p.postType === "community" || p.audience === "community").length;
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div style="text-align:center; padding:40px; color:#94a3b8; font-size:14px;"><i class="fa-regular fa-folder-open" style="font-size:26px; display:block; margin-bottom:8px; color:#f59e0b;"></i>No ${currentModalTab === "all" ? "" : currentModalTab} posts found by ${escapeHtml(name)}.</div>`;
+                return;
+            }
+
+            container.innerHTML = "";
+            filtered.forEach(p => {
+                const isComm = p.postType === "community" || p.audience === "community";
+                const collegeTag = p.targetCollege || p.authorCollege || p.collegeName || college;
+                const safeMedia = sanitizeUrl(p.mediaUrl);
+                const safeDoc = sanitizeUrl(p.docUrl);
+                const postDate = p.createdAt ? new Date(p.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' }) : "Recently";
+                const likesCount = Array.isArray(p.likes) ? p.likes.length : 0;
+                const commentsCount = Array.isArray(p.comments) ? p.comments.length : 0;
+
+                const card = document.createElement("div");
+                card.className = "profile-post-card";
+                card.innerHTML = `
+                    <div class="profile-post-header">
+                        <div>
+                            <span class="post-type-badge ${isComm ? 'badge-community' : 'badge-public'}">
+                                <i class="fa-solid ${isComm ? 'fa-building-columns' : 'fa-globe'}"></i>
+                                ${isComm ? escapeHtml(collegeTag) : "Public Post"}
+                            </span>
+                            <span style="font-size:12px; color:#94a3b8; margin-left:8px;">${escapeHtml(postDate)}</span>
+                        </div>
+                    </div>
+                    <div class="profile-post-content">${escapeHtml(p.content || "")}</div>
+                    ${safeMedia ? `<img src="${safeMedia}" class="profile-post-media" alt="Post Image" />` : ""}
+                    ${safeDoc ? `
+                        <a href="${safeDoc}" target="_blank" rel="noopener noreferrer" download="${escapeHtml(p.docName || 'document.pdf')}" class="msg-doc-card" style="margin-top:8px;">
+                            <i class="fa-solid fa-file-pdf"></i>
+                            <div>
+                                <strong style="display:block; font-size:13px; color:#fff;">${escapeHtml(p.docName || "Attachment Document")}</strong>
+                                <span style="font-size:11px; color:#7db7ff;">Click to view / download</span>
+                            </div>
+                        </a>
+                    ` : ""}
+                    <div class="profile-post-footer">
+                        <span><i class="fa-solid fa-heart" style="color:#ef4444;"></i> ${likesCount} ${likesCount === 1 ? 'Like' : 'Likes'}</span>
+                        <span><i class="fa-regular fa-comment" style="color:#f59e0b;"></i> ${commentsCount} ${commentsCount === 1 ? 'Comment' : 'Comments'}</span>
+                    </div>
+                `;
+
+                const imgEl = card.querySelector(".profile-post-media");
+                if (imgEl && safeMedia) {
+                    imgEl.addEventListener("click", () => openLightbox(safeMedia));
+                }
+
+                container.appendChild(card);
+            });
+        }
+
+        document.querySelectorAll(".profile-tab-btn").forEach(btn => {
+            btn.onclick = () => {
+                document.querySelectorAll(".profile-tab-btn").forEach(b => b.classList.remove("active"));
+                btn.classList.add("active");
+                currentModalTab = btn.getAttribute("data-tab") || "all";
+                renderModalPosts();
+            };
+        });
+
+        renderModalPosts();
+
+    } catch (err) {
+        console.error("Error fetching user posts:", err);
+        if (container) {
+            container.innerHTML = `<div style="text-align:center; padding:30px; color:#ef4444;">Failed to load posts: ${escapeHtml(err.message)}</div>`;
+        }
+    }
+}
+
+// Lightbox modal handlers
+function openLightbox(src) {
+    const modal = document.getElementById("imageLightboxModal");
+    const img = document.getElementById("lightboxImg");
+    if (!modal || !img) return;
+    img.src = src;
+    modal.style.display = "flex";
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const closeProfileBtn = document.getElementById("closeProfileModalBtn");
+    if (closeProfileBtn) {
+        closeProfileBtn.addEventListener("click", () => {
+            const modal = document.getElementById("userProfileModal");
+            if (modal) modal.style.display = "none";
+        });
+    }
+
+    const userProfileModalEl = document.getElementById("userProfileModal");
+    if (userProfileModalEl) {
+        userProfileModalEl.addEventListener("click", (e) => {
+            if (e.target === userProfileModalEl) userProfileModalEl.style.display = "none";
+        });
+    }
+
+    const closeLightboxBtn = document.getElementById("closeLightboxBtn");
+    if (closeLightboxBtn) {
+        closeLightboxBtn.addEventListener("click", () => {
+            const modal = document.getElementById("imageLightboxModal");
+            if (modal) modal.style.display = "none";
+        });
+    }
+
+    const imageLightboxModal = document.getElementById("imageLightboxModal");
+    if (imageLightboxModal) {
+        imageLightboxModal.addEventListener("click", (e) => {
+            if (e.target === imageLightboxModal) imageLightboxModal.style.display = "none";
+        });
+    }
+});

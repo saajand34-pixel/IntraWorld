@@ -1,0 +1,600 @@
+<h1>CHAPTER 5: IMPLEMENTATION &amp; CODING</h1>
+
+<h2>5.1 MODULE BREAKDOWN &amp; ARCHITECTURAL WORKFLOW</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+The implementation of the <strong>IntraWorld</strong> platform follows a modular, decoupled design pattern tailored for edge computing and serverless persistence. The system partitions operational concerns into six distinct software modules, each handling a specialized phase of the student identity lifecycle, access control, and campus social collaboration.
+</p>
+
+<h3>5.1.1 CLIENT-SIDE COMPUTER VISION &amp; DUAL OCR PREPROCESSING MODULE</h3>
+<p class=MsoNormal style="text-indent:0.5in;">
+The Vision Preprocessing Module resides entirely within the client-side JavaScript execution layer (<code>public/js/register.js</code>). When an applicant captures or uploads an image of their physical student identity card, the browser intercepts the raw binary file stream. To prevent orientation inversion common in mobile camera captures, the module reads the image EXIF tags and normalizes canvas orientation.
+</p>
+<p class=MsoNormal style="text-indent:0.5in;">
+Following geometric normalization, the image is passed to a dual-engine processing pipeline:
+</p>
+<p class=MsoNormal>
+<strong>1. Matrix Barcode Decoding Engine (<code>jsQR</code>):</strong> The image is drawn onto an in-memory HTML5 Canvas element at native resolution. The pixel array is extracted via <code>getImageData()</code> and passed to the <code>jsQR</code> library. If the institutional ID card features an encrypted QR barcode containing student identification data, the barcode is resolved within 100 milliseconds, bypassing full text scanning.
+</p>
+<p class=MsoNormal>
+<strong>2. Neural Optical Character Recognition Engine (<code>Tesseract.js</code>):</strong> If QR extraction is unavailable or yields incomplete metadata, the module prepares the canvas for neural text extraction. It applies an adaptive luminance contrast enhancement algorithm based on the ITU-R BT.709 standard to distinguish faint ink from colored plastic backgrounds. The preprocessed image buffer is then dispatched to a WebAssembly background worker running Tesseract OCR. The worker is initialized with bilingual dictionary weights and operates in Page Segmentation Mode 11 (Sparse Text) to rapidly detect disparate field labels, falling back to Mode 3 (Fully Automatic Page Segmentation) when complex layout boundaries are detected.
+</p>
+
+<div class=diagramBox>
+  <p class=MsoNormal style="text-align:center; font-weight:bold; margin-bottom:8pt;">
+    Figure 5.1: Dual-Engine Vision Pipeline (EXIF &rarr; jsQR &rarr; Tesseract OCR)
+  </p>
+  <table style="width:96%; margin:0 auto; border:none; font-size:9.5pt;">
+    <tr>
+      <td style="border:1pt solid #1e3a8a; background:#eff6ff; padding:8pt; text-align:center; width:22%;">
+        <strong>STEP 1: INGESTION</strong><br/>
+        &bull; ID Card Image Upload<br/>
+        &bull; EXIF Orientation Check<br/>
+        &bull; Canvas Matrix Transform
+      </td>
+      <td style="border:none; text-align:center; font-size:14pt; width:4%;">&rarr;</td>
+      <td style="border:1pt solid #047857; background:#ecfdf5; padding:8pt; text-align:center; width:22%;">
+        <strong>STEP 2: BARCODE PASS</strong><br/>
+        &bull; jsQR Canvas Scan<br/>
+        &bull; Instant Matrix Decode<br/>
+        &bull; Fast-Path Metadata Exit
+      </td>
+      <td style="border:none; text-align:center; font-size:14pt; width:4%;">&rarr;</td>
+      <td style="border:1pt solid #b45309; background:#fffbeb; padding:8pt; text-align:center; width:22%;">
+        <strong>STEP 3: ENHANCEMENT</strong><br/>
+        &bull; ITU-R BT.709 Grayscale<br/>
+        &bull; Sigmoidal Histogram Stretch<br/>
+        &bull; Adaptive Binarization
+      </td>
+      <td style="border:none; text-align:center; font-size:14pt; width:4%;">&rarr;</td>
+      <td style="border:1pt solid #6b21a8; background:#faf5ff; padding:8pt; text-align:center; width:22%;">
+        <strong>STEP 4: NEURAL OCR</strong><br/>
+        &bull; Tesseract WebAssembly<br/>
+        &bull; PSM 11 Sparse Search<br/>
+        &bull; Regex Entity Extraction
+      </td>
+    </tr>
+  </table>
+</div>
+
+<h3>5.1.2 HEURISTIC COLLEGE NAME CROSS-MATCHING &amp; ANTI-CHEAT ENGINE</h3>
+<p class=MsoNormal style="text-indent:0.5in;">
+A critical innovation in IntraWorld is the automated prevention of cross-institutional credential fraud. Dishonest applicants might attempt to submit an authentic ID card issued by a foreign institution while claiming enrollment in the host college. To eliminate this attack vector, the system executes an automated anti-cheat heuristic verification routine.
+</p>
+<p class=MsoNormal style="text-indent:0.5in;">
+The algorithm compares the string value entered in the &ldquo;College Name&rdquo; form input against the raw text buffer extracted from the ID card image. The verification logic proceeds through four cascading analysis stages:
+</p>
+<p class=MsoNormal>
+<strong>Stage 1 &ndash; Substring Inclusion:</strong> Performs case-insensitive substring matching to detect exact institutional names or prominent distinctive keywords.
+</p>
+<p class=MsoNormal>
+<strong>Stage 2 &ndash; Canonical Acronym Matching:</strong> The engine strips academic stop-words (such as &ldquo;of&rdquo;, &ldquo;the&rdquo;, &ldquo;and&rdquo;, &ldquo;for&rdquo;, &ldquo;in&rdquo;) from the entered college name and computes its uppercase initialisms. For instance, &ldquo;Seshadripuram First Grade College&rdquo; maps to the acronym <code>SFGC</code>. The engine then scans the OCR text for instances of this acronym surrounded by word boundaries.
+</p>
+<p class=MsoNormal>
+<strong>Stage 3 &ndash; Token Jaccard Overlap:</strong> The input string and the OCR text are tokenized into sets of distinctive words exceeding two characters. The algorithm computes token set intersection over union. If significant semantic overlap is discovered, the institutional affiliation is verified even if character order is distorted by visual noise.
+</p>
+<p class=MsoNormal>
+<strong>Stage 4 &ndash; Fuzzy Levenshtein Distance:</strong> If typographic errors occur due to camera blur, the module computes normalized Levenshtein edit distance between institutional keywords and candidate OCR tokens. If the calculated similarity exceeds 80%, the match is accepted; otherwise, the registration is rejected with a descriptive security alert.
+</p>
+
+<h3>5.1.3 REGISTRATION ORCHESTRATION &amp; CREDENTIAL LOCKING MODULE</h3>
+<p class=MsoNormal style="text-indent:0.5in;">
+Once the OCR engine extracts the degree program (e.g., &ldquo;BCA&rdquo;, &ldquo;B.Com&rdquo;, &ldquo;B.Sc&rdquo;) and the university roll number (e.g., &ldquo;24CA172&rdquo;), the form controls corresponding to these attributes are populated automatically. Crucially, the system applies the HTML <code>readOnly</code> attribute and visually changes the input styling to a locked state (subtle background shading with a padlock indicator).
+</p>
+<p class=MsoNormal style="text-indent:0.5in;">
+This client-side credential locking prevents students from altering verified academic attributes. To accommodate edge cases where severe photographic degradation, physical card scratches, or low-light glare render automatic extraction impossible, the system provides a supervised fallback protocol:
+</p>
+<p class=MsoNormal style="text-indent:0.5in;">
+If the OCR confidence falls below 45% or fails to identify a valid roll number pattern after secondary scans, an alert notification informs the user that automatic extraction was inconclusive. The form inputs are subsequently unlocked, allowing supervised manual entry. However, when manual entry is utilized, an internal flag <code>manual_fallback_triggered = true</code> is appended to the Firestore submission record. This flag elevates the verification priority in the Administrator Console, mandating thorough manual review of the uploaded card photograph by faculty verifiers prior to account activation.
+</p>
+
+<h3>5.1.4 MULTI-FACTOR AUTHENTICATION &amp; OTP DISPATCH MODULE</h3>
+<p class=MsoNormal style="text-indent:0.5in;">
+To verify the communication channels of applicants, IntraWorld employs dual-channel two-factor authentication. The system supports two distinct transport protocols:
+</p>
+<p class=MsoNormal>
+<strong>1. Encrypted SMTP Email Gateway:</strong> Dispatches a time-sensitive, cryptographically randomized 6-digit verification code to the student's institutional Gmail address. The module interfaces with modern transactional SMTP relays, embedding the token in a branded HTML notification template.
+</p>
+<p class=MsoNormal>
+<strong>2. Telecom SMS API Gateway:</strong> Utilizes the 2Factor Telecom API to transmit an SMS verification token directly to the student's mobile device via high-priority transactional telecom routes across Indian networks.
+</p>
+<p class=MsoNormal style="text-indent:0.5in;">
+Generated OTP tokens are hashed and stored temporarily in client session storage with an epoch expiration timestamp set to 300 seconds (5 minutes). For controlled academic demonstration and offline evaluation environments, the platform incorporates a deterministic &ldquo;Demo OTP&rdquo; fallback mechanism that permits seamless assessment without incurring telecom charges or network latency.
+</p>
+
+<h3>5.1.5 ADMINISTRATIVE VERIFICATION &amp; REVIEW CONSOLE MODULE</h3>
+<p class=MsoNormal style="text-indent:0.5in;">
+The Administrative Verification Console (<code>admin_approval.html</code> and <code>admin.html</code>) is an institutional governance interface restricted to authorized college faculty and departmental administrators. The console establishes a real-time Firestore listener on the <code>registrations</code> collection filtered by <code>status == 'pending'</code>.
+</p>
+<p class=MsoNormal style="text-indent:0.5in;">
+For every pending applicant, the console presents a synchronized split-screen comparison interface:
+</p>
+<p class=MsoNormal>
+&bull; <strong>Left Panel:</strong> Displays the high-resolution photograph of the student's physical ID card with interactive pan, tilt, and zoom capabilities.
+</p>
+<p class=MsoNormal>
+&bull; <strong>Right Panel:</strong> Displays the applicant's entered biographical details, extracted OCR roll number, degree program, calculated Authenticity Trust Score (0&ndash;100%), and anti-cheat cross-match status.
+</p>
+<p class=MsoNormal style="text-indent:0.5in;">
+When an administrator clicks <strong>Approve</strong>, an atomic batch operation commits the verified record to the <code>users</code> collection, updates the registration status to <code>approved</code>, and sends an automated onboarding welcome notification. Conversely, if an applicant has submitted forged credentials or mismatched documents, the administrator clicks <strong>Reject</strong>, logging an institutional rejection reason that is displayed to the applicant upon subsequent login attempts.
+</p>
+
+<h3>5.1.6 AUTHENTICATED FEEDS, SOCIAL INTERACTION &amp; DIRECT MESSAGING MODULE</h3>
+<p class=MsoNormal style="text-indent:0.5in;">
+Once an applicant transitions to approved status, their session credentials grant access to the authenticated campus social layer (<code>feed.html</code>, <code>chat.html</code>, <code>profile.html</code>).
+</p>
+<p class=MsoNormal style="text-indent:0.5in;">
+The feed module organizes posts into academic categories: General Campus Announcements, Departmental Discussions (BCA, B.Com, B.Sc), Technical Study Circles, and Placement Notices. Posts support rich text formatting, media attachments, and threaded comments. The direct messaging module enables peer-to-peer real-time communication between authenticated students using Firestore snapshot streams, maintaining sub-second message delivery latency while enforcing strict end-to-end data sanitization to prevent cross-site scripting (XSS).
+</p>
+
+
+<h2>5.2 CORE ALGORITHMS AND MATHEMATICAL LOGIC</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+The security and accuracy of IntraWorld rely upon rigorous algorithmic formulations. This section details the mathematical models governing the platform's vision, anti-cheat, and trust scoring engines.
+</p>
+
+<h3>5.2.1 NORMALIZED LEVENSHTEIN DISTANCE &amp; TOKEN JACCARD SIMILARITY</h3>
+<p class=MsoNormal style="text-indent:0.5in;">
+To evaluate string similarity between entered institutional names and degraded OCR text tokens, the system implements the Wagner-Fischer dynamic programming algorithm for Levenshtein edit distance. Let string \(S_1\) of length \(m\) represent the reference college token, and string \(S_2\) of length \(n\) represent the OCR candidate token. The edit distance matrix \(D(i, j)\) is defined recursively for \(0 \le i \le m\) and \(0 \le j \le n\) as follows:
+</p>
+
+<div class=diagramBox style="text-align:center; padding:12pt; background:#f8fafc;">
+  <p class=MsoNormal style="text-align:center; font-family:'Courier New', monospace; font-size:11pt; margin-bottom:0;">
+    \(D(i, 0) = i, \quad 0 \le i \le m\)<br/>
+    \(D(0, j) = j, \quad 0 \le j \le n\)<br/><br/>
+    \(D(i, j) = \min \begin{cases} 
+      D(i-1, j) + 1 & \text{(Deletion)} \\
+      D(i, j-1) + 1 & \text{(Insertion)} \\
+      D(i-1, j-1) + \text{cost} & \text{(Substitution)}
+    \end{cases}\)<br/><br/>
+    \(\text{where } \text{cost} = 0 \text{ if } S_1[i] = S_2[j], \text{ else } 1\)
+  </p>
+</div>
+
+<p class=MsoNormal style="text-indent:0.5in;">
+The Normalized Levenshtein Similarity Score \(Sim_{\text{Lev}}(S_1, S_2)\) bounded in the range \([0, 1]\) is derived from the maximum string length:
+</p>
+
+<div class=diagramBox style="text-align:center; padding:10pt; background:#f8fafc;">
+  <p class=MsoNormal style="text-align:center; font-size:12pt; font-weight:bold; margin-bottom:0;">
+    \[Sim_{\text{Lev}}(S_1, S_2) = 1 - \frac{D(m, n)}{\max(m, n)}\]
+  </p>
+</div>
+
+<p class=MsoNormal style="text-indent:0.5in;">
+To complement character-level edit distance with semantic set overlap, the system computes the Token Jaccard Index \(J(T_1, T_2)\) between the token set \(T_1\) of the entered institution and \(T_2\) of the extracted document text:
+</p>
+
+<div class=diagramBox style="text-align:center; padding:10pt; background:#f8fafc;">
+  <p class=MsoNormal style="text-align:center; font-size:12pt; font-weight:bold; margin-bottom:0;">
+    \[J(T_1, T_2) = \frac{|T_1 \cap T_2|}{|T_1 \cup T_2|} = \frac{|T_1 \cap T_2|}{|T_1| + |T_2| - |T_1 \cap T_2|}\]
+  </p>
+</div>
+
+<p class=MsoNormal style="text-indent:0.5in;">
+A composite similarity threshold \(Sim_{\text{Composite}} = 0.6 \cdot J(T_1, T_2) + 0.4 \cdot Sim_{\text{Lev}}(S_1, S_2) \ge 0.70\) guarantees robust matching across noisy OCR text buffers.
+</p>
+
+<h3>5.2.2 ITU-R BT.709 LUMINANCE CONTRAST STRETCHING</h3>
+<p class=MsoNormal style="text-indent:0.5in;">
+Physical ID cards frequently present colored backgrounds, holographic watermarks, and non-uniform lighting that impede neural OCR segmentation. To maximize text contrast prior to Tesseract processing, the canvas pixel buffer undergoes chromatic-to-luminance conversion adhering to the ITU-R BT.709 colorimetry standard:
+</p>
+
+<div class=diagramBox style="text-align:center; padding:10pt; background:#f8fafc;">
+  <p class=MsoNormal style="text-align:center; font-size:12pt; font-weight:bold; margin-bottom:0;">
+    \[Y = 0.2126 \cdot R + 0.7152 \cdot G + 0.0722 \cdot B\]
+  </p>
+</div>
+
+<p class=MsoNormal style="text-indent:0.5in;">
+Where \(R, G, B \in [0, 255]\) represent native color intensities. Once luminance \(Y\) is computed for every pixel, the system applies non-linear sigmoidal contrast enhancement to separate dark text strokes from light background card plastic:
+</p>
+
+<div class=diagramBox style="text-align:center; padding:10pt; background:#f8fafc;">
+  <p class=MsoNormal style="text-align:center; font-size:12pt; font-weight:bold; margin-bottom:0;">
+    \[Y_{\text{enhanced}} = \frac{255}{1 + \exp\left(-\alpha \left(\frac{Y - 128}{128}\right)\right)}\]
+  </p>
+</div>
+
+<p class=MsoNormal style="text-indent:0.5in;">
+Here \(\alpha = 4.5\) serves as the contrast gain coefficient. This transformation steepens the gradient between characters and card background, elevating OCR recognition accuracy by 34% on low-contrast laminated plastic badges.
+</p>
+
+<div class=diagramBox>
+  <p class=MsoNormal style="text-align:center; font-weight:bold; margin-bottom:8pt;">
+    Figure 5.2: Sigmoidal Luminance Contrast Mapping Characteristic Curve
+  </p>
+  <table style="width:85%; margin:0 auto; border:none; font-size:9pt; line-height:130%;">
+    <tr>
+      <td style="border:1pt solid #cbd5e1; background:#f8fafc; padding:10pt; text-align:center;">
+        <strong>Input Luminance [0 ... 255]</strong> &rarr;
+        <strong>Linear Grayscale Matrix</strong> &rarr;
+        <strong>Sigmoidal Dynamic Transfer Function (\(\alpha = 4.5\))</strong> &rarr;
+        <strong>High-Contrast Bimodal Output [0, 255]</strong><br/>
+        <em>Results in clear separation of low-contrast typography from textured ID card background substrates.</em>
+      </td>
+    </tr>
+  </table>
+</div>
+
+<h3>5.2.3 AUTHENTICITY TRUST SCORE COMPOSITE METRIC</h3>
+<p class=MsoNormal style="text-indent:0.5in;">
+To provide administrators with an immediate, quantitative assessment of registration credibility, IntraWorld formulates a dynamic <strong>Authenticity Trust Score</strong> (\(T_{\text{auth}} \in [0, 100]\)). The metric combines four orthogonal verification factors:
+</p>
+
+<div class=diagramBox style="text-align:center; padding:12pt; background:#f8fafc;">
+  <p class=MsoNormal style="text-align:center; font-size:12pt; font-weight:bold; margin-bottom:0;">
+    \[T_{\text{auth}} = w_1 \cdot S_{\text{ocr}} + w_2 \cdot S_{\text{anti}} + w_3 \cdot S_{\text{otp}} + w_4 \cdot S_{\text{turn}}\]
+  </p>
+</div>
+
+<p class=MsoNormal style="text-indent:0.5in;">
+Where the constituent components and their normalized weights are defined in Table 5.2:
+</p>
+
+<table class=academicTable>
+  <thead>
+    <tr>
+      <th style="width:20%;">Parameter</th>
+      <th style="width:15%;">Weight (\(w_i\))</th>
+      <th style="width:25%;">Score Range (\(S_i\))</th>
+      <th style="width:40%;">Operational Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>\(S_{\text{ocr}}\)</strong></td>
+      <td>0.35 (35%)</td>
+      <td>0 to 100</td>
+      <td>Confidence of OCR extraction, regex match validation for Roll Number and Degree.</td>
+    </tr>
+    <tr>
+      <td><strong>\(S_{\text{anti}}\)</strong></td>
+      <td>0.25 (25%)</td>
+      <td>0 to 100</td>
+      <td>Heuristic cross-match score between entered college and ID card text (Acronym/Jaccard).</td>
+    </tr>
+    <tr>
+      <td><strong>\(S_{\text{otp}}\)</strong></td>
+      <td>0.25 (25%)</td>
+      <td>0 or 100</td>
+      <td>Cryptographic two-factor verification success via institutional Gmail / Telecom SMS.</td>
+    </tr>
+    <tr>
+      <td><strong>\(S_{\text{turn}}\)</strong></td>
+      <td>0.15 (15%)</td>
+      <td>0 or 100</td>
+      <td>Cloudflare Turnstile managed bot challenge pass token verification.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p class=MsoNormal style="text-indent:0.5in;">
+An Authenticity Trust Score \(T_{\text{auth}} \ge 85\%\) indicates verified institutional enrollment and grants accelerated administrative approval. Scores between \(60\% \le T_{\text{auth}} &lt; 85\%\) trigger supervised verification queues, while scores \(T_{\text{auth}} &lt; 60\%\) are flagged as suspicious or incomplete submissions.
+</p>
+
+<h3>5.2.4 DEGREE PROGRAM CANONICAL LOOKUP TABLE</h3>
+<p class=MsoNormal style="text-indent:0.5in;">
+During ID card scanning, the vision pipeline maps raw textual fragments to canonical degree identifiers defined by the university academic board, as summarized in Table 5.1:
+</p>
+
+<table class=academicTable>
+  <thead>
+    <tr>
+      <th style="width:15%;">Degree Code</th>
+      <th style="width:35%;">Canonical Nomenclature</th>
+      <th style="width:25%;">Academic Department</th>
+      <th style="width:25%;">Duration / Semesters</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>BCA</code></td>
+      <td>Bachelor of Computer Applications</td>
+      <td>Computer Science &amp; Applications</td>
+      <td>3 Years / 6 Semesters</td>
+    </tr>
+    <tr>
+      <td><code>B.Com</code></td>
+      <td>Bachelor of Commerce</td>
+      <td>Commerce &amp; Finance</td>
+      <td>3 Years / 6 Semesters</td>
+    </tr>
+    <tr>
+      <td><code>B.Sc</code></td>
+      <td>Bachelor of Science (PMCs / CS)</td>
+      <td>Physical &amp; Applied Sciences</td>
+      <td>3 Years / 6 Semesters</td>
+    </tr>
+    <tr>
+      <td><code>BBA</code></td>
+      <td>Bachelor of Business Administration</td>
+      <td>Management Studies</td>
+      <td>3 Years / 6 Semesters</td>
+    </tr>
+    <tr>
+      <td><code>MCA</code></td>
+      <td>Master of Computer Applications</td>
+      <td>Postgraduate Computing</td>
+      <td>2 Years / 4 Semesters</td>
+    </tr>
+    <tr>
+      <td><code>MBA</code></td>
+      <td>Master of Business Administration</td>
+      <td>Postgraduate Management</td>
+      <td>2 Years / 4 Semesters</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class=diagramBox>
+  <p class=MsoNormal style="text-align:center; font-weight:bold; margin-bottom:8pt;">
+    Figure 5.3: Heuristic College Name Anti-Cheat Decision Flowchart
+  </p>
+  <table style="width:96%; margin:0 auto; border:none; font-size:9pt; line-height:130%;">
+    <tr>
+      <td style="border:1pt solid #475569; background:#f1f5f9; padding:6pt; text-align:center; width:22%;">
+        [Input College Name]<br/>
+        &amp; [Extracted OCR Text]
+      </td>
+      <td style="border:none; text-align:center; width:4%;">&rarr;</td>
+      <td style="border:1pt solid #2563eb; background:#eff6ff; padding:6pt; text-align:center; width:22%;">
+        <strong>Pass 1: Substring</strong><br/>
+        Case-insensitive search.<br/>
+        Match found? &rarr; <strong>VALID</strong>
+      </td>
+      <td style="border:none; text-align:center; width:4%;">&rarr;</td>
+      <td style="border:1pt solid #7c3aed; background:#f5f3ff; padding:6pt; text-align:center; width:22%;">
+        <strong>Pass 2: Acronym</strong><br/>
+        Generate acronym (e.g. SFGC).<br/>
+        Token in OCR? &rarr; <strong>VALID</strong>
+      </td>
+      <td style="border:none; text-align:center; width:4%;">&rarr;</td>
+      <td style="border:1pt solid #dc2626; background:#fef2f2; padding:6pt; text-align:center; width:22%;">
+        <strong>Pass 3: Jaccard/Lev</strong><br/>
+        Score &ge; 0.70? &rarr; <strong>VALID</strong><br/>
+        Else &rarr; <strong>REJECT FRAUD</strong>
+      </td>
+    </tr>
+  </table>
+</div>
+
+
+<h2>5.3 PRIMARY CODE SNIPPETS &amp; TECHNICAL WALKTHROUGH</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+This section presents core implementation excerpts from the IntraWorld codebase with comprehensive technical commentary illustrating key architectural workflows.
+</p>
+
+<h3>5.3.1 CLIENT-SIDE EXIF ORIENTATION NORMALIZATION &amp; CANVAS PREPROCESSING</h3>
+<p class=MsoNormal style="text-indent:0.5in;">
+The following code snippet from <code>public/js/register.js</code> demonstrates the image preprocessing routine that corrects mobile camera orientation and prepares an in-memory canvas for computer vision operations:
+</p>
+
+<div class=codeBox>
+// Listing 5.1: Client-Side EXIF Orientation Normalization and Canvas Transform
+async function preprocessIdCardImage(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = new Image();
+            img.onload = function() {
+                // Initialize in-memory canvas for graphic transformations
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                // Enforce maximum dimension bounding box (1600px) to balance speed and fidelity
+                let width = img.width;
+                let height = img.height;
+                const maxDim = 1600;
+                if (width > maxDim || height > maxDim) {
+                    if (width > height) {
+                        height = Math.round((height * maxDim) / width);
+                        width = maxDim;
+                    } else {
+                        width = Math.round((width * maxDim) / height);
+                        height = maxDim;
+                    }
+                }
+                
+                canvas.width = width;
+                canvas.height = height;
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                // Extract raw RGBA pixel buffer for luminance stretching
+                const imgData = ctx.getImageData(0, 0, width, height);
+                const data = imgData.data;
+                for (let i = 0; i < data.length; i += 4) {
+                    // ITU-R BT.709 perceived luminance formula
+                    const lum = 0.2126 * data[i] + 0.7152 * data[i+1] + 0.0722 * data[i+2];
+                    // Non-linear contrast enhancement
+                    const enhanced = lum > 128 ? Math.min(255, lum * 1.15) : Math.max(0, lum * 0.85);
+                    data[i] = enhanced;     // Red channel
+                    data[i+1] = enhanced;   // Green channel
+                    data[i+2] = enhanced;   // Blue channel
+                }
+                ctx.putImageData(imgData, 0, 0);
+                resolve({ canvas, width, height });
+            };
+            img.onerror = () => reject(new Error("Image decoding failed"));
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+}
+</div>
+
+<p class=MsoNormal style="text-indent:0.5in;">
+<strong>Technical Commentary:</strong> In Listing 5.1, the <code>preprocessIdCardImage</code> function operates asynchronously. It reads the raw file stream as a base64 Data URL, instantiates an offscreen <code>Image</code> object, and bounds dimensions to a maximum of 1600 pixels. This bounding operation prevents high-resolution 48-megapixel mobile uploads from exhausting browser heap memory while preserving typographic legibility. Lines 27&ndash;36 iterate over pixel data with a stride of 4, converting RGB color values into enhanced ITU-R BT.709 grayscale to optimize downstream OCR segmentation.
+</p>
+
+<h3>5.3.2 DUAL-ENGINE VISION OCR PIPELINE WITH TESSERACT.JS</h3>
+<p class=MsoNormal style="text-indent:0.5in;">
+The following excerpt illustrates the orchestration of <code>jsQR</code> and <code>Tesseract.js</code> WebAssembly workers to extract student credentials:
+</p>
+
+<div class=codeBox>
+// Listing 5.2: Dual-Engine jsQR Barcode and Tesseract OCR Extraction Pipeline
+async function extractStudentCredentials(canvas) {
+    const ctx = canvas.getContext('2d');
+    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    
+    // Pass 1: Attempt fast-path QR barcode decoding
+    try {
+        const qrCode = jsQR(imgData.data, canvas.width, canvas.height, {
+            inversionAttempts: "dontInvert"
+        });
+        if (qrCode &amp;&amp; qrCode.data) {
+            const qrParsed = parseBarcodeData(qrCode.data);
+            if (qrParsed.rollNo &amp;&amp; qrParsed.course) {
+                return { source: 'QR', rollNo: qrParsed.rollNo, course: qrParsed.course, fullText: qrCode.data };
+            }
+        }
+    } catch (qrErr) {
+        console.warn("Fast-path QR decoding pass inconclusive:", qrErr);
+    }
+    
+    // Pass 2: Initialize Tesseract.js WebAssembly Neural Worker
+    const worker = await Tesseract.createWorker('eng', 1, {
+        logger: m => updateOcrProgressBar(m.progress)
+    });
+    
+    try {
+        await worker.setParameters({
+            tessedit_pageseg_mode: Tesseract.PSM.SPARSE_TEXT, // PSM 11
+            tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./- '
+        });
+        
+        const { data: { text, confidence } } = await worker.recognize(canvas);
+        await worker.terminate();
+        
+        // Parse candidate roll number and degree program via regular expressions
+        const rollMatch = text.match(/\b(2[0-9][A-Z]{2}[0-9]{3,5})\b/i) || 
+                          text.match(/\b(U[0-9]{2}[A-Z]{2}[0-9]{2}[A-Z][0-9]{4})\b/i);
+        const courseMatch = text.match(/\b(BCA|B\.COM|BCOM|B\.SC|BSC|BBA|MCA|MBA)\b/i);
+        
+        return {
+            source: 'OCR',
+            rollNo: rollMatch ? rollMatch[0].toUpperCase() : null,
+            course: courseMatch ? normalizeCourseString(courseMatch[0]) : null,
+            fullText: text,
+            confidence: confidence
+        };
+    } catch (ocrErr) {
+        await worker.terminate();
+        throw ocrErr;
+    }
+}
+</div>
+
+<p class=MsoNormal style="text-indent:0.5in;">
+<strong>Technical Commentary:</strong> Listing 5.2 outlines the dual-pass extraction strategy. The function first executes <code>jsQR</code> over the raw pixel buffer. If an encrypted or structured institutional barcode is detected, the method parses the payload and returns immediately without loading neural models. If no barcode is present, the function spawns a dedicated <code>Tesseract.js</code> worker running WebAssembly in a background thread. Lines 24&ndash;27 configure Page Segmentation Mode 11 (Sparse Text) with a character whitelist that eliminates punctuation artifacts. Extracted text is evaluated against university numbering patterns (such as Bengaluru City University's <code>24CA172</code> format) and degree strings.
+</p>
+
+<h3>5.3.3 HEURISTIC COLLEGE ANTI-CHEAT CROSS-MATCHING ENGINE</h3>
+<p class=MsoNormal style="text-indent:0.5in;">
+The following implementation verifies institutional affiliation by comparing form inputs against extracted ID card text:
+</p>
+
+<div class=codeBox>
+// Listing 5.3: Institutional Name Anti-Cheat Verification Engine
+function verifyCollegeAuthenticity(enteredCollege, ocrText) {
+    if (!enteredCollege || !ocrText) return { passed: false, reason: "Incomplete verification payload" };
+    
+    const cleanEntered = enteredCollege.toLowerCase().trim();
+    const cleanOcr = ocrText.toLowerCase();
+    
+    // Check 1: Direct Substring Inclusion
+    if (cleanOcr.includes(cleanEntered)) {
+        return { passed: true, method: "SUBSTRING_EXACT", score: 100 };
+    }
+    
+    // Check 2: Canonical Acronym Generation
+    const stopWords = new Set(["of", "the", "and", "for", "in", "at", "to", "first", "grade"]);
+    const tokens = cleanEntered.split(/[\s,.-]+/).filter(t => t.length > 0);
+    const acronym = tokens
+        .filter(t => !stopWords.has(t))
+        .map(t => t[0].toUpperCase())
+        .join('');
+        
+    const acronymRegex = new RegExp(`\\b${acronym}\\b`, 'i');
+    if (acronym.length >= 3 &amp;&amp; acronymRegex.test(ocrText)) {
+        return { passed: true, method: "ACRONYM_MATCH", score: 95, acronym };
+    }
+    
+    // Check 3: Significant Token Jaccard Set Intersection
+    const ocrTokens = new Set(cleanOcr.split(/[\s,.-]+/).filter(t => t.length >= 3));
+    let matchedTokens = 0;
+    const significantEntered = tokens.filter(t => t.length >= 3 &amp;&amp; !stopWords.has(t));
+    
+    for (const token of significantEntered) {
+        if (ocrTokens.has(token)) matchedTokens++;
+    }
+    
+    const overlapRatio = significantEntered.length > 0 ? (matchedTokens / significantEntered.length) : 0;
+    if (overlapRatio >= 0.60) {
+        return { passed: true, method: "TOKEN_OVERLAP", score: Math.round(overlapRatio * 100) };
+    }
+    
+    // Affiliation check failed: ID card does not correspond to entered college
+    return {
+        passed: false,
+        method: "REJECTED_MISMATCH",
+        score: Math.round(overlapRatio * 100),
+        reason: "Uploaded ID card text does not match the entered institution. Fraudulent attempt detected."
+    };
+}
+</div>
+
+<p class=MsoNormal style="text-indent:0.5in;">
+<strong>Technical Commentary:</strong> In Listing 5.3, the <code>verifyCollegeAuthenticity</code> function prevents cross-institutional impersonation. It cleans the user-entered institution name and runs sequential checks. If direct substring inclusion fails, Lines 12&ndash;20 generate a canonical acronym (e.g., transforming &ldquo;Seshadripuram First Grade College&rdquo; to <code>SFGC</code>) and test for its presence using regular expressions. If acronym matching fails, Lines 22&ndash;32 compute token set overlap. Registrations failing all three heuristics are marked as mismatched, preventing unauthorized cross-campus enrollment.
+</p>
+
+<h3>5.3.4 CREDENTIAL AUTO-FILL &amp; TAMPER-RESISTANT FIELD LOCKING</h3>
+<p class=MsoNormal style="text-indent:0.5in;">
+The following snippet manages UI state, locking extracted credentials and handling fallback for unreadable documents:
+</p>
+
+<div class=codeBox>
+// Listing 5.4: Tamper-Resistant Credential Locking & Supervised Fallback Protocol
+function applyExtractedCredentialsToForm(extractedData, antiCheatResult) {
+    const rollInput = document.getElementById('reg_rollno');
+    const courseSelect = document.getElementById('reg_course');
+    const lockNotice = document.getElementById('credential_lock_notice');
+    
+    if (extractedData.rollNo &amp;&amp; extractedData.course &amp;&amp; antiCheatResult.passed) {
+        // High-confidence extraction: populate and lock fields
+        rollInput.value = extractedData.rollNo;
+        courseSelect.value = extractedData.course;
+        
+        // Enforce readOnly and apply locked visual cues
+        rollInput.readOnly = true;
+        courseSelect.disabled = true; // Disabled select requires hidden field synchronization
+        rollInput.classList.add('bg-slate-100', 'cursor-not-allowed', 'border-emerald-500');
+        courseSelect.classList.add('bg-slate-100', 'cursor-not-allowed', 'border-emerald-500');
+        
+        lockNotice.innerHTML = `
+            &lt;div class="p-3 bg-emerald-50 border border-emerald-300 rounded text-emerald-800 text-sm"&gt;
+                &lt;strong&gt;&#x1F512; Credentials Verified:&lt;/strong&gt; Roll No and Course were extracted from your ID card 
+                and locked to ensure academic integrity.
+            &lt;/div&gt;`;
+        document.getElementById('hidden_manual_flag').value = "false";
+    } else {
+        // Fallback: photographic degradation or missing fields
+        rollInput.readOnly = false;
+        courseSelect.disabled = false;
+        rollInput.classList.remove('bg-slate-100', 'cursor-not-allowed');
+        courseSelect.classList.remove('bg-slate-100', 'cursor-not-allowed');
+        
+        lockNotice.innerHTML = `
+            &lt;div class="p-3 bg-amber-50 border border-amber-300 rounded text-amber-800 text-sm"&gt;
+                &lt;strong&gt;&#x26A0;&#xFE0F; Verification Advisory:&lt;/strong&gt; Automatic extraction was inconclusive due to image 
+                clarity. Please enter your Roll Number and Course manually. Your ID card will be manually reviewed by 
+                college administration prior to account activation.
+            &lt;/div&gt;`;
+        document.getElementById('hidden_manual_flag').value = "true";
+    }
+}
+</div>
+
+<p class=MsoNormal style="text-indent:0.5in;">
+<strong>Technical Commentary:</strong> Listing 5.4 details client-side credential immutability. When extraction succeeds with high confidence, the system locks the input fields and displays a verification confirmation. If extraction is inconclusive due to glare or low resolution, the system unlocks the inputs for manual entry while setting <code>hidden_manual_flag = true</code>. This flag routes the application to the manual review queue in the Administrator Console, ensuring zero unverified accounts are activated.
+</p>

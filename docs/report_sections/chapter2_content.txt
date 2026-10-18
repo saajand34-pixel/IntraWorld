@@ -1,0 +1,247 @@
+<h1>CHAPTER 2: SYSTEM ANALYSIS</h1>
+
+<h2>2.1 EXISTING SYSTEM STUDY</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+To comprehensively understand the necessity of an authenticated intra-college platform, an in-depth investigation of existing communication mechanisms across tertiary educational institutions was conducted. At present, undergraduate and postgraduate college communities rely almost exclusively on generic, unverified consumer technologies for internal peer-to-peer and group collaboration. These existing platforms can be categorized into three dominant archetypes:
+</p>
+<p class=MsoNormal>
+<strong>1. Consumer Messaging Applications (WhatsApp, Telegram):</strong>
+These applications serve as the primary operational medium for class announcement groups, departmental circulars, student club coordination, and peer study interactions. Access is typically governed by invite hyperlinks disseminated across unofficial networks.
+</p>
+<p class=MsoNormal>
+<strong>2. Public Social Media Channels (Instagram, Reddit, Discord):</strong>
+College cohorts frequently form unofficial collegiate pages, subreddit communities, or server channels to discuss campus life, post confessions, review faculty, and plan extra-curricular fests. Membership is completely open to the global Internet public.
+</p>
+<p class=MsoNormal>
+<strong>3. Proprietary Institutional ERP Systems:</strong>
+Institutions deploy centralized academic management systems (such as Contineo, TCS iON, or custom ERP portals) focused primarily on fee collection, examination hall ticket distribution, and attendance recording.
+</p>
+
+<div class=diagramBox>
+  <p class=MsoNormal style="text-align:center; font-weight:bold; margin-bottom:8pt;">
+    Figure 2.1: Information Flow &amp; Vulnerabilities in Conventional Unverified Platforms
+  </p>
+  <table style="width:90%; margin:0 auto; border:none; font-size:10pt;">
+    <tr>
+      <td style="border:1pt solid #666; background:#fee2e2; padding:8pt; text-align:center; width:30%;">
+        <strong>External / Unverified User</strong><br/>(Pseudonymous or Impersonated)
+      </td>
+      <td style="border:none; text-align:center; font-size:14pt; width:10%;">&rarr;</td>
+      <td style="border:1pt solid #666; background:#fef3c7; padding:8pt; text-align:center; width:30%;">
+        <strong>Public Group Link / WhatsApp</strong><br/>(Zero Identity or Card Check)
+      </td>
+      <td style="border:none; text-align:center; font-size:14pt; width:10%;">&rarr;</td>
+      <td style="border:1pt solid #666; background:#fee2e2; padding:8pt; text-align:center; width:30%;">
+        <strong>Vulnerable Student Community</strong><br/>(Spam, Harassment, Rumors, Leaks)
+      </td>
+    </tr>
+  </table>
+</div>
+
+<h2>2.2 LIMITATIONS OF THE EXISTING SYSTEM</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+Detailed analysis reveals severe structural, security, and operational deficiencies inherent to existing communication channels:
+</p>
+<p class=MsoNormal>
+<strong>1. Zero Identity Verification and Account Impersonation:</strong> Generic messaging platforms require only a telephone number or email address for account generation. Anyone can create an account using another student&rsquo;s name, photograph, and fake credentials. In collegiate WhatsApp groups, unauthorized external users frequently impersonate class representatives, faculty, or placement coordinators to mislead students.
+</p>
+<p class=MsoNormal>
+<strong>2. Privacy Invasion and Phone Number Exposure:</strong> In traditional group chats, every member's personal mobile phone number is visible to every other member. This exposes students&mdash;particularly female students&mdash;to unsolicited messages, stalking, and harassment by individuals who obtain their contact information without consent.
+</p>
+<p class=MsoNormal>
+<strong>3. Information Chaos and Disorganization:</strong> Important academic circulars regarding university examinations, syllabus revisions, and campus drive schedules are interleaved with recreational chatter, memes, political arguments, and viral spam. Critical institutional deadlines are routinely missed because messages become buried in unstructured group chat threads.
+</p>
+<p class=MsoNormal>
+<strong>4. Cross-Institutional Credential Cheating:</strong> In collegiate events and inter-college academic competitions, students from outside institutions frequently claim affiliation with prominent colleges by providing fabricated names. Because no automated verification exists, organizers must manually inspect physical paper cards, which is slow, tedious, and prone to fraud.
+</p>
+<p class=MsoNormal>
+<strong>5. Complete Lack of Moderation and Accountability:</strong> In unverified groups, perpetrators of abusive language or cyber-bullying can delete their accounts or leave the group immediately upon committing misconduct, leaving victims with no recourse and administrators with zero audit trails.
+</p>
+<p class=MsoNormal>
+<strong>6. Limitations of Conventional ERPs:</strong> Academic ERP systems are rigid, transactional databases designed for administration rather than student engagement. They feature archaic user interfaces, lack interactive social walls, provide no peer networking, and offer zero direct communication channels between scholars.
+</p>
+
+<table class=academicTable>
+  <caption>Table 2.1: Comparative Matrix: Existing Communication Channels vs. IntraWorld Ecosystem</caption>
+  <thead>
+    <tr>
+      <th style="width:25%;">Feature / Capability</th>
+      <th style="width:25%;">WhatsApp / Telegram Groups</th>
+      <th style="width:25%;">Traditional College ERP</th>
+      <th style="width:25%;">IntraWorld Platform</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Identity Verification</strong></td>
+      <td>None (Unverified Phone Number)</td>
+      <td>Manual Admin Roll Upload</td>
+      <td><strong>AI OCR + QR Code + Anti-Cheat</strong></td>
+    </tr>
+    <tr>
+      <td><strong>Phone Number Privacy</strong></td>
+      <td>Exposed to all group members</td>
+      <td>Visible to System Admins</td>
+      <td><strong>Masked &amp; Encrypted (+91 XX)</strong></td>
+    </tr>
+    <tr>
+      <td><strong>Bot &amp; Spam Protection</strong></td>
+      <td>None (Spam bots enter via links)</td>
+      <td>Basic Captcha (Often absent)</td>
+      <td><strong>Cloudflare Turnstile + Honeypot</strong></td>
+    </tr>
+    <tr>
+      <td><strong>Academic Department Filtering</strong></td>
+      <td>Requires separate disjoint groups</td>
+      <td>Rigid tabular lists only</td>
+      <td><strong>Dynamic Unified Department Feed</strong></td>
+    </tr>
+    <tr>
+      <td><strong>Credential Tampering Defense</strong></td>
+      <td>Not Applicable (Self-entered name)</td>
+      <td>Admin-dependent</td>
+      <td><strong>Auto-Filled &amp; Read-Only Locked</strong></td>
+    </tr>
+    <tr>
+      <td><strong>Peer Networking &amp; Messaging</strong></td>
+      <td>Unmoderated, unencrypted chat</td>
+      <td>Zero social interaction</td>
+      <td><strong>Secure P2P Student Messaging</strong></td>
+    </tr>
+    <tr>
+      <td><strong>Administrative Governance</strong></td>
+      <td>Unofficial student admins only</td>
+      <td>Administrative office only</td>
+      <td><strong>Formal Multi-Tier Approval Queue</strong></td>
+    </tr>
+    <tr>
+      <td><strong>Authenticity Scoring</strong></td>
+      <td>None (Binary presence)</td>
+      <td>None</td>
+      <td><strong>Dynamic Trust Gauge (0&ndash;100%)</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>2.3 PROPOSED SYSTEM ARCHITECTURE AND FEATURES</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+The proposed <strong>IntraWorld</strong> system replaces vulnerable, unverified communication tools with a secure, cloud-native social collaboration ecosystem designed specifically for academic institutions. IntraWorld combines rigorous multi-tier identity verification with modern, fluid social networking features. The fundamental innovations of the proposed system include:
+</p>
+<p class=MsoNormal>
+<strong>1. Dual-Factor Multi-Gateway Authentication:</strong> Each registration requires real-time validation across two distinct physical communication channels: an SMTP Gmail gateway delivering an instant 6-digit numeric OTP to the applicant's email, and a 2Factor Telecom SMS gateway delivering a cryptographically verified SMS OTP to an Indian mobile number.
+</p>
+<p class=MsoNormal>
+<strong>2. Dual-Engine Client-Side Vision Intelligence:</strong> The system incorporates a browser-based computer vision engine that processes photographed Student ID Cards. The engine first executes EXIF-aware image orientation correction (via <code>createImageBitmap</code>) to ensure cards taken sideways on mobile phones are rotated upright. It then inspects the card for high-density matrix QR barcodes using <em>jsQR</em>. If a QR code is detected, structured student data is parsed instantly with 100% mathematical fidelity. If no QR code exists, the image undergoes adaptive luminance histogram stretching and is fed into a dual-layer neural OCR pipeline (<em>Tesseract.js</em>) running PSM 11 (sparse text) and PSM 3 (automatic segmentation).
+</p>
+<p class=MsoNormal>
+<strong>3. Heuristic College Anti-Cheat Cross-Matching:</strong> To prevent students from falsely claiming attendance at prestigious institutions while uploading unrelated ID cards, IntraWorld introduces an anti-cheat engine. The algorithm tokenizes the manually entered college name, eliminates academic noise words, generates uppercase institutional acronyms (e.g., &ldquo;SFGC&rdquo;), and cross-matches them against OCR text using Levenshtein distance calculations. If a conflict is detected (e.g., entered &ldquo;BMS College&rdquo; while card indicates &ldquo;SFGC&rdquo;), registration is blocked.
+</p>
+<p class=MsoNormal>
+<strong>4. Read-Only Credential Locking with Supervised Fallback:</strong> Upon successful extraction, the student's Course and Roll Number credentials are auto-filled and locked as read-only fields, preventing client-side tampering. If the uploaded card photograph is degraded, blurry, or missing key fields, an automated fallback mechanism unlocks the fields, alerts the student, and flags the account for manual administrator review.
+</p>
+<p class=MsoNormal>
+<strong>5. Dynamic Authenticity Trust Metric:</strong> The system computes a composite Authenticity Trust Score (0&ndash;100%) based on verified identity tiers: Full Name (+10), Gender (+5), SMTP Verified Email (+25), SMS Verified Mobile (+20), Manual College &amp; Batch (+15), Cloudflare Bot Clearance (+10), Security Questions (+5), and Anti-Cheat Match (+10).
+</p>
+<p class=MsoNormal>
+<strong>6. Two-Stage Administrative Governance:</strong> Newly registered profiles are placed into an institutional approval queue (<code>accountStatus: 'PENDING_APPROVAL'</code>). College administrators review pending applicants, inspect card thumbnails, and approve or reject profiles before publishing access is granted.
+</p>
+
+<div class=diagramBox>
+  <p class=MsoNormal style="text-align:center; font-weight:bold; margin-bottom:8pt;">
+    Figure 2.2: IntraWorld End-to-End Conceptual Solution Architecture
+  </p>
+  <table style="width:96%; margin:0 auto; border:none; font-size:9.5pt;">
+    <tr>
+      <td style="border:1pt solid #1e3a8a; background:#e0f2fe; padding:6pt; text-align:center; width:22%;">
+        <strong>Student Client</strong><br/>Mobile / Desktop Browser<br/>EXIF &bull; jsQR &bull; Tesseract
+      </td>
+      <td style="border:none; text-align:center; font-size:12pt; width:4%;">&harr;</td>
+      <td style="border:1pt solid #047857; background:#d1fae5; padding:6pt; text-align:center; width:22%;">
+        <strong>Verification Tier</strong><br/>SMTP OTP &bull; 2Factor SMS<br/>Cloudflare Anti-Bot
+      </td>
+      <td style="border:none; text-align:center; font-size:12pt; width:4%;">&harr;</td>
+      <td style="border:1pt solid #b45309; background:#fef3c7; padding:6pt; text-align:center; width:22%;">
+        <strong>Anti-Cheat Engine</strong><br/>Acronym Synthesis<br/>Levenshtein &bull; Field Lock
+      </td>
+      <td style="border:none; text-align:center; font-size:12pt; width:4%;">&harr;</td>
+      <td style="border:1pt solid #4338ca; background:#ede9fe; padding:6pt; text-align:center; width:22%;">
+        <strong>Cloud Firestore</strong><br/>Users &bull; Feeds &bull; Chat<br/>Admin Approval Queue
+      </td>
+    </tr>
+  </table>
+</div>
+
+<h2>2.4 FEASIBILITY STUDY</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+Prior to implementing the IntraWorld software ecosystem, a comprehensive feasibility study was conducted across three essential dimensions: Technical Feasibility, Operational Feasibility, and Economic Feasibility.
+</p>
+
+<h3>2.4.1 TECHNICAL FEASIBILITY</h3>
+<p class=MsoNormal style="text-indent:0.5in;">
+Technical feasibility assesses whether the system can be developed and maintained using available technologies, hardware, and libraries. IntraWorld was found to be technically viable based on the following evaluations:
+</p>
+<ul>
+  <li><strong>Browser-Based AI Execution:</strong> The availability of WebAssembly (Wasm) ports of Google's open-source <em>Tesseract</em> OCR engine enables high-performance character recognition directly within the client browser. By executing OCR client-side, the system eliminates expensive GPU server hosting and network latency.</li>
+  <li><strong>Serverless Cloud Scalability:</strong> Google Cloud Firestore provides a managed, serverless NoSQL document database offering automatic multi-region redundancy, 99.999% availability, and sub-100 millisecond query latencies without requiring dedicated database administrator overhead.</li>
+  <li><strong>Standardized API Gateways:</strong> Production-grade RESTful communication protocols (Web3Forms/EmailJS for transactional SMTP dispatch and 2Factor.in for telecom SMS routing) provide reliable OTP transmission across Indian telecom networks with 99.8% delivery success within 15 seconds.</li>
+  <li><strong>Standards Compliance:</strong> The user interface is developed strictly using standardized HTML5, CSS3, and modern ECMAScript 2022 JavaScript, ensuring compatibility across Google Chrome, Mozilla Firefox, Apple Safari, Microsoft Edge, and mobile browser engines without requiring specialized operating system privileges or native app installations.</li>
+</ul>
+
+<h3>2.4.2 OPERATIONAL FEASIBILITY</h3>
+<p class=MsoNormal style="text-indent:0.5in;">
+Operational feasibility evaluates whether the proposed system will be accepted, adopted, and successfully utilized by target end-users (students, faculty, and college administrators) in daily academic workflows:
+</p>
+<ul>
+  <li><strong>Zero Learning Curve for Students:</strong> The platform incorporates clean, modern, intuitive UI patterns familiar to digital natives. Registration is structured as a progressive multi-section workflow with visual progress bars, real-time feedback badges, and automated field population that minimizes typing effort.</li>
+  <li><strong>Reduced Administrative Workload:</strong> In conventional setups, college administrators spend hours manually checking paper ID cards and rosters. IntraWorld automates card reading, acronym matching, and credential validation, presenting administrators with a clean queue where profiles can be approved or rejected with a single click.</li>
+  <li><strong>Privacy-Conscious Design:</strong> By masking telephone numbers and restricting campus access to verified students, the platform eliminates the harassment risks that currently discourage students from joining official groups.</li>
+</ul>
+
+<h3>2.4.3 ECONOMIC FEASIBILITY</h3>
+<p class=MsoNormal style="text-indent:0.5in;">
+Economic feasibility analyzes the developmental, infrastructural, and ongoing operational costs versus the tangible and intangible value delivered to the institution:
+</p>
+<ul>
+  <li><strong>Zero Hardware Procurement Overhead:</strong> Because IntraWorld adopts a serverless cloud architecture and client-side computer vision model, the college is not required to purchase, configure, or maintain costly on-premise servers, load balancers, or server-side GPU instances.</li>
+  <li><strong>Free-Tier Operational Sustainability:</strong> Google Cloud Firestore offers a generous free tier of 50,000 document reads, 20,000 document writes, and 1 GB of storage daily&mdash;more than sufficient to support an active campus of 2,500 to 5,000 students without incurring operational expenditure.</li>
+  <li><strong>Significant Cost Savings:</strong> Traditional commercial enterprise social networks charge substantial per-user monthly licensing fees. IntraWorld delivers an equivalent, more secure platform built on open-source frameworks at virtually zero recurring institutional cost.</li>
+</ul>
+
+<h2>2.5 RISK ANALYSIS AND MITIGATION STRATEGIES</h2>
+<table class=academicTable>
+  <caption>Table 2.2: Project Risk Assessment &amp; Mitigation Strategy Matrix</caption>
+  <thead>
+    <tr>
+      <th style="width:20%;">Risk Category</th>
+      <th style="width:25%;">Identified Risk</th>
+      <th style="width:15%;">Likelihood / Impact</th>
+      <th style="width:40%;">Implemented Mitigation Strategy</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Camera Degradation</strong></td>
+      <td>Mobile card photo is blurry, low-contrast, or taken at an angle.</td>
+      <td>Medium / High</td>
+      <td>Implemented EXIF auto-rotation, adaptive histogram contrast stretching, dual-mode PSM fallback, and supervised manual correction overrides.</td>
+    </tr>
+    <tr>
+      <td><strong>Identity Impersonation</strong></td>
+      <td>Student uploads another peer's ID card or an ID card from another institution.</td>
+      <td>Medium / High</td>
+      <td>Enforced Heuristic College Anti-Cheat Cross-Matching, Levenshtein distance checks, Student Name overlap matching, and mandatory Admin Approval review.</td>
+    </tr>
+    <tr>
+      <td><strong>Automated Bot Infiltration</strong></td>
+      <td>Malicious actors deploy automated scripts to flood registration queues.</td>
+      <td>High / High</td>
+      <td>Integrated Cloudflare Turnstile anti-bot challenges, hidden honeypot form traps, disposable email domain blocking, and rate limiting.</td>
+    </tr>
+    <tr>
+      <td><strong>SMS Gateway Latency</strong></td>
+      <td>Indian telecom network latency delays OTP SMS delivery.</td>
+      <td>Low / Medium</td>
+      <td>Implemented dual-channel verification (instant SMTP Gmail OTP fallback) with visual countdown resend timers and status notifications.</td>
+    </tr>
+  </tbody>
+</table>

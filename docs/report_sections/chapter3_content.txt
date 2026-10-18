@@ -1,0 +1,276 @@
+<h1>CHAPTER 3: SOFTWARE REQUIREMENT SPECIFICATIONS (SRS)</h1>
+
+<h2>3.1 INTRODUCTION AND SYSTEM PERSPECTIVE</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+The Software Requirement Specifications (SRS) document establishes the formal, definitive foundation for the engineering, evaluation, and operational deployment of the <strong>IntraWorld</strong> platform. This specification delineates the complete behavioral, algorithmic, interface, and environmental constraints governing the system. It serves as a binding contract between institutional requirements and software implementation, ensuring that all functional modules meet institutional security standards.
+</p>
+<p class=MsoNormal style="text-indent:0.5in;">
+From an architectural perspective, IntraWorld operates as a zero-trust, client-cloud hybrid application. The software does not exist in isolation; it interfaces with distributed third-party identity, telecom, security, and cloud data infrastructures. The system perspective encompasses the client browser runtime (executing WebAssembly OCR and QR decoding), cloud storage gateways (Google Cloud Firestore NoSQL engine), transactional communication APIs (SMTP protocol and Indian telecom SMS gateways), and reverse-proxy perimeter defense networks (Cloudflare Turnstile).
+</p>
+
+<h2>3.2 FUNCTIONAL REQUIREMENTS (FR)</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+The functional capabilities of the IntraWorld platform are categorized into twelve discrete, testable functional requirement specifications (FR-1 through FR-12):
+</p>
+
+<h3>FR-1: MULTI-CHANNEL TWO-FACTOR OTP AUTHENTICATION</h3>
+<p class=MsoNormal>
+<strong>Description:</strong> The system must enforce multi-channel identity validation across both email and mobile telephone vectors during student onboarding.
+</p>
+<ul>
+  <li><strong>FR-1.1:</strong> The system shall validate that the applicant provides a syntactically valid Gmail address (<code>@gmail.com</code>) and systematically reject disposable or temporary email domains (e.g., <code>tempmail.com</code>, <code>mailinator.com</code>, <code>10minutemail.com</code>).</li>
+  <li><strong>FR-1.2:</strong> Upon user trigger, the system shall generate a cryptographically random 6-digit numeric OTP and transmit it via secure SMTP gateway to the student's email with a 300-second validity window.</li>
+  <li><strong>FR-1.3:</strong> The system shall validate Indian mobile phone numbers (+91 format), stripping leading zeroes and country prefixes to enforce a strict 10-digit numeric constraint.</li>
+  <li><strong>FR-1.4:</strong> The system shall interface with the 2Factor Telecom API to dispatch an SMS OTP over authenticated telecom routes and verify the applicant's entered code against the returned session identifier.</li>
+  <li><strong>FR-1.5:</strong> Visual countdown timers (60 seconds) and resend throttles shall prevent denial-of-service abuse against the dispatch gateways.</li>
+</ul>
+
+<h3>FR-2: CLIENT-SIDE EXIF ORIENTATION &amp; IMAGE PREPROCESSING</h3>
+<p class=MsoNormal>
+<strong>Description:</strong> The system must normalize mobile camera photographs prior to optical analysis.
+</p>
+<ul>
+  <li><strong>FR-2.1:</strong> When an applicant uploads a camera photograph, the system shall inspect EXIF metadata using <code>createImageBitmap(file, { imageOrientation: "from-image" })</code> to automatically rotate sideways or inverted orientation tags to upright portrait alignment.</li>
+  <li><strong>FR-2.2:</strong> The system shall render the oriented image onto an in-memory HTML5 Canvas and scale it to a standardized high-resolution target width of 2,000 pixels.</li>
+  <li><strong>FR-2.3:</strong> The system shall compute an ITU-R BT.709 luminance histogram (<span style="font-style:italic;">Y = 0.2126R + 0.7152G + 0.0722B</span>) and execute continuous sigmoidal contrast stretching to enhance faint character printing and suppress background glare.</li>
+</ul>
+
+<h3>FR-3: HIGH-SPEED MATRIX QR BARCODE EXTRACTION</h3>
+<p class=MsoNormal>
+<strong>Description:</strong> The system must prioritize instant, 100% accurate matrix barcode decoding for cards equipped with digital QR codes.
+</p>
+<ul>
+  <li><strong>FR-3.1:</strong> The system shall scan the preprocessed canvas using the <em>jsQR</em> engine across normal and inverted binarization passes.</li>
+  <li><strong>FR-3.2:</strong> If a QR code is detected, the system shall parse the decoded payload across JSON structures, key-value pairs (e.g., <code>Roll: 24CA172</code>), or pipe-delimited tokens.</li>
+  <li><strong>FR-3.3:</strong> Extracted fields (Student Name, Roll Number, Degree Course, College Name, Academic Batch) shall be passed to the population module with scan method tagged as <code>QR</code>.</li>
+</ul>
+
+<h3>FR-4: DUAL-LAYER NEURAL OPTICAL CHARACTER RECOGNITION</h3>
+<p class=MsoNormal>
+<strong>Description:</strong> For cards without QR codes, the system must deploy multi-mode neural character recognition.
+</p>
+<ul>
+  <li><strong>FR-4.1:</strong> The system shall initialize a client-side <em>Tesseract.js</em> WebAssembly worker configured for English (<code>eng</code>).</li>
+  <li><strong>FR-4.2:</strong> Layer 1 shall execute under Page Segmentation Mode 11 (<code>PSM 11: Sparse text</code>) with inter-word spacing preservation to capture isolated labels.</li>
+  <li><strong>FR-4.3:</strong> If Layer 1 yields fewer than 40 characters, Layer 2 shall automatically execute under Page Segmentation Mode 3 (<code>PSM 3: Fully automatic page segmentation</code>), concatenating text buffers.</li>
+  <li><strong>FR-4.4:</strong> Real-time percentage progress indicators shall update the UI during recognition.</li>
+</ul>
+
+<h3>FR-5: HEURISTIC COLLEGE ANTI-CHEAT CROSS-MATCHING ENGINE</h3>
+<p class=MsoNormal>
+<strong>Description:</strong> The system must prevent applicants from misrepresenting their institutional affiliation.
+</p>
+<ul>
+  <li><strong>FR-5.1:</strong> The system shall require manual entry of the student's College / University Name under Section 2.</li>
+  <li><strong>FR-5.2:</strong> The anti-cheat engine shall normalize both entered and OCR-detected strings by stripping punctuation and removing 20+ academic stop words (e.g., <em>college</em>, <em>institute</em>, <em>university</em>, <em>first grade</em>, <em>school of</em>).</li>
+  <li><strong>FR-5.3:</strong> The engine shall generate canonical institutional acronyms (e.g., <em>&ldquo;SFGC&rdquo;</em> from <em>&ldquo;Seshadripuram First Grade College&rdquo;</em>) and cross-match acronym presence across the entire card OCR text buffer.</li>
+  <li><strong>FR-5.4:</strong> The engine shall calculate token overlap ratios and Levenshtein string distances. Similarity scores &ge; 0.70 shall generate a verified badge; scores &lt; 0.40 shall flag a critical <strong>MISMATCH</strong> and completely block form submission.</li>
+</ul>
+
+<h3>FR-6: CREDENTIAL LOCKING WITH SUPERVISED MANUAL FALLBACK</h3>
+<p class=MsoNormal>
+<strong>Description:</strong> The system must prevent client-side credential falsification while supporting audited fallback for degraded card photographs.
+</p>
+<ul>
+  <li><strong>FR-6.1:</strong> When Course and Roll Number credentials are extracted with high confidence, the input elements (<code>#ocrCourse</code> and <code>#ocrRollNo</code>) shall be set to <code>readOnly = true</code> with locked styling (<code>cursor: not-allowed</code>) and a <em>🔒 Locked</em> badge.</li>
+  <li><strong>FR-6.2:</strong> If OCR extraction fails to detect Course or Roll Number (or if OCR text length is &lt; 35 characters), the system shall automatically unlock the fields, display a yellow notification, and flag the account as manually edited due to unclear text.</li>
+  <li><strong>FR-6.3:</strong> An interactive override button (<em>[✏️ Image text unclear? Enable editing]</em>) shall allow applicants to unlock fields if OCR misread characters, logging <code>isOcrManuallyEdited: true</code> in the database for mandatory administrator verification.</li>
+</ul>
+
+<h3>FR-7: CLOUDFLARE TURNSTILE ANTI-BOT CHALLENGE</h3>
+<p class=MsoNormal>
+<strong>Description:</strong> The system must prevent automated registration scripts and bot farms.
+</p>
+<ul>
+  <li><strong>FR-7.1:</strong> The form shall feature an interactive Cloudflare verification widget requiring explicit user interaction.</li>
+  <li><strong>FR-7.2:</strong> A hidden honeypot input (<code>#honeypotTrap</code>) shall immediately reject submissions populated by automated scrapers.</li>
+  <li><strong>FR-7.3:</strong> Form submission shall be strictly disabled until Cloudflare verification completes successfully.</li>
+</ul>
+
+<h3>FR-8: DYNAMIC AUTHENTICITY TRUST SCORING METRIC</h3>
+<p class=MsoNormal>
+<strong>Description:</strong> The system must dynamically calculate and display an applicant's trust rating (0&ndash;100%).
+</p>
+<ul>
+  <li><strong>FR-8.1:</strong> The score shall be computed in real-time based on weighted criteria: Full Name (+10), Gender (+5), Verified Gmail (+25), Verified Mobile (+20), Manual College &amp; Batch (+15), Cloudflare Clearance (+10), Security Questions (+5), and Anti-Cheat Match (+10).</li>
+  <li><strong>FR-8.2:</strong> A SVG radial gauge shall visually update score percentages and color thresholds: Green (&ge;75% Genuine), Cyan (50&ndash;74% Moderate), Red (&lt;50% Low).</li>
+</ul>
+
+<h3>FR-9: ADMINISTRATIVE APPROVAL WORKFLOW</h3>
+<p class=MsoNormal>
+<strong>Description:</strong> Newly created student profiles must require administrative vetting prior to gaining campus posting privileges.
+</p>
+<ul>
+  <li><strong>FR-9.1:</strong> Registration submissions shall be persisted into Firestore with <code>accountStatus: 'PENDING_APPROVAL'</code> and <code>adminApproved: false</code>.</li>
+  <li><strong>FR-9.2:</strong> A dedicated Admin Portal (<code>admin-approval.html</code>) shall display pending applicants, their trust scores, anti-cheat status, and uploaded ID card thumbnails.</li>
+  <li><strong>FR-9.3:</strong> Administrators shall have authority to Approve (granting full access) or Reject (flagging fraudulent credentials) each applicant with real-time Firestore synchronization.</li>
+</ul>
+
+<h3>FR-10: DEPARTMENT-FILTERED CAMPUS FEEDS &amp; SOCIAL POSTING</h3>
+<p class=MsoNormal>
+<strong>Description:</strong> Approved students must be able to publish and discover academic announcements.
+</p>
+<ul>
+  <li><strong>FR-10.1:</strong> Authenticated students shall author posts containing text, academic categories (BCA, MCA, B.Sc., Placements, Cultural, Sports), and media attachments.</li>
+  <li><strong>FR-10.2:</strong> The feed interface shall support real-time category filtering, liking, and threaded commentary.</li>
+</ul>
+
+<h3>FR-11: AUTHENTICATED PEER-TO-PEER MESSAGING</h3>
+<p class=MsoNormal>
+<strong>Description:</strong> Students must be able to communicate directly without exposing telephone numbers.
+</p>
+<ul>
+  <li><strong>FR-11.1:</strong> The system shall facilitate 1-on-1 direct messaging between authenticated scholars.</li>
+  <li><strong>FR-11.2:</strong> Messages shall be persisted in Firestore sub-collections indexed by participant UID pairs, keeping telephone numbers and private email addresses completely hidden.</li>
+</ul>
+
+<h3>FR-12: PROFILE &amp; ACADEMIC SETTINGS</h3>
+<p class=MsoNormal>
+<strong>Description:</strong> Students must manage their academic bio, skills directory, and security settings.
+</p>
+<ul>
+  <li><strong>FR-12.1:</strong> Profiles shall showcase verified badges, course affiliation, graduation batch, and technical skills tags.</li>
+  <li><strong>FR-12.2:</strong> Avatar photographs shall be stored and rendered using optimized data URIs and Firestore documents.</li>
+</ul>
+
+<h2>3.3 NON-FUNCTIONAL REQUIREMENTS (NFR)</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+Non-functional requirements specify operational quality criteria, system constraints, and architectural standards:
+</p>
+<ul>
+  <li><strong>NFR-1: Performance &amp; Latency:</strong> The client-side QR barcode scanner must decode valid matrix codes within 250 milliseconds. Dual-layer Tesseract OCR execution on a 2,000-pixel card image must complete within 4.5 seconds on modern multi-core devices. Cloud Firestore read/write transactions must execute with latencies under 120 milliseconds.</li>
+  <li><strong>NFR-2: Security &amp; Data Integrity:</strong> All communications must utilize Transport Layer Security (TLS 1.3). Student passwords must be encrypted and salted prior to authentication checks. Telephone numbers must be stored in standardized E.164 format and masked on all public-facing UI components. Cross-Site Scripting (XSS) must be mitigated via strict HTML entity sanitization (<code>escapeHtml</code>).</li>
+  <li><strong>NFR-3: Reliability &amp; Availability:</strong> The serverless cloud infrastructure must deliver 99.99% operational uptime. Database state must be replicated across multi-region Google Cloud datacenters with automated failover and zero data loss.</li>
+  <li><strong>NFR-4: Usability &amp; Responsive Layout:</strong> The user interface must deliver a mobile-first, responsive experience conforming to WCAG 2.1 Level AA accessibility standards, operating seamlessly across viewport widths from 360 pixels (smartphones) to 2,560 pixels (desktop displays).</li>
+  <li><strong>NFR-5: Scalability:</strong> The serverless architecture must horizontally scale to accommodate concurrent registration surges (e.g., 5,000 students registering simultaneously during semester admission weeks) without server provisioning or queue degradation.</li>
+  <li><strong>NFR-6: Maintainability:</strong> Front-end modules must adhere to modular, human-readable JavaScript patterns with comprehensive JSDoc documentation, zero deprecated dependencies, and strict separation of presentation (HTML/CSS) from business logic (JS).</li>
+</ul>
+
+<h2>3.4 HARDWARE AND SOFTWARE STACK CONFIGURATION</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+The operational deployment of IntraWorld requires the following hardware and software stack configurations across client and cloud tiers:
+</p>
+
+<table class=academicTable>
+  <caption>Table 3.1: Minimum Client-Side Hardware Specifications</caption>
+  <thead>
+    <tr>
+      <th style="width:30%;">Component</th>
+      <th style="width:35%;">Minimum Specification</th>
+      <th style="width:35%;">Recommended Specification</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Processor (CPU)</strong></td>
+      <td>Dual-Core 1.8 GHz (x86_64 or ARM64)</td>
+      <td>Quad-Core 2.4 GHz or higher</td>
+    </tr>
+    <tr>
+      <td><strong>System Memory (RAM)</strong></td>
+      <td>2.0 GB RAM (for Wasm OCR workers)</td>
+      <td>4.0 GB RAM or higher</td>
+    </tr>
+    <tr>
+      <td><strong>Display Resolution</strong></td>
+      <td>360 &times; 640 pixels (Mobile)</td>
+      <td>1920 &times; 1080 pixels (Full HD)</td>
+    </tr>
+    <tr>
+      <td><strong>Integrated Camera</strong></td>
+      <td>2.0 Megapixel (720p resolution)</td>
+      <td>5.0 Megapixel with autofocus &amp; flash</td>
+    </tr>
+    <tr>
+      <td><strong>Network Connection</strong></td>
+      <td>3G Mobile Data (384 Kbps)</td>
+      <td>4G LTE / 5G / Broadband Wi-Fi (&ge; 10 Mbps)</td>
+    </tr>
+  </tbody>
+</table>
+
+<table class=academicTable>
+  <caption>Table 3.2: Server &amp; Cloud Infrastructure Specifications</caption>
+  <thead>
+    <tr>
+      <th style="width:30%;">Infrastructure Layer</th>
+      <th style="width:35%;">Technology / Provider</th>
+      <th style="width:35%;">Operational Parameters</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Cloud Database</strong></td>
+      <td>Google Cloud Firestore (NoSQL)</td>
+      <td>Multi-region regional replication, automatic sharding</td>
+    </tr>
+    <tr>
+      <td><strong>Static Web Hosting</strong></td>
+      <td>Firebase Hosting / Global Edge CDN</td>
+      <td>SSD edge caches, automated TLS/SSL certificate issuance</td>
+    </tr>
+    <tr>
+      <td><strong>Edge Security &amp; WAF</strong></td>
+      <td>Cloudflare Turnstile &amp; DDoS Shield</td>
+      <td>Managed challenge mode, automated threat analytics</td>
+    </tr>
+    <tr>
+      <td><strong>Transactional SMTP</strong></td>
+      <td>EmailJS / Web3Forms Gateway</td>
+      <td>TLS authenticated SMTP routing, DKIM/SPF verified</td>
+    </tr>
+    <tr>
+      <td><strong>Telecom SMS Gateway</strong></td>
+      <td>2Factor.in Telecom Hub</td>
+      <td>DND-compliant transactional SMS route (India)</td>
+    </tr>
+  </tbody>
+</table>
+
+<table class=academicTable>
+  <caption>Table 3.3: Software Technology Stack &amp; Library Dependencies</caption>
+  <thead>
+    <tr>
+      <th style="width:25%;">Category</th>
+      <th style="width:35%;">Software / Library</th>
+      <th style="width:40%;">Role in IntraWorld Architecture</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Markup &amp; Styling</strong></td>
+      <td>HTML5 &bull; CSS3 &bull; CSS Grid &bull; Flexbox</td>
+      <td>Semantic presentation, dark-themed responsive glassmorphic UI</td>
+    </tr>
+    <tr>
+      <td><strong>Core Client Logic</strong></td>
+      <td>Modern JavaScript (ES6+ / ECMAScript 2022)</td>
+      <td>Client-side routing, DOM manipulation, asynchronous state management</td>
+    </tr>
+    <tr>
+      <td><strong>Client Vision (QR)</strong></td>
+      <td>jsQR (v1.4.0)</td>
+      <td>Matrix barcode binarization and instant payload decoding</td>
+    </tr>
+    <tr>
+      <td><strong>Client Vision (OCR)</strong></td>
+      <td>Tesseract.js (v4.0.2 / WebAssembly)</td>
+      <td>Neural optical character recognition in web worker sandbox</td>
+    </tr>
+    <tr>
+      <td><strong>PDF Processing</strong></td>
+      <td>PDF.js (v3.11.174) &bull; Binary Scanner</td>
+      <td>Rasterization of PDF fee vouchers and ID cards onto HTML5 Canvas</td>
+    </tr>
+    <tr>
+      <td><strong>Database SDK</strong></td>
+      <td>Firebase JavaScript SDK (v8.10.1)</td>
+      <td>Real-time Firestore collection queries and listener subscriptions</td>
+    </tr>
+    <tr>
+      <td><strong>Development Runtime</strong></td>
+      <td>Node.js (v20+ / v22 LTS) &bull; PowerShell</td>
+      <td>Build automation, dependency resolution, local server testing</td>
+    </tr>
+  </tbody>
+</table>

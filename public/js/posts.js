@@ -896,20 +896,29 @@ async function openShareModal(postId, authorName, content) {
                     ? activeShareContext.content.trim() 
                     : "Academic document/image attachment";
 
-                const shareText = `📢 Shared an Academic Post from ${activeShareContext.authorName}:\n\n"${snippet}"\n\n🔗 View in Posts Feed`;
+                // Build rich shared post card payload with image and content
+                const sharedPost = loadedPostsCache.find(p => p.id === activeShareContext.postId) || {};
+                const safeSharedMedia = (sharedPost.mediaUrl && /^(https?:\/\/|data:image\/)/.test(sharedPost.mediaUrl)) ? sharedPost.mediaUrl : null;
 
                 await addDoc(collection(db, "chats", chatId, "messages"), {
                     senderEmail: myEmail,
                     receiverEmail: peerEmail,
                     senderName: currentUser.displayName || myEmail.split("@")[0],
-                    text: shareText,
+                    text: "\u{1F4E2} " + (currentUser.displayName || "A classmate") + " shared a post",
                     timestamp: serverTimestamp(),
-                    timeStr: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    timeStr: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
                     status: "sent",
                     viewed: false,
                     deletedFor: [],
                     deletedForEveryone: false,
-                    replyTo: null
+                    replyTo: null,
+                    sharedPost: {
+                        postId: activeShareContext.postId,
+                        authorName: activeShareContext.authorName,
+                        content: snippet,
+                        mediaUrl: safeSharedMedia || null,
+                        audience: sharedPost.audience || sharedPost.postType || "public"
+                    }
                 });
 
                 sendBtn.classList.add("sent");

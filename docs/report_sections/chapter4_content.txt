@@ -1,0 +1,345 @@
+<h1>CHAPTER 4: SYSTEM DESIGN</h1>
+
+<h2>4.1 HIGH-LEVEL ARCHITECTURE</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+The architectural design of <strong>IntraWorld</strong> adopts a modern, three-tier cloud-native model structured around the principles of edge-computing intelligence, stateless client execution, and managed serverless database persistence. Traditional web architectures frequently suffer from severe bottlenecks because high-resolution image uploads and computer vision OCR workloads overwhelm central server CPUs and memory buffers. In contrast, IntraWorld distributes processing workloads efficiently across three architectural tiers:
+</p>
+<p class=MsoNormal>
+<strong>1. Presentation &amp; Edge Intelligence Tier (Client Browser):</strong> Executing directly within the student's browser sandbox, this tier orchestrates user interactions, form validation, EXIF metadata correction, canvas-based image preprocessing, jsQR barcode decoding, and WebAssembly-powered Tesseract OCR neural parsing. Business logic&mdash;including acronym extraction, string distance heuristics, and field locking&mdash;executes on the client machine with zero server CPU consumption.
+</p>
+<p class=MsoNormal>
+<strong>2. Gateway &amp; Perimeter Security Tier (External Distributed Gateways):</strong> This tier encompasses external perimeter defenses and transactional communication hubs. Cloudflare Turnstile provides reverse-proxy bot challenge verification; EmailJS/Web3Forms routes encrypted SMTP packets to Google Gmail servers; and the 2Factor Telecom Hub interacts with Indian cellular networks to dispatch SMS authentication tokens.
+</p>
+<p class=MsoNormal>
+<strong>3. Persistence &amp; Governance Tier (Google Cloud Firestore):</strong> The backend consists of Google Cloud Firestore, a horizontally scalable, document-oriented NoSQL database. Firestore maintains collections for user credentials, pending registration queues, academic rosters, social feeds, and private messaging channels with automated real-time listener synchronization and strict declarative security rules.
+</p>
+
+<div class=diagramBox>
+  <p class=MsoNormal style="text-align:center; font-weight:bold; margin-bottom:8pt;">
+    Figure 4.1: IntraWorld 3-Tier Serverless Cloud Architecture Diagram
+  </p>
+  <table style="width:96%; margin:0 auto; border:none; font-size:9.5pt;">
+    <tr>
+      <td style="border:1.5pt solid #1e3a8a; background:#eff6ff; padding:8pt; text-align:center; width:30%;">
+        <strong>TIER 1: CLIENT RUNTIME</strong><br/>
+        &bull; HTML5 / CSS3 / ES6 UI<br/>
+        &bull; EXIF Orientation Normalizer<br/>
+        &bull; jsQR Matrix Decoder<br/>
+        &bull; Tesseract.js (Wasm Worker)<br/>
+        &bull; Anti-Cheat Heuristic Matcher
+      </td>
+      <td style="border:none; text-align:center; font-size:14pt; width:5%;">&harr;</td>
+      <td style="border:1.5pt solid #047857; background:#ecfdf5; padding:8pt; text-align:center; width:30%;">
+        <strong>TIER 2: GATEWAY SERVICES</strong><br/>
+        &bull; Cloudflare Turnstile Shield<br/>
+        &bull; SMTP Transactional Hub<br/>
+        &bull; 2Factor Telecom SMS Route<br/>
+        &bull; Firebase Edge CDN
+      </td>
+      <td style="border:none; text-align:center; font-size:14pt; width:5%;">&harr;</td>
+      <td style="border:1.5pt solid #4338ca; background:#eef2ff; padding:8pt; text-align:center; width:30%;">
+        <strong>TIER 3: CLOUD PERSISTENCE</strong><br/>
+        &bull; Google Cloud Firestore NoSQL<br/>
+        &bull; Collections: users, registrations<br/>
+        &bull; Collections: posts, messages<br/>
+        &bull; Admin Verification Console
+      </td>
+    </tr>
+  </table>
+</div>
+
+<h2>4.2 DATA FLOW DIAGRAMS (DFD)</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+Data Flow Diagrams (DFDs) map the logical progression, structural transformations, and operational boundaries of data across the IntraWorld platform.
+</p>
+
+<h3>4.2.1 DFD LEVEL 0: CONTEXT LEVEL DIAGRAM</h3>
+<p class=MsoNormal style="text-indent:0.5in;">
+The Context Level Diagram (Figure 4.2) abstracts the entire IntraWorld platform into a single central process entity, illustrating external entities (Student Applicant, College Administrator, SMTP Email Gateway, Telecom SMS Gateway, Cloudflare Security) and the high-level data signals exchanged across institutional boundaries.
+</p>
+
+<div class=diagramBox>
+  <p class=MsoNormal style="text-align:center; font-weight:bold; margin-bottom:8pt;">
+    Figure 4.2: Data Flow Diagram (DFD) Level 0 &ndash; Context Level Diagram
+  </p>
+  <table style="width:96%; margin:0 auto; border:none; font-size:9pt; line-height:130%;">
+    <tr>
+      <td style="border:1pt solid #000; background:#f1f5f9; padding:6pt; width:22%; text-align:center;">
+        <strong>STUDENT APPLICANT</strong><br/>
+        &bull; Contact Info<br/>
+        &bull; ID Card Photo<br/>
+        &bull; OTP Inputs
+      </td>
+      <td style="border:none; text-align:center; width:12%;">&rarr; Registration Data &rarr;<br/>&larr; Account Status &larr;</td>
+      <td style="border:2pt solid #1e3a8a; background:#dbeafe; padding:10pt; width:32%; text-align:center;">
+        <span style="font-size:12pt; font-weight:bold;">0.0</span><br/>
+        <strong>INTRAWORLD SYSTEM</strong><br/>
+        Identity Verification &amp; Intra-Campus Social Platform
+      </td>
+      <td style="border:none; text-align:center; width:12%;">&rarr; Pending Queue &rarr;<br/>&larr; Approval Decision &larr;</td>
+      <td style="border:1pt solid #000; background:#f1f5f9; padding:6pt; width:22%; text-align:center;">
+        <strong>COLLEGE ADMIN</strong><br/>
+        &bull; Profile Inspection<br/>
+        &bull; Card Thumbnail Review<br/>
+        &bull; Account Activation
+      </td>
+    </tr>
+    <tr>
+      <td colspan=5 style="border:none; text-align:center; padding-top:10pt;">
+        &uarr; &darr; OTP Verification Signals &uarr; &darr;<br/>
+        <strong>External Gateways: SMTP Hub &bull; 2Factor SMS Telecom &bull; Cloudflare Turnstile</strong>
+      </td>
+    </tr>
+  </table>
+</div>
+
+<h3>4.2.2 DFD LEVEL 1: MAJOR SYSTEM SUB-SYSTEMS</h3>
+<p class=MsoNormal style="text-indent:0.5in;">
+The Level 1 DFD decomposes the monolithic system into seven major functional subsystems: Authentication (1.0), Vision &amp; OCR Engine (2.0), Anti-Cheat Matcher (3.0), Admin Queue Processor (4.0), Post &amp; Feed Engine (5.0), Direct Messaging (6.0), and Profile Directory (7.0).
+</p>
+
+<div class=diagramBox>
+  <p class=MsoNormal style="text-align:center; font-weight:bold; margin-bottom:8pt;">
+    Figure 4.3: Data Flow Diagram (DFD) Level 1 &ndash; System Decomposition
+  </p>
+  <table style="width:98%; margin:0 auto; border:none; font-size:8.5pt;">
+    <tr>
+      <td style="border:1pt solid #1e3a8a; background:#e0f2fe; padding:4pt; text-align:center; width:13%;">
+        <strong>1.0 AUTH</strong><br/>SMTP &amp; SMS OTP
+      </td>
+      <td style="border:none; text-align:center; width:2%;">&rarr;</td>
+      <td style="border:1pt solid #1e3a8a; background:#e0f2fe; padding:4pt; text-align:center; width:13%;">
+        <strong>2.0 VISION</strong><br/>EXIF, QR &amp; OCR
+      </td>
+      <td style="border:none; text-align:center; width:2%;">&rarr;</td>
+      <td style="border:1pt solid #1e3a8a; background:#e0f2fe; padding:4pt; text-align:center; width:13%;">
+        <strong>3.0 ANTI-CHEAT</strong><br/>Acronym &amp; Lock
+      </td>
+      <td style="border:none; text-align:center; width:2%;">&rarr;</td>
+      <td style="border:1pt solid #b45309; background:#fef3c7; padding:4pt; text-align:center; width:13%;">
+        <strong>4.0 ADMIN</strong><br/>Approval Review
+      </td>
+      <td style="border:none; text-align:center; width:2%;">&rarr;</td>
+      <td style="border:1pt solid #047857; background:#d1fae5; padding:4pt; text-align:center; width:13%;">
+        <strong>5.0 FEEDS</strong><br/>Campus Posts
+      </td>
+      <td style="border:none; text-align:center; width:2%;">&rarr;</td>
+      <td style="border:1pt solid #047857; background:#d1fae5; padding:4pt; text-align:center; width:13%;">
+        <strong>6.0 CHAT</strong><br/>P2P Messages
+      </td>
+    </tr>
+  </table>
+  <p class=MsoNormal style="font-size:9pt; text-align:center; margin-top:6pt; color:#475569;">
+    Data Stores: [D1: users] &bull; [D2: registrations] &bull; [D3: students] &bull; [D4: posts] &bull; [D5: messages]
+  </p>
+</div>
+
+<h3>4.2.3 DFD LEVEL 2: DETAILED OCR SCANNING &amp; ANTI-CHEAT FLOW</h3>
+<p class=MsoNormal style="text-indent:0.5in;">
+Figure 4.4 details the internal sub-processes of the vision intelligence and anti-cheat pipeline (Process 2.0 and 3.0), showing the decision branches between QR barcode parsing, multi-layer Tesseract neural OCR, stop-word elimination, acronym synthesis, and read-only field locking.
+</p>
+
+<div class=diagramBox>
+  <p class=MsoNormal style="text-align:center; font-weight:bold; margin-bottom:8pt;">
+    Figure 4.4: Data Flow Diagram (DFD) Level 2 &ndash; Dual OCR Registration &amp; Anti-Cheat Pipeline
+  </p>
+  <table style="width:96%; margin:0 auto; border:none; font-size:8.5pt;">
+    <tr>
+      <td style="border:1pt solid #334155; background:#f8fafc; padding:6pt; width:24%; text-align:center;">
+        <strong>2.1 Image Orientation</strong><br/>
+        Read EXIF metadata<br/>
+        Rotate canvas to upright<br/>
+        Scale to 2,000px width
+      </td>
+      <td style="border:none; text-align:center; width:3%;">&rarr;</td>
+      <td style="border:1pt solid #334155; background:#f8fafc; padding:6pt; width:24%; text-align:center;">
+        <strong>2.2 jsQR Inspection</strong><br/>
+        Scan matrix barcode<br/>
+        <em>Found?</em> &rarr; Instant 100% parse<br/>
+        <em>None?</em> &rarr; Route to 2.3
+      </td>
+      <td style="border:none; text-align:center; width:3%;">&rarr;</td>
+      <td style="border:1pt solid #334155; background:#f8fafc; padding:6pt; width:24%; text-align:center;">
+        <strong>2.3 Neural OCR (Wasm)</strong><br/>
+        Histogram stretch<br/>
+        Layer 1: PSM 11 Sparse<br/>
+        Layer 2: PSM 3 Full
+      </td>
+      <td style="border:none; text-align:center; width:3%;">&rarr;</td>
+      <td style="border:1pt solid #1e3a8a; background:#e0f2fe; padding:6pt; width:24%; text-align:center;">
+        <strong>3.1 Anti-Cheat Matcher</strong><br/>
+        Strip academic stop words<br/>
+        Synthesize acronyms<br/>
+        Compute Levenshtein dist
+      </td>
+    </tr>
+  </table>
+  <p class=MsoNormal style="font-size:8.5pt; text-align:center; margin-top:6pt; color:#475569;">
+    Outcome Branch: If Match &ge; 0.70 &rarr; Auto-fill &amp; Lock Credentials [readOnly=true]. If Mismatch &lt; 0.40 &rarr; Hard Block Submission.
+  </p>
+</div>
+
+<h2>4.3 ENTITY-RELATIONSHIP (ER) DIAGRAM</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+The Entity-Relationship model (Figure 4.5) captures the semantic data entities, attributes, and cardinality relationships governing the IntraWorld domain. Key entities include <strong>Student/User</strong>, <strong>RegistrationApplication</strong>, <strong>Post</strong>, <strong>Comment</strong>, <strong>DirectMessage</strong>, and <strong>AdministrativeAction</strong>.
+</p>
+
+<div class=diagramBox>
+  <p class=MsoNormal style="text-align:center; font-weight:bold; margin-bottom:8pt;">
+    Figure 4.5: Entity-Relationship (ER) Schema Model
+  </p>
+  <table style="width:96%; margin:0 auto; border:none; font-size:9pt;">
+    <tr>
+      <td style="border:1.5pt solid #1e3a8a; background:#eff6ff; padding:6pt; width:30%; text-align:left;">
+        <strong>USER / STUDENT</strong><br/>
+        <u>email</u> (PK)<br/>
+        full_name, phone<br/>
+        studentRegId (USN)<br/>
+        qualification, batch<br/>
+        collegeName<br/>
+        trustScore, accountStatus<br/>
+        isVerified, adminApproved
+      </td>
+      <td style="border:none; text-align:center; width:5%; font-size:12pt;">1 : N &rarr;</td>
+      <td style="border:1.5pt solid #047857; background:#ecfdf5; padding:6pt; width:30%; text-align:left;">
+        <strong>POST</strong><br/>
+        <u>postId</u> (PK)<br/>
+        authorEmail (FK)<br/>
+        authorName, department<br/>
+        content, mediaUrl<br/>
+        likesCount, commentsCount<br/>
+        createdAt
+      </td>
+      <td style="border:none; text-align:center; width:5%; font-size:12pt;">1 : N &rarr;</td>
+      <td style="border:1.5pt solid #b45309; background:#fef3c7; padding:6pt; width:30%; text-align:left;">
+        <strong>COMMENT</strong><br/>
+        <u>commentId</u> (PK)<br/>
+        postId (FK)<br/>
+        authorEmail (FK)<br/>
+        text<br/>
+        createdAt
+      </td>
+    </tr>
+    <tr>
+      <td colspan=5 style="border:none; text-align:center; padding-top:10pt;">
+        <strong>Additional Cardinalities:</strong> USER (1) &mdash; Sends &mdash; (N) DIRECT_MESSAGE (1:N) &bull; USER (1) &mdash; Submits &mdash; (1) REGISTRATION_APPLICATION (1:1) &bull; ADMIN (1) &mdash; Reviews &mdash; (N) REGISTRATION_APPLICATION (1:N)
+      </td>
+    </tr>
+  </table>
+</div>
+
+<h2>4.4 DATABASE SCHEMA AND FIRESTORE COLLECTION STRUCTURES</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+IntraWorld stores data across normalized Google Cloud Firestore collections. The complete field definitions, data types, constraints, and operational descriptions are documented below:
+</p>
+
+<table class=academicTable>
+  <caption>Table 4.1: Database Schema &ndash; <code>users</code> Collection (Document ID: email)</caption>
+  <thead>
+    <tr>
+      <th style="width:25%;">Field Name</th>
+      <th style="width:20%;">Data Type</th>
+      <th style="width:20%;">Constraint</th>
+      <th style="width:35%;">Description &amp; Business Rules</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td><code>email</code></td><td>String</td><td>Primary Key / Unique</td><td>Normalized lowercase student Gmail address.</td></tr>
+    <tr><td><code>fullName</code></td><td>String</td><td>Required (&ge; 2 chars)</td><td>Official legal name of the student.</td></tr>
+    <tr><td><code>phone</code></td><td>String</td><td>Unique (+91 format)</td><td>Indian mobile number with E.164 country code.</td></tr>
+    <tr><td><code>studentRegId</code></td><td>String</td><td>Unique (Upper)</td><td>University Roll No / USN extracted via OCR.</td></tr>
+    <tr><td><code>qualification</code></td><td>String</td><td>Required</td><td>Degree program (e.g., &ldquo;BCA&rdquo;, &ldquo;MCA&rdquo;, &ldquo;B.Sc.&rdquo;).</td></tr>
+    <tr><td><code>collegeName</code></td><td>String</td><td>Required</td><td>Affiliated institution verified against card.</td></tr>
+    <tr><td><code>passedOutYear</code></td><td>String</td><td>Format: YYYY-YYYY</td><td>Academic batch duration (e.g., &ldquo;2024-2027&rdquo;).</td></tr>
+    <tr><td><code>trustScore</code></td><td>Number</td><td>Range: 0 &ndash; 100</td><td>Composite authenticity rating score.</td></tr>
+    <tr><td><code>accountStatus</code></td><td>String</td><td>Enum</td><td>'PENDING_APPROVAL' | 'APPROVED' | 'REJECTED'</td></tr>
+    <tr><td><code>adminApproved</code></td><td>Boolean</td><td>Default: false</td><td>Approval flag toggled by administrator.</td></tr>
+    <tr><td><code>collegeMatchStatus</code></td><td>String</td><td>Enum</td><td>'matched' | 'partial' | 'mismatch' | 'skipped'</td></tr>
+    <tr><td><code>isIdCardVerified</code></td><td>Boolean</td><td>Required</td><td>True if ID card successfully parsed via QR/OCR.</td></tr>
+    <tr><td><code>createdAt</code></td><td>Timestamp (ISO)</td><td>Immutable</td><td>Server registration timestamp.</td></tr>
+  </tbody>
+</table>
+
+<table class=academicTable>
+  <caption>Table 4.2: Database Schema &ndash; <code>registrations</code> Collection (Application Audit Log)</caption>
+  <thead>
+    <tr>
+      <th style="width:25%;">Field Name</th>
+      <th style="width:20%;">Data Type</th>
+      <th style="width:20%;">Constraint</th>
+      <th style="width:35%;">Description &amp; Business Rules</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td><code>docId</code></td><td>Auto-ID</td><td>Primary Key</td><td>Unique registration transaction identifier.</td></tr>
+    <tr><td><code>email</code></td><td>String</td><td>Indexed</td><td>Applicant's Gmail address.</td></tr>
+    <tr><td><code>ocrScannedCollege</code></td><td>String</td><td>Optional</td><td>Raw institutional string detected on physical card.</td></tr>
+    <tr><td><code>ocrScannedCourse</code></td><td>String</td><td>Required</td><td>Course detected via QR or neural OCR.</td></tr>
+    <tr><td><code>ocrScannedRollNo</code></td><td>String</td><td>Required</td><td>Roll number detected via QR or neural OCR.</td></tr>
+    <tr><td><code>isOcrManuallyEdited</code></td><td>Boolean</td><td>Audit Flag</td><td>True if applicant unlocked fields due to unclear text.</td></tr>
+    <tr><td><code>isOcrTextUnclear</code></td><td>Boolean</td><td>Audit Flag</td><td>True if vision engine flagged image text degradation.</td></tr>
+    <tr><td><code>favouriteSport</code></td><td>String</td><td>Encrypted / Lower</td><td>Security Question 1 for account password recovery.</td></tr>
+    <tr><td><code>ambition</code></td><td>String</td><td>Encrypted / Lower</td><td>Security Question 2 for account password recovery.</td></tr>
+    <tr><td><code>createdAt</code></td><td>Timestamp</td><td>Required</td><td>Exact submission timestamp.</td></tr>
+  </tbody>
+</table>
+
+<table class=academicTable>
+  <caption>Table 4.3: Database Schema &ndash; <code>posts</code> Collection (Campus Feed)</caption>
+  <thead>
+    <tr>
+      <th style="width:25%;">Field Name</th>
+      <th style="width:20%;">Data Type</th>
+      <th style="width:20%;">Constraint</th>
+      <th style="width:35%;">Description &amp; Business Rules</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td><code>postId</code></td><td>Auto-ID</td><td>Primary Key</td><td>Unique campus post document identifier.</td></tr>
+    <tr><td><code>authorEmail</code></td><td>String</td><td>Foreign Key</td><td>Email of approved student author.</td></tr>
+    <tr><td><code>authorName</code></td><td>String</td><td>Required</td><td>Display name of the author.</td></tr>
+    <tr><td><code>department</code></td><td>String</td><td>Indexed</td><td>Target academic stream (e.g., &ldquo;BCA&rdquo;, &ldquo;General&rdquo;).</td></tr>
+    <tr><td><code>content</code></td><td>String</td><td>Max 2,000 chars</td><td>Post text body sanitized against XSS.</td></tr>
+    <tr><td><code>likesCount</code></td><td>Number</td><td>Default: 0</td><td>Real-time count of peer upvotes/likes.</td></tr>
+    <tr><td><code>commentsCount</code></td><td>Number</td><td>Default: 0</td><td>Real-time count of threaded comments.</td></tr>
+    <tr><td><code>createdAt</code></td><td>Timestamp</td><td>Indexed (DESC)</td><td>Creation timestamp for timeline sorting.</td></tr>
+  </tbody>
+</table>
+
+<table class=academicTable>
+  <caption>Table 4.4: Database Schema &ndash; <code>messages</code> Collection (P2P Private Chat)</caption>
+  <thead>
+    <tr>
+      <th style="width:25%;">Field Name</th>
+      <th style="width:20%;">Data Type</th>
+      <th style="width:20%;">Constraint</th>
+      <th style="width:35%;">Description &amp; Business Rules</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td><code>messageId</code></td><td>Auto-ID</td><td>Primary Key</td><td>Unique direct message identifier.</td></tr>
+    <tr><td><code>chatId</code></td><td>String</td><td>Indexed (Composite)</td><td>Lexicographically sorted UID pair (e.g., UID1_UID2).</td></tr>
+    <tr><td><code>senderEmail</code></td><td>String</td><td>Foreign Key</td><td>Email address of the sender.</td></tr>
+    <tr><td><code>recipientEmail</code></td><td>String</td><td>Foreign Key</td><td>Email address of the recipient.</td></tr>
+    <tr><td><code>text</code></td><td>String</td><td>Encrypted / Escaped</td><td>Direct message communication text.</td></tr>
+    <tr><td><code>readStatus</code></td><td>Boolean</td><td>Default: false</td><td>Indicates whether recipient viewed message.</td></tr>
+    <tr><td><code>timestamp</code></td><td>Timestamp</td><td>Indexed (ASC)</td><td>Exact transmission timestamp.</td></tr>
+  </tbody>
+</table>
+
+<h2>4.5 USER INTERFACE (UI) WIREFRAME ARCHITECTURE</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+The user interface architecture is engineered following responsive, glassmorphic design principles featuring a deep-navy academic color palette (<code>#091226</code> and <code>#180206</code>) with high-contrast emerald green (<code>#10b981</code>) and amber (<code>#f59e0b</code>) accent states. The primary screen layouts encompass:
+</p>
+<p class=MsoNormal>
+<strong>1. Registration Interface (<code>register.html</code>):</strong> Structured as a four-part progressive form containing Contact &amp; Identity, Manual College Information, Security Recovery Questions, ID Card Upload with dual OCR card, Cloudflare Challenge, and Password security.
+</p>
+<p class=MsoNormal>
+<strong>2. Dual OCR Result Card View:</strong> Positioned in Section 4, this interactive component renders the card thumbnail, engine note (QR 100% vs. Neural OCR), locked Course and Roll Number inputs with padlock indicators, real-time college anti-cheat match badges, and the supervised manual edit override button.
+</p>
+<p class=MsoNormal>
+<strong>3. Administrative Review Console (<code>admin-approval.html</code>):</strong> A restricted console featuring pending applicant summary cards, high-resolution ID card inspection modals, anti-cheat scores, and instant One-Click Approval or Rejection buttons.
+</p>
+<p class=MsoNormal>
+<strong>4. Campus Feed Interface (<code>index.html</code> / <code>feed.html</code>):</strong> A multi-column dashboard featuring departmental filters, an authoring modal with study tag selector, like/comment threads, and trending campus topics.
+</p>

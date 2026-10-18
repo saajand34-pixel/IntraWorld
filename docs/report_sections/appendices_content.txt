@@ -1,0 +1,391 @@
+<h1>APPENDICES &amp; REFERENCES</h1>
+
+<h2>APPENDIX A: IEEE BIBLIOGRAPHY &amp; REFERENCES</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+The following academic research papers, technical standards, institutional monographs, and industry specifications informed the architectural design, algorithmic implementation, and theoretical framework of the IntraWorld platform:
+</p>
+
+<div class=codeBox style="background:transparent; border:none; padding:0; font-family:'Times New Roman', serif; font-size:11pt; line-height:150%;">
+<p class=MsoNormal>
+[1] R. Smith, &ldquo;An Overview of the Tesseract OCR Engine,&rdquo; in <em>Proceedings of the Ninth International Conference on Document Analysis and Recognition (ICDAR)</em>, Curitiba, Brazil, 2007, vol. 2, pp. 629&ndash;633. doi: 10.1109/ICDAR.2007.4378789.
+</p>
+<p class=MsoNormal>
+[2] V. I. Levenshtein, &ldquo;Binary Codes Capable of Correcting Deletions, Insertions, and Reversals,&rdquo; <em>Soviet Physics Doklady</em>, vol. 10, no. 8, pp. 707&ndash;710, Feb. 1966.
+</p>
+<p class=MsoNormal>
+[3] International Telecommunication Union, &ldquo;Parameter values for the HDTV standards for production and international programme exchange,&rdquo; <em>Recommendation ITU-R BT.709-6</em>, ITU Radiocommunication Sector, Geneva, Switzerland, 2015.
+</p>
+<p class=MsoNormal>
+[4] E. Gamma, R. Helm, R. Johnson, and J. Vlissides, <em>Design Patterns: Elements of Reusable Object-Oriented Software</em>. Boston, MA: Addison-Wesley Professional, 1994.
+</p>
+<p class=MsoNormal>
+[5] A. S. Tanenbaum and M. van Steen, <em>Distributed Systems: Principles and Paradigms</em>, 3rd ed. CreateSpace Independent Publishing Platform, 2017.
+</p>
+<p class=MsoNormal>
+[6] P. Jaccard, &ldquo;The Distribution of the Flora in the Alpine Zone,&rdquo; <em>New Phytologist</em>, vol. 11, no. 2, pp. 37&ndash;50, Feb. 1912. doi: 10.1111/j.1469-8137.1912.tb05611.x.
+</p>
+<p class=MsoNormal>
+[7] A. Haas et al., &ldquo;Bringing the Web up to Speed with WebAssembly,&rdquo; in <em>Proceedings of the 38th ACM SIGPLAN Conference on Programming Language Design and Implementation (PLDI)</em>, Barcelona, Spain, 2017, pp. 185&ndash;200. doi: 10.1145/3062341.3062363.
+</p>
+<p class=MsoNormal>
+[8] Google Cloud Platform, &ldquo;Google Cloud Firestore: Scalable NoSQL Cloud Database Architecture,&rdquo; <em>Google Cloud Technical Documentation</em>, Mountain View, CA, 2024. [Online]. Available: https://cloud.google.com/firestore/docs.
+</p>
+<p class=MsoNormal>
+[9] Cloudflare Inc., &ldquo;Turnstile: A User-Friendly, Privacy-Preserving Alternative to CAPTCHA,&rdquo; <em>Cloudflare Research Whitepaper</em>, San Francisco, CA, 2023. [Online]. Available: https://www.cloudflare.com/products/turnstile/.
+</p>
+<p class=MsoNormal>
+[10] D. Crockford, <em>JavaScript: The Good Parts</em>. Sebastopol, CA: O'Reilly Media, 2008.
+</p>
+<p class=MsoNormal>
+[11] M. Fowler, <em>Patterns of Enterprise Application Architecture</em>. Boston, MA: Addison-Wesley Professional, 2002.
+</p>
+<p class=MsoNormal>
+[12] OWASP Foundation, &ldquo;OWASP Top Ten Web Application Security Risks,&rdquo; <em>Open Web Application Security Project</em>, 2021. [Online]. Available: https://owasp.org/Top10/.
+</p>
+<p class=MsoNormal>
+[13] R. Fielding, &ldquo;Architectural Styles and the Design of Network-based Software Architectures,&rdquo; Ph.D. dissertation, Dept. Inf. Comput. Sci., Univ. California, Irvine, CA, 2000.
+</p>
+<p class=MsoNormal>
+[14] ISO/IEC, &ldquo;Information technology &ndash; Automatic identification and data capture techniques &ndash; QR Code bar code symbology specification,&rdquo; <em>ISO/IEC Standard 18004:2015</em>, International Organization for Standardization, Geneva, Switzerland, 2015.
+</p>
+<p class=MsoNormal>
+[15] R. Bradner, &ldquo;Key words for use in RFCs to Indicate Requirement Levels,&rdquo; <em>RFC 2119</em>, Internet Engineering Task Force (IETF), Mar. 1997. doi: 10.17487/RFC2119.
+</p>
+<p class=MsoNormal>
+[16] P. Resnick, &ldquo;Internet Message Format,&rdquo; <em>RFC 5322</em>, Internet Engineering Task Force (IETF), Oct. 2008. doi: 10.17487/RFC5322.
+</p>
+<p class=MsoNormal>
+[17] National Institute of Standards and Technology (NIST), &ldquo;Digital Identity Guidelines: Authentication and Lifecycle Management,&rdquo; <em>NIST Special Publication 800-63B</em>, U.S. Dept. of Commerce, Washington, D.C., 2020.
+</p>
+<p class=MsoNormal>
+[18] Bengaluru City University, &ldquo;Regulations Governing the Choice Based Credit System (CBCS) for Under-Graduate Degree Programmes in the Faculties of Arts, Science and Commerce,&rdquo; BCU Academic Council, Bengaluru, India, 2021.
+</p>
+<p class=MsoNormal>
+[19] World Wide Web Consortium (W3C), &ldquo;HTML5: A Vocabulary and Associated APIs for HTML and XHTML,&rdquo; <em>W3C Recommendation</em>, Oct. 2014. [Online]. Available: https://www.w3.org/TR/html5/.
+</p>
+<p class=MsoNormal>
+[20] World Wide Web Consortium (W3C), &ldquo;Web Authentication: An API for Accessing Scoped Credentials (WebAuthn Level 2),&rdquo; <em>W3C Recommendation</em>, Apr. 2021. [Online]. Available: https://www.w3.org/TR/webauthn-2/.
+</p>
+<p class=MsoNormal>
+[21] J. Dean and S. Ghemawat, &ldquo;MapReduce: Simplified Data Processing on Large Clusters,&rdquo; <em>Communications of the ACM</em>, vol. 51, no. 1, pp. 107&ndash;113, Jan. 2008. doi: 10.1145/1327452.1327492.
+</p>
+<p class=MsoNormal>
+[22] D. D. Woods and E. Hollnagel, <em>Joint Cognitive Systems: Patterns in Systems Engineering</em>. Boca Raton, FL: CRC Press, 2006.
+</p>
+</div>
+
+<br clear=all style='page-break-before:always;mso-break-type:section-break'>
+
+
+<h2>APPENDIX B: USER MANUAL AND OPERATING INSTRUCTIONS</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+This user manual provides step-by-step operating guidelines for student applicants and departmental administrators using the IntraWorld platform.
+</p>
+
+<h3>B.1 STUDENT ONBOARDING &amp; VERIFICATION GUIDE</h3>
+<p class=MsoNormal>
+<strong>Step 1: Accessing the Portal</strong><br/>
+Navigate to the platform root URL (e.g., <code>https://intraworld.edu</code> or local test host) in any modern, standards-compliant web browser. On the landing page, click the <strong>Register Account</strong> button to launch the verification wizard.
+</p>
+<p class=MsoNormal>
+<strong>Step 2: Entering Institutional Affiliation</strong><br/>
+Provide your full legal name, institutional email address (e.g., Gmail), mobile phone number, and type your college name (e.g., &ldquo;Seshadripuram First Grade College&rdquo;).
+</p>
+<p class=MsoNormal>
+<strong>Step 3: Uploading the Physical Student ID Card</strong><br/>
+Click the <strong>Upload Student ID Card</strong> upload tile. Select a clear, high-resolution photograph of your physical college identity card. Ensure proper lighting, avoid glare on the text lines, and keep the card flat against a neutral surface.
+</p>
+<p class=MsoNormal>
+<strong>Step 4: Automated Vision Scanning &amp; Credential Locking</strong><br/>
+The client-side vision pipeline automatically normalizes the image, reads matrix barcodes (if present), and executes neural OCR via WebAssembly. The system cross-evaluates your college name against the card text. Upon successful validation, your <strong>Degree Course</strong> and <strong>Roll Number</strong> will populate automatically and lock with a green padlock indicator.
+</p>
+<p class=MsoNormal>
+<strong>Step 5: Two-Factor Authentication Verification</strong><br/>
+Click <strong>Verify Email OTP</strong>. A 6-digit cryptographic verification code will be dispatched to your email address. Enter the code in the verification modal. Repeat the step for SMS mobile verification (or use Demo OTP mode during evaluation trials).
+</p>
+<p class=MsoNormal>
+<strong>Step 6: Submission and Pending Queue</strong><br/>
+Complete the interactive Cloudflare Turnstile challenge and click <strong>Submit Registration</strong>. Your application is placed into the secure departmental verification queue with status <code>pending</code>.
+</p>
+
+<h3>B.2 COLLEGE ADMINISTRATOR CONSOLE GUIDE</h3>
+<p class=MsoNormal>
+<strong>Step 1: Logging into Administrative Console</strong><br/>
+Open <code>admin_approval.html</code> and authenticate using authorized faculty credentials.
+</p>
+<p class=MsoNormal>
+<strong>Step 2: Reviewing the Verification Queue</strong><br/>
+The dashboard displays pending applicants in real time. Each record presents the student's name, roll number, course, calculated Authenticity Trust Score, and a thumbnail of the uploaded ID card.
+</p>
+<p class=MsoNormal>
+<strong>Step 3: Inspecting Proofs and Authorizing Accounts</strong><br/>
+Click any applicant to open the split-screen inspection view. Compare the entered roll number against the high-resolution photo on the left panel. If authentic, click <strong>Approve Account</strong> to commit the student to the active roster and trigger a welcome email. If the card is fraudulent or unreadable, click <strong>Reject Application</strong> and provide a reason.
+</p>
+
+<h3>B.3 TROUBLESHOOTING &amp; ERROR RECOVERY</h3>
+<table class=academicTable>
+  <thead>
+    <tr>
+      <th style="width:25%;">Observed Symptom</th>
+      <th style="width:35%;">Probable Root Cause</th>
+      <th style="width:40%;">Recommended Corrective Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>&ldquo;College Name Mismatch&rdquo; alert</td>
+      <td>Uploaded ID card text does not match entered institution name.</td>
+      <td>Ensure entered institution matches the physical card header. Retake photo with clear college title.</td>
+    </tr>
+    <tr>
+      <td>Fields unlocked; manual fallback triggered</td>
+      <td>Image too blurry, severe camera glare, or dark lighting.</td>
+      <td>Manually enter Course and Roll Number accurately. Faculty will inspect photo during approval.</td>
+    </tr>
+    <tr>
+      <td>Email OTP token delayed</td>
+      <td>Network transit latency or spam filtering.</td>
+      <td>Check Spam/Junk folder. Click &ldquo;Resend OTP&rdquo; after 60s, or use Demo OTP in test mode.</td>
+    </tr>
+    <tr>
+      <td>Cloudflare widget fails to render</td>
+      <td>Ad-blocker or script restriction active in browser.</td>
+      <td>Disable aggressive browser extensions for the domain and reload.</td>
+    </tr>
+  </tbody>
+</table>
+
+<br clear=all style='page-break-before:always;mso-break-type:section-break'>
+
+
+<h2>APPENDIX C: ABBREVIATIONS AND ACRONYMS INDEX</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+The following alphabetical index defines technical, architectural, and educational acronyms referenced throughout this dissertation:
+</p>
+
+<table class=academicTable>
+  <thead>
+    <tr>
+      <th style="width:20%;">Acronym / Abbreviation</th>
+      <th style="width:40%;">Full Expanded Nomenclature</th>
+      <th style="width:40%;">Contextual &amp; Technical Domain</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>2FA</strong></td>
+      <td>Two-Factor Authentication</td>
+      <td>Multi-layered cryptographic identity verification</td>
+    </tr>
+    <tr>
+      <td><strong>API</strong></td>
+      <td>Application Programming Interface</td>
+      <td>Software interface for programmatic data exchange</td>
+    </tr>
+    <tr>
+      <td><strong>BCA</strong></td>
+      <td>Bachelor of Computer Applications</td>
+      <td>Undergraduate computer science academic program</td>
+    </tr>
+    <tr>
+      <td><strong>BCU</strong></td>
+      <td>Bengaluru City University</td>
+      <td>State university affiliating authority, Bengaluru</td>
+    </tr>
+    <tr>
+      <td><strong>CDN</strong></td>
+      <td>Content Delivery Network</td>
+      <td>Geographically distributed network for low-latency assets</td>
+    </tr>
+    <tr>
+      <td><strong>CSS</strong></td>
+      <td>Cascading Style Sheets</td>
+      <td>Style sheet language for presentation layout styling</td>
+    </tr>
+    <tr>
+      <td><strong>DFD</strong></td>
+      <td>Data Flow Diagram</td>
+      <td>Graphical representation of information flow in a system</td>
+    </tr>
+    <tr>
+      <td><strong>DOM</strong></td>
+      <td>Document Object Model</td>
+      <td>Tree structure representing HTML elements in browsers</td>
+    </tr>
+    <tr>
+      <td><strong>ERD</strong></td>
+      <td>Entity-Relationship Diagram</td>
+      <td>Data modeling technique for conceptual database schemas</td>
+    </tr>
+    <tr>
+      <td><strong>ERP</strong></td>
+      <td>Enterprise Resource Planning</td>
+      <td>Institutional administrative management system</td>
+    </tr>
+    <tr>
+      <td><strong>EXIF</strong></td>
+      <td>Exchangeable Image File Format</td>
+      <td>Metadata specification embedded within digital photos</td>
+    </tr>
+    <tr>
+      <td><strong>HTML</strong></td>
+      <td>HyperText Markup Language</td>
+      <td>Standard markup language for web document architecture</td>
+    </tr>
+    <tr>
+      <td><strong>HTTP / HTTPS</strong></td>
+      <td>HyperText Transfer Protocol (Secure)</td>
+      <td>Encrypted network application communication protocol</td>
+    </tr>
+    <tr>
+      <td><strong>IEEE</strong></td>
+      <td>Institute of Electrical and Electronics Engineers</td>
+      <td>Global professional technical standards organization</td>
+    </tr>
+    <tr>
+      <td><strong>ITU</strong></td>
+      <td>International Telecommunication Union</td>
+      <td>United Nations agency for information &amp; telecom standards</td>
+    </tr>
+    <tr>
+      <td><strong>JSON</strong></td>
+      <td>JavaScript Object Notation</td>
+      <td>Lightweight, human-readable data interchange format</td>
+    </tr>
+    <tr>
+      <td><strong>KYC</strong></td>
+      <td>Know Your Customer</td>
+      <td>Customer/Student identification validation protocol</td>
+    </tr>
+    <tr>
+      <td><strong>LAN</strong></td>
+      <td>Local Area Network</td>
+      <td>Computer network interconnecting devices within a campus</td>
+    </tr>
+    <tr>
+      <td><strong>MCA</strong></td>
+      <td>Master of Computer Applications</td>
+      <td>Postgraduate degree in advanced computing applications</td>
+    </tr>
+    <tr>
+      <td><strong>MIME</strong></td>
+      <td>Multipurpose Internet Mail Extensions</td>
+      <td>Standard formatting protocol for multipart media and documents</td>
+    </tr>
+    <tr>
+      <td><strong>MVC</strong></td>
+      <td>Model-View-Controller</td>
+      <td>Architectural software pattern decoupling data and UI</td>
+    </tr>
+    <tr>
+      <td><strong>NFR</strong></td>
+      <td>Non-Functional Requirement</td>
+      <td>Quality criteria governing system performance and security</td>
+    </tr>
+    <tr>
+      <td><strong>NoSQL</strong></td>
+      <td>Not Only SQL</td>
+      <td>Non-relational distributed database architecture</td>
+    </tr>
+    <tr>
+      <td><strong>OCR</strong></td>
+      <td>Optical Character Recognition</td>
+      <td>Computer vision technology converting images to digital text</td>
+    </tr>
+    <tr>
+      <td><strong>OTP</strong></td>
+      <td>One-Time Password</td>
+      <td>Dynamic cryptographic token valid for single use session</td>
+    </tr>
+    <tr>
+      <td><strong>PSM</strong></td>
+      <td>Page Segmentation Mode</td>
+      <td>Tesseract layout analysis operational configuration</td>
+    </tr>
+    <tr>
+      <td><strong>PVC</strong></td>
+      <td>Polyvinyl Chloride</td>
+      <td>Plastic polymer material used in institutional ID badges</td>
+    </tr>
+    <tr>
+      <td><strong>QR Code</strong></td>
+      <td>Quick Response Code</td>
+      <td>Two-dimensional high-density matrix optical barcode</td>
+    </tr>
+    <tr>
+      <td><strong>RAM</strong></td>
+      <td>Random Access Memory</td>
+      <td>Volatile primary electronic hardware system memory</td>
+    </tr>
+    <tr>
+      <td><strong>REST</strong></td>
+      <td>Representational State Transfer</td>
+      <td>Software architectural style for distributed web services</td>
+    </tr>
+    <tr>
+      <td><strong>RFC</strong></td>
+      <td>Request for Comments</td>
+      <td>Official Internet Engineering Task Force technical standard</td>
+    </tr>
+    <tr>
+      <td><strong>SDK</strong></td>
+      <td>Software Development Kit</td>
+      <td>Collection of software tools and libraries for development</td>
+    </tr>
+    <tr>
+      <td><strong>SFGC</strong></td>
+      <td>Seshadripuram First Grade College</td>
+      <td>Host undergraduate institution, Yelahanka, Bengaluru</td>
+    </tr>
+    <tr>
+      <td><strong>SMS</strong></td>
+      <td>Short Message Service</td>
+      <td>Cellular telecommunications text messaging service</td>
+    </tr>
+    <tr>
+      <td><strong>SMTP</strong></td>
+      <td>Simple Mail Transfer Protocol</td>
+      <td>Standard communication protocol for electronic mail dispatch</td>
+    </tr>
+    <tr>
+      <td><strong>SQL</strong></td>
+      <td>Structured Query Language</td>
+      <td>Standard language for relational database management</td>
+    </tr>
+    <tr>
+      <td><strong>SRS</strong></td>
+      <td>Software Requirements Specification</td>
+      <td>Formal document describing software capabilities and scope</td>
+    </tr>
+    <tr>
+      <td><strong>SSL / TLS</strong></td>
+      <td>Secure Sockets Layer / Transport Layer Security</td>
+      <td>Cryptographic protocols providing network communications security</td>
+    </tr>
+    <tr>
+      <td><strong>UI / UX</strong></td>
+      <td>User Interface / User Experience</td>
+      <td>Visual layout design and user interaction ergonomics</td>
+    </tr>
+    <tr>
+      <td><strong>USN</strong></td>
+      <td>University Seat Number</td>
+      <td>Unique permanent student academic registration identifier</td>
+    </tr>
+    <tr>
+      <td><strong>W3C</strong></td>
+      <td>World Wide Web Consortium</td>
+      <td>Main international standards organization for the World Wide Web</td>
+    </tr>
+    <tr>
+      <td><strong>Wasm</strong></td>
+      <td>WebAssembly</td>
+      <td>Binary instruction format for near-native in-browser execution</td>
+    </tr>
+    <tr>
+      <td><strong>XSS</strong></td>
+      <td>Cross-Site Scripting</td>
+      <td>Web application security exploit injecting malicious client scripts</td>
+    </tr>
+  </tbody>
+</table>

@@ -357,6 +357,425 @@
             flex-shrink: 0;
         }
 
+        /* Shared Post Card in Chat */
+        .shared-post-card {
+            background: rgba(0, 0, 0, 0.45);
+            border: 1px solid rgba(245, 158, 11, 0.35);
+            border-radius: 12px;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            max-width: 290px;
+            text-align: left;
+            transition: all 0.2s ease;
+        }
+        .shared-post-card:hover {
+            border-color: rgba(245, 158, 11, 0.6);
+            background: rgba(0, 0, 0, 0.55);
+        }
+        .shared-post-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 8px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid rgba(245, 158, 11, 0.18);
+        }
+        .shared-post-img {
+            width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .shared-post-caption {
+            font-size: 13px;
+            color: #f1f5f9;
+            line-height: 1.4;
+            margin-bottom: 8px;
+            word-break: break-word;
+        }
+        .shared-post-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: #ffd700;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .shared-post-link:hover {
+            color: #f59e0b;
+            text-decoration: underline;
+        }
+        .msg-forwarded-tag {
+            font-size: 11px;
+            color: #94a3b8;
+            font-style: italic;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Forward Modal */
+        .forward-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(6px);
+            z-index: 2500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .forward-modal-box {
+            background: #1c0207;
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            border-radius: 18px;
+            width: 100%;
+            max-width: 440px;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85);
+        }
+        .forward-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(245, 158, 11, 0.2);
+        }
+        .forward-modal-header h3 {
+            font-size: 16px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .forward-preview-box {
+            padding: 12px 18px;
+            background: rgba(0, 0, 0, 0.35);
+            border-bottom: 1px solid rgba(245, 158, 11, 0.15);
+        }
+        .forward-preview-label {
+            display: block;
+            font-size: 11px;
+            color: #f59e0b;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .forward-preview-text {
+            font-size: 13px;
+            color: #e2e8f0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .forward-search-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 18px;
+            background: #24040a;
+            border-bottom: 1px solid rgba(245, 158, 11, 0.2);
+        }
+        .forward-search-box i {
+            color: #f59e0b;
+            font-size: 14px;
+        }
+        .forward-search-box input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #fff;
+            font-size: 13px;
+        }
+        .forward-peers-list {
+            flex: 1;
+            overflow-y: auto;
+            max-height: 340px;
+        }
+        .forward-peer-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 18px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: background 0.2s ease;
+        }
+        .forward-peer-item:hover {
+            background: rgba(245, 158, 11, 0.08);
+        }
+        .forward-peer-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+            flex: 1;
+        }
+        .forward-peer-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f59e0b, #c41226);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #fff;
+            flex-shrink: 0;
+            border: 1.5px solid rgba(255, 215, 0, 0.45);
+            overflow: hidden;
+        }
+        .forward-peer-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .forward-peer-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .forward-peer-desc {
+            font-size: 12px;
+            color: #f59e0b;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .btn-forward-send {
+            padding: 7px 14px;
+            background: linear-gradient(135deg, #ffd700 0%, #f59e0b 50%, #d97706 100%);
+            color: #180206;
+            border: none;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        .btn-forward-send:hover {
+            background: linear-gradient(135deg, #fef08a 0%, #ffd700 50%, #f59e0b 100%);
+        }
+
+        /* User Profile & Posts Modal */
+        .profile-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(6px);
+            z-index: 2600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .profile-modal-box {
+            background: #1c0207;
+            border: 1px solid rgba(245, 158, 11, 0.45);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 680px;
+            max-height: 88vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9);
+        }
+        .profile-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 24px;
+            background: #250309;
+            border-bottom: 1px solid rgba(245, 158, 11, 0.25);
+        }
+        .profile-header-user {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .profile-modal-avatar {
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f59e0b, #c41226);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: bold;
+            color: #fff;
+            border: 2px solid rgba(255, 215, 0, 0.5);
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .profile-modal-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .profile-modal-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 2px;
+        }
+        .profile-modal-college {
+            font-size: 13px;
+            color: #f59e0b;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 4px;
+        }
+        .profile-regid-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid rgba(245, 158, 11, 0.35);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            color: #ffd700;
+            font-weight: 600;
+        }
+        .modal-close-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #cbd5e1;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        .modal-close-btn:hover {
+            background: #ef4444;
+            color: #fff;
+        }
+        .profile-tabs-bar {
+            display: flex;
+            gap: 8px;
+            padding: 12px 24px;
+            background: #180206;
+            border-bottom: 1px solid rgba(245, 158, 11, 0.18);
+        }
+        .profile-tab-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            color: #cbd5e1;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .profile-tab-btn:hover {
+            color: #f59e0b;
+            border-color: #f59e0b;
+        }
+        .profile-tab-btn.active {
+            background: linear-gradient(135deg, #ffd700 0%, #f59e0b 50%, #d97706 100%);
+            color: #180206;
+            font-weight: 700;
+            border-color: #ffd700;
+        }
+        .profile-posts-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            background: #1c0207;
+        }
+        .profile-post-card {
+            background: #250309;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 14px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .profile-post-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .post-type-badge {
+            font-size: 11px;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .badge-public {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            color: #34d399;
+        }
+        .badge-community {
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid rgba(245, 158, 11, 0.35);
+            color: #fbbf24;
+        }
+        .profile-post-content {
+            font-size: 14px;
+            color: #f8fafc;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+        .profile-post-media {
+            width: 100%;
+            max-height: 280px;
+            object-fit: cover;
+            border-radius: 10px;
+            cursor: pointer;
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            transition: transform 0.2s ease;
+        }
+        .profile-post-media:hover {
+            transform: scale(1.01);
+        }
+        .profile-post-footer {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 12px;
+            color: #94a3b8;
+            padding-top: 8px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
     </style>
 </head>
 <body>
@@ -484,6 +903,53 @@
 
     
     
+
+    
+    <!-- Forward Message Modal -->
+    <div id="forwardModal" class="forward-modal-overlay" style="display: none;">
+        <div class="forward-modal-box">
+            <div class="forward-modal-header">
+                <h3><i class="fa-solid fa-share" style="color:#f59e0b;"></i> Forward Message</h3>
+                <button type="button" id="closeForwardModalBtn" class="modal-close-btn" title="Close"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="forwardPreviewBox" class="forward-preview-box">
+                <span class="forward-preview-label"><i class="fa-solid fa-quote-left"></i> Message Preview:</span>
+                <div id="forwardPreviewText" class="forward-preview-text">Selected message content</div>
+            </div>
+            <div class="forward-search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="forwardSearchInput" placeholder="Search classmate to forward..." />
+            </div>
+            <div class="forward-peers-list" id="forwardPeersList">
+                <div style="text-align:center; padding:20px; color:#f59e0b;"><i class="fa-solid fa-spinner fa-spin"></i> Loading classmates...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Profile & Posts Modal -->
+    <div id="userProfileModal" class="profile-modal-overlay" style="display: none;">
+        <div class="profile-modal-box">
+            <div class="profile-modal-header">
+                <div class="profile-header-user">
+                    <div class="profile-modal-avatar" id="profileModalAvatar">U</div>
+                    <div>
+                        <h3 class="profile-modal-name" id="profileModalName">Student Name</h3>
+                        <p class="profile-modal-college" id="profileModalCollege"><i class="fa-solid fa-building-columns"></i> College Name</p>
+                        <span id="profileModalRegId" class="profile-regid-badge"><i class="fa-solid fa-id-card"></i> Reg ID</span>
+                    </div>
+                </div>
+                <button type="button" id="closeProfileModalBtn" class="modal-close-btn" title="Close"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="profile-tabs-bar">
+                <button type="button" class="profile-tab-btn active" data-tab="all">All Posts (<span id="countAllPosts">0</span>)</button>
+                <button type="button" class="profile-tab-btn" data-tab="public"><i class="fa-solid fa-globe"></i> Public (<span id="countPublicPosts">0</span>)</button>
+                <button type="button" class="profile-tab-btn" data-tab="community"><i class="fa-solid fa-building-columns"></i> College (<span id="countCommPosts">0</span>)</button>
+            </div>
+            <div class="profile-posts-container" id="profilePostsContainer">
+                <div style="text-align:center; padding:30px; color:#f59e0b;"><i class="fa-solid fa-spinner fa-spin"></i> Loading student posts...</div>
+            </div>
+        </div>
+    </div>
 
     <script type="module" src="js/firebase-config.js"></script>
     <script type="module" src="js/auth-check.js"></script>

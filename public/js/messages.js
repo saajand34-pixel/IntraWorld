@@ -305,6 +305,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
 
             const peers = Array.from(peerMap.values());
+            cachedPeersList = peers;
 
             if (peers.length === 0) {
                 userListEl.innerHTML = '<div style="padding: 20px; color: #8fa8bf; font-size: 13px; text-align: center;">No other student peers found.</div>';
@@ -485,12 +486,35 @@ document.addEventListener("DOMContentLoaded", async () => {
                         }
                     }
 
+                    // Render shared post card if present (rich card with image + caption)
+                    let sharedPostHtml = "";
+                    if (msg.sharedPost) {
+                        const sp = msg.sharedPost;
+                        const spMedia = sp.mediaUrl && /^(https?:\/\/|data:image\/)/.test(sp.mediaUrl) ? sp.mediaUrl : null;
+                        const spSnippet = sp.content ? (sp.content.length > 120 ? sp.content.substring(0, 120) + "..." : sp.content) : "View this post";
+                        sharedPostHtml = `
+                            <div class="shared-post-card" data-post-id="${sp.postId || ''}">
+                                <div class="shared-post-header">
+                                    <i class="fa-solid fa-share" style="color:#f59e0b; font-size:11px;"></i>
+                                    <span style="font-size:11px; color:#f59e0b; font-weight:600;">Shared Post</span>
+                                    <span style="font-size:11px; color:#94a3b8; margin-left:4px;">by ${escapeHtml(sp.authorName || "Student")}</span>
+                                </div>
+                                ${spMedia ? `<img src="${spMedia}" class="shared-post-img" alt="Shared post image" />` : ""}
+                                <div class="shared-post-caption">${escapeHtml(spSnippet)}</div>
+                                <a href="posts.html" class="shared-post-link">
+                                    <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:10px;"></i> View in Posts Feed
+                                </a>
+                            </div>
+                        `;
+                    }
+
                     bubbleHtml = `
                         <div class="msg-bubble">
                             ${quoteHtml}
+                            ${sharedPostHtml}
                             ${mediaHtml}
                             ${docHtml}
-                            ${msg.text ? `<div class="msg-content">${escapeHtml(msg.text || "")}</div>` : ""}
+                            ${(msg.text && !msg.sharedPost) ? `<div class="msg-content">${escapeHtml(msg.text || "")}</div>` : ""}
                             <div class="msg-meta">
                                 <span>${msg.timeStr || ''}</span>
                                 ${tickHtml}
@@ -499,6 +523,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                         <div class="msg-actions">
                             <button type="button" class="msg-action-btn btn-reply" title="Reply">
                                 <i class="fa-solid fa-reply"></i>
+                            </button>
+                            <button type="button" class="msg-action-btn btn-forward" title="Forward message">
+                                <i class="fa-solid fa-share"></i>
                             </button>
                             <button type="button" class="msg-action-btn btn-delete" title="Delete">
                                 <i class="fa-solid fa-trash"></i>
@@ -516,6 +543,13 @@ document.addEventListener("DOMContentLoaded", async () => {
                         btnReply.addEventListener("click", () => {
                             const authorName = isMe ? "You" : (peerName || "Student");
                             startReply(msgId, authorName, msg.text);
+                        });
+                    }
+
+                    const btnForward = row.querySelector(".btn-forward");
+                    if (btnForward) {
+                        btnForward.addEventListener("click", () => {
+                            openForwardModal(msg);
                         });
                     }
 
@@ -667,6 +701,342 @@ document.addEventListener("DOMContentLoaded", async () => {
             localStorage.clear();
             sessionStorage.clear();
             window.location.replace("index.html");
+        });
+    }
+
+    
+    let cachedPeersList = [];
+    let activeForwardMsg = null;
+
+    // FORWARD MESSAGE LOGIC
+    function openForwardModal(msg) {
+        activeForwardMsg = msg;
+        const modal = document.getElementById("forwardModal");
+        const previewEl = document.getElementById("forwardPreviewText");
+        const searchInput = document.getElementById("forwardSearchInput");
+        if (!modal) return;
+
+        if (searchInput) searchInput.value = "";
+
+        let previewText = "";
+        if (msg.sharedPost) {
+            previewText = `📢 Shared Post by ${msg.sharedPost.authorName || "Student"}: "${msg.sharedPost.content || ""}"`;
+        } else if (msg.text) {
+            previewText = msg.text.length > 90 ? msg.text.substring(0, 90) + "..." : msg.text;
+        } else if (msg.mediaUrl) {
+            previewText = "📷 Image attachment";
+        } else if (msg.docUrl) {
+            previewText = `📄 Document: ${msg.docName || "file.pdf"}`;
+        }
+        if (previewEl) previewEl.textContent = previewText || "Forwarded content";
+
+        renderForwardPeers(cachedPeersList);
+        modal.style.display = "flex";
+    }
+
+    function renderForwardPeers(peers, filterTerm = "") {
+        const peersListEl = document.getElementById("forwardPeersList");
+        if (!peersListEl) return;
+
+        const myEmail = (currentUser?.email || "").toLowerCase().trim();
+        const term = filterTerm.toLowerCase().trim();
+
+        const filtered = peers.filter(p => {
+            const pEmail = (p.email || "").toLowerCase().trim();
+            if (pEmail === myEmail) return false;
+            if (!term) return true;
+            const name = (p.fullName || p.full_name || p.name || "").toLowerCase();
+            const college = (p.collegeName || p.college || "").toLowerCase();
+            const regId = (p.studentRegId || p.regId || "").toLowerCase();
+            return name.includes(term) || pEmail.includes(term) || college.includes(term) || regId.includes(term);
+        });
+
+        if (filtered.length === 0) {
+            peersListEl.innerHTML = '<div style="text-align: center; padding: 25px; color: #94a3b8; font-size: 13px;">No matching classmates found.</div>';
+            return;
+        }
+
+        peersListEl.innerHTML = "";
+        filtered.forEach(peer => {
+            const name = peer.fullName || peer.full_name || peer.name || (peer.email ? peer.email.split("@")[0] : "Student");
+            const college = peer.collegeName || peer.collegeOrUniversity || peer.college || "";
+            const avatar = peer.avatar || peer.profilePhotoUrl;
+            const safeAv = sanitizeUrl(avatar);
+
+            const row = document.createElement("div");
+            row.className = "forward-peer-item";
+            row.innerHTML = `
+                <div class="forward-peer-left">
+                    <div class="forward-peer-avatar">
+                        ${safeAv ? `<img src="${safeAv}" alt="${escapeHtml(name)}" />` : escapeHtml(name.charAt(0).toUpperCase())}
+                    </div>
+                    <div style="min-width: 0; flex: 1;">
+                        <div class="forward-peer-name">${escapeHtml(name)}</div>
+                        <div class="forward-peer-desc">${escapeHtml(college || peer.email)}</div>
+                    </div>
+                </div>
+                <button type="button" class="btn-forward-send" id="btn-fwd-${peer.id || peer.email}">
+                    <i class="fa-solid fa-share"></i> Forward
+                </button>
+            `;
+
+            const btnSend = row.querySelector(".btn-forward-send");
+            if (btnSend) {
+                btnSend.addEventListener("click", async () => {
+                    if (!activeForwardMsg || !currentUser) return;
+                    btnSend.disabled = true;
+                    btnSend.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+
+                    try {
+                        const myEmail = currentUser.email.toLowerCase();
+                        const peerEmail = (peer.email || "").toLowerCase();
+                        const chatId = [myEmail, peerEmail].sort().join("___");
+                        const now = new Date();
+                        const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                        const payload = {
+                            senderEmail: myEmail,
+                            receiverEmail: peerEmail,
+                            senderName: currentUser.fullName || currentUser.full_name || currentUser.displayName || myEmail.split("@")[0],
+                            text: activeForwardMsg.text || "",
+                            timestamp: serverTimestamp(),
+                            timeStr: timeStr,
+                            status: "sent",
+                            viewed: false,
+                            deletedFor: [],
+                            deletedForEveryone: false,
+                            isForwarded: true,
+                            replyTo: null
+                        };
+
+                        if (activeForwardMsg.mediaUrl) payload.mediaUrl = activeForwardMsg.mediaUrl;
+                        if (activeForwardMsg.docUrl) {
+                            payload.docUrl = activeForwardMsg.docUrl;
+                            payload.docName = activeForwardMsg.docName || "Attachment";
+                        }
+                        if (activeForwardMsg.sharedPost) payload.sharedPost = activeForwardMsg.sharedPost;
+
+                        await addDoc(collection(db, "chats", chatId, "messages"), payload);
+
+                        btnSend.innerHTML = '<i class="fa-solid fa-check"></i> Forwarded';
+                        btnSend.style.background = '#16a34a';
+                        btnSend.style.color = '#fff';
+                    } catch (err) {
+                        console.error("Forward error:", err);
+                        alert("Failed to forward: " + err.message);
+                        btnSend.disabled = false;
+                        btnSend.innerHTML = '<i class="fa-solid fa-share"></i> Forward';
+                    }
+                });
+            }
+
+            peersListEl.appendChild(row);
+        });
+    }
+
+    const closeForwardBtn = document.getElementById("closeForwardModalBtn");
+    if (closeForwardBtn) {
+        closeForwardBtn.addEventListener("click", () => {
+            const modal = document.getElementById("forwardModal");
+            if (modal) modal.style.display = "none";
+        });
+    }
+
+    const forwardSearchInput = document.getElementById("forwardSearchInput");
+    if (forwardSearchInput) {
+        forwardSearchInput.addEventListener("input", (e) => {
+            renderForwardPeers(cachedPeersList, e.target.value);
+        });
+    }
+
+    const forwardModalEl = document.getElementById("forwardModal");
+    if (forwardModalEl) {
+        forwardModalEl.addEventListener("click", (e) => {
+            if (e.target === forwardModalEl) forwardModalEl.style.display = "none";
+        });
+    }
+
+    // USER PROFILE & POSTS MODAL LOGIC
+    async function openUserProfileModal(user) {
+        const modal = document.getElementById("userProfileModal");
+        if (!modal) return;
+
+        const avatarEl = document.getElementById("profileModalAvatar");
+        const nameEl = document.getElementById("profileModalName");
+        const collegeEl = document.getElementById("profileModalCollege");
+        const regIdEl = document.getElementById("profileModalRegId");
+        const container = document.getElementById("profilePostsContainer");
+
+        const name = user.fullName || user.full_name || user.name || (user.email ? user.email.split("@")[0] : "Student");
+        const college = user.collegeName || user.collegeOrUniversity || user.college || user.qualification || "Registered Student";
+        const regId = user.studentRegId || user.regId || user.regid || user.registerNo || user.regNumber || "";
+        const avatar = user.avatar || user.profilePhotoUrl || "";
+
+        if (nameEl) nameEl.textContent = name;
+        if (collegeEl) collegeEl.innerHTML = `<i class="fa-solid fa-building-columns"></i> ${escapeHtml(college)}`;
+        if (regIdEl) {
+            if (regId) {
+                regIdEl.style.display = "inline-flex";
+                regIdEl.innerHTML = `<i class="fa-solid fa-id-card"></i> Reg ID: ${escapeHtml(regId)}`;
+            } else {
+                regIdEl.style.display = "none";
+            }
+        }
+        if (avatarEl) {
+            const safeAv = sanitizeUrl(avatar);
+            if (safeAv) {
+                avatarEl.innerHTML = `<img src="${safeAv}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" alt="${escapeHtml(name)}"/>`;
+            } else {
+                avatarEl.textContent = name.charAt(0).toUpperCase();
+            }
+        }
+
+        modal.style.display = "flex";
+        if (container) {
+            container.innerHTML = `<div style="text-align:center; padding:30px; color:#f59e0b;"><i class="fa-solid fa-spinner fa-spin"></i> Loading ${escapeHtml(name)}'s posts...</div>`;
+        }
+
+        try {
+            const targetEmail = (user.email || "").toLowerCase().trim();
+            const targetUid = user.id || user.uid || "";
+
+            const postsRef = collection(db, "posts");
+            const snap = await getDocs(postsRef);
+
+            let userPosts = [];
+            snap.forEach(docSnap => {
+                const data = docSnap.data();
+                const postEmail = (data.authorEmail || "").toLowerCase().trim();
+                const postUid = data.uid || "";
+
+                if ((targetEmail && postEmail === targetEmail) || (targetUid && postUid === targetUid)) {
+                    userPosts.push({ id: docSnap.id, ...data });
+                }
+            });
+
+            // Sort newest first
+            userPosts.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+
+            let currentModalTab = "all";
+
+            function renderModalPosts() {
+                const filtered = userPosts.filter(p => {
+                    if (currentModalTab === "all") return true;
+                    const isComm = p.postType === "community" || p.audience === "community";
+                    if (currentModalTab === "public") return !isComm;
+                    if (currentModalTab === "community") return isComm;
+                    return true;
+                });
+
+                const countAll = document.getElementById("countAllPosts");
+                const countPub = document.getElementById("countPublicPosts");
+                const countComm = document.getElementById("countCommPosts");
+                if (countAll) countAll.textContent = userPosts.length;
+                if (countPub) countPub.textContent = userPosts.filter(p => p.postType !== "community" && p.audience !== "community").length;
+                if (countComm) countComm.textContent = userPosts.filter(p => p.postType === "community" || p.audience === "community").length;
+
+                if (filtered.length === 0) {
+                    container.innerHTML = `<div style="text-align:center; padding:40px; color:#94a3b8; font-size:14px;"><i class="fa-regular fa-folder-open" style="font-size:26px; display:block; margin-bottom:8px; color:#f59e0b;"></i>No ${currentModalTab === "all" ? "" : currentModalTab} posts found by ${escapeHtml(name)}.</div>`;
+                    return;
+                }
+
+                container.innerHTML = "";
+                filtered.forEach(p => {
+                    const isComm = p.postType === "community" || p.audience === "community";
+                    const collegeTag = p.targetCollege || p.authorCollege || p.collegeName || college;
+                    const safeMedia = sanitizeUrl(p.mediaUrl);
+                    const safeDoc = sanitizeUrl(p.docUrl);
+                    const postDate = p.createdAt ? new Date(p.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' }) : "Recently";
+                    const likesCount = Array.isArray(p.likes) ? p.likes.length : 0;
+                    const commentsCount = Array.isArray(p.comments) ? p.comments.length : 0;
+
+                    const card = document.createElement("div");
+                    card.className = "profile-post-card";
+                    card.innerHTML = `
+                        <div class="profile-post-header">
+                            <div>
+                                <span class="post-type-badge ${isComm ? 'badge-community' : 'badge-public'}">
+                                    <i class="fa-solid ${isComm ? 'fa-building-columns' : 'fa-globe'}"></i>
+                                    ${isComm ? escapeHtml(collegeTag) : "Public Post"}
+                                </span>
+                                <span style="font-size:12px; color:#94a3b8; margin-left:8px;">${escapeHtml(postDate)}</span>
+                            </div>
+                        </div>
+                        <div class="profile-post-content">${escapeHtml(p.content || "")}</div>
+                        ${safeMedia ? `<img src="${safeMedia}" class="profile-post-media" alt="Post Image" />` : ""}
+                        ${safeDoc ? `
+                            <a href="${safeDoc}" target="_blank" rel="noopener noreferrer" download="${escapeHtml(p.docName || 'document.pdf')}" class="msg-doc-card" style="margin-top:8px;">
+                                <i class="fa-solid fa-file-pdf"></i>
+                                <div>
+                                    <strong style="display:block; font-size:13px; color:#fff;">${escapeHtml(p.docName || "Attachment Document")}</strong>
+                                    <span style="font-size:11px; color:#7db7ff;">Click to view / download</span>
+                                </div>
+                            </a>
+                        ` : ""}
+                        <div class="profile-post-footer">
+                            <span><i class="fa-solid fa-heart" style="color:#ef4444;"></i> ${likesCount} ${likesCount === 1 ? 'Like' : 'Likes'}</span>
+                            <span><i class="fa-regular fa-comment" style="color:#f59e0b;"></i> ${commentsCount} ${commentsCount === 1 ? 'Comment' : 'Comments'}</span>
+                        </div>
+                    `;
+
+                    const imgEl = card.querySelector(".profile-post-media");
+                    if (imgEl) {
+                        imgEl.addEventListener("click", () => {
+                            if (typeof openLightbox === "function") openLightbox(safeMedia);
+                        });
+                    }
+
+                    container.appendChild(card);
+                });
+            }
+
+            document.querySelectorAll(".profile-tab-btn").forEach(btn => {
+                btn.onclick = () => {
+                    document.querySelectorAll(".profile-tab-btn").forEach(b => b.classList.remove("active"));
+                    btn.classList.add("active");
+                    currentModalTab = btn.getAttribute("data-tab") || "all";
+                    renderModalPosts();
+                };
+            });
+
+            renderModalPosts();
+
+        } catch (err) {
+            console.error("Error fetching user posts:", err);
+            if (container) {
+                container.innerHTML = `<div style="text-align:center; padding:30px; color:#ef4444;">Failed to load posts: ${escapeHtml(err.message)}</div>`;
+            }
+        }
+    }
+
+    const closeProfileBtn = document.getElementById("closeProfileModalBtn");
+    if (closeProfileBtn) {
+        closeProfileBtn.addEventListener("click", () => {
+            const modal = document.getElementById("userProfileModal");
+            if (modal) modal.style.display = "none";
+        });
+    }
+
+    const userProfileModalEl = document.getElementById("userProfileModal");
+    if (userProfileModalEl) {
+        userProfileModalEl.addEventListener("click", (e) => {
+            if (e.target === userProfileModalEl) userProfileModalEl.style.display = "none";
+        });
+    }
+
+    // Connect Active Chat Header clicks to open profile & posts
+    if (activeAvatarEl) {
+        activeAvatarEl.style.cursor = "pointer";
+        activeAvatarEl.title = "Click to view student posts & profile";
+        activeAvatarEl.addEventListener("click", () => {
+            if (selectedPeer) openUserProfileModal(selectedPeer);
+        });
+    }
+    if (activeNameEl) {
+        activeNameEl.style.cursor = "pointer";
+        activeNameEl.title = "Click to view student posts & profile";
+        activeNameEl.addEventListener("click", () => {
+            if (selectedPeer) openUserProfileModal(selectedPeer);
         });
     }
 

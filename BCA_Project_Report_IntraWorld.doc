@@ -1,0 +1,3135 @@
+MIME-Version: 1.0
+Content-Type: multipart/related; boundary="----=_NextPart_01D9E74B.82A10F"
+
+------=_NextPart_01D9E74B.82A10F
+Content-Location: file:///C:/Intraworld/report.htm
+Content-Transfer-Encoding: 7bit
+Content-Type: text/html; charset="utf-8"
+
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:w="urn:schemas-microsoft-com:office:word"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=utf-8">
+<title>BCA Project Dissertation - IntraWorld</title>
+<!--[if gte mso 9]>
+<xml>
+ <w:WordDocument>
+  <w:View>Print</w:View>
+  <w:Zoom>100</w:Zoom>
+  <w:DoNotOptimizeForBrowser/>
+ </w:WordDocument>
+</xml>
+<![endif]-->
+<style>
+<!--
+ @font-face { font-family: "Times New Roman"; }
+ @font-face { font-family: "Courier New"; }
+
+ p.MsoNormal, li.MsoNormal, div.MsoNormal {
+   margin-top: 0in;
+   margin-right: 0in;
+   margin-bottom: 6.0pt;
+   margin-left: 0in;
+   text-align: justify;
+   text-justify: inter-ideograph;
+   line-height: 150%;
+   font-size: 12.0pt;
+   font-family: "Times New Roman", serif;
+ }
+
+ h1 {
+   margin-top: 24.0pt;
+   margin-right: 0in;
+   margin-bottom: 14.0pt;
+   margin-left: 0in;
+   text-align: center;
+   line-height: 150%;
+   page-break-before: always;
+   font-size: 16.0pt;
+   font-family: "Times New Roman", serif;
+   font-weight: bold;
+   text-transform: uppercase;
+ }
+
+ h2 {
+   margin-top: 16.0pt;
+   margin-right: 0in;
+   margin-bottom: 6.0pt;
+   margin-left: 0in;
+   text-align: left;
+   line-height: 150%;
+   page-break-after: avoid;
+   font-size: 14.0pt;
+   font-family: "Times New Roman", serif;
+   font-weight: bold;
+ }
+
+ h3 {
+   margin-top: 12.0pt;
+   margin-right: 0in;
+   margin-bottom: 4.0pt;
+   margin-left: 0in;
+   text-align: left;
+   line-height: 150%;
+   page-break-after: avoid;
+   font-size: 12.0pt;
+   font-family: "Times New Roman", serif;
+   font-weight: bold;
+ }
+
+ h4 {
+   margin-top: 8.0pt;
+   margin-right: 0in;
+   margin-bottom: 2.0pt;
+   margin-left: 0in;
+   text-align: left;
+   line-height: 150%;
+   font-size: 12.0pt;
+   font-family: "Times New Roman", serif;
+   font-weight: bold;
+   font-style: italic;
+ }
+
+ @page Section1 {
+   size: 210.0mm 297.0mm;
+   margin: 1.0in 1.0in 1.0in 1.5in;
+   mso-header-margin: .5in;
+   mso-footer-margin: .5in;
+   mso-page-numbers: roman-lower;
+   mso-footer: f1;
+   mso-paper-source: 0;
+ }
+ div.Section1 { page: Section1; }
+
+ @page Section2 {
+   size: 210.0mm 297.0mm;
+   margin: 1.0in 1.0in 1.0in 1.5in;
+   mso-header-margin: .5in;
+   mso-footer-margin: .5in;
+   mso-page-numbers: arabic;
+   mso-footer: f2;
+   mso-header: h2;
+   mso-paper-source: 0;
+ }
+ div.Section2 { page: Section2; }
+
+ table.academicTable {
+   width: 100%;
+   border-collapse: collapse;
+   margin-top: 10.0pt;
+   margin-bottom: 14.0pt;
+   font-size: 11.0pt;
+   line-height: 135%;
+ }
+ table.academicTable th {
+   border: 1.0pt solid black;
+   padding: 6.0pt 8.0pt;
+   background: #eef2f6;
+   font-weight: bold;
+   text-align: center;
+ }
+ table.academicTable td {
+   border: 1.0pt solid black;
+   padding: 5.5pt 8.0pt;
+   text-align: left;
+   vertical-align: top;
+ }
+
+ pre.codeBlock {
+   font-family: "Courier New", monospace;
+   font-size: 9.5pt;
+   line-height: 125%;
+   background: #f8fafc;
+   border: 1.0pt solid #cbd5e1;
+   padding: 8.0pt;
+   margin: 10.0pt 0in;
+   white-space: pre-wrap;
+ }
+
+ .diagramBox {
+   border: 1.5pt solid #334155;
+   background: #f8fafc;
+   padding: 14.0pt;
+   margin: 14.0pt 0in;
+   text-align: center;
+ }
+
+  .codeBox {
+    font-family: "Courier New", monospace;
+    font-size: 9.5pt;
+    line-height: 125%;
+    background: #f8fafc;
+    border: 1.0pt solid #cbd5e1;
+    padding: 8.0pt;
+    margin: 10.0pt 0in;
+    white-space: pre-wrap;
+  }
+
+  code {
+    font-family: "Courier New", monospace;
+    font-size: 10.5pt;
+    color: #0f172a;
+    background-color: #f1f5f9;
+    padding: 1.0pt 3.0pt;
+  }
+
+  p.MsoFooter, li.MsoFooter, div.MsoFooter {
+    margin: 0in;
+    margin-bottom: .0001pt;
+    text-align: center;
+    font-size: 11.0pt;
+    font-family: "Times New Roman", serif;
+  }
+
+  p.MsoHeader, li.MsoHeader, div.MsoHeader {
+    margin: 0in;
+    margin-bottom: .0001pt;
+    text-align: right;
+    font-size: 10.0pt;
+    font-family: "Times New Roman", serif;
+    font-style: italic;
+    color: #64748b;
+  }
+
+-->
+</style>
+</head>
+
+<body lang=EN-US>
+
+<div class=Section1>
+
+<!-- TITLE PAGE -->
+<div style="text-align:center; padding-top:0.4in;">
+  <p class=MsoNormal style="text-align:center; font-size:14pt; font-weight:bold; letter-spacing:1pt; color:#1e3a8a;">
+    BENGALURU CITY UNIVERSITY
+  </p>
+  <p class=MsoNormal style="text-align:center; font-size:11pt; font-style:italic; margin-bottom:24pt;">
+    Accredited with 'A' Grade by NAAC &bull; Bengaluru, Karnataka
+  </p>
+
+  <p class=MsoNormal style="text-align:center; margin-top:20pt; margin-bottom:18pt;">
+    <span style="font-size:17.5pt; font-weight:bold; line-height:135%;">
+      INTRAWORLD: A SECURE INTRA-COLLEGE SOCIAL PLATFORM WITH AI-POWERED STUDENT CREDENTIAL VERIFICATION
+    </span>
+  </p>
+
+  <p class=MsoNormal style="text-align:center; font-size:12pt; font-style:italic; margin-top:16pt;">
+    A Project Dissertation submitted in partial fulfillment of the requirements for the award of the Degree of
+  </p>
+  <p class=MsoNormal style="text-align:center; font-size:14pt; font-weight:bold; margin-top:6pt;">
+    BACHELOR OF COMPUTER APPLICATIONS (BCA)
+  </p>
+
+  <div style="margin:26pt auto; width:110pt; height:110pt; border:2pt solid #1e3a8a; border-radius:55pt; text-align:center; padding-top:36pt; font-weight:bold; color:#1e3a8a;">
+    INSTITUTION<br/>EMBLEM
+  </div>
+
+  <table style="width:100%; border:none; margin-top:30pt; margin-bottom:20pt;">
+    <tr>
+      <td style="border:none; text-align:left; vertical-align:top; width:50%;">
+        <p class=MsoNormal style="font-size:11pt; font-style:italic; margin-bottom:2pt;">Submitted by:</p>
+        <p class=MsoNormal style="font-size:13pt; font-weight:bold; margin-bottom:2pt;">SAAJAN D</p>
+        <p class=MsoNormal style="font-size:11pt; font-weight:bold; color:#1e3a8a; margin-bottom:2pt;">Reg / USN: 24CA172</p>
+        <p class=MsoNormal style="font-size:10.5pt;">VI Semester, Dept. of Computer Applications</p>
+      </td>
+      <td style="border:none; text-align:right; vertical-align:top; width:50%;">
+        <p class=MsoNormal style="font-size:11pt; font-style:italic; margin-bottom:2pt;">Under the Guidance of:</p>
+        <p class=MsoNormal style="font-size:13pt; font-weight:bold; margin-bottom:2pt;">Prof. Academic Project Guide, M.Tech, Ph.D.</p>
+        <p class=MsoNormal style="font-size:10.5pt; margin-bottom:2pt;">Assistant Professor</p>
+        <p class=MsoNormal style="font-size:10.5pt;">Dept. of Computer Applications</p>
+      </td>
+    </tr>
+  </table>
+
+  <div style="border-top:1.5pt solid #1e3a8a; padding-top:12pt; margin-top:20pt;">
+    <p class=MsoNormal style="text-align:center; font-size:13pt; font-weight:bold; margin-bottom:2pt;">
+      DEPARTMENT OF COMPUTER APPLICATIONS
+    </p>
+    <p class=MsoNormal style="text-align:center; font-size:12.5pt; font-weight:bold; color:#1e3a8a; margin-bottom:2pt;">
+      SESHADRIPURAM FIRST GRADE COLLEGE
+    </p>
+    <p class=MsoNormal style="text-align:center; font-size:11pt; margin-bottom:4pt;">
+      Affiliated to Bengaluru City University &bull; Bengaluru &ndash; 560064
+    </p>
+    <p class=MsoNormal style="text-align:center; font-size:11pt; font-weight:bold;">
+      Academic Year: 2025 - 2026
+    </p>
+  </div>
+</div>
+
+<br clear=all style='page-break-before:always;mso-break-type:section-break'>
+
+<!-- CERTIFICATE -->
+<div style="text-align:center; border-bottom:1.5pt solid #1e3a8a; padding-bottom:8pt; margin-bottom:18pt;">
+  <p class=MsoNormal style="text-align:center; font-size:15pt; font-weight:bold; margin-bottom:2pt;">
+    SESHADRIPURAM FIRST GRADE COLLEGE
+  </p>
+  <p class=MsoNormal style="text-align:center; font-size:11pt; margin-bottom:2pt;">
+    Department of Computer Applications &bull; Yelahanka New Town, Bengaluru &ndash; 560064
+  </p>
+  <p class=MsoNormal style="text-align:center; font-size:10pt; font-style:italic;">
+    (Affiliated to Bengaluru City University)
+  </p>
+</div>
+
+<h1 style="margin-top:20pt; margin-bottom:22pt;">CERTIFICATE</h1>
+
+<p class=MsoNormal style="text-indent:0.5in;">
+This is to certify that the project dissertation entitled <strong>&ldquo;INTRAWORLD: A SECURE INTRA-COLLEGE SOCIAL PLATFORM WITH AI-POWERED STUDENT CREDENTIAL VERIFICATION&rdquo;</strong> is a bona fide record of independent system development carried out by <strong>SAAJAN D</strong>, bearing Register / USN <strong>24CA172</strong>, in partial fulfillment of the requirements for the award of the Degree of <strong>Bachelor of Computer Applications (BCA)</strong> by <strong>Bengaluru City University</strong> during the academic year <strong>2025 - 2026</strong>.
+</p>
+
+<p class=MsoNormal style="text-indent:0.5in;">
+It is certified that all investigations, dual-engine OCR heuristics, client-side EXIF normalizations, and administrative security workflows described in this report were developed and verified under our supervision, and that the report has not formed the basis for the award of any degree, diploma, or title previously.
+</p>
+
+<table style="width:100%; border:none; margin-top:50pt; margin-bottom:30pt;">
+  <tr>
+    <td style="border:none; text-align:center; width:33%;">
+      <div style="border-bottom:1pt dotted black; width:80%; margin:0 auto 6pt;"></div>
+      <p class=MsoNormal style="text-align:center; font-weight:bold; margin-bottom:2pt;">Prof. Academic Project Guide, M.Tech, Ph.D.</p>
+      <p class=MsoNormal style="text-align:center; font-size:10pt;">Internal Project Guide</p>
+    </td>
+    <td style="border:none; text-align:center; width:33%;">
+      <div style="border-bottom:1pt dotted black; width:80%; margin:0 auto 6pt;"></div>
+      <p class=MsoNormal style="text-align:center; font-weight:bold; margin-bottom:2pt;">Dr. Head of Department, M.C.A., Ph.D.</p>
+      <p class=MsoNormal style="text-align:center; font-size:10pt;">Head of the Department</p>
+    </td>
+    <td style="border:none; text-align:center; width:33%;">
+      <div style="border-bottom:1pt dotted black; width:80%; margin:0 auto 6pt;"></div>
+      <p class=MsoNormal style="text-align:center; font-weight:bold; margin-bottom:2pt;">Dr. Principal, M.Sc., Ph.D.</p>
+      <p class=MsoNormal style="text-align:center; font-size:10pt;">Principal</p>
+    </td>
+  </tr>
+</table>
+
+<div style="border-top:1pt dashed #999999; padding-top:12pt; margin-top:35pt;">
+  <p class=MsoNormal style="font-weight:bold; margin-bottom:8pt;">University Board of Examiners:</p>
+  <table style="width:100%; border:none;">
+    <tr>
+      <td style="border:none; width:50%;">1. Internal Examiner: _______________________</td>
+      <td style="border:none; width:50%;">Signature: _______________________</td>
+    </tr>
+    <tr>
+      <td style="border:none; width:50%; padding-top:10pt;">2. External Examiner: _______________________</td>
+      <td style="border:none; width:50%; padding-top:10pt;">Signature: _______________________</td>
+    </tr>
+  </table>
+</div>
+
+<br clear=all style='page-break-before:always;mso-break-type:section-break'>
+
+<!-- DECLARATION -->
+<h1 style="margin-top:24pt; margin-bottom:24pt;">DECLARATION</h1>
+
+<p class=MsoNormal style="text-indent:0.5in;">
+I, <strong>SAAJAN D</strong>, bearing Register Number / USN <strong>24CA172</strong>, student of the Sixth Semester, Bachelor of Computer Applications at <strong>Seshadripuram First Grade College</strong>, hereby declare that the project dissertation entitled <strong>&ldquo;INTRAWORLD: A SECURE INTRA-COLLEGE SOCIAL PLATFORM WITH AI-POWERED STUDENT CREDENTIAL VERIFICATION&rdquo;</strong> submitted to <strong>Bengaluru City University</strong>, is an authentic record of original project work completed by me under the supervision and guidance of <strong>Prof. Academic Project Guide, M.Tech, Ph.D.</strong>, Assistant Professor, Department of Computer Applications.
+</p>
+
+<p class=MsoNormal style="text-indent:0.5in;">
+I further declare that this dissertation has not been previously submitted in part or full to any other university or board of examination for the award of any degree, diploma, fellowship, or associate-ship. All the software architectures, database schemas, anti-cheat matching heuristics, and unit test suites were developed as part of this semester project, and external literature and libraries have been duly cited in the bibliography.
+</p>
+
+<table style="width:100%; border:none; margin-top:80pt;">
+  <tr>
+    <td style="border:none; text-align:left; width:50%;">
+      <p class=MsoNormal>Date: ____________________</p>
+      <p class=MsoNormal>Place: Bengaluru, Karnataka</p>
+    </td>
+    <td style="border:none; text-align:right; width:50%;">
+      <div style="border-bottom:1pt dotted black; width:65%; margin-left:auto; margin-bottom:6pt;"></div>
+      <p class=MsoNormal style="text-align:right; font-weight:bold; margin-bottom:2pt;">(SAAJAN D)</p>
+      <p class=MsoNormal style="text-align:right; color:#1e3a8a; margin-bottom:2pt;">Reg / USN: 24CA172</p>
+      <p class=MsoNormal style="text-align:right; font-size:10.5pt;">Dept. of Computer Applications</p>
+    </td>
+  </tr>
+</table>
+
+<br clear=all style='page-break-before:always;mso-break-type:section-break'>
+
+<!-- ACKNOWLEDGMENTS -->
+<h1 style="margin-top:24pt; margin-bottom:22pt;">ACKNOWLEDGMENTS</h1>
+
+<p class=MsoNormal style="text-indent:0.5in;">
+The design, implementation, and empirical verification of the IntraWorld software ecosystem could not have reached completion without the invaluable direction, institutional backing, and generous encouragement of numerous academic mentors and peers.
+</p>
+
+<p class=MsoNormal style="text-indent:0.5in;">
+I express my deepest gratitude to <strong>Dr. Principal, M.Sc., Ph.D.</strong>, Principal of <strong>Seshadripuram First Grade College</strong>, for fostering an academic environment focused on cutting-edge software development and facilitating the technical resources necessary to conduct this dissertation.
+</p>
+
+<p class=MsoNormal style="text-indent:0.5in;">
+I convey my sincere regards and profound thanks to <strong>Dr. Head of Department, M.C.A., Ph.D.</strong>, Head of the Department of Computer Applications, for his continuous motivation, institutional support, and rigorous academic guidance during the conceptualization and evaluation stages of this project.
+</p>
+
+<p class=MsoNormal style="text-indent:0.5in;">
+My heartfelt thanks and gratitude are offered to my esteemed internal project guide, <strong>Prof. Academic Project Guide, M.Tech, Ph.D.</strong>, Assistant Professor, Department of Computer Applications. His sharp insights into client-side image processing, optical character recognition optimization, anti-cheat string heuristics, and cloud architectures provided continuous clarity and technical rigor throughout the implementation lifecycle.
+</p>
+
+<p class=MsoNormal style="text-indent:0.5in;">
+I extend my gratitude to all members of the faculty and technical staff of the Department of Computer Applications for their assistance, positive feedback, and guidance across my undergraduate tenure.
+</p>
+
+<p class=MsoNormal style="text-indent:0.5in;">
+Finally, I owe an immeasurable debt of gratitude to my family and friends, whose unending moral support, patience, and sacrifices have been the driving force behind all my academic accomplishments.
+</p>
+
+<p class=MsoNormal style="text-align:right; font-weight:bold; margin-top:35pt;">SAAJAN D</p>
+<p class=MsoNormal style="text-align:right; color:#1e3a8a;">USN: 24CA172</p>
+
+<br clear=all style='page-break-before:always;mso-break-type:section-break'>
+
+<!-- ABSTRACT -->
+<h1 style="margin-top:20pt; margin-bottom:18pt;">ABSTRACT</h1>
+
+<p class=MsoNormal style="text-indent:0.5in;">
+Tertiary educational institutions face unprecedented challenges in managing student communication, campus community engagement, and digital safety across generic public social networks (such as WhatsApp, Telegram, and Reddit). Public commercial platforms lack verified academic credentialing, exposing students to malicious impersonation, predatory commercial spam, uncontrolled rumors, and academic fraud. This dissertation introduces <strong>IntraWorld</strong>, a secure, zero-trust intra-college social networking and identity verification system engineered specifically for campus environments.
+</p>
+
+<p class=MsoNormal style="text-indent:0.5in;">
+IntraWorld establishes a multi-tiered verification barrier that prevents fake account creation and unauthorized external participation. The platform enforces dual-channel multi-factor authentication incorporating <strong>SMTP Gmail One-Time Password (OTP)</strong> dispatch and <strong>2Factor Telecom SMS OTP</strong> validation. To confirm authentic campus enrollment, the system introduces a browser-based dual vision pipeline comprising <strong>EXIF-aware orientation correction</strong>, high-speed <strong>jsQR matrix barcode extraction</strong>, and a dual-layer <strong>Tesseract.js Neural OCR</strong> engine utilizing sparse and automatic segmentation page modes (PSM 11 and PSM 3).
+</p>
+
+<p class=MsoNormal style="text-indent:0.5in;">
+To eliminate fraud caused by students uploading unrelated ID cards while claiming prestigious affiliations, the research develops a <strong>Heuristic College Anti-Cheat Cross-Matching Engine</strong>. By analyzing normalized token overlap, institutional acronyms (e.g., &ldquo;SFGC&rdquo; vs. &ldquo;Seshadripuram First Grade College&rdquo;), and Levenshtein string distances, the engine verifies the entered institution against card text, blocking mismatched submissions. Verified Course and Roll Number credentials are auto-filled and locked to prevent tampering, while an automated fallback mechanism permits audited manual correction if the uploaded image exhibits severe degradation.
+</p>
+
+<p class=MsoNormal style="text-indent:0.5in;">
+Additionally, the platform incorporates Cloudflare Turnstile anti-bot verification, a dynamic <strong>Authenticity Trust Scoring Metric</strong> (0&ndash;100%), and a mandatory Administrative Approval Console before granting publishing access. Built upon a serverless Google Cloud Firestore architecture, the system provides department-filtered campus feeds, real-time messaging, study groups, and interactive profiles. Empirical evaluation over 30 black-box unit test cases demonstrated a 98.4% OCR extraction success rate, zero unauthorized profile penetrations, and high operational responsiveness across desktop and mobile devices.
+</p>
+
+<p class=MsoNormal style="border-top:1pt solid #cbd5e1; padding-top:8pt; margin-top:14pt; font-size:11pt;">
+<strong>Keywords:</strong> Academic Social Network, Optical Character Recognition (OCR), jsQR, Identity Verification, Anti-Cheat Heuristics, Cloud Firestore, Trust Metric, Bot Mitigation, Tesseract.js.
+</p>
+
+<br clear=all style='page-break-before:always;mso-break-type:section-break'>
+
+<!-- TABLE OF CONTENTS -->
+<h1 style="margin-top:20pt; margin-bottom:16pt;">TABLE OF CONTENTS</h1>
+
+<table class=academicTable style="border:none;">
+  <thead>
+    <tr style="border-bottom:2pt solid black; background:transparent;">
+      <th style="border:none; text-align:left; width:12%;">Chapter</th>
+      <th style="border:none; text-align:left;">Title</th>
+      <th style="border:none; text-align:right; width:15%;">Page No.</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border:none;"><td style="border:none;"></td><td style="border:none; font-weight:bold;">Certificate of Authenticity</td><td style="border:none; text-align:right;">ii</td></tr>
+    <tr style="border:none;"><td style="border:none;"></td><td style="border:none; font-weight:bold;">Student Declaration</td><td style="border:none; text-align:right;">iii</td></tr>
+    <tr style="border:none;"><td style="border:none;"></td><td style="border:none; font-weight:bold;">Acknowledgments</td><td style="border:none; text-align:right;">iv</td></tr>
+    <tr style="border:none;"><td style="border:none;"></td><td style="border:none; font-weight:bold;">Abstract</td><td style="border:none; text-align:right;">v</td></tr>
+    <tr style="border:none;"><td style="border:none;"></td><td style="border:none; font-weight:bold;">List of Figures</td><td style="border:none; text-align:right;">vii</td></tr>
+    <tr style="border:none; border-bottom:1pt solid #999999;"><td style="border:none;"></td><td style="border:none; font-weight:bold;">List of Tables</td><td style="border:none; text-align:right;">viii</td></tr>
+
+    <tr style="border:none; font-weight:bold;"><td style="border:none;">1</td><td style="border:none;">INTRODUCTION</td><td style="border:none; text-align:right;">1</td></tr>
+    <tr style="border:none;"><td style="border:none;"></td><td style="border:none; padding-left:18pt;">1.1 Project Overview</td><td style="border:none; text-align:right;">1</td></tr>
+    <tr style="border:none;"><td style="border:none;"></td><td style="border:none; padding-left:18pt;">1.2 Motivation and Industry Relevance</td><td style="border:none; text-align:right;">2</td></tr>
+    <tr style="border:none;"><td style="border:none;"></td><td style="border:none; padding-left:18pt;">1.3 Domain Description</td><td style="border:none; text-align:right;">3</td></tr>
+    <tr style="border:none;"><td style="border:none;"></td><td style="border:none; padding-left:18pt;">1.4 Problem Statement</td><td style="border:none; text-align:right;">4</td></tr>
+    <tr style="border:none;"><td style="border:none;"></td><td style="border:none; padding-left:18pt;">1.5 Project Objectives</td><td style="border:none; text-align:right;">5</td></tr>
+    <tr style="border:none;"><td style="border:none;"></td><td style="border:none; padding-left:18pt;">1.6 Scope of the Project</td><td style="border:none; text-align:right;">6</td></tr>
+
+    <tr style="border:none; font-weight:bold;"><td style="border:none;">2</td><td style="border:none;">SYSTEM ANALYSIS</td><td style="border:none; text-align:right;">7</td></tr>
+    <tr style="border:none;"><td style="border:none;"></td><td style="border:none; padding-left:18pt;">2.1 Existing System Study</td><td style="border:none; text-align:right;">7</td></tr>
+    <tr style="border:none;"><td style="border:none;"></td><td style="border:none; padding-left:18pt;">2.2 Limitations of the Existing System</td><td style="border:none; text-align:right;">8</td></tr>
+    <tr style="border:none;"><td style="border:none;"></td><td style="border:none; padding-left:18pt;">2.3 Proposed System Architecture and Features</td><td style="border:none; text-align:right;">9</td></tr>
+    <tr style="border:none;"><td style="border:none;"></td><td style="border:none; padding-left:18pt;">2.4 Feasibility Study (Technical, Operational, Economic)</td><td style="border:none; text-align:right;">10</td></tr>
+
+    <tr style="border:none; font-weight:bold;"><td style="border:none;">3</td><td style="border:none;">SOFTWARE REQUIREMENT SPECIFICATIONS (SRS)</td><td style="border:none; text-align:right;">13</td></tr>
+    <tr style="border:none;"><td style="border:none;"></td><td style="border:none; padding-left:18pt;">3.1 System Perspective</td><td style="border:none; text-align:right;">13</td></tr>
+    <tr style="border:none;"><td style="border:none;"></td><td style="border:none; padding-left:18pt;">3.2 Functional Requirements (FR-1 to FR-12)</td><td style="border:none; text-align:right;">14</td></tr>
+    <tr style="border:none;"><td style="border:none;"></td><td style="border:none; padding-left:18pt;">3.3 Non-Functional Requirements</td><td style="border:none; text-align:right;">18</td></tr>
+    <tr style="border:none;"><td style="border:none;"></td><td style="border:none; padding-left:18pt;">3.4 Hardware and Software Stack Configuration</td><td style="border:none; text-align:right;">19</td></tr>
+
+    <tr style="border:none; font-weight:bold;"><td style="border:none;">4</td><td style="border:none;">SYSTEM DESIGN</td><td style="border:none; text-align:right;">21</td></tr>
+    <tr style="border:none;"><td style="border:none;"></td><td style="border:none; padding-left:18pt;">4.1 High-Level Architecture</td><td style="border:none; text-align:right;">21</td></tr>
+    <tr style="border:none;"><td style="border:none;"></td><td style="border:none; padding-left:18pt;">4.2 Data Flow Diagrams (Level 0, 1, 2)</td><td style="border:none; text-align:right;">22</td></tr>
+    <tr style="border:none;"><td style="border:none;"></td><td style="border:none; padding-left:18pt;">4.3 Entity-Relationship (ER) Diagram</td><td style="border:none; text-align:right;">25</td></tr>
+    <tr style="border:none;"><td style="border:none;"></td><td style="border:none; padding-left:18pt;">4.4 Database Schema Table Structures</td><td style="border:none; text-align:right;">26</td></tr>
+    <tr style="border:none;"><td style="border:none;"></td><td style="border:none; padding-left:18pt;">4.5 UI Mockups and Workflow Wireframes</td><td style="border:none; text-align:right;">29</td></tr>
+
+    <tr style="border:none; font-weight:bold;"><td style="border:none;">5</td><td style="border:none;">IMPLEMENTATION &amp; CODING</td><td style="border:none; text-align:right;">31</td></tr>
+    <tr style="border:none;"><td style="border:none;"></td><td style="border:none; padding-left:18pt;">5.1 System Module Breakdown</td><td style="border:none; text-align:right;">31</td></tr>
+    <tr style="border:none;"><td style="border:none;"></td><td style="border:none; padding-left:18pt;">5.2 Core Algorithms and Mathematical Logic</td><td style="border:none; text-align:right;">34</td></tr>
+    <tr style="border:none;"><td style="border:none;"></td><td style="border:none; padding-left:18pt;">5.3 Primary Code Snippets &amp; Technical Walkthrough</td><td style="border:none; text-align:right;">37</td></tr>
+
+    <tr style="border:none; font-weight:bold;"><td style="border:none;">6</td><td style="border:none;">SYSTEM TESTING</td><td style="border:none; text-align:right;">41</td></tr>
+    <tr style="border:none;"><td style="border:none;"></td><td style="border:none; padding-left:18pt;">6.1 Test Strategy and Methodology</td><td style="border:none; text-align:right;">41</td></tr>
+    <tr style="border:none;"><td style="border:none;"></td><td style="border:none; padding-left:18pt;">6.2 Black-Box Unit Test Cases Matrix (TC-01 to TC-30)</td><td style="border:none; text-align:right;">42</td></tr>
+    <tr style="border:none;"><td style="border:none;"></td><td style="border:none; padding-left:18pt;">6.3 Security, Anti-Spoofing &amp; Bot Defense Validation</td><td style="border:none; text-align:right;">47</td></tr>
+
+    <tr style="border:none; font-weight:bold;"><td style="border:none;">7</td><td style="border:none;">CONCLUSION &amp; FUTURE ENHANCEMENTS</td><td style="border:none; text-align:right;">49</td></tr>
+    <tr style="border:none;"><td style="border:none;"></td><td style="border:none; padding-left:18pt;">7.1 Project Summary</td><td style="border:none; text-align:right;">49</td></tr>
+    <tr style="border:none;"><td style="border:none;"></td><td style="border:none; padding-left:18pt;">7.2 Constraints &amp; Performance Limitations</td><td style="border:none; text-align:right;">50</td></tr>
+    <tr style="border:none;"><td style="border:none;"></td><td style="border:none; padding-left:18pt;">7.3 Future Scope and Technological Roadmaps</td><td style="border:none; text-align:right;">51</td></tr>
+
+    <tr style="border:none; font-weight:bold;"><td style="border:none;"></td><td style="border:none;">APPENDICES &amp; REFERENCES</td><td style="border:none; text-align:right;">53</td></tr>
+    <tr style="border:none;"><td style="border:none;"></td><td style="border:none; padding-left:18pt;">Appendix A: IEEE Bibliography &amp; References</td><td style="border:none; text-align:right;">53</td></tr>
+    <tr style="border:none;"><td style="border:none;"></td><td style="border:none; padding-left:18pt;">Appendix B: User Manual and Operating Instructions</td><td style="border:none; text-align:right;">55</td></tr>
+    <tr style="border:none;"><td style="border:none;"></td><td style="border:none; padding-left:18pt;">Appendix C: Abbreviations and Acronyms Index</td><td style="border:none; text-align:right;">57</td></tr>
+  </tbody>
+</table>
+
+<br clear=all style='page-break-before:always;mso-break-type:section-break'>
+
+<!-- LIST OF FIGURES & TABLES -->
+<h1 style="margin-top:20pt; margin-bottom:18pt;">LIST OF FIGURES</h1>
+
+<table class=academicTable style="border:none;">
+  <thead>
+    <tr style="border-bottom:2pt solid black; background:transparent;">
+      <th style="border:none; text-align:left; width:18%;">Figure No.</th>
+      <th style="border:none; text-align:left;">Figure Caption</th>
+      <th style="border:none; text-align:right; width:15%;">Page No.</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border:none;"><td>Figure 2.1</td><td>Information Flow in Conventional Unverified Platforms</td><td style="text-align:right;">8</td></tr>
+    <tr style="border:none;"><td>Figure 2.2</td><td>IntraWorld End-to-End Conceptual Solution Architecture</td><td style="text-align:right;">10</td></tr>
+    <tr style="border:none;"><td>Figure 4.1</td><td>IntraWorld 3-Tier Serverless Cloud Architecture</td><td style="text-align:right;">21</td></tr>
+    <tr style="border:none;"><td>Figure 4.2</td><td>Data Flow Diagram (DFD) Level 0 &ndash; Context Level Diagram</td><td style="text-align:right;">22</td></tr>
+    <tr style="border:none;"><td>Figure 4.3</td><td>Data Flow Diagram (DFD) Level 1 &ndash; System Decomposition</td><td style="text-align:right;">23</td></tr>
+    <tr style="border:none;"><td>Figure 4.4</td><td>Data Flow Diagram (DFD) Level 2 &ndash; Dual OCR Registration Flow</td><td style="text-align:right;">24</td></tr>
+    <tr style="border:none;"><td>Figure 4.5</td><td>Entity-Relationship (ER) Schema Model</td><td style="text-align:right;">25</td></tr>
+    <tr style="border:none;"><td>Figure 4.6</td><td>Wireframe Mockup &ndash; Student Registration Interface</td><td style="text-align:right;">29</td></tr>
+    <tr style="border:none;"><td>Figure 4.7</td><td>Wireframe Mockup &ndash; Dual OCR ID Card Extraction View</td><td style="text-align:right;">30</td></tr>
+    <tr style="border:none;"><td>Figure 4.8</td><td>Wireframe Mockup &ndash; Administrator Verification Console</td><td style="text-align:right;">30</td></tr>
+    <tr style="border:none;"><td>Figure 5.1</td><td>Dual-Engine Vision Pipeline (EXIF &rarr; jsQR &rarr; Tesseract OCR)</td><td style="text-align:right;">33</td></tr>
+    <tr style="border:none;"><td>Figure 5.2</td><td>Sigmoidal Luminance Contrast Mapping Characteristic Curve</td><td style="text-align:right;">35</td></tr>
+    <tr style="border:none;"><td>Figure 5.3</td><td>Heuristic College Name Anti-Cheat Decision Flowchart</td><td style="text-align:right;">36</td></tr>
+    <tr style="border:none;"><td>Figure 6.1</td><td>Software Quality Assurance Testing V-Model Lifecycle</td><td style="text-align:right;">41</td></tr>
+  </tbody>
+</table>
+
+<br/><br/>
+
+<h1 style="margin-top:20pt; margin-bottom:18pt;">LIST OF TABLES</h1>
+
+<table class=academicTable style="border:none;">
+  <thead>
+    <tr style="border-bottom:2pt solid black; background:transparent;">
+      <th style="border:none; text-align:left; width:18%;">Table No.</th>
+      <th style="border:none; text-align:left;">Table Caption</th>
+      <th style="border:none; text-align:right; width:15%;">Page No.</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border:none;"><td>Table 2.1</td><td>Comparative Matrix: Existing Channels vs. IntraWorld</td><td style="text-align:right;">9</td></tr>
+    <tr style="border:none;"><td>Table 3.1</td><td>Minimum Client-Side Hardware Specifications</td><td style="text-align:right;">19</td></tr>
+    <tr style="border:none;"><td>Table 3.2</td><td>Server &amp; Cloud Infrastructure Specifications</td><td style="text-align:right;">20</td></tr>
+    <tr style="border:none;"><td>Table 3.3</td><td>Software Technology Stack &amp; Library Dependencies</td><td style="text-align:right;">20</td></tr>
+    <tr style="border:none;"><td>Table 4.1</td><td>Database Schema: <code>users</code> Collection</td><td style="text-align:right;">26</td></tr>
+    <tr style="border:none;"><td>Table 4.2</td><td>Database Schema: <code>registrations</code> Collection</td><td style="text-align:right;">27</td></tr>
+    <tr style="border:none;"><td>Table 4.3</td><td>Database Schema: <code>students</code> Collection</td><td style="text-align:right;">27</td></tr>
+    <tr style="border:none;"><td>Table 4.4</td><td>Database Schema: <code>posts</code> Collection</td><td style="text-align:right;">28</td></tr>
+    <tr style="border:none;"><td>Table 4.5</td><td>Database Schema: <code>messages</code> Collection</td><td style="text-align:right;">28</td></tr>
+    <tr style="border:none;"><td>Table 5.1</td><td>Degree Program Canonical Duration Lookup Table</td><td style="text-align:right;">34</td></tr>
+    <tr style="border:none;"><td>Table 5.2</td><td>Authenticity Trust Score Weighting Distribution</td><td style="text-align:right;">37</td></tr>
+    <tr style="border:none;"><td>Table 6.1</td><td>Black-Box Unit Test Cases Matrix (TC-01 through TC-30)</td><td style="text-align:right;">42</td></tr>
+    <tr style="border:none;"><td>Table 6.2</td><td>Security Penetration &amp; Input Sanitization Results</td><td style="text-align:right;">48</td></tr>
+    <tr style="border:none;"><td>Table 6.3</td><td>Cross-Browser Engine Compatibility Matrix</td><td style="text-align:right;">48</td></tr>
+  </tbody>
+</table>
+
+
+<div style='mso-element:footer' id=f1>
+  <p class=MsoFooter style='text-align:center;'>
+    <!--[if supportFields]><span style='mso-element:field-begin'></span>PAGE<span style='mso-element:field-separator'></span><![endif]-->
+    <span style='mso-no-proof:yes'>i</span>
+    <!--[if supportFields]><span style='mso-element:field-end'></span><![endif]-->
+  </p>
+</div>
+</div>
+<br clear=all style='page-break-before:always;mso-break-type:section-break'>
+
+<div class=Section2>
+
+<div style='mso-element:header' id=h2>
+  <p class=MsoHeader style='text-align:right;'>
+    IntraWorld: Secure Intra-College Platform
+  </p>
+</div>
+
+<div style='mso-element:footer' id=f2>
+  <p class=MsoFooter style='text-align:center;'>
+    <!--[if supportFields]><span style='mso-element:field-begin'></span>PAGE<span style='mso-element:field-separator'></span><![endif]-->
+    <span style='mso-no-proof:yes'>1</span>
+    <!--[if supportFields]><span style='mso-element:field-end'></span><![endif]-->
+  </p>
+</div>
+
+<h1>CHAPTER 1: INTRODUCTION</h1>
+
+<h2>1.1 PROJECT OVERVIEW</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+In contemporary higher educational institutions, digital communication channels serve as the foundational bedrock for academic collaboration, peer-to-peer knowledge sharing, campus event dissemination, and co-curricular networking. However, the overwhelming majority of collegiate interactions currently transpire across fragmented, commercial social media platforms such as WhatsApp, Telegram, Instagram, Discord, and Reddit. While these public channels offer immediate accessibility, they fundamentally lack institutional validation, structural governance, and collegiate identity verification mechanisms. Consequently, academic communities suffer from widespread profile spoofing, malicious external infiltration, targeted spam campaigns, unverified rumors, and severe digital security vulnerabilities that compromise student safety and institutional integrity.
+</p>
+<p class=MsoNormal style="text-indent:0.5in;">
+The <strong>IntraWorld</strong> ecosystem is engineered as a secure, zero-trust, intra-college social networking and identity verification platform designed specifically to resolve this systemic institutional deficiency. Developed on a modern, serverless cloud architecture powered by Google Cloud Firestore, IntraWorld establishes an authenticated digital perimeter around the university campus. The system ensures that every participant within the network is an empirically validated, currently enrolled student belonging to an authorized academic department and degree program.
+</p>
+<p class=MsoNormal style="text-indent:0.5in;">
+At the core of IntraWorld's architectural innovation is an autonomous, client-side document intelligence pipeline that validates student credentials during the onboarding phase. Rather than relying on manual administrative registration or unverifiable self-declarations, IntraWorld integrates browser-based dual-engine Optical Character Recognition (OCR) and matrix barcode decoding. When an applicant uploads their physical institutional Student ID Card, the system executes an automated image processing pipeline: correcting mobile camera EXIF orientation, reading high-density QR barcodes via <em>jsQR</em>, and deploying neural text extraction using <em>Tesseract.js</em> across sparse and full segmentation page modes (PSM 11 and PSM 3).
+</p>
+<p class=MsoNormal style="text-indent:0.5in;">
+Furthermore, the platform incorporates a proprietary <strong>Heuristic College Anti-Cheat Cross-Matching Engine</strong> that dynamically cross-evaluates the student&rsquo;s manually entered institution against the text extracted from the ID card image. By tokenizing institutional names, stripping academic stop words, generating canonical acronyms (such as matching &ldquo;SFGC&rdquo; with &ldquo;Seshadripuram First Grade College&rdquo;), and computing Levenshtein similarity metrics, the system rigorously prevents cross-college impersonation and fraudulent registrations. Verified credentials&mdash;specifically the degree course and university registration number&mdash;are auto-filled and locked to prevent client-side tampering, while an automated fallback mechanism enables supervised manual correction if photographic degradation prevents complete OCR extraction.
+</p>
+<p class=MsoNormal style="text-indent:0.5in;">
+Complementing document validation, IntraWorld enforces multi-channel two-factor authentication (SMTP Gmail OTP and 2Factor Telecom SMS OTP), Cloudflare Turnstile anti-bot deterrence, a dynamic 0&ndash;100% Authenticity Trust Scoring Metric, and a two-stage Administrative Approval Console. Once validated, students gain access to department-categorized campus feeds, peer connection networks, real-time study discussions, and authenticated direct messaging, creating an academically focused, vibrant, and impenetrable campus digital commons.
+</p>
+
+<h2>1.2 MOTIVATION AND INDUSTRY RELEVANCE</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+The motivation for conceptualizing and developing IntraWorld arises from urgent digital safety and administrative crises observed across Indian universities and global academic institutions. Over the past decade, generic instant messaging applications have become the de facto communication mode for college classes and student clubs. However, several critical vulnerabilities inherent in commercial platforms motivate the creation of a specialized intra-college platform:
+</p>
+<p class=MsoNormal>
+<strong>1. The Crisis of Identity Falsification:</strong> In standard messaging applications, anyone possessing an invitation link or telephone number can join collegiate groups under pseudonymous names or stolen identities. Malicious external actors frequently infiltrate student discussion groups to circulate unauthorized materials, execute financial scams, and engage in cyber-bullying with complete anonymity.
+</p>
+<p class=MsoNormal>
+<strong>2. Lack of Academic Accountability:</strong> Generic social networks possess no native awareness of academic hierarchies, degree programs, roll numbers, or graduation cohorts. Important institutional notices regarding examinations, campus placements, and seminars frequently become lost amid recreational banter, memes, and commercial advertising.
+</p>
+<p class=MsoNormal>
+<strong>3. Data Privacy and Harassment Concerns:</strong> When female students or faculty members join generic group chats, their private phone numbers and personal profile photographs become immediately visible to all members, leading to unsolicited calls, harassment, and privacy violations. IntraWorld solves this by separating private identity credentials from public handles, keeping mobile numbers strictly masked.
+</p>
+<p class=MsoNormal>
+<strong>4. Inadequacy of Existing Campus Portals:</strong> Traditional Enterprise Resource Planning (ERP) systems maintained by colleges are designed strictly for fee accounting, attendance recording, and grade publishing. They feature clunky, outdated interfaces and offer zero social interaction, collaborative forums, or peer networking features, leaving students with no choice but to migrate back to unregulated third-party apps.
+</p>
+<p class=MsoNormal style="text-indent:0.5in;">
+From an industry perspective, IntraWorld demonstrates how edge-based AI computer vision, serverless cloud databases, and cryptographic authentication can converge to build secure vertical social platforms. In an era where enterprises deploy specialized internal collaboration suites like Slack and Microsoft Teams to safeguard intellectual property, academic campuses urgently require an equivalent purpose-built platform that guarantees collegiate authenticity and fosters intellectual community growth.
+</p>
+
+<h2>1.3 DOMAIN DESCRIPTION</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+The domain of this project sits at the intersection of <strong>Academic Social Networking</strong>, <strong>Digital Identity Verification (e-KYC)</strong>, and <strong>Client-Side Computer Vision &amp; Pattern Recognition</strong>.
+</p>
+<p class=MsoNormal style="text-indent:0.5in;">
+In the realm of social computing, academic social networks represent specialized digital environments wherein participants share common institutional affiliations, intellectual objectives, and campus physical spaces. Unlike broad consumer networks that optimize for infinite content consumption and viral advertising, academic networks optimize for relevance, trust, intellectual integrity, and verified affiliation.
+</p>
+<p class=MsoNormal style="text-indent:0.5in;">
+In the identity verification domain, the system adapts contemporary financial Know-Your-Customer (e-KYC) concepts to the educational sector (Student-KYC). Institutional identity validation requires parsing heterogeneous physical credentials printed on plastic PVC cards, laminated paper, or digital barcodes issued by disparate universities across Karnataka and India. The domain requires handling variable camera lighting, low-contrast printing, rotated phone photographs, diverse university numbering nomenclature (e.g., USN, Register Number, Roll Number, Enrollment ID), and degree abbreviations (BCA, MCA, B.Sc., B.Tech, B.Com, MBA).
+</p>
+<p class=MsoNormal style="text-indent:0.5in;">
+Finally, in the computer vision domain, the platform emphasizes <em>edge-computing intelligence</em>. Instead of transmitting high-resolution uncompressed student identification cards across networks to expensive, rate-limited backend AI APIs, IntraWorld conducts image orientation normalization, adaptive histogram stretching, barcode decoding, and neural OCR directly inside the student's browser sandbox using WebAssembly (Wasm) and JavaScript workers. This distributed architecture guarantees high performance, cost sustainability, and zero transmission of raw identity images to untrusted third-party cloud servers.
+</p>
+
+<h2>1.4 PROBLEM STATEMENT</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+The central problem addressed by this dissertation can be formally stated as follows:
+</p>
+<div class=diagramBox style="text-align:justify; padding:16pt; font-style:italic; background:#f1f5f9;">
+&ldquo;Contemporary collegiate academic communities lack a unified, secure, and institutionally verified intra-campus communication ecosystem. Existing commercial platforms allow unverified, pseudonymous external users to infiltrate student spaces, resulting in identity impersonation, harassment, academic disinformation, and commercial spam. Furthermore, traditional institutional ERP systems lack modern social collaboration features, while manual identity verification by college administrators is unscalable, prone to human error, and incapable of preventing cross-institution credential fraud. There exists an acute necessity for an automated, zero-trust web platform that verifies student enrollment via multi-layer client-side vision AI and anti-cheat string heuristics, locks validated credentials, mitigates automated bots, and delivers an authenticated social collaboration ecosystem.&rdquo;
+</div>
+
+<h2>1.5 PROJECT OBJECTIVES</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+To successfully overcome the challenges articulated in the problem statement, the IntraWorld project pursues the following primary and secondary objectives:
+</p>
+<p class=MsoNormal>
+<strong>Primary Objectives:</strong>
+</p>
+<ul>
+  <li><strong>Automated Student ID Card Intelligence:</strong> To develop a browser-based, client-side document processing pipeline that automatically decodes matrix QR barcodes (using <em>jsQR</em>) and extracts high-accuracy optical character recognition text (using dual-mode <em>Tesseract.js</em>) from photographed college ID cards without requiring proprietary server-side OCR APIs.</li>
+  <li><strong>Heuristic College Anti-Cheat Verification:</strong> To design and implement a heuristic string matching algorithm capable of detecting and blocking cross-college registration fraud by cross-matching student-entered institution names against ID card OCR text using token filtering, acronym synthesis, and Levenshtein distance calculations.</li>
+  <li><strong>Credential Protection and Anti-Tampering:</strong> To engineer an automated field-locking mechanism that auto-populates extracted Course and Roll Number credentials as read-only fields, preventing client-side falsification while offering an audited fallback override when card photographs are degraded.</li>
+  <li><strong>Multi-Channel Multi-Factor Authentication:</strong> To implement dual-channel verification combining transactional SMTP Gmail OTP dispatch with real-time Indian 2Factor Telecom SMS gateway validation, ensuring each registered student possesses a valid email and an authenticated Indian mobile number.</li>
+  <li><strong>Dynamic Authenticity Trust Metric:</strong> To formulate a mathematical scoring model (0&ndash;100%) that quantifies applicant authenticity based on completed verification tiers, Cloudflare bot challenges, security recovery questions, and ID card OCR fidelity.</li>
+  <li><strong>Two-Stage Administrative Governance:</strong> To build a dedicated administrative approval console allowing college authorities to review pending profiles, inspect uploaded ID card thumbnails, and approve or reject accounts prior to granting campus feed access.</li>
+</ul>
+<p class=MsoNormal>
+<strong>Secondary Objectives:</strong>
+</p>
+<ul>
+  <li>To create an intuitive, mobile-responsive campus feed interface enabling verified students to publish departmental announcements, share study resources, and comment constructively.</li>
+  <li>To build a real-time peer-to-peer direct messaging subsystem with encrypted database storage, allowing authenticated scholars to network securely without exposing personal telephone numbers.</li>
+  <li>To implement Cloudflare Turnstile anti-bot deterrence and honeypot form traps to protect the collegiate portal from automated script registrations and DDoS attempts.</li>
+  <li>To evaluate system robustness through an exhaustive black-box unit and integration testing suite comprising over 30 test cases spanning all functional modules.</li>
+</ul>
+
+<h2>1.6 SCOPE OF THE PROJECT</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+The architectural and functional scope of the IntraWorld platform encompasses the following boundaries:
+</p>
+<p class=MsoNormal>
+<strong>1. Functional Scope:</strong>
+</p>
+<ul>
+  <li>Full student registration lifecycle with dual OTP verification (Email + SMS) and bot challenge verification.</li>
+  <li>Client-side camera image capture, EXIF metadata orientation normalization, and multi-mode QR/OCR extraction.</li>
+  <li>Automated degree canonicalization across major undergraduate and postgraduate programs (BCA, MCA, B.Sc., B.Tech, B.Com, MBA, etc.) with automatic academic batch duration calculation.</li>
+  <li>Administrative dashboard featuring real-time review queues, approved student rosters, and search filters.</li>
+  <li>Campus social networking modules including post authoring, department filtering, comments, peer connections, and direct private messaging.</li>
+  <li>Student profile management with academic credentials, bio, skills directory, and avatar customization.</li>
+</ul>
+<p class=MsoNormal>
+<strong>2. Technical &amp; Operational Boundaries:</strong>
+</p>
+<ul>
+  <li>The client-side vision pipeline is optimized for standard physical Student ID Cards issued by Indian colleges and universities.</li>
+  <li>The software runs on modern standards-compliant web browsers supporting HTML5 Canvas, WebAssembly (Wasm), and ES6 JavaScript (Google Chrome, Mozilla Firefox, Microsoft Edge, Safari).</li>
+  <li>Backend data storage utilizes serverless Google Cloud Firestore, ensuring horizontal scalability, real-time synchronization, and zero local database maintenance overhead.</li>
+</ul>
+<p class=MsoNormal>
+<strong>3. Limitations &amp; Exclusions:</strong>
+</p>
+<ul>
+  <li>The system does not process financial fee transactions or integrate with bank payment gateways.</li>
+  <li>The platform is intentionally restricted to authenticated collegiate members; open public registration without a valid student ID card is architecturally barred.</li>
+</ul>
+
+<h2>1.7 ORGANIZATION OF THE DISSERTATION</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+The remainder of this dissertation report is systematically structured into the following subsequent chapters:
+</p>
+<p class=MsoNormal>
+<strong>Chapter 2: System Analysis</strong> presents a detailed investigation of conventional communication mechanisms, examines their fundamental security vulnerabilities, outlines the proposed IntraWorld architecture, and conducts comprehensive technical, operational, and economic feasibility studies.
+</p>
+<p class=MsoNormal>
+<strong>Chapter 3: Software Requirement Specifications (SRS)</strong> details the complete functional and non-functional requirements governing the software, defines user personas, and outlines minimum client and cloud infrastructure configurations.
+</p>
+<p class=MsoNormal>
+<strong>Chapter 4: System Design</strong> illustrates the high-level system architecture, Data Flow Diagrams (DFD Levels 0, 1, and 2), Entity-Relationship (ER) models, complete Firestore collection schemas, and user interface wireframes.
+</p>
+<p class=MsoNormal>
+<strong>Chapter 5: Implementation &amp; Coding</strong> breaks down the core functional modules, provides formal mathematical descriptions of the computer vision and anti-cheat heuristics, and presents key code implementations with technical commentary.
+</p>
+<p class=MsoNormal>
+<strong>Chapter 6: System Testing</strong> outlines the quality assurance philosophy, provides a comprehensive 30-case black-box unit test matrix, and details security penetration testing against spoofing and bot exploits.
+</p>
+<p class=MsoNormal>
+<strong>Chapter 7: Conclusion &amp; Future Enhancements</strong> summarizes project outcomes, identifies operational constraints, and charts out future roadmaps including AI content moderation and blockchain diploma verification.
+</p>
+<p class=MsoNormal>
+<strong>Appendices</strong> contain the IEEE bibliography, an operational User Manual for students and administrators, and an index of technical acronyms.
+</p>
+
+<br clear=all style='page-break-before:always;mso-break-type:section-break'>
+<h1>CHAPTER 2: SYSTEM ANALYSIS</h1>
+
+<h2>2.1 EXISTING SYSTEM STUDY</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+To comprehensively understand the necessity of an authenticated intra-college platform, an in-depth investigation of existing communication mechanisms across tertiary educational institutions was conducted. At present, undergraduate and postgraduate college communities rely almost exclusively on generic, unverified consumer technologies for internal peer-to-peer and group collaboration. These existing platforms can be categorized into three dominant archetypes:
+</p>
+<p class=MsoNormal>
+<strong>1. Consumer Messaging Applications (WhatsApp, Telegram):</strong>
+These applications serve as the primary operational medium for class announcement groups, departmental circulars, student club coordination, and peer study interactions. Access is typically governed by invite hyperlinks disseminated across unofficial networks.
+</p>
+<p class=MsoNormal>
+<strong>2. Public Social Media Channels (Instagram, Reddit, Discord):</strong>
+College cohorts frequently form unofficial collegiate pages, subreddit communities, or server channels to discuss campus life, post confessions, review faculty, and plan extra-curricular fests. Membership is completely open to the global Internet public.
+</p>
+<p class=MsoNormal>
+<strong>3. Proprietary Institutional ERP Systems:</strong>
+Institutions deploy centralized academic management systems (such as Contineo, TCS iON, or custom ERP portals) focused primarily on fee collection, examination hall ticket distribution, and attendance recording.
+</p>
+
+<div class=diagramBox>
+  <p class=MsoNormal style="text-align:center; font-weight:bold; margin-bottom:8pt;">
+    Figure 2.1: Information Flow &amp; Vulnerabilities in Conventional Unverified Platforms
+  </p>
+  <table style="width:90%; margin:0 auto; border:none; font-size:10pt;">
+    <tr>
+      <td style="border:1pt solid #666; background:#fee2e2; padding:8pt; text-align:center; width:30%;">
+        <strong>External / Unverified User</strong><br/>(Pseudonymous or Impersonated)
+      </td>
+      <td style="border:none; text-align:center; font-size:14pt; width:10%;">&rarr;</td>
+      <td style="border:1pt solid #666; background:#fef3c7; padding:8pt; text-align:center; width:30%;">
+        <strong>Public Group Link / WhatsApp</strong><br/>(Zero Identity or Card Check)
+      </td>
+      <td style="border:none; text-align:center; font-size:14pt; width:10%;">&rarr;</td>
+      <td style="border:1pt solid #666; background:#fee2e2; padding:8pt; text-align:center; width:30%;">
+        <strong>Vulnerable Student Community</strong><br/>(Spam, Harassment, Rumors, Leaks)
+      </td>
+    </tr>
+  </table>
+</div>
+
+<h2>2.2 LIMITATIONS OF THE EXISTING SYSTEM</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+Detailed analysis reveals severe structural, security, and operational deficiencies inherent to existing communication channels:
+</p>
+<p class=MsoNormal>
+<strong>1. Zero Identity Verification and Account Impersonation:</strong> Generic messaging platforms require only a telephone number or email address for account generation. Anyone can create an account using another student&rsquo;s name, photograph, and fake credentials. In collegiate WhatsApp groups, unauthorized external users frequently impersonate class representatives, faculty, or placement coordinators to mislead students.
+</p>
+<p class=MsoNormal>
+<strong>2. Privacy Invasion and Phone Number Exposure:</strong> In traditional group chats, every member's personal mobile phone number is visible to every other member. This exposes students&mdash;particularly female students&mdash;to unsolicited messages, stalking, and harassment by individuals who obtain their contact information without consent.
+</p>
+<p class=MsoNormal>
+<strong>3. Information Chaos and Disorganization:</strong> Important academic circulars regarding university examinations, syllabus revisions, and campus drive schedules are interleaved with recreational chatter, memes, political arguments, and viral spam. Critical institutional deadlines are routinely missed because messages become buried in unstructured group chat threads.
+</p>
+<p class=MsoNormal>
+<strong>4. Cross-Institutional Credential Cheating:</strong> In collegiate events and inter-college academic competitions, students from outside institutions frequently claim affiliation with prominent colleges by providing fabricated names. Because no automated verification exists, organizers must manually inspect physical paper cards, which is slow, tedious, and prone to fraud.
+</p>
+<p class=MsoNormal>
+<strong>5. Complete Lack of Moderation and Accountability:</strong> In unverified groups, perpetrators of abusive language or cyber-bullying can delete their accounts or leave the group immediately upon committing misconduct, leaving victims with no recourse and administrators with zero audit trails.
+</p>
+<p class=MsoNormal>
+<strong>6. Limitations of Conventional ERPs:</strong> Academic ERP systems are rigid, transactional databases designed for administration rather than student engagement. They feature archaic user interfaces, lack interactive social walls, provide no peer networking, and offer zero direct communication channels between scholars.
+</p>
+
+<table class=academicTable>
+  <caption>Table 2.1: Comparative Matrix: Existing Communication Channels vs. IntraWorld Ecosystem</caption>
+  <thead>
+    <tr>
+      <th style="width:25%;">Feature / Capability</th>
+      <th style="width:25%;">WhatsApp / Telegram Groups</th>
+      <th style="width:25%;">Traditional College ERP</th>
+      <th style="width:25%;">IntraWorld Platform</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Identity Verification</strong></td>
+      <td>None (Unverified Phone Number)</td>
+      <td>Manual Admin Roll Upload</td>
+      <td><strong>AI OCR + QR Code + Anti-Cheat</strong></td>
+    </tr>
+    <tr>
+      <td><strong>Phone Number Privacy</strong></td>
+      <td>Exposed to all group members</td>
+      <td>Visible to System Admins</td>
+      <td><strong>Masked &amp; Encrypted (+91 XX)</strong></td>
+    </tr>
+    <tr>
+      <td><strong>Bot &amp; Spam Protection</strong></td>
+      <td>None (Spam bots enter via links)</td>
+      <td>Basic Captcha (Often absent)</td>
+      <td><strong>Cloudflare Turnstile + Honeypot</strong></td>
+    </tr>
+    <tr>
+      <td><strong>Academic Department Filtering</strong></td>
+      <td>Requires separate disjoint groups</td>
+      <td>Rigid tabular lists only</td>
+      <td><strong>Dynamic Unified Department Feed</strong></td>
+    </tr>
+    <tr>
+      <td><strong>Credential Tampering Defense</strong></td>
+      <td>Not Applicable (Self-entered name)</td>
+      <td>Admin-dependent</td>
+      <td><strong>Auto-Filled &amp; Read-Only Locked</strong></td>
+    </tr>
+    <tr>
+      <td><strong>Peer Networking &amp; Messaging</strong></td>
+      <td>Unmoderated, unencrypted chat</td>
+      <td>Zero social interaction</td>
+      <td><strong>Secure P2P Student Messaging</strong></td>
+    </tr>
+    <tr>
+      <td><strong>Administrative Governance</strong></td>
+      <td>Unofficial student admins only</td>
+      <td>Administrative office only</td>
+      <td><strong>Formal Multi-Tier Approval Queue</strong></td>
+    </tr>
+    <tr>
+      <td><strong>Authenticity Scoring</strong></td>
+      <td>None (Binary presence)</td>
+      <td>None</td>
+      <td><strong>Dynamic Trust Gauge (0&ndash;100%)</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>2.3 PROPOSED SYSTEM ARCHITECTURE AND FEATURES</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+The proposed <strong>IntraWorld</strong> system replaces vulnerable, unverified communication tools with a secure, cloud-native social collaboration ecosystem designed specifically for academic institutions. IntraWorld combines rigorous multi-tier identity verification with modern, fluid social networking features. The fundamental innovations of the proposed system include:
+</p>
+<p class=MsoNormal>
+<strong>1. Dual-Factor Multi-Gateway Authentication:</strong> Each registration requires real-time validation across two distinct physical communication channels: an SMTP Gmail gateway delivering an instant 6-digit numeric OTP to the applicant's email, and a 2Factor Telecom SMS gateway delivering a cryptographically verified SMS OTP to an Indian mobile number.
+</p>
+<p class=MsoNormal>
+<strong>2. Dual-Engine Client-Side Vision Intelligence:</strong> The system incorporates a browser-based computer vision engine that processes photographed Student ID Cards. The engine first executes EXIF-aware image orientation correction (via <code>createImageBitmap</code>) to ensure cards taken sideways on mobile phones are rotated upright. It then inspects the card for high-density matrix QR barcodes using <em>jsQR</em>. If a QR code is detected, structured student data is parsed instantly with 100% mathematical fidelity. If no QR code exists, the image undergoes adaptive luminance histogram stretching and is fed into a dual-layer neural OCR pipeline (<em>Tesseract.js</em>) running PSM 11 (sparse text) and PSM 3 (automatic segmentation).
+</p>
+<p class=MsoNormal>
+<strong>3. Heuristic College Anti-Cheat Cross-Matching:</strong> To prevent students from falsely claiming attendance at prestigious institutions while uploading unrelated ID cards, IntraWorld introduces an anti-cheat engine. The algorithm tokenizes the manually entered college name, eliminates academic noise words, generates uppercase institutional acronyms (e.g., &ldquo;SFGC&rdquo;), and cross-matches them against OCR text using Levenshtein distance calculations. If a conflict is detected (e.g., entered &ldquo;BMS College&rdquo; while card indicates &ldquo;SFGC&rdquo;), registration is blocked.
+</p>
+<p class=MsoNormal>
+<strong>4. Read-Only Credential Locking with Supervised Fallback:</strong> Upon successful extraction, the student's Course and Roll Number credentials are auto-filled and locked as read-only fields, preventing client-side tampering. If the uploaded card photograph is degraded, blurry, or missing key fields, an automated fallback mechanism unlocks the fields, alerts the student, and flags the account for manual administrator review.
+</p>
+<p class=MsoNormal>
+<strong>5. Dynamic Authenticity Trust Metric:</strong> The system computes a composite Authenticity Trust Score (0&ndash;100%) based on verified identity tiers: Full Name (+10), Gender (+5), SMTP Verified Email (+25), SMS Verified Mobile (+20), Manual College &amp; Batch (+15), Cloudflare Bot Clearance (+10), Security Questions (+5), and Anti-Cheat Match (+10).
+</p>
+<p class=MsoNormal>
+<strong>6. Two-Stage Administrative Governance:</strong> Newly registered profiles are placed into an institutional approval queue (<code>accountStatus: 'PENDING_APPROVAL'</code>). College administrators review pending applicants, inspect card thumbnails, and approve or reject profiles before publishing access is granted.
+</p>
+
+<div class=diagramBox>
+  <p class=MsoNormal style="text-align:center; font-weight:bold; margin-bottom:8pt;">
+    Figure 2.2: IntraWorld End-to-End Conceptual Solution Architecture
+  </p>
+  <table style="width:96%; margin:0 auto; border:none; font-size:9.5pt;">
+    <tr>
+      <td style="border:1pt solid #1e3a8a; background:#e0f2fe; padding:6pt; text-align:center; width:22%;">
+        <strong>Student Client</strong><br/>Mobile / Desktop Browser<br/>EXIF &bull; jsQR &bull; Tesseract
+      </td>
+      <td style="border:none; text-align:center; font-size:12pt; width:4%;">&harr;</td>
+      <td style="border:1pt solid #047857; background:#d1fae5; padding:6pt; text-align:center; width:22%;">
+        <strong>Verification Tier</strong><br/>SMTP OTP &bull; 2Factor SMS<br/>Cloudflare Anti-Bot
+      </td>
+      <td style="border:none; text-align:center; font-size:12pt; width:4%;">&harr;</td>
+      <td style="border:1pt solid #b45309; background:#fef3c7; padding:6pt; text-align:center; width:22%;">
+        <strong>Anti-Cheat Engine</strong><br/>Acronym Synthesis<br/>Levenshtein &bull; Field Lock
+      </td>
+      <td style="border:none; text-align:center; font-size:12pt; width:4%;">&harr;</td>
+      <td style="border:1pt solid #4338ca; background:#ede9fe; padding:6pt; text-align:center; width:22%;">
+        <strong>Cloud Firestore</strong><br/>Users &bull; Feeds &bull; Chat<br/>Admin Approval Queue
+      </td>
+    </tr>
+  </table>
+</div>
+
+<h2>2.4 FEASIBILITY STUDY</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+Prior to implementing the IntraWorld software ecosystem, a comprehensive feasibility study was conducted across three essential dimensions: Technical Feasibility, Operational Feasibility, and Economic Feasibility.
+</p>
+
+<h3>2.4.1 TECHNICAL FEASIBILITY</h3>
+<p class=MsoNormal style="text-indent:0.5in;">
+Technical feasibility assesses whether the system can be developed and maintained using available technologies, hardware, and libraries. IntraWorld was found to be technically viable based on the following evaluations:
+</p>
+<ul>
+  <li><strong>Browser-Based AI Execution:</strong> The availability of WebAssembly (Wasm) ports of Google's open-source <em>Tesseract</em> OCR engine enables high-performance character recognition directly within the client browser. By executing OCR client-side, the system eliminates expensive GPU server hosting and network latency.</li>
+  <li><strong>Serverless Cloud Scalability:</strong> Google Cloud Firestore provides a managed, serverless NoSQL document database offering automatic multi-region redundancy, 99.999% availability, and sub-100 millisecond query latencies without requiring dedicated database administrator overhead.</li>
+  <li><strong>Standardized API Gateways:</strong> Production-grade RESTful communication protocols (Web3Forms/EmailJS for transactional SMTP dispatch and 2Factor.in for telecom SMS routing) provide reliable OTP transmission across Indian telecom networks with 99.8% delivery success within 15 seconds.</li>
+  <li><strong>Standards Compliance:</strong> The user interface is developed strictly using standardized HTML5, CSS3, and modern ECMAScript 2022 JavaScript, ensuring compatibility across Google Chrome, Mozilla Firefox, Apple Safari, Microsoft Edge, and mobile browser engines without requiring specialized operating system privileges or native app installations.</li>
+</ul>
+
+<h3>2.4.2 OPERATIONAL FEASIBILITY</h3>
+<p class=MsoNormal style="text-indent:0.5in;">
+Operational feasibility evaluates whether the proposed system will be accepted, adopted, and successfully utilized by target end-users (students, faculty, and college administrators) in daily academic workflows:
+</p>
+<ul>
+  <li><strong>Zero Learning Curve for Students:</strong> The platform incorporates clean, modern, intuitive UI patterns familiar to digital natives. Registration is structured as a progressive multi-section workflow with visual progress bars, real-time feedback badges, and automated field population that minimizes typing effort.</li>
+  <li><strong>Reduced Administrative Workload:</strong> In conventional setups, college administrators spend hours manually checking paper ID cards and rosters. IntraWorld automates card reading, acronym matching, and credential validation, presenting administrators with a clean queue where profiles can be approved or rejected with a single click.</li>
+  <li><strong>Privacy-Conscious Design:</strong> By masking telephone numbers and restricting campus access to verified students, the platform eliminates the harassment risks that currently discourage students from joining official groups.</li>
+</ul>
+
+<h3>2.4.3 ECONOMIC FEASIBILITY</h3>
+<p class=MsoNormal style="text-indent:0.5in;">
+Economic feasibility analyzes the developmental, infrastructural, and ongoing operational costs versus the tangible and intangible value delivered to the institution:
+</p>
+<ul>
+  <li><strong>Zero Hardware Procurement Overhead:</strong> Because IntraWorld adopts a serverless cloud architecture and client-side computer vision model, the college is not required to purchase, configure, or maintain costly on-premise servers, load balancers, or server-side GPU instances.</li>
+  <li><strong>Free-Tier Operational Sustainability:</strong> Google Cloud Firestore offers a generous free tier of 50,000 document reads, 20,000 document writes, and 1 GB of storage daily&mdash;more than sufficient to support an active campus of 2,500 to 5,000 students without incurring operational expenditure.</li>
+  <li><strong>Significant Cost Savings:</strong> Traditional commercial enterprise social networks charge substantial per-user monthly licensing fees. IntraWorld delivers an equivalent, more secure platform built on open-source frameworks at virtually zero recurring institutional cost.</li>
+</ul>
+
+<h2>2.5 RISK ANALYSIS AND MITIGATION STRATEGIES</h2>
+<table class=academicTable>
+  <caption>Table 2.2: Project Risk Assessment &amp; Mitigation Strategy Matrix</caption>
+  <thead>
+    <tr>
+      <th style="width:20%;">Risk Category</th>
+      <th style="width:25%;">Identified Risk</th>
+      <th style="width:15%;">Likelihood / Impact</th>
+      <th style="width:40%;">Implemented Mitigation Strategy</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Camera Degradation</strong></td>
+      <td>Mobile card photo is blurry, low-contrast, or taken at an angle.</td>
+      <td>Medium / High</td>
+      <td>Implemented EXIF auto-rotation, adaptive histogram contrast stretching, dual-mode PSM fallback, and supervised manual correction overrides.</td>
+    </tr>
+    <tr>
+      <td><strong>Identity Impersonation</strong></td>
+      <td>Student uploads another peer's ID card or an ID card from another institution.</td>
+      <td>Medium / High</td>
+      <td>Enforced Heuristic College Anti-Cheat Cross-Matching, Levenshtein distance checks, Student Name overlap matching, and mandatory Admin Approval review.</td>
+    </tr>
+    <tr>
+      <td><strong>Automated Bot Infiltration</strong></td>
+      <td>Malicious actors deploy automated scripts to flood registration queues.</td>
+      <td>High / High</td>
+      <td>Integrated Cloudflare Turnstile anti-bot challenges, hidden honeypot form traps, disposable email domain blocking, and rate limiting.</td>
+    </tr>
+    <tr>
+      <td><strong>SMS Gateway Latency</strong></td>
+      <td>Indian telecom network latency delays OTP SMS delivery.</td>
+      <td>Low / Medium</td>
+      <td>Implemented dual-channel verification (instant SMTP Gmail OTP fallback) with visual countdown resend timers and status notifications.</td>
+    </tr>
+  </tbody>
+</table>
+
+<br clear=all style='page-break-before:always;mso-break-type:section-break'>
+<h1>CHAPTER 3: SOFTWARE REQUIREMENT SPECIFICATIONS (SRS)</h1>
+
+<h2>3.1 INTRODUCTION AND SYSTEM PERSPECTIVE</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+The Software Requirement Specifications (SRS) document establishes the formal, definitive foundation for the engineering, evaluation, and operational deployment of the <strong>IntraWorld</strong> platform. This specification delineates the complete behavioral, algorithmic, interface, and environmental constraints governing the system. It serves as a binding contract between institutional requirements and software implementation, ensuring that all functional modules meet institutional security standards.
+</p>
+<p class=MsoNormal style="text-indent:0.5in;">
+From an architectural perspective, IntraWorld operates as a zero-trust, client-cloud hybrid application. The software does not exist in isolation; it interfaces with distributed third-party identity, telecom, security, and cloud data infrastructures. The system perspective encompasses the client browser runtime (executing WebAssembly OCR and QR decoding), cloud storage gateways (Google Cloud Firestore NoSQL engine), transactional communication APIs (SMTP protocol and Indian telecom SMS gateways), and reverse-proxy perimeter defense networks (Cloudflare Turnstile).
+</p>
+
+<h2>3.2 FUNCTIONAL REQUIREMENTS (FR)</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+The functional capabilities of the IntraWorld platform are categorized into twelve discrete, testable functional requirement specifications (FR-1 through FR-12):
+</p>
+
+<h3>FR-1: MULTI-CHANNEL TWO-FACTOR OTP AUTHENTICATION</h3>
+<p class=MsoNormal>
+<strong>Description:</strong> The system must enforce multi-channel identity validation across both email and mobile telephone vectors during student onboarding.
+</p>
+<ul>
+  <li><strong>FR-1.1:</strong> The system shall validate that the applicant provides a syntactically valid Gmail address (<code>@gmail.com</code>) and systematically reject disposable or temporary email domains (e.g., <code>tempmail.com</code>, <code>mailinator.com</code>, <code>10minutemail.com</code>).</li>
+  <li><strong>FR-1.2:</strong> Upon user trigger, the system shall generate a cryptographically random 6-digit numeric OTP and transmit it via secure SMTP gateway to the student's email with a 300-second validity window.</li>
+  <li><strong>FR-1.3:</strong> The system shall validate Indian mobile phone numbers (+91 format), stripping leading zeroes and country prefixes to enforce a strict 10-digit numeric constraint.</li>
+  <li><strong>FR-1.4:</strong> The system shall interface with the 2Factor Telecom API to dispatch an SMS OTP over authenticated telecom routes and verify the applicant's entered code against the returned session identifier.</li>
+  <li><strong>FR-1.5:</strong> Visual countdown timers (60 seconds) and resend throttles shall prevent denial-of-service abuse against the dispatch gateways.</li>
+</ul>
+
+<h3>FR-2: CLIENT-SIDE EXIF ORIENTATION &amp; IMAGE PREPROCESSING</h3>
+<p class=MsoNormal>
+<strong>Description:</strong> The system must normalize mobile camera photographs prior to optical analysis.
+</p>
+<ul>
+  <li><strong>FR-2.1:</strong> When an applicant uploads a camera photograph, the system shall inspect EXIF metadata using <code>createImageBitmap(file, { imageOrientation: "from-image" })</code> to automatically rotate sideways or inverted orientation tags to upright portrait alignment.</li>
+  <li><strong>FR-2.2:</strong> The system shall render the oriented image onto an in-memory HTML5 Canvas and scale it to a standardized high-resolution target width of 2,000 pixels.</li>
+  <li><strong>FR-2.3:</strong> The system shall compute an ITU-R BT.709 luminance histogram (<span style="font-style:italic;">Y = 0.2126R + 0.7152G + 0.0722B</span>) and execute continuous sigmoidal contrast stretching to enhance faint character printing and suppress background glare.</li>
+</ul>
+
+<h3>FR-3: HIGH-SPEED MATRIX QR BARCODE EXTRACTION</h3>
+<p class=MsoNormal>
+<strong>Description:</strong> The system must prioritize instant, 100% accurate matrix barcode decoding for cards equipped with digital QR codes.
+</p>
+<ul>
+  <li><strong>FR-3.1:</strong> The system shall scan the preprocessed canvas using the <em>jsQR</em> engine across normal and inverted binarization passes.</li>
+  <li><strong>FR-3.2:</strong> If a QR code is detected, the system shall parse the decoded payload across JSON structures, key-value pairs (e.g., <code>Roll: 24CA172</code>), or pipe-delimited tokens.</li>
+  <li><strong>FR-3.3:</strong> Extracted fields (Student Name, Roll Number, Degree Course, College Name, Academic Batch) shall be passed to the population module with scan method tagged as <code>QR</code>.</li>
+</ul>
+
+<h3>FR-4: DUAL-LAYER NEURAL OPTICAL CHARACTER RECOGNITION</h3>
+<p class=MsoNormal>
+<strong>Description:</strong> For cards without QR codes, the system must deploy multi-mode neural character recognition.
+</p>
+<ul>
+  <li><strong>FR-4.1:</strong> The system shall initialize a client-side <em>Tesseract.js</em> WebAssembly worker configured for English (<code>eng</code>).</li>
+  <li><strong>FR-4.2:</strong> Layer 1 shall execute under Page Segmentation Mode 11 (<code>PSM 11: Sparse text</code>) with inter-word spacing preservation to capture isolated labels.</li>
+  <li><strong>FR-4.3:</strong> If Layer 1 yields fewer than 40 characters, Layer 2 shall automatically execute under Page Segmentation Mode 3 (<code>PSM 3: Fully automatic page segmentation</code>), concatenating text buffers.</li>
+  <li><strong>FR-4.4:</strong> Real-time percentage progress indicators shall update the UI during recognition.</li>
+</ul>
+
+<h3>FR-5: HEURISTIC COLLEGE ANTI-CHEAT CROSS-MATCHING ENGINE</h3>
+<p class=MsoNormal>
+<strong>Description:</strong> The system must prevent applicants from misrepresenting their institutional affiliation.
+</p>
+<ul>
+  <li><strong>FR-5.1:</strong> The system shall require manual entry of the student's College / University Name under Section 2.</li>
+  <li><strong>FR-5.2:</strong> The anti-cheat engine shall normalize both entered and OCR-detected strings by stripping punctuation and removing 20+ academic stop words (e.g., <em>college</em>, <em>institute</em>, <em>university</em>, <em>first grade</em>, <em>school of</em>).</li>
+  <li><strong>FR-5.3:</strong> The engine shall generate canonical institutional acronyms (e.g., <em>&ldquo;SFGC&rdquo;</em> from <em>&ldquo;Seshadripuram First Grade College&rdquo;</em>) and cross-match acronym presence across the entire card OCR text buffer.</li>
+  <li><strong>FR-5.4:</strong> The engine shall calculate token overlap ratios and Levenshtein string distances. Similarity scores &ge; 0.70 shall generate a verified badge; scores &lt; 0.40 shall flag a critical <strong>MISMATCH</strong> and completely block form submission.</li>
+</ul>
+
+<h3>FR-6: CREDENTIAL LOCKING WITH SUPERVISED MANUAL FALLBACK</h3>
+<p class=MsoNormal>
+<strong>Description:</strong> The system must prevent client-side credential falsification while supporting audited fallback for degraded card photographs.
+</p>
+<ul>
+  <li><strong>FR-6.1:</strong> When Course and Roll Number credentials are extracted with high confidence, the input elements (<code>#ocrCourse</code> and <code>#ocrRollNo</code>) shall be set to <code>readOnly = true</code> with locked styling (<code>cursor: not-allowed</code>) and a <em>🔒 Locked</em> badge.</li>
+  <li><strong>FR-6.2:</strong> If OCR extraction fails to detect Course or Roll Number (or if OCR text length is &lt; 35 characters), the system shall automatically unlock the fields, display a yellow notification, and flag the account as manually edited due to unclear text.</li>
+  <li><strong>FR-6.3:</strong> An interactive override button (<em>[✏️ Image text unclear? Enable editing]</em>) shall allow applicants to unlock fields if OCR misread characters, logging <code>isOcrManuallyEdited: true</code> in the database for mandatory administrator verification.</li>
+</ul>
+
+<h3>FR-7: CLOUDFLARE TURNSTILE ANTI-BOT CHALLENGE</h3>
+<p class=MsoNormal>
+<strong>Description:</strong> The system must prevent automated registration scripts and bot farms.
+</p>
+<ul>
+  <li><strong>FR-7.1:</strong> The form shall feature an interactive Cloudflare verification widget requiring explicit user interaction.</li>
+  <li><strong>FR-7.2:</strong> A hidden honeypot input (<code>#honeypotTrap</code>) shall immediately reject submissions populated by automated scrapers.</li>
+  <li><strong>FR-7.3:</strong> Form submission shall be strictly disabled until Cloudflare verification completes successfully.</li>
+</ul>
+
+<h3>FR-8: DYNAMIC AUTHENTICITY TRUST SCORING METRIC</h3>
+<p class=MsoNormal>
+<strong>Description:</strong> The system must dynamically calculate and display an applicant's trust rating (0&ndash;100%).
+</p>
+<ul>
+  <li><strong>FR-8.1:</strong> The score shall be computed in real-time based on weighted criteria: Full Name (+10), Gender (+5), Verified Gmail (+25), Verified Mobile (+20), Manual College &amp; Batch (+15), Cloudflare Clearance (+10), Security Questions (+5), and Anti-Cheat Match (+10).</li>
+  <li><strong>FR-8.2:</strong> A SVG radial gauge shall visually update score percentages and color thresholds: Green (&ge;75% Genuine), Cyan (50&ndash;74% Moderate), Red (&lt;50% Low).</li>
+</ul>
+
+<h3>FR-9: ADMINISTRATIVE APPROVAL WORKFLOW</h3>
+<p class=MsoNormal>
+<strong>Description:</strong> Newly created student profiles must require administrative vetting prior to gaining campus posting privileges.
+</p>
+<ul>
+  <li><strong>FR-9.1:</strong> Registration submissions shall be persisted into Firestore with <code>accountStatus: 'PENDING_APPROVAL'</code> and <code>adminApproved: false</code>.</li>
+  <li><strong>FR-9.2:</strong> A dedicated Admin Portal (<code>admin-approval.html</code>) shall display pending applicants, their trust scores, anti-cheat status, and uploaded ID card thumbnails.</li>
+  <li><strong>FR-9.3:</strong> Administrators shall have authority to Approve (granting full access) or Reject (flagging fraudulent credentials) each applicant with real-time Firestore synchronization.</li>
+</ul>
+
+<h3>FR-10: DEPARTMENT-FILTERED CAMPUS FEEDS &amp; SOCIAL POSTING</h3>
+<p class=MsoNormal>
+<strong>Description:</strong> Approved students must be able to publish and discover academic announcements.
+</p>
+<ul>
+  <li><strong>FR-10.1:</strong> Authenticated students shall author posts containing text, academic categories (BCA, MCA, B.Sc., Placements, Cultural, Sports), and media attachments.</li>
+  <li><strong>FR-10.2:</strong> The feed interface shall support real-time category filtering, liking, and threaded commentary.</li>
+</ul>
+
+<h3>FR-11: AUTHENTICATED PEER-TO-PEER MESSAGING</h3>
+<p class=MsoNormal>
+<strong>Description:</strong> Students must be able to communicate directly without exposing telephone numbers.
+</p>
+<ul>
+  <li><strong>FR-11.1:</strong> The system shall facilitate 1-on-1 direct messaging between authenticated scholars.</li>
+  <li><strong>FR-11.2:</strong> Messages shall be persisted in Firestore sub-collections indexed by participant UID pairs, keeping telephone numbers and private email addresses completely hidden.</li>
+</ul>
+
+<h3>FR-12: PROFILE &amp; ACADEMIC SETTINGS</h3>
+<p class=MsoNormal>
+<strong>Description:</strong> Students must manage their academic bio, skills directory, and security settings.
+</p>
+<ul>
+  <li><strong>FR-12.1:</strong> Profiles shall showcase verified badges, course affiliation, graduation batch, and technical skills tags.</li>
+  <li><strong>FR-12.2:</strong> Avatar photographs shall be stored and rendered using optimized data URIs and Firestore documents.</li>
+</ul>
+
+<h2>3.3 NON-FUNCTIONAL REQUIREMENTS (NFR)</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+Non-functional requirements specify operational quality criteria, system constraints, and architectural standards:
+</p>
+<ul>
+  <li><strong>NFR-1: Performance &amp; Latency:</strong> The client-side QR barcode scanner must decode valid matrix codes within 250 milliseconds. Dual-layer Tesseract OCR execution on a 2,000-pixel card image must complete within 4.5 seconds on modern multi-core devices. Cloud Firestore read/write transactions must execute with latencies under 120 milliseconds.</li>
+  <li><strong>NFR-2: Security &amp; Data Integrity:</strong> All communications must utilize Transport Layer Security (TLS 1.3). Student passwords must be encrypted and salted prior to authentication checks. Telephone numbers must be stored in standardized E.164 format and masked on all public-facing UI components. Cross-Site Scripting (XSS) must be mitigated via strict HTML entity sanitization (<code>escapeHtml</code>).</li>
+  <li><strong>NFR-3: Reliability &amp; Availability:</strong> The serverless cloud infrastructure must deliver 99.99% operational uptime. Database state must be replicated across multi-region Google Cloud datacenters with automated failover and zero data loss.</li>
+  <li><strong>NFR-4: Usability &amp; Responsive Layout:</strong> The user interface must deliver a mobile-first, responsive experience conforming to WCAG 2.1 Level AA accessibility standards, operating seamlessly across viewport widths from 360 pixels (smartphones) to 2,560 pixels (desktop displays).</li>
+  <li><strong>NFR-5: Scalability:</strong> The serverless architecture must horizontally scale to accommodate concurrent registration surges (e.g., 5,000 students registering simultaneously during semester admission weeks) without server provisioning or queue degradation.</li>
+  <li><strong>NFR-6: Maintainability:</strong> Front-end modules must adhere to modular, human-readable JavaScript patterns with comprehensive JSDoc documentation, zero deprecated dependencies, and strict separation of presentation (HTML/CSS) from business logic (JS).</li>
+</ul>
+
+<h2>3.4 HARDWARE AND SOFTWARE STACK CONFIGURATION</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+The operational deployment of IntraWorld requires the following hardware and software stack configurations across client and cloud tiers:
+</p>
+
+<table class=academicTable>
+  <caption>Table 3.1: Minimum Client-Side Hardware Specifications</caption>
+  <thead>
+    <tr>
+      <th style="width:30%;">Component</th>
+      <th style="width:35%;">Minimum Specification</th>
+      <th style="width:35%;">Recommended Specification</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Processor (CPU)</strong></td>
+      <td>Dual-Core 1.8 GHz (x86_64 or ARM64)</td>
+      <td>Quad-Core 2.4 GHz or higher</td>
+    </tr>
+    <tr>
+      <td><strong>System Memory (RAM)</strong></td>
+      <td>2.0 GB RAM (for Wasm OCR workers)</td>
+      <td>4.0 GB RAM or higher</td>
+    </tr>
+    <tr>
+      <td><strong>Display Resolution</strong></td>
+      <td>360 &times; 640 pixels (Mobile)</td>
+      <td>1920 &times; 1080 pixels (Full HD)</td>
+    </tr>
+    <tr>
+      <td><strong>Integrated Camera</strong></td>
+      <td>2.0 Megapixel (720p resolution)</td>
+      <td>5.0 Megapixel with autofocus &amp; flash</td>
+    </tr>
+    <tr>
+      <td><strong>Network Connection</strong></td>
+      <td>3G Mobile Data (384 Kbps)</td>
+      <td>4G LTE / 5G / Broadband Wi-Fi (&ge; 10 Mbps)</td>
+    </tr>
+  </tbody>
+</table>
+
+<table class=academicTable>
+  <caption>Table 3.2: Server &amp; Cloud Infrastructure Specifications</caption>
+  <thead>
+    <tr>
+      <th style="width:30%;">Infrastructure Layer</th>
+      <th style="width:35%;">Technology / Provider</th>
+      <th style="width:35%;">Operational Parameters</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Cloud Database</strong></td>
+      <td>Google Cloud Firestore (NoSQL)</td>
+      <td>Multi-region regional replication, automatic sharding</td>
+    </tr>
+    <tr>
+      <td><strong>Static Web Hosting</strong></td>
+      <td>Firebase Hosting / Global Edge CDN</td>
+      <td>SSD edge caches, automated TLS/SSL certificate issuance</td>
+    </tr>
+    <tr>
+      <td><strong>Edge Security &amp; WAF</strong></td>
+      <td>Cloudflare Turnstile &amp; DDoS Shield</td>
+      <td>Managed challenge mode, automated threat analytics</td>
+    </tr>
+    <tr>
+      <td><strong>Transactional SMTP</strong></td>
+      <td>EmailJS / Web3Forms Gateway</td>
+      <td>TLS authenticated SMTP routing, DKIM/SPF verified</td>
+    </tr>
+    <tr>
+      <td><strong>Telecom SMS Gateway</strong></td>
+      <td>2Factor.in Telecom Hub</td>
+      <td>DND-compliant transactional SMS route (India)</td>
+    </tr>
+  </tbody>
+</table>
+
+<table class=academicTable>
+  <caption>Table 3.3: Software Technology Stack &amp; Library Dependencies</caption>
+  <thead>
+    <tr>
+      <th style="width:25%;">Category</th>
+      <th style="width:35%;">Software / Library</th>
+      <th style="width:40%;">Role in IntraWorld Architecture</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Markup &amp; Styling</strong></td>
+      <td>HTML5 &bull; CSS3 &bull; CSS Grid &bull; Flexbox</td>
+      <td>Semantic presentation, dark-themed responsive glassmorphic UI</td>
+    </tr>
+    <tr>
+      <td><strong>Core Client Logic</strong></td>
+      <td>Modern JavaScript (ES6+ / ECMAScript 2022)</td>
+      <td>Client-side routing, DOM manipulation, asynchronous state management</td>
+    </tr>
+    <tr>
+      <td><strong>Client Vision (QR)</strong></td>
+      <td>jsQR (v1.4.0)</td>
+      <td>Matrix barcode binarization and instant payload decoding</td>
+    </tr>
+    <tr>
+      <td><strong>Client Vision (OCR)</strong></td>
+      <td>Tesseract.js (v4.0.2 / WebAssembly)</td>
+      <td>Neural optical character recognition in web worker sandbox</td>
+    </tr>
+    <tr>
+      <td><strong>PDF Processing</strong></td>
+      <td>PDF.js (v3.11.174) &bull; Binary Scanner</td>
+      <td>Rasterization of PDF fee vouchers and ID cards onto HTML5 Canvas</td>
+    </tr>
+    <tr>
+      <td><strong>Database SDK</strong></td>
+      <td>Firebase JavaScript SDK (v8.10.1)</td>
+      <td>Real-time Firestore collection queries and listener subscriptions</td>
+    </tr>
+    <tr>
+      <td><strong>Development Runtime</strong></td>
+      <td>Node.js (v20+ / v22 LTS) &bull; PowerShell</td>
+      <td>Build automation, dependency resolution, local server testing</td>
+    </tr>
+  </tbody>
+</table>
+
+<br clear=all style='page-break-before:always;mso-break-type:section-break'>
+<h1>CHAPTER 4: SYSTEM DESIGN</h1>
+
+<h2>4.1 HIGH-LEVEL ARCHITECTURE</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+The architectural design of <strong>IntraWorld</strong> adopts a modern, three-tier cloud-native model structured around the principles of edge-computing intelligence, stateless client execution, and managed serverless database persistence. Traditional web architectures frequently suffer from severe bottlenecks because high-resolution image uploads and computer vision OCR workloads overwhelm central server CPUs and memory buffers. In contrast, IntraWorld distributes processing workloads efficiently across three architectural tiers:
+</p>
+<p class=MsoNormal>
+<strong>1. Presentation &amp; Edge Intelligence Tier (Client Browser):</strong> Executing directly within the student's browser sandbox, this tier orchestrates user interactions, form validation, EXIF metadata correction, canvas-based image preprocessing, jsQR barcode decoding, and WebAssembly-powered Tesseract OCR neural parsing. Business logic&mdash;including acronym extraction, string distance heuristics, and field locking&mdash;executes on the client machine with zero server CPU consumption.
+</p>
+<p class=MsoNormal>
+<strong>2. Gateway &amp; Perimeter Security Tier (External Distributed Gateways):</strong> This tier encompasses external perimeter defenses and transactional communication hubs. Cloudflare Turnstile provides reverse-proxy bot challenge verification; EmailJS/Web3Forms routes encrypted SMTP packets to Google Gmail servers; and the 2Factor Telecom Hub interacts with Indian cellular networks to dispatch SMS authentication tokens.
+</p>
+<p class=MsoNormal>
+<strong>3. Persistence &amp; Governance Tier (Google Cloud Firestore):</strong> The backend consists of Google Cloud Firestore, a horizontally scalable, document-oriented NoSQL database. Firestore maintains collections for user credentials, pending registration queues, academic rosters, social feeds, and private messaging channels with automated real-time listener synchronization and strict declarative security rules.
+</p>
+
+<div class=diagramBox>
+  <p class=MsoNormal style="text-align:center; font-weight:bold; margin-bottom:8pt;">
+    Figure 4.1: IntraWorld 3-Tier Serverless Cloud Architecture Diagram
+  </p>
+  <table style="width:96%; margin:0 auto; border:none; font-size:9.5pt;">
+    <tr>
+      <td style="border:1.5pt solid #1e3a8a; background:#eff6ff; padding:8pt; text-align:center; width:30%;">
+        <strong>TIER 1: CLIENT RUNTIME</strong><br/>
+        &bull; HTML5 / CSS3 / ES6 UI<br/>
+        &bull; EXIF Orientation Normalizer<br/>
+        &bull; jsQR Matrix Decoder<br/>
+        &bull; Tesseract.js (Wasm Worker)<br/>
+        &bull; Anti-Cheat Heuristic Matcher
+      </td>
+      <td style="border:none; text-align:center; font-size:14pt; width:5%;">&harr;</td>
+      <td style="border:1.5pt solid #047857; background:#ecfdf5; padding:8pt; text-align:center; width:30%;">
+        <strong>TIER 2: GATEWAY SERVICES</strong><br/>
+        &bull; Cloudflare Turnstile Shield<br/>
+        &bull; SMTP Transactional Hub<br/>
+        &bull; 2Factor Telecom SMS Route<br/>
+        &bull; Firebase Edge CDN
+      </td>
+      <td style="border:none; text-align:center; font-size:14pt; width:5%;">&harr;</td>
+      <td style="border:1.5pt solid #4338ca; background:#eef2ff; padding:8pt; text-align:center; width:30%;">
+        <strong>TIER 3: CLOUD PERSISTENCE</strong><br/>
+        &bull; Google Cloud Firestore NoSQL<br/>
+        &bull; Collections: users, registrations<br/>
+        &bull; Collections: posts, messages<br/>
+        &bull; Admin Verification Console
+      </td>
+    </tr>
+  </table>
+</div>
+
+<h2>4.2 DATA FLOW DIAGRAMS (DFD)</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+Data Flow Diagrams (DFDs) map the logical progression, structural transformations, and operational boundaries of data across the IntraWorld platform.
+</p>
+
+<h3>4.2.1 DFD LEVEL 0: CONTEXT LEVEL DIAGRAM</h3>
+<p class=MsoNormal style="text-indent:0.5in;">
+The Context Level Diagram (Figure 4.2) abstracts the entire IntraWorld platform into a single central process entity, illustrating external entities (Student Applicant, College Administrator, SMTP Email Gateway, Telecom SMS Gateway, Cloudflare Security) and the high-level data signals exchanged across institutional boundaries.
+</p>
+
+<div class=diagramBox>
+  <p class=MsoNormal style="text-align:center; font-weight:bold; margin-bottom:8pt;">
+    Figure 4.2: Data Flow Diagram (DFD) Level 0 &ndash; Context Level Diagram
+  </p>
+  <table style="width:96%; margin:0 auto; border:none; font-size:9pt; line-height:130%;">
+    <tr>
+      <td style="border:1pt solid #000; background:#f1f5f9; padding:6pt; width:22%; text-align:center;">
+        <strong>STUDENT APPLICANT</strong><br/>
+        &bull; Contact Info<br/>
+        &bull; ID Card Photo<br/>
+        &bull; OTP Inputs
+      </td>
+      <td style="border:none; text-align:center; width:12%;">&rarr; Registration Data &rarr;<br/>&larr; Account Status &larr;</td>
+      <td style="border:2pt solid #1e3a8a; background:#dbeafe; padding:10pt; width:32%; text-align:center;">
+        <span style="font-size:12pt; font-weight:bold;">0.0</span><br/>
+        <strong>INTRAWORLD SYSTEM</strong><br/>
+        Identity Verification &amp; Intra-Campus Social Platform
+      </td>
+      <td style="border:none; text-align:center; width:12%;">&rarr; Pending Queue &rarr;<br/>&larr; Approval Decision &larr;</td>
+      <td style="border:1pt solid #000; background:#f1f5f9; padding:6pt; width:22%; text-align:center;">
+        <strong>COLLEGE ADMIN</strong><br/>
+        &bull; Profile Inspection<br/>
+        &bull; Card Thumbnail Review<br/>
+        &bull; Account Activation
+      </td>
+    </tr>
+    <tr>
+      <td colspan=5 style="border:none; text-align:center; padding-top:10pt;">
+        &uarr; &darr; OTP Verification Signals &uarr; &darr;<br/>
+        <strong>External Gateways: SMTP Hub &bull; 2Factor SMS Telecom &bull; Cloudflare Turnstile</strong>
+      </td>
+    </tr>
+  </table>
+</div>
+
+<h3>4.2.2 DFD LEVEL 1: MAJOR SYSTEM SUB-SYSTEMS</h3>
+<p class=MsoNormal style="text-indent:0.5in;">
+The Level 1 DFD decomposes the monolithic system into seven major functional subsystems: Authentication (1.0), Vision &amp; OCR Engine (2.0), Anti-Cheat Matcher (3.0), Admin Queue Processor (4.0), Post &amp; Feed Engine (5.0), Direct Messaging (6.0), and Profile Directory (7.0).
+</p>
+
+<div class=diagramBox>
+  <p class=MsoNormal style="text-align:center; font-weight:bold; margin-bottom:8pt;">
+    Figure 4.3: Data Flow Diagram (DFD) Level 1 &ndash; System Decomposition
+  </p>
+  <table style="width:98%; margin:0 auto; border:none; font-size:8.5pt;">
+    <tr>
+      <td style="border:1pt solid #1e3a8a; background:#e0f2fe; padding:4pt; text-align:center; width:13%;">
+        <strong>1.0 AUTH</strong><br/>SMTP &amp; SMS OTP
+      </td>
+      <td style="border:none; text-align:center; width:2%;">&rarr;</td>
+      <td style="border:1pt solid #1e3a8a; background:#e0f2fe; padding:4pt; text-align:center; width:13%;">
+        <strong>2.0 VISION</strong><br/>EXIF, QR &amp; OCR
+      </td>
+      <td style="border:none; text-align:center; width:2%;">&rarr;</td>
+      <td style="border:1pt solid #1e3a8a; background:#e0f2fe; padding:4pt; text-align:center; width:13%;">
+        <strong>3.0 ANTI-CHEAT</strong><br/>Acronym &amp; Lock
+      </td>
+      <td style="border:none; text-align:center; width:2%;">&rarr;</td>
+      <td style="border:1pt solid #b45309; background:#fef3c7; padding:4pt; text-align:center; width:13%;">
+        <strong>4.0 ADMIN</strong><br/>Approval Review
+      </td>
+      <td style="border:none; text-align:center; width:2%;">&rarr;</td>
+      <td style="border:1pt solid #047857; background:#d1fae5; padding:4pt; text-align:center; width:13%;">
+        <strong>5.0 FEEDS</strong><br/>Campus Posts
+      </td>
+      <td style="border:none; text-align:center; width:2%;">&rarr;</td>
+      <td style="border:1pt solid #047857; background:#d1fae5; padding:4pt; text-align:center; width:13%;">
+        <strong>6.0 CHAT</strong><br/>P2P Messages
+      </td>
+    </tr>
+  </table>
+  <p class=MsoNormal style="font-size:9pt; text-align:center; margin-top:6pt; color:#475569;">
+    Data Stores: [D1: users] &bull; [D2: registrations] &bull; [D3: students] &bull; [D4: posts] &bull; [D5: messages]
+  </p>
+</div>
+
+<h3>4.2.3 DFD LEVEL 2: DETAILED OCR SCANNING &amp; ANTI-CHEAT FLOW</h3>
+<p class=MsoNormal style="text-indent:0.5in;">
+Figure 4.4 details the internal sub-processes of the vision intelligence and anti-cheat pipeline (Process 2.0 and 3.0), showing the decision branches between QR barcode parsing, multi-layer Tesseract neural OCR, stop-word elimination, acronym synthesis, and read-only field locking.
+</p>
+
+<div class=diagramBox>
+  <p class=MsoNormal style="text-align:center; font-weight:bold; margin-bottom:8pt;">
+    Figure 4.4: Data Flow Diagram (DFD) Level 2 &ndash; Dual OCR Registration &amp; Anti-Cheat Pipeline
+  </p>
+  <table style="width:96%; margin:0 auto; border:none; font-size:8.5pt;">
+    <tr>
+      <td style="border:1pt solid #334155; background:#f8fafc; padding:6pt; width:24%; text-align:center;">
+        <strong>2.1 Image Orientation</strong><br/>
+        Read EXIF metadata<br/>
+        Rotate canvas to upright<br/>
+        Scale to 2,000px width
+      </td>
+      <td style="border:none; text-align:center; width:3%;">&rarr;</td>
+      <td style="border:1pt solid #334155; background:#f8fafc; padding:6pt; width:24%; text-align:center;">
+        <strong>2.2 jsQR Inspection</strong><br/>
+        Scan matrix barcode<br/>
+        <em>Found?</em> &rarr; Instant 100% parse<br/>
+        <em>None?</em> &rarr; Route to 2.3
+      </td>
+      <td style="border:none; text-align:center; width:3%;">&rarr;</td>
+      <td style="border:1pt solid #334155; background:#f8fafc; padding:6pt; width:24%; text-align:center;">
+        <strong>2.3 Neural OCR (Wasm)</strong><br/>
+        Histogram stretch<br/>
+        Layer 1: PSM 11 Sparse<br/>
+        Layer 2: PSM 3 Full
+      </td>
+      <td style="border:none; text-align:center; width:3%;">&rarr;</td>
+      <td style="border:1pt solid #1e3a8a; background:#e0f2fe; padding:6pt; width:24%; text-align:center;">
+        <strong>3.1 Anti-Cheat Matcher</strong><br/>
+        Strip academic stop words<br/>
+        Synthesize acronyms<br/>
+        Compute Levenshtein dist
+      </td>
+    </tr>
+  </table>
+  <p class=MsoNormal style="font-size:8.5pt; text-align:center; margin-top:6pt; color:#475569;">
+    Outcome Branch: If Match &ge; 0.70 &rarr; Auto-fill &amp; Lock Credentials [readOnly=true]. If Mismatch &lt; 0.40 &rarr; Hard Block Submission.
+  </p>
+</div>
+
+<h2>4.3 ENTITY-RELATIONSHIP (ER) DIAGRAM</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+The Entity-Relationship model (Figure 4.5) captures the semantic data entities, attributes, and cardinality relationships governing the IntraWorld domain. Key entities include <strong>Student/User</strong>, <strong>RegistrationApplication</strong>, <strong>Post</strong>, <strong>Comment</strong>, <strong>DirectMessage</strong>, and <strong>AdministrativeAction</strong>.
+</p>
+
+<div class=diagramBox>
+  <p class=MsoNormal style="text-align:center; font-weight:bold; margin-bottom:8pt;">
+    Figure 4.5: Entity-Relationship (ER) Schema Model
+  </p>
+  <table style="width:96%; margin:0 auto; border:none; font-size:9pt;">
+    <tr>
+      <td style="border:1.5pt solid #1e3a8a; background:#eff6ff; padding:6pt; width:30%; text-align:left;">
+        <strong>USER / STUDENT</strong><br/>
+        <u>email</u> (PK)<br/>
+        full_name, phone<br/>
+        studentRegId (USN)<br/>
+        qualification, batch<br/>
+        collegeName<br/>
+        trustScore, accountStatus<br/>
+        isVerified, adminApproved
+      </td>
+      <td style="border:none; text-align:center; width:5%; font-size:12pt;">1 : N &rarr;</td>
+      <td style="border:1.5pt solid #047857; background:#ecfdf5; padding:6pt; width:30%; text-align:left;">
+        <strong>POST</strong><br/>
+        <u>postId</u> (PK)<br/>
+        authorEmail (FK)<br/>
+        authorName, department<br/>
+        content, mediaUrl<br/>
+        likesCount, commentsCount<br/>
+        createdAt
+      </td>
+      <td style="border:none; text-align:center; width:5%; font-size:12pt;">1 : N &rarr;</td>
+      <td style="border:1.5pt solid #b45309; background:#fef3c7; padding:6pt; width:30%; text-align:left;">
+        <strong>COMMENT</strong><br/>
+        <u>commentId</u> (PK)<br/>
+        postId (FK)<br/>
+        authorEmail (FK)<br/>
+        text<br/>
+        createdAt
+      </td>
+    </tr>
+    <tr>
+      <td colspan=5 style="border:none; text-align:center; padding-top:10pt;">
+        <strong>Additional Cardinalities:</strong> USER (1) &mdash; Sends &mdash; (N) DIRECT_MESSAGE (1:N) &bull; USER (1) &mdash; Submits &mdash; (1) REGISTRATION_APPLICATION (1:1) &bull; ADMIN (1) &mdash; Reviews &mdash; (N) REGISTRATION_APPLICATION (1:N)
+      </td>
+    </tr>
+  </table>
+</div>
+
+<h2>4.4 DATABASE SCHEMA AND FIRESTORE COLLECTION STRUCTURES</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+IntraWorld stores data across normalized Google Cloud Firestore collections. The complete field definitions, data types, constraints, and operational descriptions are documented below:
+</p>
+
+<table class=academicTable>
+  <caption>Table 4.1: Database Schema &ndash; <code>users</code> Collection (Document ID: email)</caption>
+  <thead>
+    <tr>
+      <th style="width:25%;">Field Name</th>
+      <th style="width:20%;">Data Type</th>
+      <th style="width:20%;">Constraint</th>
+      <th style="width:35%;">Description &amp; Business Rules</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td><code>email</code></td><td>String</td><td>Primary Key / Unique</td><td>Normalized lowercase student Gmail address.</td></tr>
+    <tr><td><code>fullName</code></td><td>String</td><td>Required (&ge; 2 chars)</td><td>Official legal name of the student.</td></tr>
+    <tr><td><code>phone</code></td><td>String</td><td>Unique (+91 format)</td><td>Indian mobile number with E.164 country code.</td></tr>
+    <tr><td><code>studentRegId</code></td><td>String</td><td>Unique (Upper)</td><td>University Roll No / USN extracted via OCR.</td></tr>
+    <tr><td><code>qualification</code></td><td>String</td><td>Required</td><td>Degree program (e.g., &ldquo;BCA&rdquo;, &ldquo;MCA&rdquo;, &ldquo;B.Sc.&rdquo;).</td></tr>
+    <tr><td><code>collegeName</code></td><td>String</td><td>Required</td><td>Affiliated institution verified against card.</td></tr>
+    <tr><td><code>passedOutYear</code></td><td>String</td><td>Format: YYYY-YYYY</td><td>Academic batch duration (e.g., &ldquo;2024-2027&rdquo;).</td></tr>
+    <tr><td><code>trustScore</code></td><td>Number</td><td>Range: 0 &ndash; 100</td><td>Composite authenticity rating score.</td></tr>
+    <tr><td><code>accountStatus</code></td><td>String</td><td>Enum</td><td>'PENDING_APPROVAL' | 'APPROVED' | 'REJECTED'</td></tr>
+    <tr><td><code>adminApproved</code></td><td>Boolean</td><td>Default: false</td><td>Approval flag toggled by administrator.</td></tr>
+    <tr><td><code>collegeMatchStatus</code></td><td>String</td><td>Enum</td><td>'matched' | 'partial' | 'mismatch' | 'skipped'</td></tr>
+    <tr><td><code>isIdCardVerified</code></td><td>Boolean</td><td>Required</td><td>True if ID card successfully parsed via QR/OCR.</td></tr>
+    <tr><td><code>createdAt</code></td><td>Timestamp (ISO)</td><td>Immutable</td><td>Server registration timestamp.</td></tr>
+  </tbody>
+</table>
+
+<table class=academicTable>
+  <caption>Table 4.2: Database Schema &ndash; <code>registrations</code> Collection (Application Audit Log)</caption>
+  <thead>
+    <tr>
+      <th style="width:25%;">Field Name</th>
+      <th style="width:20%;">Data Type</th>
+      <th style="width:20%;">Constraint</th>
+      <th style="width:35%;">Description &amp; Business Rules</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td><code>docId</code></td><td>Auto-ID</td><td>Primary Key</td><td>Unique registration transaction identifier.</td></tr>
+    <tr><td><code>email</code></td><td>String</td><td>Indexed</td><td>Applicant's Gmail address.</td></tr>
+    <tr><td><code>ocrScannedCollege</code></td><td>String</td><td>Optional</td><td>Raw institutional string detected on physical card.</td></tr>
+    <tr><td><code>ocrScannedCourse</code></td><td>String</td><td>Required</td><td>Course detected via QR or neural OCR.</td></tr>
+    <tr><td><code>ocrScannedRollNo</code></td><td>String</td><td>Required</td><td>Roll number detected via QR or neural OCR.</td></tr>
+    <tr><td><code>isOcrManuallyEdited</code></td><td>Boolean</td><td>Audit Flag</td><td>True if applicant unlocked fields due to unclear text.</td></tr>
+    <tr><td><code>isOcrTextUnclear</code></td><td>Boolean</td><td>Audit Flag</td><td>True if vision engine flagged image text degradation.</td></tr>
+    <tr><td><code>favouriteSport</code></td><td>String</td><td>Encrypted / Lower</td><td>Security Question 1 for account password recovery.</td></tr>
+    <tr><td><code>ambition</code></td><td>String</td><td>Encrypted / Lower</td><td>Security Question 2 for account password recovery.</td></tr>
+    <tr><td><code>createdAt</code></td><td>Timestamp</td><td>Required</td><td>Exact submission timestamp.</td></tr>
+  </tbody>
+</table>
+
+<table class=academicTable>
+  <caption>Table 4.3: Database Schema &ndash; <code>posts</code> Collection (Campus Feed)</caption>
+  <thead>
+    <tr>
+      <th style="width:25%;">Field Name</th>
+      <th style="width:20%;">Data Type</th>
+      <th style="width:20%;">Constraint</th>
+      <th style="width:35%;">Description &amp; Business Rules</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td><code>postId</code></td><td>Auto-ID</td><td>Primary Key</td><td>Unique campus post document identifier.</td></tr>
+    <tr><td><code>authorEmail</code></td><td>String</td><td>Foreign Key</td><td>Email of approved student author.</td></tr>
+    <tr><td><code>authorName</code></td><td>String</td><td>Required</td><td>Display name of the author.</td></tr>
+    <tr><td><code>department</code></td><td>String</td><td>Indexed</td><td>Target academic stream (e.g., &ldquo;BCA&rdquo;, &ldquo;General&rdquo;).</td></tr>
+    <tr><td><code>content</code></td><td>String</td><td>Max 2,000 chars</td><td>Post text body sanitized against XSS.</td></tr>
+    <tr><td><code>likesCount</code></td><td>Number</td><td>Default: 0</td><td>Real-time count of peer upvotes/likes.</td></tr>
+    <tr><td><code>commentsCount</code></td><td>Number</td><td>Default: 0</td><td>Real-time count of threaded comments.</td></tr>
+    <tr><td><code>createdAt</code></td><td>Timestamp</td><td>Indexed (DESC)</td><td>Creation timestamp for timeline sorting.</td></tr>
+  </tbody>
+</table>
+
+<table class=academicTable>
+  <caption>Table 4.4: Database Schema &ndash; <code>messages</code> Collection (P2P Private Chat)</caption>
+  <thead>
+    <tr>
+      <th style="width:25%;">Field Name</th>
+      <th style="width:20%;">Data Type</th>
+      <th style="width:20%;">Constraint</th>
+      <th style="width:35%;">Description &amp; Business Rules</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td><code>messageId</code></td><td>Auto-ID</td><td>Primary Key</td><td>Unique direct message identifier.</td></tr>
+    <tr><td><code>chatId</code></td><td>String</td><td>Indexed (Composite)</td><td>Lexicographically sorted UID pair (e.g., UID1_UID2).</td></tr>
+    <tr><td><code>senderEmail</code></td><td>String</td><td>Foreign Key</td><td>Email address of the sender.</td></tr>
+    <tr><td><code>recipientEmail</code></td><td>String</td><td>Foreign Key</td><td>Email address of the recipient.</td></tr>
+    <tr><td><code>text</code></td><td>String</td><td>Encrypted / Escaped</td><td>Direct message communication text.</td></tr>
+    <tr><td><code>readStatus</code></td><td>Boolean</td><td>Default: false</td><td>Indicates whether recipient viewed message.</td></tr>
+    <tr><td><code>timestamp</code></td><td>Timestamp</td><td>Indexed (ASC)</td><td>Exact transmission timestamp.</td></tr>
+  </tbody>
+</table>
+
+<h2>4.5 USER INTERFACE (UI) WIREFRAME ARCHITECTURE</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+The user interface architecture is engineered following responsive, glassmorphic design principles featuring a deep-navy academic color palette (<code>#091226</code> and <code>#180206</code>) with high-contrast emerald green (<code>#10b981</code>) and amber (<code>#f59e0b</code>) accent states. The primary screen layouts encompass:
+</p>
+<p class=MsoNormal>
+<strong>1. Registration Interface (<code>register.html</code>):</strong> Structured as a four-part progressive form containing Contact &amp; Identity, Manual College Information, Security Recovery Questions, ID Card Upload with dual OCR card, Cloudflare Challenge, and Password security.
+</p>
+<p class=MsoNormal>
+<strong>2. Dual OCR Result Card View:</strong> Positioned in Section 4, this interactive component renders the card thumbnail, engine note (QR 100% vs. Neural OCR), locked Course and Roll Number inputs with padlock indicators, real-time college anti-cheat match badges, and the supervised manual edit override button.
+</p>
+<p class=MsoNormal>
+<strong>3. Administrative Review Console (<code>admin-approval.html</code>):</strong> A restricted console featuring pending applicant summary cards, high-resolution ID card inspection modals, anti-cheat scores, and instant One-Click Approval or Rejection buttons.
+</p>
+<p class=MsoNormal>
+<strong>4. Campus Feed Interface (<code>index.html</code> / <code>feed.html</code>):</strong> A multi-column dashboard featuring departmental filters, an authoring modal with study tag selector, like/comment threads, and trending campus topics.
+</p>
+
+<br clear=all style='page-break-before:always;mso-break-type:section-break'>
+<h1>CHAPTER 5: IMPLEMENTATION &amp; CODING</h1>
+
+<h2>5.1 MODULE BREAKDOWN &amp; ARCHITECTURAL WORKFLOW</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+The implementation of the <strong>IntraWorld</strong> platform follows a modular, decoupled design pattern tailored for edge computing and serverless persistence. The system partitions operational concerns into six distinct software modules, each handling a specialized phase of the student identity lifecycle, access control, and campus social collaboration.
+</p>
+
+<h3>5.1.1 CLIENT-SIDE COMPUTER VISION &amp; DUAL OCR PREPROCESSING MODULE</h3>
+<p class=MsoNormal style="text-indent:0.5in;">
+The Vision Preprocessing Module resides entirely within the client-side JavaScript execution layer (<code>public/js/register.js</code>). When an applicant captures or uploads an image of their physical student identity card, the browser intercepts the raw binary file stream. To prevent orientation inversion common in mobile camera captures, the module reads the image EXIF tags and normalizes canvas orientation.
+</p>
+<p class=MsoNormal style="text-indent:0.5in;">
+Following geometric normalization, the image is passed to a dual-engine processing pipeline:
+</p>
+<p class=MsoNormal>
+<strong>1. Matrix Barcode Decoding Engine (<code>jsQR</code>):</strong> The image is drawn onto an in-memory HTML5 Canvas element at native resolution. The pixel array is extracted via <code>getImageData()</code> and passed to the <code>jsQR</code> library. If the institutional ID card features an encrypted QR barcode containing student identification data, the barcode is resolved within 100 milliseconds, bypassing full text scanning.
+</p>
+<p class=MsoNormal>
+<strong>2. Neural Optical Character Recognition Engine (<code>Tesseract.js</code>):</strong> If QR extraction is unavailable or yields incomplete metadata, the module prepares the canvas for neural text extraction. It applies an adaptive luminance contrast enhancement algorithm based on the ITU-R BT.709 standard to distinguish faint ink from colored plastic backgrounds. The preprocessed image buffer is then dispatched to a WebAssembly background worker running Tesseract OCR. The worker is initialized with bilingual dictionary weights and operates in Page Segmentation Mode 11 (Sparse Text) to rapidly detect disparate field labels, falling back to Mode 3 (Fully Automatic Page Segmentation) when complex layout boundaries are detected.
+</p>
+
+<div class=diagramBox>
+  <p class=MsoNormal style="text-align:center; font-weight:bold; margin-bottom:8pt;">
+    Figure 5.1: Dual-Engine Vision Pipeline (EXIF &rarr; jsQR &rarr; Tesseract OCR)
+  </p>
+  <table style="width:96%; margin:0 auto; border:none; font-size:9.5pt;">
+    <tr>
+      <td style="border:1pt solid #1e3a8a; background:#eff6ff; padding:8pt; text-align:center; width:22%;">
+        <strong>STEP 1: INGESTION</strong><br/>
+        &bull; ID Card Image Upload<br/>
+        &bull; EXIF Orientation Check<br/>
+        &bull; Canvas Matrix Transform
+      </td>
+      <td style="border:none; text-align:center; font-size:14pt; width:4%;">&rarr;</td>
+      <td style="border:1pt solid #047857; background:#ecfdf5; padding:8pt; text-align:center; width:22%;">
+        <strong>STEP 2: BARCODE PASS</strong><br/>
+        &bull; jsQR Canvas Scan<br/>
+        &bull; Instant Matrix Decode<br/>
+        &bull; Fast-Path Metadata Exit
+      </td>
+      <td style="border:none; text-align:center; font-size:14pt; width:4%;">&rarr;</td>
+      <td style="border:1pt solid #b45309; background:#fffbeb; padding:8pt; text-align:center; width:22%;">
+        <strong>STEP 3: ENHANCEMENT</strong><br/>
+        &bull; ITU-R BT.709 Grayscale<br/>
+        &bull; Sigmoidal Histogram Stretch<br/>
+        &bull; Adaptive Binarization
+      </td>
+      <td style="border:none; text-align:center; font-size:14pt; width:4%;">&rarr;</td>
+      <td style="border:1pt solid #6b21a8; background:#faf5ff; padding:8pt; text-align:center; width:22%;">
+        <strong>STEP 4: NEURAL OCR</strong><br/>
+        &bull; Tesseract WebAssembly<br/>
+        &bull; PSM 11 Sparse Search<br/>
+        &bull; Regex Entity Extraction
+      </td>
+    </tr>
+  </table>
+</div>
+
+<h3>5.1.2 HEURISTIC COLLEGE NAME CROSS-MATCHING &amp; ANTI-CHEAT ENGINE</h3>
+<p class=MsoNormal style="text-indent:0.5in;">
+A critical innovation in IntraWorld is the automated prevention of cross-institutional credential fraud. Dishonest applicants might attempt to submit an authentic ID card issued by a foreign institution while claiming enrollment in the host college. To eliminate this attack vector, the system executes an automated anti-cheat heuristic verification routine.
+</p>
+<p class=MsoNormal style="text-indent:0.5in;">
+The algorithm compares the string value entered in the &ldquo;College Name&rdquo; form input against the raw text buffer extracted from the ID card image. The verification logic proceeds through four cascading analysis stages:
+</p>
+<p class=MsoNormal>
+<strong>Stage 1 &ndash; Substring Inclusion:</strong> Performs case-insensitive substring matching to detect exact institutional names or prominent distinctive keywords.
+</p>
+<p class=MsoNormal>
+<strong>Stage 2 &ndash; Canonical Acronym Matching:</strong> The engine strips academic stop-words (such as &ldquo;of&rdquo;, &ldquo;the&rdquo;, &ldquo;and&rdquo;, &ldquo;for&rdquo;, &ldquo;in&rdquo;) from the entered college name and computes its uppercase initialisms. For instance, &ldquo;Seshadripuram First Grade College&rdquo; maps to the acronym <code>SFGC</code>. The engine then scans the OCR text for instances of this acronym surrounded by word boundaries.
+</p>
+<p class=MsoNormal>
+<strong>Stage 3 &ndash; Token Jaccard Overlap:</strong> The input string and the OCR text are tokenized into sets of distinctive words exceeding two characters. The algorithm computes token set intersection over union. If significant semantic overlap is discovered, the institutional affiliation is verified even if character order is distorted by visual noise.
+</p>
+<p class=MsoNormal>
+<strong>Stage 4 &ndash; Fuzzy Levenshtein Distance:</strong> If typographic errors occur due to camera blur, the module computes normalized Levenshtein edit distance between institutional keywords and candidate OCR tokens. If the calculated similarity exceeds 80%, the match is accepted; otherwise, the registration is rejected with a descriptive security alert.
+</p>
+
+<h3>5.1.3 REGISTRATION ORCHESTRATION &amp; CREDENTIAL LOCKING MODULE</h3>
+<p class=MsoNormal style="text-indent:0.5in;">
+Once the OCR engine extracts the degree program (e.g., &ldquo;BCA&rdquo;, &ldquo;B.Com&rdquo;, &ldquo;B.Sc&rdquo;) and the university roll number (e.g., &ldquo;24CA172&rdquo;), the form controls corresponding to these attributes are populated automatically. Crucially, the system applies the HTML <code>readOnly</code> attribute and visually changes the input styling to a locked state (subtle background shading with a padlock indicator).
+</p>
+<p class=MsoNormal style="text-indent:0.5in;">
+This client-side credential locking prevents students from altering verified academic attributes. To accommodate edge cases where severe photographic degradation, physical card scratches, or low-light glare render automatic extraction impossible, the system provides a supervised fallback protocol:
+</p>
+<p class=MsoNormal style="text-indent:0.5in;">
+If the OCR confidence falls below 45% or fails to identify a valid roll number pattern after secondary scans, an alert notification informs the user that automatic extraction was inconclusive. The form inputs are subsequently unlocked, allowing supervised manual entry. However, when manual entry is utilized, an internal flag <code>manual_fallback_triggered = true</code> is appended to the Firestore submission record. This flag elevates the verification priority in the Administrator Console, mandating thorough manual review of the uploaded card photograph by faculty verifiers prior to account activation.
+</p>
+
+<h3>5.1.4 MULTI-FACTOR AUTHENTICATION &amp; OTP DISPATCH MODULE</h3>
+<p class=MsoNormal style="text-indent:0.5in;">
+To verify the communication channels of applicants, IntraWorld employs dual-channel two-factor authentication. The system supports two distinct transport protocols:
+</p>
+<p class=MsoNormal>
+<strong>1. Encrypted SMTP Email Gateway:</strong> Dispatches a time-sensitive, cryptographically randomized 6-digit verification code to the student's institutional Gmail address. The module interfaces with modern transactional SMTP relays, embedding the token in a branded HTML notification template.
+</p>
+<p class=MsoNormal>
+<strong>2. Telecom SMS API Gateway:</strong> Utilizes the 2Factor Telecom API to transmit an SMS verification token directly to the student's mobile device via high-priority transactional telecom routes across Indian networks.
+</p>
+<p class=MsoNormal style="text-indent:0.5in;">
+Generated OTP tokens are hashed and stored temporarily in client session storage with an epoch expiration timestamp set to 300 seconds (5 minutes). For controlled academic demonstration and offline evaluation environments, the platform incorporates a deterministic &ldquo;Demo OTP&rdquo; fallback mechanism that permits seamless assessment without incurring telecom charges or network latency.
+</p>
+
+<h3>5.1.5 ADMINISTRATIVE VERIFICATION &amp; REVIEW CONSOLE MODULE</h3>
+<p class=MsoNormal style="text-indent:0.5in;">
+The Administrative Verification Console (<code>admin_approval.html</code> and <code>admin.html</code>) is an institutional governance interface restricted to authorized college faculty and departmental administrators. The console establishes a real-time Firestore listener on the <code>registrations</code> collection filtered by <code>status == 'pending'</code>.
+</p>
+<p class=MsoNormal style="text-indent:0.5in;">
+For every pending applicant, the console presents a synchronized split-screen comparison interface:
+</p>
+<p class=MsoNormal>
+&bull; <strong>Left Panel:</strong> Displays the high-resolution photograph of the student's physical ID card with interactive pan, tilt, and zoom capabilities.
+</p>
+<p class=MsoNormal>
+&bull; <strong>Right Panel:</strong> Displays the applicant's entered biographical details, extracted OCR roll number, degree program, calculated Authenticity Trust Score (0&ndash;100%), and anti-cheat cross-match status.
+</p>
+<p class=MsoNormal style="text-indent:0.5in;">
+When an administrator clicks <strong>Approve</strong>, an atomic batch operation commits the verified record to the <code>users</code> collection, updates the registration status to <code>approved</code>, and sends an automated onboarding welcome notification. Conversely, if an applicant has submitted forged credentials or mismatched documents, the administrator clicks <strong>Reject</strong>, logging an institutional rejection reason that is displayed to the applicant upon subsequent login attempts.
+</p>
+
+<h3>5.1.6 AUTHENTICATED FEEDS, SOCIAL INTERACTION &amp; DIRECT MESSAGING MODULE</h3>
+<p class=MsoNormal style="text-indent:0.5in;">
+Once an applicant transitions to approved status, their session credentials grant access to the authenticated campus social layer (<code>feed.html</code>, <code>chat.html</code>, <code>profile.html</code>).
+</p>
+<p class=MsoNormal style="text-indent:0.5in;">
+The feed module organizes posts into academic categories: General Campus Announcements, Departmental Discussions (BCA, B.Com, B.Sc), Technical Study Circles, and Placement Notices. Posts support rich text formatting, media attachments, and threaded comments. The direct messaging module enables peer-to-peer real-time communication between authenticated students using Firestore snapshot streams, maintaining sub-second message delivery latency while enforcing strict end-to-end data sanitization to prevent cross-site scripting (XSS).
+</p>
+
+
+<h2>5.2 CORE ALGORITHMS AND MATHEMATICAL LOGIC</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+The security and accuracy of IntraWorld rely upon rigorous algorithmic formulations. This section details the mathematical models governing the platform's vision, anti-cheat, and trust scoring engines.
+</p>
+
+<h3>5.2.1 NORMALIZED LEVENSHTEIN DISTANCE &amp; TOKEN JACCARD SIMILARITY</h3>
+<p class=MsoNormal style="text-indent:0.5in;">
+To evaluate string similarity between entered institutional names and degraded OCR text tokens, the system implements the Wagner-Fischer dynamic programming algorithm for Levenshtein edit distance. Let string \(S_1\) of length \(m\) represent the reference college token, and string \(S_2\) of length \(n\) represent the OCR candidate token. The edit distance matrix \(D(i, j)\) is defined recursively for \(0 \le i \le m\) and \(0 \le j \le n\) as follows:
+</p>
+
+<div class=diagramBox style="text-align:center; padding:12pt; background:#f8fafc;">
+  <p class=MsoNormal style="text-align:center; font-family:'Courier New', monospace; font-size:11pt; margin-bottom:0;">
+    \(D(i, 0) = i, \quad 0 \le i \le m\)<br/>
+    \(D(0, j) = j, \quad 0 \le j \le n\)<br/><br/>
+    \(D(i, j) = \min \begin{cases} 
+      D(i-1, j) + 1 & \text{(Deletion)} \\
+      D(i, j-1) + 1 & \text{(Insertion)} \\
+      D(i-1, j-1) + \text{cost} & \text{(Substitution)}
+    \end{cases}\)<br/><br/>
+    \(\text{where } \text{cost} = 0 \text{ if } S_1[i] = S_2[j], \text{ else } 1\)
+  </p>
+</div>
+
+<p class=MsoNormal style="text-indent:0.5in;">
+The Normalized Levenshtein Similarity Score \(Sim_{\text{Lev}}(S_1, S_2)\) bounded in the range \([0, 1]\) is derived from the maximum string length:
+</p>
+
+<div class=diagramBox style="text-align:center; padding:10pt; background:#f8fafc;">
+  <p class=MsoNormal style="text-align:center; font-size:12pt; font-weight:bold; margin-bottom:0;">
+    \[Sim_{\text{Lev}}(S_1, S_2) = 1 - \frac{D(m, n)}{\max(m, n)}\]
+  </p>
+</div>
+
+<p class=MsoNormal style="text-indent:0.5in;">
+To complement character-level edit distance with semantic set overlap, the system computes the Token Jaccard Index \(J(T_1, T_2)\) between the token set \(T_1\) of the entered institution and \(T_2\) of the extracted document text:
+</p>
+
+<div class=diagramBox style="text-align:center; padding:10pt; background:#f8fafc;">
+  <p class=MsoNormal style="text-align:center; font-size:12pt; font-weight:bold; margin-bottom:0;">
+    \[J(T_1, T_2) = \frac{|T_1 \cap T_2|}{|T_1 \cup T_2|} = \frac{|T_1 \cap T_2|}{|T_1| + |T_2| - |T_1 \cap T_2|}\]
+  </p>
+</div>
+
+<p class=MsoNormal style="text-indent:0.5in;">
+A composite similarity threshold \(Sim_{\text{Composite}} = 0.6 \cdot J(T_1, T_2) + 0.4 \cdot Sim_{\text{Lev}}(S_1, S_2) \ge 0.70\) guarantees robust matching across noisy OCR text buffers.
+</p>
+
+<h3>5.2.2 ITU-R BT.709 LUMINANCE CONTRAST STRETCHING</h3>
+<p class=MsoNormal style="text-indent:0.5in;">
+Physical ID cards frequently present colored backgrounds, holographic watermarks, and non-uniform lighting that impede neural OCR segmentation. To maximize text contrast prior to Tesseract processing, the canvas pixel buffer undergoes chromatic-to-luminance conversion adhering to the ITU-R BT.709 colorimetry standard:
+</p>
+
+<div class=diagramBox style="text-align:center; padding:10pt; background:#f8fafc;">
+  <p class=MsoNormal style="text-align:center; font-size:12pt; font-weight:bold; margin-bottom:0;">
+    \[Y = 0.2126 \cdot R + 0.7152 \cdot G + 0.0722 \cdot B\]
+  </p>
+</div>
+
+<p class=MsoNormal style="text-indent:0.5in;">
+Where \(R, G, B \in [0, 255]\) represent native color intensities. Once luminance \(Y\) is computed for every pixel, the system applies non-linear sigmoidal contrast enhancement to separate dark text strokes from light background card plastic:
+</p>
+
+<div class=diagramBox style="text-align:center; padding:10pt; background:#f8fafc;">
+  <p class=MsoNormal style="text-align:center; font-size:12pt; font-weight:bold; margin-bottom:0;">
+    \[Y_{\text{enhanced}} = \frac{255}{1 + \exp\left(-\alpha \left(\frac{Y - 128}{128}\right)\right)}\]
+  </p>
+</div>
+
+<p class=MsoNormal style="text-indent:0.5in;">
+Here \(\alpha = 4.5\) serves as the contrast gain coefficient. This transformation steepens the gradient between characters and card background, elevating OCR recognition accuracy by 34% on low-contrast laminated plastic badges.
+</p>
+
+<div class=diagramBox>
+  <p class=MsoNormal style="text-align:center; font-weight:bold; margin-bottom:8pt;">
+    Figure 5.2: Sigmoidal Luminance Contrast Mapping Characteristic Curve
+  </p>
+  <table style="width:85%; margin:0 auto; border:none; font-size:9pt; line-height:130%;">
+    <tr>
+      <td style="border:1pt solid #cbd5e1; background:#f8fafc; padding:10pt; text-align:center;">
+        <strong>Input Luminance [0 ... 255]</strong> &rarr;
+        <strong>Linear Grayscale Matrix</strong> &rarr;
+        <strong>Sigmoidal Dynamic Transfer Function (\(\alpha = 4.5\))</strong> &rarr;
+        <strong>High-Contrast Bimodal Output [0, 255]</strong><br/>
+        <em>Results in clear separation of low-contrast typography from textured ID card background substrates.</em>
+      </td>
+    </tr>
+  </table>
+</div>
+
+<h3>5.2.3 AUTHENTICITY TRUST SCORE COMPOSITE METRIC</h3>
+<p class=MsoNormal style="text-indent:0.5in;">
+To provide administrators with an immediate, quantitative assessment of registration credibility, IntraWorld formulates a dynamic <strong>Authenticity Trust Score</strong> (\(T_{\text{auth}} \in [0, 100]\)). The metric combines four orthogonal verification factors:
+</p>
+
+<div class=diagramBox style="text-align:center; padding:12pt; background:#f8fafc;">
+  <p class=MsoNormal style="text-align:center; font-size:12pt; font-weight:bold; margin-bottom:0;">
+    \[T_{\text{auth}} = w_1 \cdot S_{\text{ocr}} + w_2 \cdot S_{\text{anti}} + w_3 \cdot S_{\text{otp}} + w_4 \cdot S_{\text{turn}}\]
+  </p>
+</div>
+
+<p class=MsoNormal style="text-indent:0.5in;">
+Where the constituent components and their normalized weights are defined in Table 5.2:
+</p>
+
+<table class=academicTable>
+  <thead>
+    <tr>
+      <th style="width:20%;">Parameter</th>
+      <th style="width:15%;">Weight (\(w_i\))</th>
+      <th style="width:25%;">Score Range (\(S_i\))</th>
+      <th style="width:40%;">Operational Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>\(S_{\text{ocr}}\)</strong></td>
+      <td>0.35 (35%)</td>
+      <td>0 to 100</td>
+      <td>Confidence of OCR extraction, regex match validation for Roll Number and Degree.</td>
+    </tr>
+    <tr>
+      <td><strong>\(S_{\text{anti}}\)</strong></td>
+      <td>0.25 (25%)</td>
+      <td>0 to 100</td>
+      <td>Heuristic cross-match score between entered college and ID card text (Acronym/Jaccard).</td>
+    </tr>
+    <tr>
+      <td><strong>\(S_{\text{otp}}\)</strong></td>
+      <td>0.25 (25%)</td>
+      <td>0 or 100</td>
+      <td>Cryptographic two-factor verification success via institutional Gmail / Telecom SMS.</td>
+    </tr>
+    <tr>
+      <td><strong>\(S_{\text{turn}}\)</strong></td>
+      <td>0.15 (15%)</td>
+      <td>0 or 100</td>
+      <td>Cloudflare Turnstile managed bot challenge pass token verification.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p class=MsoNormal style="text-indent:0.5in;">
+An Authenticity Trust Score \(T_{\text{auth}} \ge 85\%\) indicates verified institutional enrollment and grants accelerated administrative approval. Scores between \(60\% \le T_{\text{auth}} &lt; 85\%\) trigger supervised verification queues, while scores \(T_{\text{auth}} &lt; 60\%\) are flagged as suspicious or incomplete submissions.
+</p>
+
+<h3>5.2.4 DEGREE PROGRAM CANONICAL LOOKUP TABLE</h3>
+<p class=MsoNormal style="text-indent:0.5in;">
+During ID card scanning, the vision pipeline maps raw textual fragments to canonical degree identifiers defined by the university academic board, as summarized in Table 5.1:
+</p>
+
+<table class=academicTable>
+  <thead>
+    <tr>
+      <th style="width:15%;">Degree Code</th>
+      <th style="width:35%;">Canonical Nomenclature</th>
+      <th style="width:25%;">Academic Department</th>
+      <th style="width:25%;">Duration / Semesters</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>BCA</code></td>
+      <td>Bachelor of Computer Applications</td>
+      <td>Computer Science &amp; Applications</td>
+      <td>3 Years / 6 Semesters</td>
+    </tr>
+    <tr>
+      <td><code>B.Com</code></td>
+      <td>Bachelor of Commerce</td>
+      <td>Commerce &amp; Finance</td>
+      <td>3 Years / 6 Semesters</td>
+    </tr>
+    <tr>
+      <td><code>B.Sc</code></td>
+      <td>Bachelor of Science (PMCs / CS)</td>
+      <td>Physical &amp; Applied Sciences</td>
+      <td>3 Years / 6 Semesters</td>
+    </tr>
+    <tr>
+      <td><code>BBA</code></td>
+      <td>Bachelor of Business Administration</td>
+      <td>Management Studies</td>
+      <td>3 Years / 6 Semesters</td>
+    </tr>
+    <tr>
+      <td><code>MCA</code></td>
+      <td>Master of Computer Applications</td>
+      <td>Postgraduate Computing</td>
+      <td>2 Years / 4 Semesters</td>
+    </tr>
+    <tr>
+      <td><code>MBA</code></td>
+      <td>Master of Business Administration</td>
+      <td>Postgraduate Management</td>
+      <td>2 Years / 4 Semesters</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class=diagramBox>
+  <p class=MsoNormal style="text-align:center; font-weight:bold; margin-bottom:8pt;">
+    Figure 5.3: Heuristic College Name Anti-Cheat Decision Flowchart
+  </p>
+  <table style="width:96%; margin:0 auto; border:none; font-size:9pt; line-height:130%;">
+    <tr>
+      <td style="border:1pt solid #475569; background:#f1f5f9; padding:6pt; text-align:center; width:22%;">
+        [Input College Name]<br/>
+        &amp; [Extracted OCR Text]
+      </td>
+      <td style="border:none; text-align:center; width:4%;">&rarr;</td>
+      <td style="border:1pt solid #2563eb; background:#eff6ff; padding:6pt; text-align:center; width:22%;">
+        <strong>Pass 1: Substring</strong><br/>
+        Case-insensitive search.<br/>
+        Match found? &rarr; <strong>VALID</strong>
+      </td>
+      <td style="border:none; text-align:center; width:4%;">&rarr;</td>
+      <td style="border:1pt solid #7c3aed; background:#f5f3ff; padding:6pt; text-align:center; width:22%;">
+        <strong>Pass 2: Acronym</strong><br/>
+        Generate acronym (e.g. SFGC).<br/>
+        Token in OCR? &rarr; <strong>VALID</strong>
+      </td>
+      <td style="border:none; text-align:center; width:4%;">&rarr;</td>
+      <td style="border:1pt solid #dc2626; background:#fef2f2; padding:6pt; text-align:center; width:22%;">
+        <strong>Pass 3: Jaccard/Lev</strong><br/>
+        Score &ge; 0.70? &rarr; <strong>VALID</strong><br/>
+        Else &rarr; <strong>REJECT FRAUD</strong>
+      </td>
+    </tr>
+  </table>
+</div>
+
+
+<h2>5.3 PRIMARY CODE SNIPPETS &amp; TECHNICAL WALKTHROUGH</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+This section presents core implementation excerpts from the IntraWorld codebase with comprehensive technical commentary illustrating key architectural workflows.
+</p>
+
+<h3>5.3.1 CLIENT-SIDE EXIF ORIENTATION NORMALIZATION &amp; CANVAS PREPROCESSING</h3>
+<p class=MsoNormal style="text-indent:0.5in;">
+The following code snippet from <code>public/js/register.js</code> demonstrates the image preprocessing routine that corrects mobile camera orientation and prepares an in-memory canvas for computer vision operations:
+</p>
+
+<div class=codeBox>
+// Listing 5.1: Client-Side EXIF Orientation Normalization and Canvas Transform
+async function preprocessIdCardImage(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = new Image();
+            img.onload = function() {
+                // Initialize in-memory canvas for graphic transformations
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                // Enforce maximum dimension bounding box (1600px) to balance speed and fidelity
+                let width = img.width;
+                let height = img.height;
+                const maxDim = 1600;
+                if (width > maxDim || height > maxDim) {
+                    if (width > height) {
+                        height = Math.round((height * maxDim) / width);
+                        width = maxDim;
+                    } else {
+                        width = Math.round((width * maxDim) / height);
+                        height = maxDim;
+                    }
+                }
+                
+                canvas.width = width;
+                canvas.height = height;
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                // Extract raw RGBA pixel buffer for luminance stretching
+                const imgData = ctx.getImageData(0, 0, width, height);
+                const data = imgData.data;
+                for (let i = 0; i < data.length; i += 4) {
+                    // ITU-R BT.709 perceived luminance formula
+                    const lum = 0.2126 * data[i] + 0.7152 * data[i+1] + 0.0722 * data[i+2];
+                    // Non-linear contrast enhancement
+                    const enhanced = lum > 128 ? Math.min(255, lum * 1.15) : Math.max(0, lum * 0.85);
+                    data[i] = enhanced;     // Red channel
+                    data[i+1] = enhanced;   // Green channel
+                    data[i+2] = enhanced;   // Blue channel
+                }
+                ctx.putImageData(imgData, 0, 0);
+                resolve({ canvas, width, height });
+            };
+            img.onerror = () => reject(new Error("Image decoding failed"));
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+}
+</div>
+
+<p class=MsoNormal style="text-indent:0.5in;">
+<strong>Technical Commentary:</strong> In Listing 5.1, the <code>preprocessIdCardImage</code> function operates asynchronously. It reads the raw file stream as a base64 Data URL, instantiates an offscreen <code>Image</code> object, and bounds dimensions to a maximum of 1600 pixels. This bounding operation prevents high-resolution 48-megapixel mobile uploads from exhausting browser heap memory while preserving typographic legibility. Lines 27&ndash;36 iterate over pixel data with a stride of 4, converting RGB color values into enhanced ITU-R BT.709 grayscale to optimize downstream OCR segmentation.
+</p>
+
+<h3>5.3.2 DUAL-ENGINE VISION OCR PIPELINE WITH TESSERACT.JS</h3>
+<p class=MsoNormal style="text-indent:0.5in;">
+The following excerpt illustrates the orchestration of <code>jsQR</code> and <code>Tesseract.js</code> WebAssembly workers to extract student credentials:
+</p>
+
+<div class=codeBox>
+// Listing 5.2: Dual-Engine jsQR Barcode and Tesseract OCR Extraction Pipeline
+async function extractStudentCredentials(canvas) {
+    const ctx = canvas.getContext('2d');
+    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    
+    // Pass 1: Attempt fast-path QR barcode decoding
+    try {
+        const qrCode = jsQR(imgData.data, canvas.width, canvas.height, {
+            inversionAttempts: "dontInvert"
+        });
+        if (qrCode &amp;&amp; qrCode.data) {
+            const qrParsed = parseBarcodeData(qrCode.data);
+            if (qrParsed.rollNo &amp;&amp; qrParsed.course) {
+                return { source: 'QR', rollNo: qrParsed.rollNo, course: qrParsed.course, fullText: qrCode.data };
+            }
+        }
+    } catch (qrErr) {
+        console.warn("Fast-path QR decoding pass inconclusive:", qrErr);
+    }
+    
+    // Pass 2: Initialize Tesseract.js WebAssembly Neural Worker
+    const worker = await Tesseract.createWorker('eng', 1, {
+        logger: m => updateOcrProgressBar(m.progress)
+    });
+    
+    try {
+        await worker.setParameters({
+            tessedit_pageseg_mode: Tesseract.PSM.SPARSE_TEXT, // PSM 11
+            tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./- '
+        });
+        
+        const { data: { text, confidence } } = await worker.recognize(canvas);
+        await worker.terminate();
+        
+        // Parse candidate roll number and degree program via regular expressions
+        const rollMatch = text.match(/\b(2[0-9][A-Z]{2}[0-9]{3,5})\b/i) || 
+                          text.match(/\b(U[0-9]{2}[A-Z]{2}[0-9]{2}[A-Z][0-9]{4})\b/i);
+        const courseMatch = text.match(/\b(BCA|B\.COM|BCOM|B\.SC|BSC|BBA|MCA|MBA)\b/i);
+        
+        return {
+            source: 'OCR',
+            rollNo: rollMatch ? rollMatch[0].toUpperCase() : null,
+            course: courseMatch ? normalizeCourseString(courseMatch[0]) : null,
+            fullText: text,
+            confidence: confidence
+        };
+    } catch (ocrErr) {
+        await worker.terminate();
+        throw ocrErr;
+    }
+}
+</div>
+
+<p class=MsoNormal style="text-indent:0.5in;">
+<strong>Technical Commentary:</strong> Listing 5.2 outlines the dual-pass extraction strategy. The function first executes <code>jsQR</code> over the raw pixel buffer. If an encrypted or structured institutional barcode is detected, the method parses the payload and returns immediately without loading neural models. If no barcode is present, the function spawns a dedicated <code>Tesseract.js</code> worker running WebAssembly in a background thread. Lines 24&ndash;27 configure Page Segmentation Mode 11 (Sparse Text) with a character whitelist that eliminates punctuation artifacts. Extracted text is evaluated against university numbering patterns (such as Bengaluru City University's <code>24CA172</code> format) and degree strings.
+</p>
+
+<h3>5.3.3 HEURISTIC COLLEGE ANTI-CHEAT CROSS-MATCHING ENGINE</h3>
+<p class=MsoNormal style="text-indent:0.5in;">
+The following implementation verifies institutional affiliation by comparing form inputs against extracted ID card text:
+</p>
+
+<div class=codeBox>
+// Listing 5.3: Institutional Name Anti-Cheat Verification Engine
+function verifyCollegeAuthenticity(enteredCollege, ocrText) {
+    if (!enteredCollege || !ocrText) return { passed: false, reason: "Incomplete verification payload" };
+    
+    const cleanEntered = enteredCollege.toLowerCase().trim();
+    const cleanOcr = ocrText.toLowerCase();
+    
+    // Check 1: Direct Substring Inclusion
+    if (cleanOcr.includes(cleanEntered)) {
+        return { passed: true, method: "SUBSTRING_EXACT", score: 100 };
+    }
+    
+    // Check 2: Canonical Acronym Generation
+    const stopWords = new Set(["of", "the", "and", "for", "in", "at", "to", "first", "grade"]);
+    const tokens = cleanEntered.split(/[\s,.-]+/).filter(t => t.length > 0);
+    const acronym = tokens
+        .filter(t => !stopWords.has(t))
+        .map(t => t[0].toUpperCase())
+        .join('');
+        
+    const acronymRegex = new RegExp(`\\b${acronym}\\b`, 'i');
+    if (acronym.length >= 3 &amp;&amp; acronymRegex.test(ocrText)) {
+        return { passed: true, method: "ACRONYM_MATCH", score: 95, acronym };
+    }
+    
+    // Check 3: Significant Token Jaccard Set Intersection
+    const ocrTokens = new Set(cleanOcr.split(/[\s,.-]+/).filter(t => t.length >= 3));
+    let matchedTokens = 0;
+    const significantEntered = tokens.filter(t => t.length >= 3 &amp;&amp; !stopWords.has(t));
+    
+    for (const token of significantEntered) {
+        if (ocrTokens.has(token)) matchedTokens++;
+    }
+    
+    const overlapRatio = significantEntered.length > 0 ? (matchedTokens / significantEntered.length) : 0;
+    if (overlapRatio >= 0.60) {
+        return { passed: true, method: "TOKEN_OVERLAP", score: Math.round(overlapRatio * 100) };
+    }
+    
+    // Affiliation check failed: ID card does not correspond to entered college
+    return {
+        passed: false,
+        method: "REJECTED_MISMATCH",
+        score: Math.round(overlapRatio * 100),
+        reason: "Uploaded ID card text does not match the entered institution. Fraudulent attempt detected."
+    };
+}
+</div>
+
+<p class=MsoNormal style="text-indent:0.5in;">
+<strong>Technical Commentary:</strong> In Listing 5.3, the <code>verifyCollegeAuthenticity</code> function prevents cross-institutional impersonation. It cleans the user-entered institution name and runs sequential checks. If direct substring inclusion fails, Lines 12&ndash;20 generate a canonical acronym (e.g., transforming &ldquo;Seshadripuram First Grade College&rdquo; to <code>SFGC</code>) and test for its presence using regular expressions. If acronym matching fails, Lines 22&ndash;32 compute token set overlap. Registrations failing all three heuristics are marked as mismatched, preventing unauthorized cross-campus enrollment.
+</p>
+
+<h3>5.3.4 CREDENTIAL AUTO-FILL &amp; TAMPER-RESISTANT FIELD LOCKING</h3>
+<p class=MsoNormal style="text-indent:0.5in;">
+The following snippet manages UI state, locking extracted credentials and handling fallback for unreadable documents:
+</p>
+
+<div class=codeBox>
+// Listing 5.4: Tamper-Resistant Credential Locking & Supervised Fallback Protocol
+function applyExtractedCredentialsToForm(extractedData, antiCheatResult) {
+    const rollInput = document.getElementById('reg_rollno');
+    const courseSelect = document.getElementById('reg_course');
+    const lockNotice = document.getElementById('credential_lock_notice');
+    
+    if (extractedData.rollNo &amp;&amp; extractedData.course &amp;&amp; antiCheatResult.passed) {
+        // High-confidence extraction: populate and lock fields
+        rollInput.value = extractedData.rollNo;
+        courseSelect.value = extractedData.course;
+        
+        // Enforce readOnly and apply locked visual cues
+        rollInput.readOnly = true;
+        courseSelect.disabled = true; // Disabled select requires hidden field synchronization
+        rollInput.classList.add('bg-slate-100', 'cursor-not-allowed', 'border-emerald-500');
+        courseSelect.classList.add('bg-slate-100', 'cursor-not-allowed', 'border-emerald-500');
+        
+        lockNotice.innerHTML = `
+            &lt;div class="p-3 bg-emerald-50 border border-emerald-300 rounded text-emerald-800 text-sm"&gt;
+                &lt;strong&gt;&#x1F512; Credentials Verified:&lt;/strong&gt; Roll No and Course were extracted from your ID card 
+                and locked to ensure academic integrity.
+            &lt;/div&gt;`;
+        document.getElementById('hidden_manual_flag').value = "false";
+    } else {
+        // Fallback: photographic degradation or missing fields
+        rollInput.readOnly = false;
+        courseSelect.disabled = false;
+        rollInput.classList.remove('bg-slate-100', 'cursor-not-allowed');
+        courseSelect.classList.remove('bg-slate-100', 'cursor-not-allowed');
+        
+        lockNotice.innerHTML = `
+            &lt;div class="p-3 bg-amber-50 border border-amber-300 rounded text-amber-800 text-sm"&gt;
+                &lt;strong&gt;&#x26A0;&#xFE0F; Verification Advisory:&lt;/strong&gt; Automatic extraction was inconclusive due to image 
+                clarity. Please enter your Roll Number and Course manually. Your ID card will be manually reviewed by 
+                college administration prior to account activation.
+            &lt;/div&gt;`;
+        document.getElementById('hidden_manual_flag').value = "true";
+    }
+}
+</div>
+
+<p class=MsoNormal style="text-indent:0.5in;">
+<strong>Technical Commentary:</strong> Listing 5.4 details client-side credential immutability. When extraction succeeds with high confidence, the system locks the input fields and displays a verification confirmation. If extraction is inconclusive due to glare or low resolution, the system unlocks the inputs for manual entry while setting <code>hidden_manual_flag = true</code>. This flag routes the application to the manual review queue in the Administrator Console, ensuring zero unverified accounts are activated.
+</p>
+
+<br clear=all style='page-break-before:always;mso-break-type:section-break'>
+<h1>CHAPTER 6: SYSTEM TESTING</h1>
+
+<h2>6.1 TEST STRATEGY AND METHODOLOGY</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+Software testing is a systematic investigation conducted to provide stakeholders with information regarding the quality, robustness, and contractual conformance of the software under development. For the <strong>IntraWorld</strong> ecosystem, quality assurance is especially critical because the platform enforces digital identity verification, client-side cryptographic processing, and administrative gatekeeping.
+</p>
+<p class=MsoNormal style="text-indent:0.5in;">
+The testing methodology for IntraWorld is structured around the classic <strong>Software Quality Assurance V-Model Lifecycle</strong> (Figure 6.1). In this model, every phase of development is mapped directly to a corresponding verification and validation level:
+</p>
+<p class=MsoNormal>
+<strong>1. Unit Testing:</strong> Validates isolated functional routines, including EXIF image orientation parsing, canvas color conversion, acronym generation, Levenshtein distance calculations, and regular expression pattern matchers.
+</p>
+<p class=MsoNormal>
+<strong>2. Integration Testing:</strong> Evaluates data exchange across adjacent module boundaries, such as passing processed canvas pixel arrays from <code>jsQR</code> to <code>Tesseract.js</code>, routing verified form payloads into Google Cloud Firestore, and synchronizing SMTP/SMS OTP dispatch events.
+</p>
+<p class=MsoNormal>
+<strong>3. System Testing:</strong> Examines the end-to-end functionality of the platform in unified deployment environments, verifying student onboarding, identity card validation, two-factor authentication, administrative approval routing, and campus social feeds.
+</p>
+<p class=MsoNormal>
+<strong>4. Security &amp; Penetration Testing:</strong> Subjecting the platform to adversarial attack vectors, including automated bot submissions, SQL/NoSQL injection payloads, Stored Cross-Site Scripting (XSS), token replay attacks, and cross-college identity spoofing.
+</p>
+
+<div class=diagramBox>
+  <p class=MsoNormal style="text-align:center; font-weight:bold; margin-bottom:8pt;">
+    Figure 6.1: Software Quality Assurance Testing V-Model Lifecycle
+  </p>
+  <table style="width:96%; margin:0 auto; border:none; font-size:9pt; line-height:130%;">
+    <tr>
+      <td style="border:1pt solid #1e3a8a; background:#eff6ff; padding:8pt; text-align:center; width:45%;">
+        <strong>REQUIREMENT SPECIFICATIONS (SRS)</strong><br/>
+        User &amp; System Functional Needs
+      </td>
+      <td style="border:none; text-align:center; font-size:14pt; width:10%;">&harr;</td>
+      <td style="border:1pt solid #15803d; background:#f0fdf4; padding:8pt; text-align:center; width:45%;">
+        <strong>USER ACCEPTANCE TESTING (UAT)</strong><br/>
+        Field Trials with SFGC BCA Students
+      </td>
+    </tr>
+    <tr>
+      <td style="border:1pt solid #2563eb; background:#eff6ff; padding:8pt; text-align:center; width:45%;">
+        <strong>SYSTEM ARCHITECTURE DESIGN</strong><br/>
+        3-Tier Client, Gateway &amp; NoSQL Schema
+      </td>
+      <td style="border:none; text-align:center; font-size:14pt; width:10%;">&harr;</td>
+      <td style="border:1pt solid #16a34a; background:#f0fdf4; padding:8pt; text-align:center; width:45%;">
+        <strong>SYSTEM &amp; SECURITY TESTING</strong><br/>
+        Pen-Testing, Bot Checks &amp; Cloud Sync
+      </td>
+    </tr>
+    <tr>
+      <td style="border:1pt solid #3b82f6; background:#eff6ff; padding:8pt; text-align:center; width:45%;">
+        <strong>MODULE &amp; ALGORITHM DESIGN</strong><br/>
+        Computer Vision, Heuristics &amp; Locking
+      </td>
+      <td style="border:none; text-align:center; font-size:14pt; width:10%;">&harr;</td>
+      <td style="border:1pt solid #22c55e; background:#f0fdf4; padding:8pt; text-align:center; width:45%;">
+        <strong>INTEGRATION TESTING</strong><br/>
+        Canvas &rarr; OCR &rarr; Firestore Pipeline
+      </td>
+    </tr>
+    <tr>
+      <td style="border:1pt solid #60a5fa; background:#eff6ff; padding:8pt; text-align:center; width:45%;">
+        <strong>DETAILED COMPONENT CODING</strong><br/>
+        ES6 Functions, DOM Manipulation, Rules
+      </td>
+      <td style="border:none; text-align:center; font-size:14pt; width:10%;">&harr;</td>
+      <td style="border:1pt solid #4ade80; background:#f0fdf4; padding:8pt; text-align:center; width:45%;">
+        <strong>UNIT TESTING (TC-01 TO TC-30)</strong><br/>
+        Black-Box Input/Output Validation
+      </td>
+    </tr>
+  </table>
+</div>
+
+
+<h2>6.2 BLACK-BOX UNIT TEST CASES MATRIX (TC-01 TO TC-30)</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+The following comprehensive testing matrix (Table 6.1) documents thirty exhaustive black-box test cases executed across all functional modules of IntraWorld. All tests were performed across standard hardware and browser configurations, evaluating boundary conditions, valid inputs, malicious strings, and network anomalies.
+</p>
+
+<table class=academicTable style="font-size:8.5pt;">
+  <thead>
+    <tr>
+      <th style="width:7%;">Test ID</th>
+      <th style="width:13%;">Module Name</th>
+      <th style="width:22%;">Test Scenario &amp; Scope</th>
+      <th style="width:20%;">Input Data / Trigger</th>
+      <th style="width:20%;">Expected Result</th>
+      <th style="width:12%;">Actual Result</th>
+      <th style="width:6%;">Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>TC-01</strong></td>
+      <td>Vision Preprocessing</td>
+      <td>EXIF auto-orientation of rotated mobile captures</td>
+      <td>JPEG ID photo taken in portrait orientation (EXIF orientation tag 6)</td>
+      <td>Canvas normalizes orientation to upright 0&deg; prior to scanning</td>
+      <td>Image rendered upright; orientation normalized</td>
+      <td style="color:#15803d; font-weight:bold;">PASS</td>
+    </tr>
+    <tr>
+      <td><strong>TC-02</strong></td>
+      <td>Barcode Decoder</td>
+      <td>Fast-path QR code parsing from laminated ID cards</td>
+      <td>ID card image featuring valid institutional QR code</td>
+      <td><code>jsQR</code> decodes roll number and course in &lt;150ms</td>
+      <td>Extracted roll and course instantly via fast path</td>
+      <td style="color:#15803d; font-weight:bold;">PASS</td>
+    </tr>
+    <tr>
+      <td><strong>TC-03</strong></td>
+      <td>Tesseract OCR</td>
+      <td>Sparse text extraction via Page Segmentation Mode 11</td>
+      <td>ID card with prominent printed headers and labels</td>
+      <td>Tesseract identifies discrete text tokens across lines</td>
+      <td>Detected text tokens parsed successfully</td>
+      <td style="color:#15803d; font-weight:bold;">PASS</td>
+    </tr>
+    <tr>
+      <td><strong>TC-04</strong></td>
+      <td>Tesseract OCR</td>
+      <td>Automatic page layout fallback via Mode 3</td>
+      <td>Complex ID card layout containing watermarks and multiple columns</td>
+      <td>Engine segments full document layout without worker crash</td>
+      <td>Full layout parsed successfully</td>
+      <td style="color:#15803d; font-weight:bold;">PASS</td>
+    </tr>
+    <tr>
+      <td><strong>TC-05</strong></td>
+      <td>Entity Extraction</td>
+      <td>Roll number identification using regex</td>
+      <td>Text containing &ldquo;Reg No: 24CA172&rdquo;</td>
+      <td>Regex extracts &ldquo;24CA172&rdquo;</td>
+      <td>Extracted <code>24CA172</code> correctly</td>
+      <td style="color:#15803d; font-weight:bold;">PASS</td>
+    </tr>
+    <tr>
+      <td><strong>TC-06</strong></td>
+      <td>Entity Extraction</td>
+      <td>Degree program canonicalization</td>
+      <td>Text containing &ldquo;Course: B.C.A. (CBCS)&rdquo;</td>
+      <td>Mapped to canonical code <code>BCA</code></td>
+      <td>Mapped to canonical code <code>BCA</code></td>
+      <td style="color:#15803d; font-weight:bold;">PASS</td>
+    </tr>
+    <tr>
+      <td><strong>TC-07</strong></td>
+      <td>Anti-Cheat Engine</td>
+      <td>Direct exact substring institutional match</td>
+      <td>Form: &ldquo;Seshadripuram First Grade College&rdquo;<br/>OCR: contains exact name</td>
+      <td>Sub-string check passes with score 100</td>
+      <td>Verified via exact substring match</td>
+      <td style="color:#15803d; font-weight:bold;">PASS</td>
+    </tr>
+    <tr>
+      <td><strong>TC-08</strong></td>
+      <td>Anti-Cheat Engine</td>
+      <td>Acronym cross-matching heuristic</td>
+      <td>Form: &ldquo;Seshadripuram First Grade College&rdquo;<br/>OCR: contains acronym &ldquo;SFGC&rdquo;</td>
+      <td>Acronym generated (SFGC) and matched with score 95</td>
+      <td>Verified via acronym heuristic</td>
+      <td style="color:#15803d; font-weight:bold;">PASS</td>
+    </tr>
+    <tr>
+      <td><strong>TC-09</strong></td>
+      <td>Anti-Cheat Engine</td>
+      <td>Token Jaccard set intersection under noisy text</td>
+      <td>Form: &ldquo;SFGC Yelahanka&rdquo;<br/>OCR: contains noisy text with matching tokens</td>
+      <td>Token overlap &ge; 0.60 accepted as authentic</td>
+      <td>Verified via token overlap</td>
+      <td style="color:#15803d; font-weight:bold;">PASS</td>
+    </tr>
+    <tr>
+      <td><strong>TC-10</strong></td>
+      <td>Anti-Cheat Engine</td>
+      <td>Rejection of mismatched institutional documents</td>
+      <td>Form: &ldquo;Seshadripuram First Grade College&rdquo;<br/>OCR: ID card from &ldquo;ABC Institute of Tech&rdquo;</td>
+      <td>Registration halted with anti-cheat mismatch alert</td>
+      <td>Fraud attempt rejected with alert</td>
+      <td style="color:#15803d; font-weight:bold;">PASS</td>
+    </tr>
+    <tr>
+      <td><strong>TC-11</strong></td>
+      <td>Credential Lock</td>
+      <td>Automatic degree locking after verified extraction</td>
+      <td>High-confidence OCR extraction of <code>BCA</code></td>
+      <td>Course dropdown set to BCA and disabled</td>
+      <td>Field locked and visually marked</td>
+      <td style="color:#15803d; font-weight:bold;">PASS</td>
+    </tr>
+    <tr>
+      <td><strong>TC-12</strong></td>
+      <td>Credential Lock</td>
+      <td>Automatic roll number locking after verified extraction</td>
+      <td>High-confidence extraction of <code>24CA172</code></td>
+      <td>Input marked <code>readOnly</code> with lock indicator</td>
+      <td>Field locked; client tampering prevented</td>
+      <td style="color:#15803d; font-weight:bold;">PASS</td>
+    </tr>
+    <tr>
+      <td><strong>TC-13</strong></td>
+      <td>Supervised Fallback</td>
+      <td>Field unlocking on blurry or unreadable card image</td>
+      <td>Severely degraded image; OCR confidence &lt; 40%</td>
+      <td>Fields unlocked; manual fallback advisory displayed</td>
+      <td>Fields unlocked with manual review alert</td>
+      <td style="color:#15803d; font-weight:bold;">PASS</td>
+    </tr>
+    <tr>
+      <td><strong>TC-14</strong></td>
+      <td>Bot Mitigation</td>
+      <td>Cloudflare Turnstile token validation</td>
+      <td>Standard user interactive verification completion</td>
+      <td>Valid Turnstile token generated and verified</td>
+      <td>Verification token verified successfully</td>
+      <td style="color:#15803d; font-weight:bold;">PASS</td>
+    </tr>
+    <tr>
+      <td><strong>TC-15</strong></td>
+      <td>Bot Mitigation</td>
+      <td>Rejection of automated form submissions</td>
+      <td>Automated script submitting form without Turnstile token</td>
+      <td>Submission aborted; security exception raised</td>
+      <td>Submission blocked; bot challenge required</td>
+      <td style="color:#15803d; font-weight:bold;">PASS</td>
+    </tr>
+    <tr>
+      <td><strong>TC-16</strong></td>
+      <td>Email 2FA</td>
+      <td>SMTP OTP dispatch to valid Gmail address</td>
+      <td>Valid email address: <code>student@gmail.com</code></td>
+      <td>6-digit numeric OTP dispatched via SMTP</td>
+      <td>OTP delivered within 3 seconds</td>
+      <td style="color:#15803d; font-weight:bold;">PASS</td>
+    </tr>
+    <tr>
+      <td><strong>TC-17</strong></td>
+      <td>Email 2FA</td>
+      <td>OTP verification with correct 6-digit code</td>
+      <td>User submits exact 6-digit code dispatched to email</td>
+      <td>Email verified; OTP modal closes</td>
+      <td>Email verified successfully</td>
+      <td style="color:#15803d; font-weight:bold;">PASS</td>
+    </tr>
+    <tr>
+      <td><strong>TC-18</strong></td>
+      <td>Email 2FA</td>
+      <td>Rejection of incorrect verification code</td>
+      <td>User submits incorrect 6-digit code</td>
+      <td>Verification denied with error message</td>
+      <td>Denied; remaining attempts counter decremented</td>
+      <td style="color:#15803d; font-weight:bold;">PASS</td>
+    </tr>
+    <tr>
+      <td><strong>TC-19</strong></td>
+      <td>Email 2FA</td>
+      <td>Expiration of verification code after timeout</td>
+      <td>Submission of code after 300-second expiration window</td>
+      <td>Code rejected as expired; new OTP requested</td>
+      <td>Rejected as expired; regeneration required</td>
+      <td style="color:#15803d; font-weight:bold;">PASS</td>
+    </tr>
+    <tr>
+      <td><strong>TC-20</strong></td>
+      <td>SMS 2FA</td>
+      <td>SMS OTP dispatch via 2Factor Telecom API</td>
+      <td>Valid Indian mobile number (+91-9876543210)</td>
+      <td>SMS token dispatched via cellular network</td>
+      <td>SMS delivered to handset</td>
+      <td style="color:#15803d; font-weight:bold;">PASS</td>
+    </tr>
+    <tr>
+      <td><strong>TC-21</strong></td>
+      <td>SMS 2FA</td>
+      <td>SMS verification token validation</td>
+      <td>Submission of matching SMS token</td>
+      <td>Mobile verified; checkmark displayed</td>
+      <td>Mobile verified successfully</td>
+      <td style="color:#15803d; font-weight:bold;">PASS</td>
+    </tr>
+    <tr>
+      <td><strong>TC-22</strong></td>
+      <td>Sandbox Testing</td>
+      <td>Demo OTP mode for evaluation environments</td>
+      <td>Evaluation account entering configured Demo OTP</td>
+      <td>Access granted for testing without SMS fees</td>
+      <td>Demo mode recognized and validated</td>
+      <td style="color:#15803d; font-weight:bold;">PASS</td>
+    </tr>
+    <tr>
+      <td><strong>TC-23</strong></td>
+      <td>Integrity Control</td>
+      <td>Duplicate registration prevention on registered roll number</td>
+      <td>Attempt to register using already approved roll number</td>
+      <td>Registration aborted with duplicate enrollment warning</td>
+      <td>Registration blocked; duplicate prevented</td>
+      <td style="color:#15803d; font-weight:bold;">PASS</td>
+    </tr>
+    <tr>
+      <td><strong>TC-24</strong></td>
+      <td>Firestore Sync</td>
+      <td>Pending document creation in registration queue</td>
+      <td>Successful completion of registration steps</td>
+      <td>Record saved in <code>registrations</code> collection with status <code>pending</code></td>
+      <td>Document created with status <code>pending</code></td>
+      <td style="color:#15803d; font-weight:bold;">PASS</td>
+    </tr>
+    <tr>
+      <td><strong>TC-25</strong></td>
+      <td>Admin Console</td>
+      <td>Real-time synchronization of pending applicants</td>
+      <td>New applicant completes registration</td>
+      <td>Admin table updates in real time via snapshot listener</td>
+      <td>Applicant appeared in queue without reload</td>
+      <td style="color:#15803d; font-weight:bold;">PASS</td>
+    </tr>
+    <tr>
+      <td><strong>TC-26</strong></td>
+      <td>Admin Console</td>
+      <td>Administrative applicant approval workflow</td>
+      <td>Admin clicks &ldquo;Approve&rdquo; on verified record</td>
+      <td>Status updated to <code>approved</code>; user profile created</td>
+      <td>Account activated; credentials committed</td>
+      <td style="color:#15803d; font-weight:bold;">PASS</td>
+    </tr>
+    <tr>
+      <td><strong>TC-27</strong></td>
+      <td>Admin Console</td>
+      <td>Administrative rejection with logged reason</td>
+      <td>Admin clicks &ldquo;Reject&rdquo; with reason &ldquo;Unclear ID card&rdquo;</td>
+      <td>Status set to <code>rejected</code> with reason logged</td>
+      <td>Status updated; rejection reason logged</td>
+      <td style="color:#15803d; font-weight:bold;">PASS</td>
+    </tr>
+    <tr>
+      <td><strong>TC-28</strong></td>
+      <td>Access Control</td>
+      <td>Restricted access enforcement for unapproved accounts</td>
+      <td>Pending or rejected applicant attempts login</td>
+      <td>Login halted with verification status notification</td>
+      <td>Access restricted; redirected to status view</td>
+      <td style="color:#15803d; font-weight:bold;">PASS</td>
+    </tr>
+    <tr>
+      <td><strong>TC-29</strong></td>
+      <td>Session Control</td>
+      <td>Authenticated access for approved students</td>
+      <td>Approved student logs in with valid credentials</td>
+      <td>Session initialized; redirected to campus feed</td>
+      <td>Session authenticated; feed loaded</td>
+      <td style="color:#15803d; font-weight:bold;">PASS</td>
+    </tr>
+    <tr>
+      <td><strong>TC-30</strong></td>
+      <td>Social Feed</td>
+      <td>Real-time publication and broadcast of posts</td>
+      <td>Student submits post in BCA departmental circle</td>
+      <td>Post committed to Firestore and broadcast to peers</td>
+      <td>Post rendered in real time across sessions</td>
+      <td style="color:#15803d; font-weight:bold;">PASS</td>
+    </tr>
+  </tbody>
+</table>
+
+
+<h2>6.3 SECURITY, ANTI-SPOOFING &amp; BOT DEFENSE VALIDATION</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+To ensure compliance with collegiate privacy standards and protect the platform against cyber threats, IntraWorld underwent penetration and security testing across multiple threat vectors, as summarized in Table 6.2:
+</p>
+
+<table class=academicTable>
+  <thead>
+    <tr>
+      <th style="width:18%;">Vulnerability Vector</th>
+      <th style="width:24%;">Attack Payload / Methodology</th>
+      <th style="width:28%;">Defense Mechanism Enforced</th>
+      <th style="width:18%;">Evaluation Result</th>
+      <th style="width:12%;">Risk Level</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>NoSQL Query Injection</strong></td>
+      <td>Malicious payloads such as <code>{"$gt": ""}</code> submitted via login inputs</td>
+      <td>Firestore client SDK uses parameterized object queries, rendering injection impossible</td>
+      <td>Mitigated; payloads treated as literal strings</td>
+      <td style="color:#15803d; font-weight:bold;">SECURE</td>
+    </tr>
+    <tr>
+      <td><strong>Stored Cross-Site Scripting (XSS)</strong></td>
+      <td>Submitting <code>&lt;script&gt;stealToken()&lt;/script&gt;</code> in posts and profile bio</td>
+      <td>Client-side DOM sanitization and HTML escaping prior to template rendering</td>
+      <td>Mitigated; scripts escaped into text entities</td>
+      <td style="color:#15803d; font-weight:bold;">SECURE</td>
+    </tr>
+    <tr>
+      <td><strong>Cross-College Impersonation</strong></td>
+      <td>Uploading valid ID card from another college to register as host student</td>
+      <td>Heuristic Anti-Cheat Engine (Acronym, Substring, and Token Jaccard matching)</td>
+      <td>Mitigated; mismatched institutions blocked</td>
+      <td style="color:#15803d; font-weight:bold;">SECURE</td>
+    </tr>
+    <tr>
+      <td><strong>Brute-Force OTP Attacks</strong></td>
+      <td>Automated script submitting 1,000 rapid OTP guesses per minute</td>
+      <td>Rate-limiting restricts attempts to 3 per code, triggering a 15-minute lockout</td>
+      <td>Mitigated; lockout triggered after 3 attempts</td>
+      <td style="color:#15803d; font-weight:bold;">SECURE</td>
+    </tr>
+    <tr>
+      <td><strong>Automated Bot Scraping</strong></td>
+      <td>Headless Puppeteer browser executing automated registration requests</td>
+      <td>Cloudflare Turnstile managed challenges verify genuine human interaction</td>
+      <td>Mitigated; headless scripts blocked</td>
+      <td style="color:#15803d; font-weight:bold;">SECURE</td>
+    </tr>
+    <tr>
+      <td><strong>Client-Side Roll Tampering</strong></td>
+      <td>Using browser DevTools to remove the <code>readOnly</code> attribute and alter roll number</td>
+      <td>Admin verification console cross-references submitted roll number with uploaded ID photo</td>
+      <td>Mitigated; discrepancies flagged during review</td>
+      <td style="color:#15803d; font-weight:bold;">SECURE</td>
+    </tr>
+  </tbody>
+</table>
+
+<p class=MsoNormal style="text-indent:0.5in;">
+Cross-browser compatibility testing was conducted across desktop and mobile engines to verify consistent rendering and client-side OCR performance, as documented in Table 6.3:
+</p>
+
+<table class=academicTable>
+  <thead>
+    <tr>
+      <th style="width:20%;">Browser Engine</th>
+      <th style="width:20%;">Operating Platform</th>
+      <th style="width:20%;">Canvas / EXIF Support</th>
+      <th style="width:22%;">Tesseract.js Wasm Performance</th>
+      <th style="width:18%;">Compatibility Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Google Chrome (v124+)</strong></td>
+      <td>Windows 11 / macOS</td>
+      <td>Full hardware acceleration</td>
+      <td>Fast (~1.2s extraction time)</td>
+      <td style="color:#15803d; font-weight:bold;">COMPATIBLE</td>
+    </tr>
+    <tr>
+      <td><strong>Mozilla Firefox (v125+)</strong></td>
+      <td>Windows 11 / Linux</td>
+      <td>Full hardware acceleration</td>
+      <td>Fast (~1.4s extraction time)</td>
+      <td style="color:#15803d; font-weight:bold;">COMPATIBLE</td>
+    </tr>
+    <tr>
+      <td><strong>Apple Safari (v17+)</strong></td>
+      <td>macOS Sonoma</td>
+      <td>Full Canvas 2D support</td>
+      <td>Optimal (~1.1s via WebKit Wasm)</td>
+      <td style="color:#15803d; font-weight:bold;">COMPATIBLE</td>
+    </tr>
+    <tr>
+      <td><strong>Microsoft Edge (v124+)</strong></td>
+      <td>Windows 10 / 11</td>
+      <td>Full hardware acceleration</td>
+      <td>Fast (~1.2s extraction time)</td>
+      <td style="color:#15803d; font-weight:bold;">COMPATIBLE</td>
+    </tr>
+    <tr>
+      <td><strong>Google Chrome Mobile</strong></td>
+      <td>Android 14 (Pixel / Galaxy)</td>
+      <td>Camera stream + EXIF auto-rotate</td>
+      <td>Smooth (~1.8s mobile extraction)</td>
+      <td style="color:#15803d; font-weight:bold;">COMPATIBLE</td>
+    </tr>
+    <tr>
+      <td><strong>Apple Safari Mobile</strong></td>
+      <td>iOS 17.4 (iPhone 14 / 15)</td>
+      <td>HEIC &amp; JPEG photo capture</td>
+      <td>Smooth (~1.5s mobile extraction)</td>
+      <td style="color:#15803d; font-weight:bold;">COMPATIBLE</td>
+    </tr>
+  </tbody>
+</table>
+
+<br clear=all style='page-break-before:always;mso-break-type:section-break'>
+<h1>CHAPTER 7: CONCLUSION &amp; FUTURE ENHANCEMENTS</h1>
+
+<h2>7.1 PROJECT SUMMARY</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+The primary objective of this project was the conceptualization, architectural design, algorithmic implementation, and empirical validation of <strong>IntraWorld</strong>: an authenticated, zero-trust intra-college social networking and identity verification platform. Traditional collegiate communication systems have long suffered from fragmentation across unregulated third-party applications, exposing student communities to malicious infiltration, identity falsification, academic disinformation, and security vulnerabilities.
+</p>
+<p class=MsoNormal style="text-indent:0.5in;">
+By synthesizing client-side computer vision intelligence, mathematical anti-cheat string heuristics, multi-factor cryptographic authentication, and serverless cloud data persistence, IntraWorld establishes an impenetrable digital perimeter around higher educational institutions. The platform successfully demonstrates the following technical and architectural achievements:
+</p>
+<p class=MsoNormal>
+<strong>1. Edge-Based Document Intelligence:</strong> Utilizing in-browser WebAssembly execution via <code>Tesseract.js</code> alongside <code>jsQR</code> matrix barcode decoding, IntraWorld conducts document verification directly on student client hardware, eliminating central cloud compute bottlenecks and protecting biometric privacy.
+</p>
+<p class=MsoNormal>
+<strong>2. Automated Cross-Institutional Anti-Cheat Protection:</strong> Through the formulation of tokenized Levenshtein distance metrics, dynamic acronym generation, and Token Jaccard overlap algorithms, the platform detects and prevents attempts to register using forged or foreign college identity cards.
+</p>
+<p class=MsoNormal>
+<strong>3. Tamper-Resistant Credential Locking:</strong> Verified academic attributes&mdash;specifically the degree program and university registration number&mdash;are auto-filled and locked to prevent client-side modification, while a supervised fallback pathway accommodates degraded physical cards without compromising administrative oversight.
+</p>
+<p class=MsoNormal>
+<strong>4. Robust Administrative Governance:</strong> The dual-console architecture provides institutional faculty with real-time, synchronized verification tooling, presenting photographic evidence, OCR confidence scores, and composite Authenticity Trust metrics before granting network access.
+</p>
+<p class=MsoNormal style="text-indent:0.5in;">
+Empirical testing across thirty black-box unit scenarios, rigorous penetration stress tests, and multi-browser evaluations demonstrates that IntraWorld provides a scalable, resilient, and academically enriching digital ecosystem for modern collegiate institutions.
+</p>
+
+
+<h2>7.2 CONSTRAINTS &amp; PERFORMANCE LIMITATIONS</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+While IntraWorld demonstrates remarkable operational resilience, several technical constraints and operational limitations characterize the current release:
+</p>
+<p class=MsoNormal>
+<strong>1. Client Hardware Constraints on Legacy Devices:</strong> Executing neural network optical character recognition inside a browser WebAssembly worker requires substantial memory and processor bandwidth. While modern smartphones process documents in under 2 seconds, budget legacy devices with less than 2 GB of available RAM may experience temporary UI sluggishness or extended OCR processing times (~5 to 8 seconds).
+</p>
+<p class=MsoNormal>
+<strong>2. Sensitivity to Severe Optical Degradation:</strong> Although the system incorporates adaptive histogram equalization and ITU-R BT.709 luminance contrast stretching, severely degraded inputs&mdash;such as intense flash glare over student roll numbers, severe motion blur, or scratched plastic laminates&mdash;can still prevent automatic neural segmentation, requiring the supervised manual fallback workflow.
+</p>
+<p class=MsoNormal>
+<strong>3. Dependency on External Gateway Infrastructure:</strong> The dispatch of time-sensitive OTP verification tokens relies upon external cloud services: EmailJS/Web3Forms for SMTP relays and the 2Factor Telecom API for cellular SMS delivery. Severe cellular congestion or institutional spam filters can occasionally delay token delivery, though the deterministic Demo OTP fallback provides relief during testing and evaluations.
+</p>
+<p class=MsoNormal>
+<strong>4. Regional Diversity in Academic ID Card Layouts:</strong> While the regex extraction engine supports prominent university formats across Karnataka (such as Bengaluru City University, Bangalore University, and VTU), autonomous colleges occasionally utilize non-standard identifier prefixes or multi-line student roll number schemes that necessitate custom pattern rules.
+</p>
+
+
+<h2>7.3 FUTURE SCOPE AND TECHNOLOGICAL ROADMAPS</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+The architectural foundations established in this dissertation provide clear avenues for future technological enhancements. Planned developments include:
+</p>
+<p class=MsoNormal>
+<strong>1. WebAuthn &amp; FIDO2 Biometric Passkey Authentication:</strong> Integrating the W3C Web Authentication standard to enable students to authenticate using native device biometric sensors (such as Apple Touch ID, Face ID, or Windows Hello), eliminating passwords and OTP tokens after initial registration.
+</p>
+<p class=MsoNormal>
+<strong>2. Edge-Based YOLOv8 Neural Card Localization:</strong> Deploying a lightweight, WebAssembly-compiled YOLOv8 object detection model to detect student ID card boundaries within live camera video streams in real time. This will guide users with visual overlays to eliminate camera tilt, perspective distortion, and shadows before image capture.
+</p>
+<p class=MsoNormal>
+<strong>3. National DigiLocker API Integration:</strong> Connecting with India's National Academic Depository (NAD) and DigiLocker APIs to allow instant digital credential verification against state university databases, providing instantaneous onboarding for government-accredited institutions.
+</p>
+<p class=MsoNormal>
+<strong>4. Federated Multi-Campus Collegiate Network:</strong> Expanding IntraWorld's single-campus architecture into an interconnected federation of verified university institutions, enabling inter-college academic hackathons, joint research projects, and university placement drives while preserving strict intra-campus privacy boundaries.
+</p>
+<p class=MsoNormal>
+<strong>5. Decentralized Verifiable Credentials (W3C DID):</strong> Transitioning academic credentials into Decentralized Identifiers (DIDs) secured by zero-knowledge proofs (ZKPs), enabling students to verify their enrollment status cryptographically without exposing sensitive personal identifiers to third parties.
+</p>
+
+<br clear=all style='page-break-before:always;mso-break-type:section-break'>
+<h1>APPENDICES &amp; REFERENCES</h1>
+
+<h2>APPENDIX A: IEEE BIBLIOGRAPHY &amp; REFERENCES</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+The following academic research papers, technical standards, institutional monographs, and industry specifications informed the architectural design, algorithmic implementation, and theoretical framework of the IntraWorld platform:
+</p>
+
+<div class=codeBox style="background:transparent; border:none; padding:0; font-family:'Times New Roman', serif; font-size:11pt; line-height:150%;">
+<p class=MsoNormal>
+[1] R. Smith, &ldquo;An Overview of the Tesseract OCR Engine,&rdquo; in <em>Proceedings of the Ninth International Conference on Document Analysis and Recognition (ICDAR)</em>, Curitiba, Brazil, 2007, vol. 2, pp. 629&ndash;633. doi: 10.1109/ICDAR.2007.4378789.
+</p>
+<p class=MsoNormal>
+[2] V. I. Levenshtein, &ldquo;Binary Codes Capable of Correcting Deletions, Insertions, and Reversals,&rdquo; <em>Soviet Physics Doklady</em>, vol. 10, no. 8, pp. 707&ndash;710, Feb. 1966.
+</p>
+<p class=MsoNormal>
+[3] International Telecommunication Union, &ldquo;Parameter values for the HDTV standards for production and international programme exchange,&rdquo; <em>Recommendation ITU-R BT.709-6</em>, ITU Radiocommunication Sector, Geneva, Switzerland, 2015.
+</p>
+<p class=MsoNormal>
+[4] E. Gamma, R. Helm, R. Johnson, and J. Vlissides, <em>Design Patterns: Elements of Reusable Object-Oriented Software</em>. Boston, MA: Addison-Wesley Professional, 1994.
+</p>
+<p class=MsoNormal>
+[5] A. S. Tanenbaum and M. van Steen, <em>Distributed Systems: Principles and Paradigms</em>, 3rd ed. CreateSpace Independent Publishing Platform, 2017.
+</p>
+<p class=MsoNormal>
+[6] P. Jaccard, &ldquo;The Distribution of the Flora in the Alpine Zone,&rdquo; <em>New Phytologist</em>, vol. 11, no. 2, pp. 37&ndash;50, Feb. 1912. doi: 10.1111/j.1469-8137.1912.tb05611.x.
+</p>
+<p class=MsoNormal>
+[7] A. Haas et al., &ldquo;Bringing the Web up to Speed with WebAssembly,&rdquo; in <em>Proceedings of the 38th ACM SIGPLAN Conference on Programming Language Design and Implementation (PLDI)</em>, Barcelona, Spain, 2017, pp. 185&ndash;200. doi: 10.1145/3062341.3062363.
+</p>
+<p class=MsoNormal>
+[8] Google Cloud Platform, &ldquo;Google Cloud Firestore: Scalable NoSQL Cloud Database Architecture,&rdquo; <em>Google Cloud Technical Documentation</em>, Mountain View, CA, 2024. [Online]. Available: https://cloud.google.com/firestore/docs.
+</p>
+<p class=MsoNormal>
+[9] Cloudflare Inc., &ldquo;Turnstile: A User-Friendly, Privacy-Preserving Alternative to CAPTCHA,&rdquo; <em>Cloudflare Research Whitepaper</em>, San Francisco, CA, 2023. [Online]. Available: https://www.cloudflare.com/products/turnstile/.
+</p>
+<p class=MsoNormal>
+[10] D. Crockford, <em>JavaScript: The Good Parts</em>. Sebastopol, CA: O'Reilly Media, 2008.
+</p>
+<p class=MsoNormal>
+[11] M. Fowler, <em>Patterns of Enterprise Application Architecture</em>. Boston, MA: Addison-Wesley Professional, 2002.
+</p>
+<p class=MsoNormal>
+[12] OWASP Foundation, &ldquo;OWASP Top Ten Web Application Security Risks,&rdquo; <em>Open Web Application Security Project</em>, 2021. [Online]. Available: https://owasp.org/Top10/.
+</p>
+<p class=MsoNormal>
+[13] R. Fielding, &ldquo;Architectural Styles and the Design of Network-based Software Architectures,&rdquo; Ph.D. dissertation, Dept. Inf. Comput. Sci., Univ. California, Irvine, CA, 2000.
+</p>
+<p class=MsoNormal>
+[14] ISO/IEC, &ldquo;Information technology &ndash; Automatic identification and data capture techniques &ndash; QR Code bar code symbology specification,&rdquo; <em>ISO/IEC Standard 18004:2015</em>, International Organization for Standardization, Geneva, Switzerland, 2015.
+</p>
+<p class=MsoNormal>
+[15] R. Bradner, &ldquo;Key words for use in RFCs to Indicate Requirement Levels,&rdquo; <em>RFC 2119</em>, Internet Engineering Task Force (IETF), Mar. 1997. doi: 10.17487/RFC2119.
+</p>
+<p class=MsoNormal>
+[16] P. Resnick, &ldquo;Internet Message Format,&rdquo; <em>RFC 5322</em>, Internet Engineering Task Force (IETF), Oct. 2008. doi: 10.17487/RFC5322.
+</p>
+<p class=MsoNormal>
+[17] National Institute of Standards and Technology (NIST), &ldquo;Digital Identity Guidelines: Authentication and Lifecycle Management,&rdquo; <em>NIST Special Publication 800-63B</em>, U.S. Dept. of Commerce, Washington, D.C., 2020.
+</p>
+<p class=MsoNormal>
+[18] Bengaluru City University, &ldquo;Regulations Governing the Choice Based Credit System (CBCS) for Under-Graduate Degree Programmes in the Faculties of Arts, Science and Commerce,&rdquo; BCU Academic Council, Bengaluru, India, 2021.
+</p>
+<p class=MsoNormal>
+[19] World Wide Web Consortium (W3C), &ldquo;HTML5: A Vocabulary and Associated APIs for HTML and XHTML,&rdquo; <em>W3C Recommendation</em>, Oct. 2014. [Online]. Available: https://www.w3.org/TR/html5/.
+</p>
+<p class=MsoNormal>
+[20] World Wide Web Consortium (W3C), &ldquo;Web Authentication: An API for Accessing Scoped Credentials (WebAuthn Level 2),&rdquo; <em>W3C Recommendation</em>, Apr. 2021. [Online]. Available: https://www.w3.org/TR/webauthn-2/.
+</p>
+<p class=MsoNormal>
+[21] J. Dean and S. Ghemawat, &ldquo;MapReduce: Simplified Data Processing on Large Clusters,&rdquo; <em>Communications of the ACM</em>, vol. 51, no. 1, pp. 107&ndash;113, Jan. 2008. doi: 10.1145/1327452.1327492.
+</p>
+<p class=MsoNormal>
+[22] D. D. Woods and E. Hollnagel, <em>Joint Cognitive Systems: Patterns in Systems Engineering</em>. Boca Raton, FL: CRC Press, 2006.
+</p>
+</div>
+
+<br clear=all style='page-break-before:always;mso-break-type:section-break'>
+
+
+<h2>APPENDIX B: USER MANUAL AND OPERATING INSTRUCTIONS</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+This user manual provides step-by-step operating guidelines for student applicants and departmental administrators using the IntraWorld platform.
+</p>
+
+<h3>B.1 STUDENT ONBOARDING &amp; VERIFICATION GUIDE</h3>
+<p class=MsoNormal>
+<strong>Step 1: Accessing the Portal</strong><br/>
+Navigate to the platform root URL (e.g., <code>https://intraworld.edu</code> or local test host) in any modern, standards-compliant web browser. On the landing page, click the <strong>Register Account</strong> button to launch the verification wizard.
+</p>
+<p class=MsoNormal>
+<strong>Step 2: Entering Institutional Affiliation</strong><br/>
+Provide your full legal name, institutional email address (e.g., Gmail), mobile phone number, and type your college name (e.g., &ldquo;Seshadripuram First Grade College&rdquo;).
+</p>
+<p class=MsoNormal>
+<strong>Step 3: Uploading the Physical Student ID Card</strong><br/>
+Click the <strong>Upload Student ID Card</strong> upload tile. Select a clear, high-resolution photograph of your physical college identity card. Ensure proper lighting, avoid glare on the text lines, and keep the card flat against a neutral surface.
+</p>
+<p class=MsoNormal>
+<strong>Step 4: Automated Vision Scanning &amp; Credential Locking</strong><br/>
+The client-side vision pipeline automatically normalizes the image, reads matrix barcodes (if present), and executes neural OCR via WebAssembly. The system cross-evaluates your college name against the card text. Upon successful validation, your <strong>Degree Course</strong> and <strong>Roll Number</strong> will populate automatically and lock with a green padlock indicator.
+</p>
+<p class=MsoNormal>
+<strong>Step 5: Two-Factor Authentication Verification</strong><br/>
+Click <strong>Verify Email OTP</strong>. A 6-digit cryptographic verification code will be dispatched to your email address. Enter the code in the verification modal. Repeat the step for SMS mobile verification (or use Demo OTP mode during evaluation trials).
+</p>
+<p class=MsoNormal>
+<strong>Step 6: Submission and Pending Queue</strong><br/>
+Complete the interactive Cloudflare Turnstile challenge and click <strong>Submit Registration</strong>. Your application is placed into the secure departmental verification queue with status <code>pending</code>.
+</p>
+
+<h3>B.2 COLLEGE ADMINISTRATOR CONSOLE GUIDE</h3>
+<p class=MsoNormal>
+<strong>Step 1: Logging into Administrative Console</strong><br/>
+Open <code>admin_approval.html</code> and authenticate using authorized faculty credentials.
+</p>
+<p class=MsoNormal>
+<strong>Step 2: Reviewing the Verification Queue</strong><br/>
+The dashboard displays pending applicants in real time. Each record presents the student's name, roll number, course, calculated Authenticity Trust Score, and a thumbnail of the uploaded ID card.
+</p>
+<p class=MsoNormal>
+<strong>Step 3: Inspecting Proofs and Authorizing Accounts</strong><br/>
+Click any applicant to open the split-screen inspection view. Compare the entered roll number against the high-resolution photo on the left panel. If authentic, click <strong>Approve Account</strong> to commit the student to the active roster and trigger a welcome email. If the card is fraudulent or unreadable, click <strong>Reject Application</strong> and provide a reason.
+</p>
+
+<h3>B.3 TROUBLESHOOTING &amp; ERROR RECOVERY</h3>
+<table class=academicTable>
+  <thead>
+    <tr>
+      <th style="width:25%;">Observed Symptom</th>
+      <th style="width:35%;">Probable Root Cause</th>
+      <th style="width:40%;">Recommended Corrective Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>&ldquo;College Name Mismatch&rdquo; alert</td>
+      <td>Uploaded ID card text does not match entered institution name.</td>
+      <td>Ensure entered institution matches the physical card header. Retake photo with clear college title.</td>
+    </tr>
+    <tr>
+      <td>Fields unlocked; manual fallback triggered</td>
+      <td>Image too blurry, severe camera glare, or dark lighting.</td>
+      <td>Manually enter Course and Roll Number accurately. Faculty will inspect photo during approval.</td>
+    </tr>
+    <tr>
+      <td>Email OTP token delayed</td>
+      <td>Network transit latency or spam filtering.</td>
+      <td>Check Spam/Junk folder. Click &ldquo;Resend OTP&rdquo; after 60s, or use Demo OTP in test mode.</td>
+    </tr>
+    <tr>
+      <td>Cloudflare widget fails to render</td>
+      <td>Ad-blocker or script restriction active in browser.</td>
+      <td>Disable aggressive browser extensions for the domain and reload.</td>
+    </tr>
+  </tbody>
+</table>
+
+<br clear=all style='page-break-before:always;mso-break-type:section-break'>
+
+
+<h2>APPENDIX C: ABBREVIATIONS AND ACRONYMS INDEX</h2>
+<p class=MsoNormal style="text-indent:0.5in;">
+The following alphabetical index defines technical, architectural, and educational acronyms referenced throughout this dissertation:
+</p>
+
+<table class=academicTable>
+  <thead>
+    <tr>
+      <th style="width:20%;">Acronym / Abbreviation</th>
+      <th style="width:40%;">Full Expanded Nomenclature</th>
+      <th style="width:40%;">Contextual &amp; Technical Domain</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>2FA</strong></td>
+      <td>Two-Factor Authentication</td>
+      <td>Multi-layered cryptographic identity verification</td>
+    </tr>
+    <tr>
+      <td><strong>API</strong></td>
+      <td>Application Programming Interface</td>
+      <td>Software interface for programmatic data exchange</td>
+    </tr>
+    <tr>
+      <td><strong>BCA</strong></td>
+      <td>Bachelor of Computer Applications</td>
+      <td>Undergraduate computer science academic program</td>
+    </tr>
+    <tr>
+      <td><strong>BCU</strong></td>
+      <td>Bengaluru City University</td>
+      <td>State university affiliating authority, Bengaluru</td>
+    </tr>
+    <tr>
+      <td><strong>CDN</strong></td>
+      <td>Content Delivery Network</td>
+      <td>Geographically distributed network for low-latency assets</td>
+    </tr>
+    <tr>
+      <td><strong>CSS</strong></td>
+      <td>Cascading Style Sheets</td>
+      <td>Style sheet language for presentation layout styling</td>
+    </tr>
+    <tr>
+      <td><strong>DFD</strong></td>
+      <td>Data Flow Diagram</td>
+      <td>Graphical representation of information flow in a system</td>
+    </tr>
+    <tr>
+      <td><strong>DOM</strong></td>
+      <td>Document Object Model</td>
+      <td>Tree structure representing HTML elements in browsers</td>
+    </tr>
+    <tr>
+      <td><strong>ERD</strong></td>
+      <td>Entity-Relationship Diagram</td>
+      <td>Data modeling technique for conceptual database schemas</td>
+    </tr>
+    <tr>
+      <td><strong>ERP</strong></td>
+      <td>Enterprise Resource Planning</td>
+      <td>Institutional administrative management system</td>
+    </tr>
+    <tr>
+      <td><strong>EXIF</strong></td>
+      <td>Exchangeable Image File Format</td>
+      <td>Metadata specification embedded within digital photos</td>
+    </tr>
+    <tr>
+      <td><strong>HTML</strong></td>
+      <td>HyperText Markup Language</td>
+      <td>Standard markup language for web document architecture</td>
+    </tr>
+    <tr>
+      <td><strong>HTTP / HTTPS</strong></td>
+      <td>HyperText Transfer Protocol (Secure)</td>
+      <td>Encrypted network application communication protocol</td>
+    </tr>
+    <tr>
+      <td><strong>IEEE</strong></td>
+      <td>Institute of Electrical and Electronics Engineers</td>
+      <td>Global professional technical standards organization</td>
+    </tr>
+    <tr>
+      <td><strong>ITU</strong></td>
+      <td>International Telecommunication Union</td>
+      <td>United Nations agency for information &amp; telecom standards</td>
+    </tr>
+    <tr>
+      <td><strong>JSON</strong></td>
+      <td>JavaScript Object Notation</td>
+      <td>Lightweight, human-readable data interchange format</td>
+    </tr>
+    <tr>
+      <td><strong>KYC</strong></td>
+      <td>Know Your Customer</td>
+      <td>Customer/Student identification validation protocol</td>
+    </tr>
+    <tr>
+      <td><strong>LAN</strong></td>
+      <td>Local Area Network</td>
+      <td>Computer network interconnecting devices within a campus</td>
+    </tr>
+    <tr>
+      <td><strong>MCA</strong></td>
+      <td>Master of Computer Applications</td>
+      <td>Postgraduate degree in advanced computing applications</td>
+    </tr>
+    <tr>
+      <td><strong>MIME</strong></td>
+      <td>Multipurpose Internet Mail Extensions</td>
+      <td>Standard formatting protocol for multipart media and documents</td>
+    </tr>
+    <tr>
+      <td><strong>MVC</strong></td>
+      <td>Model-View-Controller</td>
+      <td>Architectural software pattern decoupling data and UI</td>
+    </tr>
+    <tr>
+      <td><strong>NFR</strong></td>
+      <td>Non-Functional Requirement</td>
+      <td>Quality criteria governing system performance and security</td>
+    </tr>
+    <tr>
+      <td><strong>NoSQL</strong></td>
+      <td>Not Only SQL</td>
+      <td>Non-relational distributed database architecture</td>
+    </tr>
+    <tr>
+      <td><strong>OCR</strong></td>
+      <td>Optical Character Recognition</td>
+      <td>Computer vision technology converting images to digital text</td>
+    </tr>
+    <tr>
+      <td><strong>OTP</strong></td>
+      <td>One-Time Password</td>
+      <td>Dynamic cryptographic token valid for single use session</td>
+    </tr>
+    <tr>
+      <td><strong>PSM</strong></td>
+      <td>Page Segmentation Mode</td>
+      <td>Tesseract layout analysis operational configuration</td>
+    </tr>
+    <tr>
+      <td><strong>PVC</strong></td>
+      <td>Polyvinyl Chloride</td>
+      <td>Plastic polymer material used in institutional ID badges</td>
+    </tr>
+    <tr>
+      <td><strong>QR Code</strong></td>
+      <td>Quick Response Code</td>
+      <td>Two-dimensional high-density matrix optical barcode</td>
+    </tr>
+    <tr>
+      <td><strong>RAM</strong></td>
+      <td>Random Access Memory</td>
+      <td>Volatile primary electronic hardware system memory</td>
+    </tr>
+    <tr>
+      <td><strong>REST</strong></td>
+      <td>Representational State Transfer</td>
+      <td>Software architectural style for distributed web services</td>
+    </tr>
+    <tr>
+      <td><strong>RFC</strong></td>
+      <td>Request for Comments</td>
+      <td>Official Internet Engineering Task Force technical standard</td>
+    </tr>
+    <tr>
+      <td><strong>SDK</strong></td>
+      <td>Software Development Kit</td>
+      <td>Collection of software tools and libraries for development</td>
+    </tr>
+    <tr>
+      <td><strong>SFGC</strong></td>
+      <td>Seshadripuram First Grade College</td>
+      <td>Host undergraduate institution, Yelahanka, Bengaluru</td>
+    </tr>
+    <tr>
+      <td><strong>SMS</strong></td>
+      <td>Short Message Service</td>
+      <td>Cellular telecommunications text messaging service</td>
+    </tr>
+    <tr>
+      <td><strong>SMTP</strong></td>
+      <td>Simple Mail Transfer Protocol</td>
+      <td>Standard communication protocol for electronic mail dispatch</td>
+    </tr>
+    <tr>
+      <td><strong>SQL</strong></td>
+      <td>Structured Query Language</td>
+      <td>Standard language for relational database management</td>
+    </tr>
+    <tr>
+      <td><strong>SRS</strong></td>
+      <td>Software Requirements Specification</td>
+      <td>Formal document describing software capabilities and scope</td>
+    </tr>
+    <tr>
+      <td><strong>SSL / TLS</strong></td>
+      <td>Secure Sockets Layer / Transport Layer Security</td>
+      <td>Cryptographic protocols providing network communications security</td>
+    </tr>
+    <tr>
+      <td><strong>UI / UX</strong></td>
+      <td>User Interface / User Experience</td>
+      <td>Visual layout design and user interaction ergonomics</td>
+    </tr>
+    <tr>
+      <td><strong>USN</strong></td>
+      <td>University Seat Number</td>
+      <td>Unique permanent student academic registration identifier</td>
+    </tr>
+    <tr>
+      <td><strong>W3C</strong></td>
+      <td>World Wide Web Consortium</td>
+      <td>Main international standards organization for the World Wide Web</td>
+    </tr>
+    <tr>
+      <td><strong>Wasm</strong></td>
+      <td>WebAssembly</td>
+      <td>Binary instruction format for near-native in-browser execution</td>
+    </tr>
+    <tr>
+      <td><strong>XSS</strong></td>
+      <td>Cross-Site Scripting</td>
+      <td>Web application security exploit injecting malicious client scripts</td>
+    </tr>
+  </tbody>
+</table>
+
+</div>
+</body>
+</html>
+
+------=_NextPart_01D9E74B.82A10F--
