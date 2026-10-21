@@ -401,10 +401,10 @@ function renderStudentCards() {
 
         const avatarUrl = sanitizeUrl(student.avatar || student.profilePhotoUrl);
         card.innerHTML = `
-            <div class="student-avatar" style="cursor: pointer; overflow: hidden;" title="Click to view posts & profile">
+            <div class="student-avatar" style="cursor: pointer; overflow: hidden;" title="Click DP to view posts & profile">
                 ${avatarUrl ? `<img src="${avatarUrl}" style="width: 100%; height: 100%; object-fit: cover;" alt="${escapeHtml(student.name)}" onerror="this.onerror=null; this.parentElement.innerHTML='${escapeHtml(student.name.charAt(0).toUpperCase())}';" />` : escapeHtml(student.name.charAt(0).toUpperCase())}
             </div>
-            <h3 style="cursor: pointer;" title="Click to view posts & profile">${escapeHtml(student.name)}</h3>
+            <h3 style="cursor: pointer;" title="Click Name to view posts & profile">${escapeHtml(student.name)}</h3>
             <div class="student-regid-tag">
                 <i class="fa-solid fa-id-card"></i> Reg ID: ${escapeHtml(student.regId || "Not Registered")}
             </div>

@@ -503,10 +503,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                     // Render shared post card if present (rich card with image + caption)
                     let sharedPostHtml = "";
+                    let isSharedPostMsg = false;
                     if (msg.sharedPost) {
+                        isSharedPostMsg = true;
                         const sp = msg.sharedPost;
-                        const spMedia = sp.mediaUrl && /^(https?:\/\/|data:image\/)/.test(sp.mediaUrl) ? sp.mediaUrl : null;
-                        const spSnippet = sp.content ? (sp.content.length > 120 ? sp.content.substring(0, 120) + "..." : sp.content) : "View this post";
+                        const spMedia = sp.mediaUrl && /^(https?:\/\/|data:image\/)/i.test(sp.mediaUrl) ? sp.mediaUrl : null;
+                        const spDoc = sp.docUrl && /^(https?:\/\/|data:application\/)/i.test(sp.docUrl) ? sp.docUrl : null;
+                        const spSnippet = sp.content ? (sp.content.length > 180 ? sp.content.substring(0, 180) + "..." : sp.content) : "View this post";
                         sharedPostHtml = `
                             <div class="shared-post-card" data-post-id="${sp.postId || ''}">
                                 <div class="shared-post-header">
@@ -514,8 +517,40 @@ document.addEventListener("DOMContentLoaded", async () => {
                                     <span style="font-size:11px; color:#f59e0b; font-weight:600;">Shared Post</span>
                                     <span style="font-size:11px; color:#94a3b8; margin-left:4px;">by ${escapeHtml(sp.authorName || "Student")}</span>
                                 </div>
-                                ${spMedia ? `<img src="${spMedia}" class="shared-post-img" alt="Shared post image" />` : ""}
+                                ${spMedia ? `<img src="${spMedia}" class="shared-post-img" alt="Shared post image" title="Click to view full image" />` : ""}
+                                ${spDoc ? `
+                                    <a href="${spDoc}" target="_blank" rel="noopener noreferrer" download="${escapeHtml(sp.docName || 'document.pdf')}" class="msg-doc-card" style="margin-bottom:8px;">
+                                        <i class="fa-solid fa-file-pdf"></i>
+                                        <div>
+                                            <strong style="display: block; font-size: 12px; color: #fff;">${escapeHtml(sp.docName || "Document Attachment")}</strong>
+                                            <span style="font-size: 10px; color: #7db7ff;">Click to view / download</span>
+                                        </div>
+                                    </a>
+                                ` : ""}
                                 <div class="shared-post-caption">${escapeHtml(spSnippet)}</div>
+                                <a href="posts.html" class="shared-post-link">
+                                    <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:10px;"></i> View in Posts Feed
+                                </a>
+                            </div>
+                        `;
+                    } else if (msg.text && (msg.text.includes("shared a post:") || msg.text.startsWith("\u{1F4E2}"))) {
+                        // Fallback support for older messages where sharedPost was sent as plain text
+                        isSharedPostMsg = true;
+                        let extractedAuthor = "Student";
+                        let extractedSnippet = msg.text;
+                        const match = msg.text.match(/(?:\u{1F4E2}\s*)?([^\s]+(?:\s+[^\s]+)?)\s+shared a post:\s*"?([^"]*)"?/u);
+                        if (match) {
+                            extractedAuthor = match[1] || "Student";
+                            extractedSnippet = match[2] || "Shared post content";
+                        }
+                        sharedPostHtml = `
+                            <div class="shared-post-card">
+                                <div class="shared-post-header">
+                                    <i class="fa-solid fa-share" style="color:#f59e0b; font-size:11px;"></i>
+                                    <span style="font-size:11px; color:#f59e0b; font-weight:600;">Shared Post</span>
+                                    <span style="font-size:11px; color:#94a3b8; margin-left:4px;">by ${escapeHtml(extractedAuthor)}</span>
+                                </div>
+                                <div class="shared-post-caption">${escapeHtml(extractedSnippet)}</div>
                                 <a href="posts.html" class="shared-post-link">
                                     <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:10px;"></i> View in Posts Feed
                                 </a>
@@ -529,7 +564,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                             ${sharedPostHtml}
                             ${mediaHtml}
                             ${docHtml}
-                            ${(msg.text && !msg.sharedPost) ? `<div class="msg-content">${escapeHtml(msg.text || "")}</div>` : ""}
+                            ${(msg.text && !isSharedPostMsg) ? `<div class="msg-content">${escapeHtml(msg.text || "")}</div>` : ""}
                             <div class="msg-meta">
                                 <span>${msg.timeStr || ''}</span>
                                 ${tickHtml}
@@ -581,6 +616,14 @@ document.addEventListener("DOMContentLoaded", async () => {
                         mediaEl.addEventListener("click", () => {
                             const fullSrc = mediaEl.getAttribute("data-full-src");
                             if (fullSrc) openLightbox(fullSrc);
+                        });
+                    }
+
+                    // Click on shared post image opens lightbox modal
+                    const sharedPostImg = row.querySelector(".shared-post-img");
+                    if (sharedPostImg) {
+                        sharedPostImg.addEventListener("click", () => {
+                            if (sharedPostImg.src) openLightbox(sharedPostImg.src);
                         });
                     }
 
