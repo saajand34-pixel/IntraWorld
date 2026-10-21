@@ -323,14 +323,29 @@ document.addEventListener("DOMContentLoaded", async () => {
                 item.className = "user-item";
                 item.style.cssText = "display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid rgba(245, 158, 11, 0.12); cursor: pointer; transition: background 0.2s;";
                 item.innerHTML = `
-                    <div style="width: 42px; height: 42px; border-radius: 50%; overflow: hidden; background: linear-gradient(135deg, #c41226, #4d000a); display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; flex-shrink: 0; border: 1.5px solid rgba(245, 158, 11, 0.45);">
+                    <div class="user-item-avatar" style="width: 42px; height: 42px; border-radius: 50%; overflow: hidden; background: linear-gradient(135deg, #c41226, #4d000a); display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; flex-shrink: 0; border: 1.5px solid rgba(245, 158, 11, 0.45); cursor: pointer;" title="Click DP to view posts & profile">
                         ${safeAvatarUrl ? `<img src="${safeAvatarUrl}" style="width: 100%; height: 100%; object-fit: cover;" alt="${escapeHtml(name)}" onerror="this.onerror=null; this.parentElement.innerHTML='${escapeHtml(name.charAt(0).toUpperCase())}';" />` : escapeHtml(name.charAt(0).toUpperCase())}
                     </div>
                     <div style="flex: 1; min-width: 0;">
                         <div style="font-size: 14px; font-weight: 600; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(name)}</div>
                         <div style="font-size: 12px; color: #f59e0b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(college || peer.email)}</div>
                     </div>
+                    <button type="button" class="btn-peer-posts" title="View ${escapeHtml(name)}'s Posts" style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4); color: #f59e0b; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px; transition: all 0.2s; flex-shrink: 0;">
+                        <i class="fa-solid fa-newspaper"></i>
+                    </button>
                 `;
+
+                // DP and View Posts button open student profile & posts modal
+                const avatarEl = item.querySelector(".user-item-avatar");
+                const postsBtn = item.querySelector(".btn-peer-posts");
+                [avatarEl, postsBtn].forEach(el => {
+                    if (el) {
+                        el.addEventListener("click", (e) => {
+                            e.stopPropagation();
+                            openUserProfileModal(peer);
+                        });
+                    }
+                });
 
                 item.addEventListener("click", () => {
                     document.querySelectorAll(".user-item").forEach(el => el.style.background = "transparent");
@@ -897,8 +912,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         try {
-            const targetEmail = (user.email || "").toLowerCase().trim();
+            const targetEmail = (user.email || user.authorEmail || "").toLowerCase().trim();
             const targetUid = user.id || user.uid || "";
+            const targetName = (user.name || user.fullName || user.full_name || "").toLowerCase().trim();
 
             const postsRef = collection(db, "posts");
             const snap = await getDocs(postsRef);
@@ -906,10 +922,15 @@ document.addEventListener("DOMContentLoaded", async () => {
             let userPosts = [];
             snap.forEach(docSnap => {
                 const data = docSnap.data();
-                const postEmail = (data.authorEmail || "").toLowerCase().trim();
-                const postUid = data.uid || "";
+                const postEmail = (data.authorEmail || data.email || "").toLowerCase().trim();
+                const postUid = data.uid || data.userId || "";
+                const postAuthor = (data.authorName || "").toLowerCase().trim();
 
-                if ((targetEmail && postEmail === targetEmail) || (targetUid && postUid === targetUid)) {
+                const isEmailMatch = Boolean(targetEmail && postEmail && postEmail === targetEmail);
+                const isUidMatch = Boolean(targetUid && postUid && postUid === targetUid);
+                const isNameMatch = Boolean(targetName && postAuthor && postAuthor === targetName);
+
+                if (isEmailMatch || isUidMatch || isNameMatch) {
                     userPosts.push({ id: docSnap.id, ...data });
                 }
             });
@@ -1036,6 +1057,18 @@ document.addEventListener("DOMContentLoaded", async () => {
         activeNameEl.style.cursor = "pointer";
         activeNameEl.title = "Click to view student posts & profile";
         activeNameEl.addEventListener("click", () => {
+            if (selectedPeer) openUserProfileModal(selectedPeer);
+        });
+    }
+    const activeInfoWrap = document.getElementById("activeUserInfoWrap");
+    if (activeInfoWrap) {
+        activeInfoWrap.addEventListener("click", () => {
+            if (selectedPeer) openUserProfileModal(selectedPeer);
+        });
+    }
+    const activePostsBtn = document.getElementById("activeUserPostsBtn");
+    if (activePostsBtn) {
+        activePostsBtn.addEventListener("click", () => {
             if (selectedPeer) openUserProfileModal(selectedPeer);
         });
     }

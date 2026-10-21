@@ -164,86 +164,45 @@ function renderIncomingRequests() {
         const card = document.createElement("div");
         card.className = "request-card";
         card.id = `req-${req.id}`;
-        const avatarUrl = sanitizeUrl(student.avatar);
         card.innerHTML = `
-            <div class="student-avatar" style="cursor: pointer; overflow: hidden;" title="Click to view posts & profile">
-                ${avatarUrl ? `<img src="${avatarUrl}" style="width: 100%; height: 100%; object-fit: cover;" alt="${escapeHtml(student.name)}" onerror="this.onerror=null; this.parentElement.innerHTML='${escapeHtml(student.name.charAt(0).toUpperCase())}';" />` : escapeHtml(student.name.charAt(0).toUpperCase())}
-            </div>
-            <h3 style="cursor: pointer;" title="Click to view posts & profile">${escapeHtml(student.name)}</h3>
-            <div class="student-regid-tag">
-                <i class="fa-solid fa-id-card"></i> Reg ID: ${escapeHtml(student.regId || "Not Registered")}
-            </div>
-            <p>${escapeHtml(student.college)}</p>
-            <div style="width: 100%; display: flex; flex-direction: column; gap: 8px;">
-                ${actionButtonHTML}
-                <button type="button" class="view-posts-btn" id="btn-posts-${student.id}" title="View ${escapeHtml(student.name)}'s public & college posts">
-                    <i class="fa-solid fa-newspaper"></i> View Posts
+            <div class="req-avatar" style="cursor: pointer;" title="View Posts & Profile">${escapeHtml(initial)}</div>
+            <h4 style="cursor: pointer;" title="View Posts & Profile">${escapeHtml(senderName)}</h4>
+            <div class="regid-text"><i class="fa-solid fa-id-card"></i> ${escapeHtml(senderRegId)}</div>
+            <div class="req-btn-group">
+                <button class="btn-accept" id="accept-${req.id}">
+                    <i class="fa-solid fa-check"></i> Accept
+                </button>
+                <button class="btn-decline" id="decline-${req.id}">
+                    <i class="fa-solid fa-xmark"></i> Decline
                 </button>
             </div>
+            <button type="button" class="view-posts-btn" id="req-posts-${req.id}" style="margin-top: 8px; width: 100%;" title="View ${escapeHtml(senderName)}'s public & college posts">
+                <i class="fa-solid fa-newspaper"></i> View Posts
+            </button>
         `;
 
         // Click on DP, Name, or View Posts button opens User Profile & Posts Modal
-        const avatarEl = card.querySelector(".student-avatar");
-        const nameHeaderEl = card.querySelector("h3");
-        const viewPostsBtn = card.querySelector(`#btn-posts-${student.id}`);
-        [avatarEl, nameHeaderEl, viewPostsBtn].forEach(el => {
-            if (el) el.addEventListener("click", () => openUserProfileModal(student));
+        const avatarEl = card.querySelector(".req-avatar");
+        const nameEl = card.querySelector("h4");
+        const postsBtn = card.querySelector(`#req-posts-${req.id}`);
+        [avatarEl, nameEl, postsBtn].forEach(el => {
+            if (el) el.addEventListener("click", () => {
+                openUserProfileModal({
+                    name: senderName,
+                    email: req.fromEmail,
+                    regId: req.fromRegId,
+                    id: req.fromUid
+                });
+            });
         });
 
-        // Connect button handler (Sends connection request for mutual approval)
-        const connectBtn = card.querySelector(`#btn-connect-${student.id}`);
-        if (connectBtn) {
-            connectBtn.addEventListener("click", async () => {
-                if (!currentUser || !currentUser.email) {
-                    alert("Please log in to connect.");
-                    return;
-                }
+        // Accept connection request -> mutual connection created!
+        const acceptBtn = card.querySelector(`#accept-${req.id}`);
+        if (acceptBtn) acceptBtn.addEventListener("click", () => handleAcceptRequest(req, acceptBtn));
 
-                connectBtn.disabled = true;
-                connectBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Sending Request...`;
-
-                try {
-                    const myEmail = currentUser.email.toLowerCase();
-                    const targetEmail = studentEmail;
-
-                    const requestPayload = {
-                        fromEmail: myEmail,
-                        fromName: myFullName,
-                        fromUid: currentUser.uid || "",
-                        fromRegId: myRegId || "",
-                        toEmail: targetEmail,
-                        toName: student.name,
-                        toUid: student.id,
-                        toRegId: student.regId || "",
-                        status: "pending",
-                        createdAt: new Date().toISOString()
-                    };
-
-                    const docRef = await addDoc(collection(db, "connection_requests"), requestPayload);
-                    sentPendingRequests.set(targetEmail, docRef.id);
-
-                    connectBtn.className = "connect-btn pending";
-                    connectBtn.innerHTML = `<i class="fa-solid fa-clock"></i> Request Sent`;
-                    alert(`Connection request sent to ${student.name}! They will be notified to accept.`);
-                } catch (err) {
-                    console.error("Send request error:", err);
-                    alert("Failed to send request: " + err.message);
-                    connectBtn.disabled = false;
-                    connectBtn.innerHTML = `<i class="fa-solid fa-user-plus"></i> Connect`;
-                }
-            });
-        }
-
-        // View in requests handler
-        const respondBtn = card.querySelector(`#btn-respond-${student.id}`);
-        if (respondBtn) {
-            respondBtn.addEventListener("click", () => {
-                const reqSec = document.getElementById("incomingRequestsSection");
-                if (reqSec) {
-                    reqSec.scrollIntoView({ behavior: "smooth" });
-                }
-            });
-        }
+        // Decline connection request
+        const declineBtn = card.querySelector(`#decline-${req.id}`);
+        if (declineBtn) declineBtn.addEventListener("click", () => handleDeclineRequest(req, declineBtn));
 
         grid.appendChild(card);
     });
@@ -440,15 +399,31 @@ function renderStudentCards() {
             `;
         }
 
+        const avatarUrl = sanitizeUrl(student.avatar || student.profilePhotoUrl);
         card.innerHTML = `
-            <div class="student-avatar">${escapeHtml(student.name.charAt(0).toUpperCase())}</div>
-            <h3>${escapeHtml(student.name)}</h3>
+            <div class="student-avatar" style="cursor: pointer; overflow: hidden;" title="Click to view posts & profile">
+                ${avatarUrl ? `<img src="${avatarUrl}" style="width: 100%; height: 100%; object-fit: cover;" alt="${escapeHtml(student.name)}" onerror="this.onerror=null; this.parentElement.innerHTML='${escapeHtml(student.name.charAt(0).toUpperCase())}';" />` : escapeHtml(student.name.charAt(0).toUpperCase())}
+            </div>
+            <h3 style="cursor: pointer;" title="Click to view posts & profile">${escapeHtml(student.name)}</h3>
             <div class="student-regid-tag">
                 <i class="fa-solid fa-id-card"></i> Reg ID: ${escapeHtml(student.regId || "Not Registered")}
             </div>
             <p>${escapeHtml(student.college)}</p>
-            ${actionButtonHTML}
+            <div style="width: 100%; display: flex; flex-direction: column; gap: 8px;">
+                ${actionButtonHTML}
+                <button type="button" class="view-posts-btn" id="btn-posts-${student.id}" title="View ${escapeHtml(student.name)}'s public & college posts">
+                    <i class="fa-solid fa-newspaper"></i> View Posts
+                </button>
+            </div>
         `;
+
+        // Click on DP, Name, or View Posts button opens User Profile & Posts Modal
+        const avatarEl = card.querySelector(".student-avatar");
+        const nameHeaderEl = card.querySelector("h3");
+        const viewPostsBtn = card.querySelector(`#btn-posts-${student.id}`);
+        [avatarEl, nameHeaderEl, viewPostsBtn].forEach(el => {
+            if (el) el.addEventListener("click", () => openUserProfileModal(student));
+        });
 
         // Connect button handler (Sends connection request for mutual approval)
         const connectBtn = card.querySelector(`#btn-connect-${student.id}`);
@@ -596,8 +571,9 @@ async function openUserProfileModal(user) {
     }
 
     try {
-        const targetEmail = (user.email || "").toLowerCase().trim();
+        const targetEmail = (user.email || user.authorEmail || "").toLowerCase().trim();
         const targetUid = user.id || user.uid || "";
+        const targetName = (user.name || user.fullName || user.full_name || "").toLowerCase().trim();
 
         const postsRef = collection(db, "posts");
         const snap = await getDocs(postsRef);
@@ -605,10 +581,15 @@ async function openUserProfileModal(user) {
         let userPosts = [];
         snap.forEach(docSnap => {
             const data = docSnap.data();
-            const postEmail = (data.authorEmail || "").toLowerCase().trim();
-            const postUid = data.uid || "";
+            const postEmail = (data.authorEmail || data.email || "").toLowerCase().trim();
+            const postUid = data.uid || data.userId || "";
+            const postAuthor = (data.authorName || "").toLowerCase().trim();
 
-            if ((targetEmail && postEmail === targetEmail) || (targetUid && postUid === targetUid)) {
+            const isEmailMatch = Boolean(targetEmail && postEmail && postEmail === targetEmail);
+            const isUidMatch = Boolean(targetUid && postUid && postUid === targetUid);
+            const isNameMatch = Boolean(targetName && postAuthor && postAuthor === targetName);
+
+            if (isEmailMatch || isUidMatch || isNameMatch) {
                 userPosts.push({ id: docSnap.id, ...data });
             }
         });

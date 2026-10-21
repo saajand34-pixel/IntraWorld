@@ -837,12 +837,31 @@ async function fetchPeersForShare() {
     return peers;
 }
 
-async function openShareModal(postId, authorName, content) {
+async function openShareModal(post) {
     if (!shareModal) return;
-    activeShareContext = { postId, authorName, content };
+    const postId = post.id || "";
+    const authorName = post.authorName || (post.authorEmail || "Student").split("@")[0];
+    const content = post.content || "";
+    const mediaUrl = post.mediaUrl || null;
+    const docUrl = post.docUrl || null;
+    const docName = post.docName || null;
+    const audience = post.audience || post.postType || "public";
+
+    activeShareContext = { postId, authorName, content, mediaUrl, docUrl, docName, audience };
+
+    const sharePreviewThumb = document.getElementById("sharePreviewThumb");
+    if (sharePreviewThumb) {
+        if (mediaUrl && /^(https?:\/\/|data:image\/)/.test(mediaUrl)) {
+            sharePreviewThumb.src = mediaUrl;
+            sharePreviewThumb.style.display = "block";
+        } else {
+            sharePreviewThumb.src = "";
+            sharePreviewThumb.style.display = "none";
+        }
+    }
 
     if (sharePreviewText) {
-        const snippet = content && content.trim() ? content.trim() : "Academic project/media post";
+        const snippet = content && content.trim() ? content.trim() : (mediaUrl ? "Shared image attachment" : "Academic project/media post");
         sharePreviewText.innerHTML = `<strong>${escapeHtml(authorName)}:</strong> "${escapeHtml(snippet.length > 120 ? snippet.substring(0, 120) + "..." : snippet)}"`;
     }
 
@@ -894,17 +913,16 @@ async function openShareModal(postId, authorName, content) {
 
                 const snippet = activeShareContext.content && activeShareContext.content.trim() 
                     ? activeShareContext.content.trim() 
-                    : "Academic document/image attachment";
+                    : (activeShareContext.mediaUrl ? "Shared image attachment" : "Academic document/image attachment");
 
-                // Build rich shared post card payload with image and content
-                const sharedPost = loadedPostsCache.find(p => p.id === activeShareContext.postId) || {};
-                const safeSharedMedia = (sharedPost.mediaUrl && /^(https?:\/\/|data:image\/)/.test(sharedPost.mediaUrl)) ? sharedPost.mediaUrl : null;
+                // Direct image from active context (supports Firebase Storage URLs and data URLs)
+                const safeSharedMedia = (activeShareContext.mediaUrl && /^(https?:\/\/|data:image\/)/.test(activeShareContext.mediaUrl)) ? activeShareContext.mediaUrl : null;
 
                 await addDoc(collection(db, "chats", chatId, "messages"), {
                     senderEmail: myEmail,
                     receiverEmail: peerEmail,
                     senderName: currentUser.displayName || myEmail.split("@")[0],
-                    text: "\u{1F4E2} " + (currentUser.displayName || "A classmate") + " shared a post",
+                    text: "\u{1F4E2} " + (currentUser.displayName || "A classmate") + ` shared a post: "${snippet.length > 80 ? snippet.substring(0, 80) + '...' : snippet}"`,
                     timestamp: serverTimestamp(),
                     timeStr: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
                     status: "sent",
@@ -913,11 +931,13 @@ async function openShareModal(postId, authorName, content) {
                     deletedForEveryone: false,
                     replyTo: null,
                     sharedPost: {
-                        postId: activeShareContext.postId,
-                        authorName: activeShareContext.authorName,
+                        postId: activeShareContext.postId || "",
+                        authorName: activeShareContext.authorName || "Student",
                         content: snippet,
                         mediaUrl: safeSharedMedia || null,
-                        audience: sharedPost.audience || sharedPost.postType || "public"
+                        docUrl: activeShareContext.docUrl || null,
+                        docName: activeShareContext.docName || null,
+                        audience: activeShareContext.audience || "public"
                     }
                 });
 
@@ -1301,7 +1321,7 @@ function renderSinglePostCard(post) {
     const shareBtn = postCard.querySelector(".share-open-btn");
     if (shareBtn) {
         shareBtn.addEventListener("click", () => {
-            openShareModal(postId, authorName, post.content || "");
+            openShareModal(post);
         });
     }
 
