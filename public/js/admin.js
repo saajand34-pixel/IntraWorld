@@ -149,9 +149,9 @@ function displayUsers() {
 
             let statusBadge = "";
             if (isRejected) {
-                statusBadge = `<span class="status-badge" style="background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4);">Rejected</span>`;
+                statusBadge = `<span class="status-badge" style="background: rgba(239, 68, 68, 0.15); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.3);">Rejected</span>`;
             } else if (isPending) {
-                statusBadge = `<span class="status-badge" style="background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.4);">Pending</span>`;
+                statusBadge = `<span class="status-badge" style="background: rgba(128, 0, 32, 0.08); color: #800020; border: 1px solid rgba(128, 0, 32, 0.25);">Pending</span>`;
             } else {
                 statusBadge = `<span class="status-badge status-verified">${isOCR ? "Verified (ID Card)" : "Active"}</span>`;
             }
@@ -169,7 +169,7 @@ function displayUsers() {
             tr.innerHTML = `
                 <td><img class="profile" src="${photo}" alt="Student" onerror="this.src='https://via.placeholder.com/50'"></td>
                 <td><strong>${fullName}</strong></td>
-                <td><span style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; padding: 3px 8px; border-radius: 12px; font-size: 11.5px; font-weight: 600;">${gender}</span></td>
+                <td><span style="background: rgba(128, 0, 32, 0.08); color: #800020; padding: 3px 8px; border-radius: 12px; font-size: 11.5px; font-weight: 600;">${gender}</span></td>
                 <td>${email}</td>
                 <td>${mobile}</td>
                 <td>${qualification}</td>

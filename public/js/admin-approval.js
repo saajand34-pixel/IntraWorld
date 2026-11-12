@@ -61,7 +61,7 @@ onAuthStateChanged(auth, (user) => {
 });
 
 async function loadAllRegistrations() {
-    if (cardGrid) cardGrid.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:#f59e0b;padding:40px;font-size:15px;">Loading registrations...</div>`;
+    if (cardGrid) cardGrid.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:#800020;padding:40px;font-size:15px;"><i class="fa-solid fa-spinner fa-spin"></i> Loading registrations...</div>`;
     pendingUsers = [];
 
     try {
@@ -144,10 +144,10 @@ function renderCards() {
             ? `<span style="background:rgba(16,185,129,0.15);color:#10b981;border:1px solid rgba(16,185,129,0.4);padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;">✅ Approved</span>`
             : isRejected
                 ? `<span style="background:rgba(239,68,68,0.15);color:#ef4444;border:1px solid rgba(239,68,68,0.4);padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;">❌ Rejected</span>`
-                : `<span style="background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.4);padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;">⏳ Pending</span>`;
+                : `<span style="background:rgba(128,0,32,0.08);color:#800020;border:1px solid rgba(128,0,32,0.25);padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;">⏳ Pending</span>`;
 
         const actionBtns = isApproved || isRejected ? `
-            <button onclick="undoDecision('${user._docId}','${user.email}')" style="width:100%;margin-top:8px;padding:9px;border-radius:9px;border:1px solid rgba(148,163,184,0.3);background:rgba(255,255,255,0.07);color:#cbd5e1;font-size:13px;font-weight:600;cursor:pointer;">
+            <button onclick="undoDecision('${user._docId}','${user.email}')" style="width:100%;margin-top:8px;padding:9px;border-radius:9px;border:1px solid #cbd5e1;background:#ffffff;color:#475569;font-size:13px;font-weight:600;cursor:pointer;">
                 ↩ Undo Decision
             </button>` : `
             <div style="display:flex;gap:8px;margin-top:10px;">
@@ -160,9 +160,9 @@ function renderCards() {
             </div>`;
 
         const avatarHtml = avatar
-            ? `<img src="${avatar}" alt="${name}" style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid rgba(245,158,11,0.4);" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
-               <div style="display:none;width:60px;height:60px;border-radius:50%;background:rgba(245,158,11,0.25);align-items:center;justify-content:center;font-size:24px;font-weight:700;color:#f59e0b;border:2px solid rgba(245,158,11,0.4);">${name.charAt(0)}</div>`
-            : `<div style="width:60px;height:60px;border-radius:50%;background:rgba(245,158,11,0.25);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:#f59e0b;border:2px solid rgba(245,158,11,0.4);">${name.charAt(0)}</div>`;
+            ? `<img src="${avatar}" alt="${name}" style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid #800020;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+               <div style="display:none;width:60px;height:60px;border-radius:50%;background:rgba(128,0,32,0.08);align-items:center;justify-content:center;font-size:24px;font-weight:700;color:#800020;border:2px solid rgba(128,0,32,0.2);">${name.charAt(0)}</div>`
+            : `<div style="width:60px;height:60px;border-radius:50%;background:rgba(128,0,32,0.08);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:#800020;border:2px solid rgba(128,0,32,0.2);">${name.charAt(0)}</div>`;
 
         const card = document.createElement("div");
         card.className = "approval-card";
@@ -171,27 +171,27 @@ function renderCards() {
             <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
                 <div style="flex-shrink:0;">${avatarHtml}</div>
                 <div style="flex:1;min-width:0;">
-                    <div style="font-size:15px;font-weight:700;color:#f1f5f9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${name}</div>
-                    <div style="font-size:11.5px;color:#94a3b8;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${email}</div>
+                    <div style="font-size:15px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${name}</div>
+                    <div style="font-size:11.5px;color:#64748b;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${email}</div>
                     <div style="margin-top:5px;">${statusBadge}</div>
                 </div>
             </div>
 
-            <div style="background:rgba(0,0,0,0.25);border-radius:10px;padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;font-size:12px;margin-bottom:12px;">
-                <div><span style="color:#64748b;">Gender</span><br><span style="color:#e2e8f0;font-weight:600;">${gender}</span></div>
-                <div><span style="color:#64748b;">Phone</span><br><span style="color:#e2e8f0;font-weight:600;">${phone || "N/A"}</span></div>
-                <div><span style="color:#64748b;">Course</span><br><span style="color:#e2e8f0;font-weight:600;">${course}</span></div>
-                <div><span style="color:#64748b;">Batch</span><br><span style="color:#e2e8f0;font-weight:600;">${batch || "N/A"}</span></div>
-                <div style="grid-column:1/-1;"><span style="color:#64748b;">College</span><br><span style="color:#e2e8f0;font-weight:600;">${college}</span></div>
-                <div><span style="color:#64748b;">Reg ID</span><br><span style="color:#e2e8f0;font-weight:600;">${regId || "N/A"}</span></div>
-                <div><span style="color:#64748b;">Registered</span><br><span style="color:#e2e8f0;font-weight:600;">${regDate}</span></div>
+            <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;font-size:12px;margin-bottom:12px;">
+                <div><span style="color:#64748b;">Gender</span><br><span style="color:#0f172a;font-weight:600;">${gender}</span></div>
+                <div><span style="color:#64748b;">Phone</span><br><span style="color:#0f172a;font-weight:600;">${phone || "N/A"}</span></div>
+                <div><span style="color:#64748b;">Course</span><br><span style="color:#0f172a;font-weight:600;">${course}</span></div>
+                <div><span style="color:#64748b;">Batch</span><br><span style="color:#0f172a;font-weight:600;">${batch || "N/A"}</span></div>
+                <div style="grid-column:1/-1;"><span style="color:#64748b;">College</span><br><span style="color:#0f172a;font-weight:600;">${college}</span></div>
+                <div><span style="color:#64748b;">Reg ID</span><br><span style="color:#0f172a;font-weight:600;">${regId || "N/A"}</span></div>
+                <div><span style="color:#64748b;">Registered</span><br><span style="color:#0f172a;font-weight:600;">${regDate}</span></div>
             </div>
 
             <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
                 <span style="font-size:11px;padding:3px 9px;border-radius:10px;font-weight:600;${ocrOk ? 'background:rgba(16,185,129,0.12);color:#10b981;border:1px solid rgba(16,185,129,0.3);' : 'background:rgba(239,68,68,0.1);color:#f87171;border:1px solid rgba(239,68,68,0.25);'}">
                     ${ocrOk ? "🪪 ID Card Scanned" : "📄 No ID Card"}
                 </span>
-                <span style="font-size:11px;padding:3px 9px;border-radius:10px;font-weight:600;background:rgba(245,158,11,0.1);color:#f59e0b;border:1px solid rgba(245,158,11,0.25);">
+                <span style="font-size:11px;padding:3px 9px;border-radius:10px;font-weight:600;background:rgba(128,0,32,0.08);color:#800020;border:1px solid rgba(128,0,32,0.2);">
                     Trust: ${score}%
                 </span>
             </div>

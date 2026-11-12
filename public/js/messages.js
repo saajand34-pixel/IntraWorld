@@ -277,7 +277,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // 1. Load Registered Students Across All Collections (Deduplicated)
     async function loadRegisteredStudents() {
         if (!userListEl) return;
-        userListEl.innerHTML = '<div style="padding: 20px; color: #f59e0b;"><i class="fa-solid fa-spinner fa-spin"></i> Loading registered peers...</div>';
+        userListEl.innerHTML = '<div style="padding: 20px; color: #800020;"><i class="fa-solid fa-spinner fa-spin"></i> Loading registered peers...</div>';
 
         try {
             const myEmail = (currentUser.email || "").toLowerCase().trim();
@@ -321,16 +321,16 @@ document.addEventListener("DOMContentLoaded", async () => {
                 
                 const item = document.createElement("div");
                 item.className = "user-item";
-                item.style.cssText = "display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid rgba(245, 158, 11, 0.12); cursor: pointer; transition: background 0.2s;";
+                item.style.cssText = "display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid #e2e8f0; cursor: pointer; transition: background 0.2s;";
                 item.innerHTML = `
-                    <div class="user-item-avatar" style="width: 42px; height: 42px; border-radius: 50%; overflow: hidden; background: linear-gradient(135deg, #c41226, #4d000a); display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; flex-shrink: 0; border: 1.5px solid rgba(245, 158, 11, 0.45); cursor: pointer;" title="Click DP to view posts & profile">
+                    <div class="user-item-avatar" style="width: 42px; height: 42px; border-radius: 50%; overflow: hidden; background: #800020; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; flex-shrink: 0; border: 1.5px solid #800020; cursor: pointer;" title="Click DP to view posts & profile">
                         ${safeAvatarUrl ? `<img src="${safeAvatarUrl}" style="width: 100%; height: 100%; object-fit: cover;" alt="${escapeHtml(name)}" onerror="this.onerror=null; this.parentElement.innerHTML='${escapeHtml(name.charAt(0).toUpperCase())}';" />` : escapeHtml(name.charAt(0).toUpperCase())}
                     </div>
                     <div style="flex: 1; min-width: 0;">
-                        <div style="font-size: 14px; font-weight: 600; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(name)}</div>
-                        <div style="font-size: 12px; color: #f59e0b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(college || peer.email)}</div>
+                        <div style="font-size: 14px; font-weight: 600; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(name)}</div>
+                        <div style="font-size: 12px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(college || peer.email)}</div>
                     </div>
-                    <button type="button" class="btn-peer-posts" title="View ${escapeHtml(name)}'s Posts" style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4); color: #f59e0b; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px; transition: all 0.2s; flex-shrink: 0;">
+                    <button type="button" class="btn-peer-posts" title="View ${escapeHtml(name)}'s Posts" style="background: rgba(128, 0, 32, 0.08); border: 1px solid rgba(128, 0, 32, 0.25); color: #800020; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px; transition: all 0.2s; flex-shrink: 0;">
                         <i class="fa-solid fa-newspaper"></i>
                     </button>
                 `;
@@ -349,7 +349,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                 item.addEventListener("click", () => {
                     document.querySelectorAll(".user-item").forEach(el => el.style.background = "transparent");
-                    item.style.background = "#220308";
+                    item.style.background = "rgba(128, 0, 32, 0.08)";
                     selectPeer(peer);
                 });
 
@@ -513,8 +513,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                         sharedPostHtml = `
                             <div class="shared-post-card" data-post-id="${sp.postId || ''}">
                                 <div class="shared-post-header">
-                                    <i class="fa-solid fa-share" style="color:#f59e0b; font-size:11px;"></i>
-                                    <span style="font-size:11px; color:#f59e0b; font-weight:600;">Shared Post</span>
+                                    <i class="fa-solid fa-share" style="color:#800020; font-size:11px;"></i>
+                                    <span style="font-size:11px; color:#800020; font-weight:600;">Shared Post</span>
                                     <span style="font-size:11px; color:#94a3b8; margin-left:4px;">by ${escapeHtml(sp.authorName || "Student")}</span>
                                 </div>
                                 ${spMedia ? `<img src="${spMedia}" class="shared-post-img" alt="Shared post image" title="Click to view full image" />` : ""}
@@ -546,8 +546,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                         sharedPostHtml = `
                             <div class="shared-post-card">
                                 <div class="shared-post-header">
-                                    <i class="fa-solid fa-share" style="color:#f59e0b; font-size:11px;"></i>
-                                    <span style="font-size:11px; color:#f59e0b; font-weight:600;">Shared Post</span>
+                                    <i class="fa-solid fa-share" style="color:#800020; font-size:11px;"></i>
+                                    <span style="font-size:11px; color:#800020; font-weight:600;">Shared Post</span>
                                     <span style="font-size:11px; color:#94a3b8; margin-left:4px;">by ${escapeHtml(extractedAuthor)}</span>
                                 </div>
                                 <div class="shared-post-caption">${escapeHtml(extractedSnippet)}</div>
@@ -951,7 +951,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         modal.style.display = "flex";
         if (container) {
-            container.innerHTML = `<div style="text-align:center; padding:30px; color:#f59e0b;"><i class="fa-solid fa-spinner fa-spin"></i> Loading ${escapeHtml(name)}'s posts...</div>`;
+            container.innerHTML = `<div style="text-align:center; padding:30px; color:#800020;"><i class="fa-solid fa-spinner fa-spin"></i> Loading ${escapeHtml(name)}'s posts...</div>`;
         }
 
         try {
@@ -1000,7 +1000,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 if (countComm) countComm.textContent = userPosts.filter(p => p.postType === "community" || p.audience === "community").length;
 
                 if (filtered.length === 0) {
-                    container.innerHTML = `<div style="text-align:center; padding:40px; color:#94a3b8; font-size:14px;"><i class="fa-regular fa-folder-open" style="font-size:26px; display:block; margin-bottom:8px; color:#f59e0b;"></i>No ${currentModalTab === "all" ? "" : currentModalTab} posts found by ${escapeHtml(name)}.</div>`;
+                    container.innerHTML = `<div style="text-align:center; padding:40px; color:#94a3b8; font-size:14px;"><i class="fa-regular fa-folder-open" style="font-size:26px; display:block; margin-bottom:8px; color:#800020;"></i>No ${currentModalTab === "all" ? "" : currentModalTab} posts found by ${escapeHtml(name)}.</div>`;
                     return;
                 }
 
@@ -1039,7 +1039,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                         ` : ""}
                         <div class="profile-post-footer">
                             <span><i class="fa-solid fa-heart" style="color:#ef4444;"></i> ${likesCount} ${likesCount === 1 ? 'Like' : 'Likes'}</span>
-                            <span><i class="fa-regular fa-comment" style="color:#f59e0b;"></i> ${commentsCount} ${commentsCount === 1 ? 'Comment' : 'Comments'}</span>
+                            <span><i class="fa-regular fa-comment" style="color:#800020;"></i> ${commentsCount} ${commentsCount === 1 ? 'Comment' : 'Comments'}</span>
                         </div>
                     `;
 

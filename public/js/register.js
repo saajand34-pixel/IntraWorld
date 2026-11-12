@@ -1531,12 +1531,12 @@ function compareOcrCollegeWithFormCollege(scannedCollege, cardRawText) {
   } else if (score >= 0.40) {
     ocrCollegeMatchStatus = 'partial';
     badgeHtml = `
-      <div id="ocrCollegeMatchBadge" style="margin-top: 10px; display: flex; align-items: flex-start; gap: 10px; background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.35); border-radius: 10px; padding: 10px 14px;">
+      <div id="ocrCollegeMatchBadge" style="margin-top: 10px; display: flex; align-items: flex-start; gap: 10px; background: rgba(128,0,32,0.06); border: 1px solid rgba(128,0,32,0.3); border-radius: 10px; padding: 10px 14px;">
         <span style="font-size: 18px; line-height: 1;">⚠️</span>
         <div>
-          <div style="font-size: 12px; font-weight: 700; color: #f59e0b;">Partial College Match — Review Recommended</div>
-          <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">Entered: <strong style="color:#e2e8f0;">${escapeHtml(enteredCollege)}</strong> &nbsp;↔&nbsp; ID Card: <strong style="color:#e2e8f0;">${escapeHtml(lastScannedCollegeName || 'Card Scanned')}</strong></div>
-          <div style="font-size: 11px; color: #f59e0b; margin-top: 4px;">Please ensure your entered College Name matches the institution printed on your ID card.</div>
+          <div style="font-size: 12px; font-weight: 700; color: #800020;">Partial College Match — Review Recommended</div>
+          <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Entered: <strong style="color:#0f172a;">${escapeHtml(enteredCollege)}</strong> &nbsp;↔&nbsp; ID Card: <strong style="color:#0f172a;">${escapeHtml(lastScannedCollegeName || 'Card Scanned')}</strong></div>
+          <div style="font-size: 11px; color: #800020; margin-top: 4px;">Please ensure your entered College Name matches the institution printed on your ID card.</div>
         </div>
       </div>`;
   } else {
@@ -1546,7 +1546,7 @@ function compareOcrCollegeWithFormCollege(scannedCollege, cardRawText) {
         <span style="font-size: 18px; line-height: 1;">🚨</span>
         <div>
           <div style="font-size: 12px; font-weight: 700; color: #ef4444;">Anti-Cheat Alert: College Name Mismatch Detected!</div>
-          <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">Entered College: <strong style="color:#fda4af;">${escapeHtml(enteredCollege)}</strong> &nbsp;≠&nbsp; ID Card Institution: <strong style="color:#fda4af;">${escapeHtml(lastScannedCollegeName || 'Different Institution')}</strong></div>
+          <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Entered College: <strong style="color:#b91c1c;">${escapeHtml(enteredCollege)}</strong> &nbsp;≠&nbsp; ID Card Institution: <strong style="color:#b91c1c;">${escapeHtml(lastScannedCollegeName || 'Different Institution')}</strong></div>
           <div style="font-size: 11px; color: #ef4444; margin-top: 4px; font-weight: 600;">The college you entered does not match your uploaded ID card. Please enter your genuine college or upload your own ID card.</div>
         </div>
       </div>`;
@@ -1607,18 +1607,18 @@ function compareOcrNameWithFormName(idCardName) {
         <span style="font-size: 18px; line-height: 1;">✅</span>
         <div>
           <div style="font-size: 12px; font-weight: 700; color: #10b981;">Name Verified — ID Card Matches Registration</div>
-          <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">ID Card: <strong style="color:#e2e8f0;">${escapeHtml(idCardName)}</strong> &nbsp;→&nbsp; Form: <strong style="color:#e2e8f0;">${escapeHtml(formName)}</strong></div>
+          <div style="font-size: 11px; color: #64748b; margin-top: 2px;">ID Card: <strong style="color:#0f172a;">${escapeHtml(idCardName)}</strong> &nbsp;→&nbsp; Form: <strong style="color:#0f172a;">${escapeHtml(formName)}</strong></div>
         </div>
       </div>`;
   } else if (score >= 0.35) {
     ocrNameMatchStatus = 'partial';
     badgeHtml = `
-      <div id="ocrNameMatchBadge" style="margin-top: 10px; display: flex; align-items: flex-start; gap: 10px; background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.35); border-radius: 10px; padding: 10px 14px;">
+      <div id="ocrNameMatchBadge" style="margin-top: 10px; display: flex; align-items: flex-start; gap: 10px; background: rgba(128,0,32,0.06); border: 1px solid rgba(128,0,32,0.3); border-radius: 10px; padding: 10px 14px;">
         <span style="font-size: 18px; line-height: 1;">⚠️</span>
         <div>
-          <div style="font-size: 12px; font-weight: 700; color: #f59e0b;">Partial Name Match — Please Verify ID Card</div>
-          <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">ID Card: <strong style="color:#e2e8f0;">${escapeHtml(idCardName)}</strong> &nbsp;→&nbsp; Form: <strong style="color:#e2e8f0;">${escapeHtml(formName)}</strong></div>
-          <div style="font-size: 11px; color: #f59e0b; margin-top: 4px;">Make sure your Full Name accurately reflects your College ID Card.</div>
+          <div style="font-size: 12px; font-weight: 700; color: #800020;">Partial Name Match — Please Verify ID Card</div>
+          <div style="font-size: 11px; color: #64748b; margin-top: 2px;">ID Card: <strong style="color:#0f172a;">${escapeHtml(idCardName)}</strong> &nbsp;→&nbsp; Form: <strong style="color:#0f172a;">${escapeHtml(formName)}</strong></div>
+          <div style="font-size: 11px; color: #800020; margin-top: 4px;">Make sure your Full Name accurately reflects your College ID Card.</div>
         </div>
       </div>`;
   } else {
@@ -1628,7 +1628,7 @@ function compareOcrNameWithFormName(idCardName) {
         <span style="font-size: 18px; line-height: 1;">❌</span>
         <div>
           <div style="font-size: 12px; font-weight: 700; color: #ef4444;">Name Mismatch — ID Card Name Does Not Match</div>
-          <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">ID Card: <strong style="color:#fda4af;">${escapeHtml(idCardName)}</strong> &nbsp;→&nbsp; Form: <strong style="color:#fda4af;">${escapeHtml(formName)}</strong></div>
+          <div style="font-size: 11px; color: #64748b; margin-top: 2px;">ID Card: <strong style="color:#b91c1c;">${escapeHtml(idCardName)}</strong> &nbsp;→&nbsp; Form: <strong style="color:#b91c1c;">${escapeHtml(formName)}</strong></div>
           <div style="font-size: 11px; color: #ef4444; margin-top: 4px;">Please correct your Full Name or upload the correct ID Card.</div>
         </div>
       </div>`;
@@ -1658,24 +1658,24 @@ function toggleOcrFieldEditing(forceState) {
     if (courseInput) {
       courseInput.readOnly = false;
       courseInput.style.cursor = 'text';
-      courseInput.style.background = '#180206';
-      courseInput.style.borderColor = 'rgba(245,158,11,0.6)';
-      courseInput.style.boxShadow = '0 0 0 1px rgba(245,158,11,0.3)';
+      courseInput.style.background = '#ffffff';
+      courseInput.style.borderColor = 'rgba(128,0,32,0.4)';
+      courseInput.style.boxShadow = '0 0 0 2px rgba(128,0,32,0.1)';
     }
     if (rollInput) {
       rollInput.readOnly = false;
       rollInput.style.cursor = 'text';
-      rollInput.style.background = '#180206';
-      rollInput.style.borderColor = 'rgba(245,158,11,0.6)';
-      rollInput.style.boxShadow = '0 0 0 1px rgba(245,158,11,0.3)';
+      rollInput.style.background = '#ffffff';
+      rollInput.style.borderColor = 'rgba(128,0,32,0.4)';
+      rollInput.style.boxShadow = '0 0 0 2px rgba(128,0,32,0.1)';
     }
     if (courseBadge) {
       courseBadge.innerText = '✏️ Unlocked';
-      courseBadge.style.color = '#f59e0b';
+      courseBadge.style.color = '#800020';
     }
     if (rollBadge) {
       rollBadge.innerText = '✏️ Unlocked';
-      rollBadge.style.color = '#f59e0b';
+      rollBadge.style.color = '#800020';
     }
     if (toggleBtn) {
       toggleBtn.innerHTML = '<span>🔒 Lock Fields</span>';
@@ -1684,7 +1684,7 @@ function toggleOcrFieldEditing(forceState) {
       toggleBtn.style.color = '#10b981';
     }
     if (lockNote) {
-      lockNote.innerHTML = '<span>✏️</span> <span style="color:#f59e0b; font-weight:600;">Manual editing active (card image text unclear)</span>';
+      lockNote.innerHTML = '<span>✏️</span> <span style="color:#800020; font-weight:600;">Manual editing active (card image text unclear)</span>';
     }
     if (unclearNotice) {
       unclearNotice.style.display = 'block';
@@ -1694,30 +1694,30 @@ function toggleOcrFieldEditing(forceState) {
     if (courseInput) {
       courseInput.readOnly = true;
       courseInput.style.cursor = 'not-allowed';
-      courseInput.style.background = '#130206';
-      courseInput.style.borderColor = 'rgba(16,185,129,0.3)';
+      courseInput.style.background = '#f8fafc';
+      courseInput.style.borderColor = '#cbd5e1';
       courseInput.style.boxShadow = 'none';
     }
     if (rollInput) {
       rollInput.readOnly = true;
       rollInput.style.cursor = 'not-allowed';
-      rollInput.style.background = '#130206';
-      rollInput.style.borderColor = 'rgba(16,185,129,0.3)';
+      rollInput.style.background = '#f8fafc';
+      rollInput.style.borderColor = '#cbd5e1';
       rollInput.style.boxShadow = 'none';
     }
     if (courseBadge) {
       courseBadge.innerText = '🔒 Locked';
-      courseBadge.style.color = '#34d399';
+      courseBadge.style.color = '#059669';
     }
     if (rollBadge) {
       rollBadge.innerText = '🔒 Locked';
-      rollBadge.style.color = '#34d399';
+      rollBadge.style.color = '#059669';
     }
     if (toggleBtn) {
       toggleBtn.innerHTML = '<span>✏️ Image text unclear? Enable editing</span>';
-      toggleBtn.style.background = 'rgba(245,158,11,0.12)';
-      toggleBtn.style.borderColor = 'rgba(245,158,11,0.4)';
-      toggleBtn.style.color = '#f59e0b';
+      toggleBtn.style.background = 'rgba(128,0,32,0.06)';
+      toggleBtn.style.borderColor = 'rgba(128,0,32,0.3)';
+      toggleBtn.style.color = '#800020';
     }
     if (lockNote) {
       lockNote.innerHTML = '<span>🔒</span> <span>Course &amp; Roll No are locked from verified ID card.</span>';
@@ -2395,7 +2395,7 @@ function renderSuccessScreen(fullName, gender, email, phone, trustScore) {
   // Show pending approval notice
   const formView = document.getElementById('formView');
   const pendingBanner = document.createElement('div');
-  pendingBanner.style.cssText = 'background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.4);border-radius:14px;padding:18px 22px;margin-top:18px;text-align:center;font-size:14px;color:#f59e0b;font-weight:600;';
+  pendingBanner.style.cssText = 'background:rgba(128,0,32,0.08);border:1px solid rgba(128,0,32,0.25);border-radius:14px;padding:18px 22px;margin-top:18px;text-align:center;font-size:14px;color:#800020;font-weight:600;';
   pendingBanner.innerHTML = '⏳ Your account is under admin review. You will be able to login once an admin approves your profile. This usually takes 24–48 hours.';
 
   if (typeof confetti === 'function') {
@@ -2443,24 +2443,24 @@ window.openLegalModal = function(type) {
   if (!modal || !title || !body) return;
 
   if (type === 'privacy') {
-    title.innerHTML = '<i class="fa-solid fa-shield-halved" style="color: #f59e0b; margin-right: 8px;"></i> IntraWorld Privacy Policy';
+    title.innerHTML = '<i class="fa-solid fa-shield-halved" style="color: #800020; margin-right: 8px;"></i> IntraWorld Privacy Policy';
     body.innerHTML = `
-      <h4 style="color: #fff; margin-bottom: 8px; font-size: 14px;">1. Student Data Protection</h4>
-      <p style="margin-bottom: 14px;">IntraWorld is committed to preserving student privacy. Your registered email address, mobile number, and authentication credentials are encrypted and never shared with third-party advertising networks.</p>
-      <h4 style="color: #fff; margin-bottom: 8px; font-size: 14px;">2. Academic Record Security</h4>
-      <p style="margin-bottom: 14px;">Academic data such as your college name, course qualifications, and official fee vouchers are utilized exclusively to verify genuine student membership and campus community posting access.</p>
-      <h4 style="color: #fff; margin-bottom: 8px; font-size: 14px;">3. Zero Spam & Secure Communication</h4>
-      <p style="margin-bottom: 14px;">Direct messages and campus feed interactions are restricted to authenticated students within the IntraWorld ecosystem. All OTPs are transmitted over secure SMTP and encrypted SMS channels.</p>
+      <h4 style="color: #0f172a; margin-bottom: 8px; font-size: 14px;">1. Student Data Protection</h4>
+      <p style="margin-bottom: 14px; color: #475569;">IntraWorld is committed to preserving student privacy. Your registered email address, mobile number, and authentication credentials are encrypted and never shared with third-party advertising networks.</p>
+      <h4 style="color: #0f172a; margin-bottom: 8px; font-size: 14px;">2. Academic Record Security</h4>
+      <p style="margin-bottom: 14px; color: #475569;">Academic data such as your college name, course qualifications, and official fee vouchers are utilized exclusively to verify genuine student membership and campus community posting access.</p>
+      <h4 style="color: #0f172a; margin-bottom: 8px; font-size: 14px;">3. Zero Spam & Secure Communication</h4>
+      <p style="margin-bottom: 14px; color: #475569;">Direct messages and campus feed interactions are restricted to authenticated students within the IntraWorld ecosystem. All OTPs are transmitted over secure SMTP and encrypted SMS channels.</p>
     `;
   } else {
-    title.innerHTML = '<i class="fa-solid fa-file-contract" style="color: #f59e0b; margin-right: 8px;"></i> Terms and Conditions';
+    title.innerHTML = '<i class="fa-solid fa-file-contract" style="color: #800020; margin-right: 8px;"></i> Terms and Conditions';
     body.innerHTML = `
-      <h4 style="color: #fff; margin-bottom: 8px; font-size: 14px;">1. Genuine Student Community</h4>
-      <p style="margin-bottom: 14px;">By creating an account on IntraWorld, you certify that you are a genuine university or college student. Automated accounts, bots, and impersonation are strictly prohibited and subject to immediate deactivation.</p>
-      <h4 style="color: #fff; margin-bottom: 8px; font-size: 14px;">2. Academic Respect & Conduct</h4>
-      <p style="margin-bottom: 14px;">All discussions in college community feeds and direct messages must uphold mutual respect, ethical conduct, and constructive academic collaboration.</p>
-      <h4 style="color: #fff; margin-bottom: 8px; font-size: 14px;">3. Profile Credential Verification</h4>
-      <p style="margin-bottom: 14px;">College names, degree enrollments, and academic certificates can be updated and verified directly in your profile settings via official institutional fee receipts.</p>
+      <h4 style="color: #0f172a; margin-bottom: 8px; font-size: 14px;">1. Genuine Student Community</h4>
+      <p style="margin-bottom: 14px; color: #475569;">By creating an account on IntraWorld, you certify that you are a genuine university or college student. Automated accounts, bots, and impersonation are strictly prohibited and subject to immediate deactivation.</p>
+      <h4 style="color: #0f172a; margin-bottom: 8px; font-size: 14px;">2. Academic Respect & Conduct</h4>
+      <p style="margin-bottom: 14px; color: #475569;">All discussions in college community feeds and direct messages must uphold mutual respect, ethical conduct, and constructive academic collaboration.</p>
+      <h4 style="color: #0f172a; margin-bottom: 8px; font-size: 14px;">3. Profile Credential Verification</h4>
+      <p style="margin-bottom: 14px; color: #475569;">College names, degree enrollments, and academic certificates can be updated and verified directly in your profile settings via official institutional fee receipts.</p>
     `;
   }
   modal.style.display = 'flex';

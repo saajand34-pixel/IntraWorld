@@ -567,7 +567,7 @@ async function openUserProfileModal(user) {
 
     modal.style.display = "flex";
     if (container) {
-        container.innerHTML = `<div style="text-align:center; padding:30px; color:#f59e0b;"><i class="fa-solid fa-spinner fa-spin"></i> Loading ${escapeHtml(name)}'s posts...</div>`;
+        container.innerHTML = `<div style="text-align:center; padding:30px; color:#800020;"><i class="fa-solid fa-spinner fa-spin"></i> Loading ${escapeHtml(name)}'s posts...</div>`;
     }
 
     try {
@@ -616,7 +616,7 @@ async function openUserProfileModal(user) {
             if (countComm) countComm.textContent = userPosts.filter(p => p.postType === "community" || p.audience === "community").length;
 
             if (filtered.length === 0) {
-                container.innerHTML = `<div style="text-align:center; padding:40px; color:#94a3b8; font-size:14px;"><i class="fa-regular fa-folder-open" style="font-size:26px; display:block; margin-bottom:8px; color:#f59e0b;"></i>No ${currentModalTab === "all" ? "" : currentModalTab} posts found by ${escapeHtml(name)}.</div>`;
+                container.innerHTML = `<div style="text-align:center; padding:40px; color:#64748b; font-size:14px;"><i class="fa-regular fa-folder-open" style="font-size:26px; display:block; margin-bottom:8px; color:#800020;"></i>No ${currentModalTab === "all" ? "" : currentModalTab} posts found by ${escapeHtml(name)}.</div>`;
                 return;
             }
 
@@ -655,7 +655,7 @@ async function openUserProfileModal(user) {
                     ` : ""}
                     <div class="profile-post-footer">
                         <span><i class="fa-solid fa-heart" style="color:#ef4444;"></i> ${likesCount} ${likesCount === 1 ? 'Like' : 'Likes'}</span>
-                        <span><i class="fa-regular fa-comment" style="color:#f59e0b;"></i> ${commentsCount} ${commentsCount === 1 ? 'Comment' : 'Comments'}</span>
+                        <span><i class="fa-regular fa-comment" style="color:#800020;"></i> ${commentsCount} ${commentsCount === 1 ? 'Comment' : 'Comments'}</span>
                     </div>
                 `;
 

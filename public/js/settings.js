@@ -688,7 +688,7 @@ function setupPersonalCredentialsEditor() {
         [nameEl, genderEl, regIdEl, qualEl, passoutEl, collegeEl].forEach(el => {
             if (el) {
                 el.disabled = !isEditing;
-                el.style.borderColor = isEditing ? "#f59e0b" : "rgba(245, 158, 11, 0.2)";
+                el.style.borderColor = isEditing ? "#800020" : "#cbd5e1";
                 if (isEditing) {
                     el.removeAttribute("readonly");
                 }
