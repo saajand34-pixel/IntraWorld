@@ -53,9 +53,8 @@
 
         body {
             min-height: 100vh;
-            background-color: #36050e;
-            background: #36050e;
-            color: #ffffff;
+            background: #f8fafc;
+            color: #0f172a;
         }
 
         header {
@@ -63,31 +62,30 @@
             justify-content: space-between;
             align-items: center;
             padding: 20px 40px;
-            background: rgba(26, 6, 13, 0.96);
-            border-bottom: 1px solid rgba(245, 158, 11, 0.35);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            background: #ffffff;
+            border-bottom: 2px solid #800020;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         }
 
         header h1 {
-            font-size: 28px;
-            background: linear-gradient(135deg, #ffffff 40%, #f59e0b 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-size: 24px;
+            color: #800020;
+            font-weight: 700;
         }
 
         header button {
-            padding: 12px 24px;
-            background: #ff4444;
+            padding: 10px 22px;
+            background: #dc2626;
             color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
             transition: background 0.2s;
         }
 
         header button:hover {
-            background: #d91f1f;
+            background: #b91c1c;
         }
 
         .container {
@@ -102,31 +100,37 @@
         }
 
         .card {
-            background: #220308;
-            border: 1px solid rgba(245, 158, 11, 0.3);
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-top: 3px solid #800020;
             padding: 25px;
-            border-radius: 18px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
         }
 
         .card h2 {
-            font-size: 18px;
-            margin-bottom: 10px;
-            color: #f59e0b;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            color: #800020;
+            font-weight: 600;
         }
 
         .card span {
-            font-size: 38px;
+            font-size: 36px;
             font-weight: 700;
+            color: #0f172a;
         }
 
         .section-title {
             margin: 30px 0 15px 0;
             font-size: 20px;
-            color: #f59e0b;
+            color: #800020;
             display: flex;
             align-items: center;
             gap: 10px;
+            font-weight: 700;
         }
 
         .search {
@@ -135,57 +139,64 @@
 
         .search input {
             width: 100%;
-            padding: 15px;
-            border-radius: 12px;
-            border: 1px solid rgba(245, 158, 11, 0.25);
-            font-size: 16px;
-            background: #36050e;
-            color: white;
+            padding: 14px 18px;
+            border-radius: 10px;
+            border: 1.5px solid #cbd5e1;
+            font-size: 14px;
+            background: #ffffff;
+            color: #0f172a;
             outline: none;
             transition: border-color 0.2s;
         }
         .search input:focus {
-            border-color: #f59e0b;
+            border-color: #800020;
+            box-shadow: 0 0 0 3px rgba(128, 0, 32, 0.1);
         }
 
         .table-responsive {
             width: 100%;
             overflow-x: auto;
-            border-radius: 16px;
+            border-radius: 14px;
             margin-bottom: 30px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            background: #220308;
-            border: 1px solid rgba(245, 158, 11, 0.3);
+            background: #ffffff;
             white-space: nowrap;
         }
 
         thead {
-            background: linear-gradient(135deg, #c41226, #4d000a);
-            border-bottom: 2px solid #f59e0b;
+            background: #800020;
+            color: #ffffff;
         }
 
         th {
-            padding: 16px;
-            font-size: 14px;
+            padding: 14px 16px;
+            font-size: 13px;
             text-align: center;
+            font-weight: 600;
+            color: #ffffff;
         }
 
         td {
-            padding: 14px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 14px 16px;
+            border-bottom: 1px solid #e2e8f0;
             text-align: center;
             font-size: 13px;
+            color: #334155;
         }
 
         img.profile {
-            width: 50px;
-            height: 50px;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
             object-fit: cover;
+            border: 1.5px solid #800020;
         }
 
         .status-badge {
@@ -196,29 +207,31 @@
             font-weight: 600;
         }
 
-        .status-verified { background: #16a34a; color: #fff; }
+        .status-verified { background: rgba(5, 150, 105, 0.1); color: #059669; border: 1px solid rgba(5, 150, 105, 0.3); }
 
         .delete {
-            background: #ff3b3b;
-            border: none;
-            padding: 8px 14px;
-            border-radius: 8px;
-            color: white;
+            background: rgba(220, 38, 38, 0.1);
+            border: 1px solid rgba(220, 38, 38, 0.3);
+            padding: 6px 12px;
+            border-radius: 6px;
+            color: #dc2626;
             cursor: pointer;
-            font-weight: 500;
+            font-weight: 600;
+            transition: all 0.2s;
         }
 
         .delete:hover {
-            background: #d91f1f;
+            background: #dc2626;
+            color: white;
         }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>IntraWorld Admin Dashboard — Database View</h1>
+        <h1>IntraWorld Admin Dashboard</h1>
         <div style="display:flex;gap:10px;align-items:center;">
-            <a href="admin-approval.html" style="padding:9px 18px;border-radius:8px;background:rgba(245,158,11,0.18);border:1px solid rgba(245,158,11,0.45);color:#f59e0b;font-size:13px;font-weight:700;text-decoration:none;">
+            <a href="admin-approval.html" style="padding:9px 18px;border-radius:8px;background:rgba(128, 0, 32, 0.08);border:1px solid rgba(128, 0, 32, 0.25);color:#800020;font-size:13px;font-weight:600;text-decoration:none;">
                 <i class="fa-solid fa-user-shield"></i> Approval Queue
             </a>
             <button id="logoutBtn" onclick="if(window.secureLogout)window.secureLogout(event);else{localStorage.clear();sessionStorage.clear();window.location.replace('index.html');}">Logout</button>
@@ -270,11 +283,6 @@
             </table>
         </div>
     </div>
-
-    
-    <script>
-        
-    </script>
 
     <script type="module" src="js/firebase-config.js"></script>
     <script type="module" src="js/auth-check.js"></script>

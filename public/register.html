@@ -25,32 +25,31 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
-  <!-- INTERNAL CSS (IntraWorld Theme) -->
+  <!-- INTERNAL CSS (IntraWorld Theme - Light & Professional Maroon/White) -->
   <style>
     :root {
-      --bg-color: #36050e;
-      --card-bg: #220308;
-      --card-border: rgba(245, 158, 11, 0.35);
-      --input-bg: #180206;
-      --input-border: rgba(245, 158, 11, 0.25);
-      --input-focus: #f59e0b;
-      --cyan-accent: #f59e0b;
-      --cyan-glow: rgba(245, 158, 11, 0.3);
-      --text-main: #f8fafc;
-      --text-muted: #d6d3d1;
-      --text-label: #f5f5f4;
+      --bg-color: #f8fafc;
+      --card-bg: #ffffff;
+      --card-border: #e2e8f0;
+      --input-bg: #ffffff;
+      --input-border: #cbd5e1;
+      --input-focus: #800020;
+      --cyan-accent: #800020;
+      --cyan-glow: rgba(128, 0, 32, 0.12);
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --text-label: #334155;
       --success: #10b981;
       --danger: #ef4444;
-      --warning: #f59e0b;
+      --warning: #800020;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      background-color: var(--bg-color);
-      background: #36050e;
-            color: var(--text-main);
+      background: #f8fafc;
+      color: var(--text-main);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
@@ -61,13 +60,7 @@
     }
 
     .ambient-glow {
-      position: fixed;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      width: 650px; height: 650px;
-      background: #36050e;
-            pointer-events: none;
-      z-index: 0;
+      display: none;
     }
 
     .top-bar {
@@ -85,13 +78,13 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 5px 14px;
+      padding: 6px 16px;
       border-radius: 9999px;
-      background: rgba(45, 4, 10, 0.9);
-      border: 1px solid rgba(255, 215, 0, 0.45);
-      font-size: 11px;
+      background: rgba(128, 0, 32, 0.08);
+      border: 1px solid rgba(128, 0, 32, 0.2);
+      font-size: 12px;
       font-weight: 700;
-      color: #f59e0b;
+      color: #800020;
       box-shadow: none;
     }
 
@@ -99,12 +92,13 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 5px 14px;
+      padding: 6px 16px;
       border-radius: 9999px;
-      background: rgba(45, 4, 10, 0.9);
+      background: #ffffff;
       border: 1px solid var(--card-border);
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 600;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
     }
 
     .meter-circle-wrap {
@@ -112,9 +106,9 @@
       display: flex; align-items: center; justify-content: center;
     }
     .meter-circle-wrap svg { width: 100%; height: 100%; transform: rotate(-90deg); }
-    .meter-circle-wrap circle.bg { fill: none; stroke: #1e293b; stroke-width: 4; }
+    .meter-circle-wrap circle.bg { fill: none; stroke: #e2e8f0; stroke-width: 4; }
     .meter-circle-wrap circle.bar {
-      fill: none; stroke: var(--cyan-accent); stroke-width: 4;
+      fill: none; stroke: #800020; stroke-width: 4;
       stroke-linecap: round; stroke-dasharray: 0, 100;
       transition: stroke-dasharray 0.5s ease, stroke 0.5s ease;
     }
@@ -122,19 +116,18 @@
     .intra-card {
       width: 100%;
       max-width: 680px;
-      background: var(--card-bg);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid var(--card-border);
-      border-radius: 28px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-top: 4px solid #800020;
+      border-radius: 20px;
       padding: 44px 40px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(14, 165, 233, 0.08);
+      box-shadow: 0 10px 30px rgba(128, 0, 32, 0.08);
       position: relative;
       z-index: 1;
     }
 
     @media (max-width: 640px) {
-      .intra-card { padding: 30px 20px; border-radius: 22px; }
+      .intra-card { padding: 30px 20px; border-radius: 16px; }
     }
 
     .card-header { text-align: center; margin-bottom: 32px; }
@@ -147,31 +140,29 @@
 
     .logo-img {
       width: 100%; height: auto; object-fit: contain;
-      border-radius: 0; filter: drop-shadow(0 4px 15px rgba(0, 0, 0, 0.45));
+      border-radius: 0; filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.1));
     }
 
     .medallion-fallback {
       width: 82px; height: 82px; border-radius: 50%;
-      background: #36050e;
-            border: 3px solid #cbd5e1; display: flex; flex-direction: column;
+      background: #f8fafc;
+      border: 3px solid #cbd5e1; display: flex; flex-direction: column;
       align-items: center; justify-content: center;
-      box-shadow: 0 0 25px rgba(56, 189, 248, 0.25);
-      color: #0f172a;
+      color: #800020;
     }
 
     .welcome-title {
-      font-size: 32px; font-weight: 800; letter-spacing: -0.02em;
-      background: linear-gradient(180deg, #ffffff 15%, #fde047 60%, #f59e0b 100%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      font-size: 28px; font-weight: 800; letter-spacing: -0.02em;
+      color: #800020;
       margin-bottom: 6px;
     }
 
-    .welcome-sub { font-size: 13.5px; color: var(--text-muted); }
+    .welcome-sub { font-size: 14px; color: var(--text-muted); }
 
     .form-section-title {
       font-size: 12px; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 0.08em; color: var(--cyan-accent);
-      border-bottom: 1px solid rgba(30, 58, 110, 0.5);
+      letter-spacing: 0.08em; color: #800020;
+      border-bottom: 2px solid rgba(128, 0, 32, 0.12);
       padding-bottom: 8px; margin-top: 24px; margin-bottom: 16px;
       display: flex; align-items: center; justify-content: space-between;
     }
@@ -180,19 +171,19 @@
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
     @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
 
-    label { font-size: 13px; font-weight: 500; color: var(--text-label); }
-    label .req { color: #f43f5e; }
-    label .helper { font-size: 11px; color: #64748b; margin-left: 4px; }
+    label { font-size: 13px; font-weight: 600; color: var(--text-label); }
+    label .req { color: #800020; }
+    label .helper { font-size: 11px; color: #64748b; margin-left: 4px; font-weight: 400; }
 
     .input-wrapper { position: relative; display: flex; align-items: center; }
-    .input-icon { position: absolute; left: 14px; color: var(--cyan-accent); font-size: 16px; pointer-events: none; }
+    .input-icon { position: absolute; left: 14px; color: #800020; font-size: 16px; pointer-events: none; }
 
     input[type="text"], input[type="email"], input[type="password"], input[type="tel"], select {
       width: 100%;
-      background: var(--input-bg);
-      border: 1px solid var(--input-border);
-      border-radius: 14px;
-      padding: 13px 16px 13px 44px;
+      background: #ffffff;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 12px 16px 12px 44px;
       font-size: 13.5px;
       color: var(--text-main);
       font-family: inherit;
@@ -203,7 +194,7 @@
 
     select {
       cursor: pointer;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2338bdf8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23800020'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
       background-repeat: no-repeat;
       background-position: right 14px center;
       background-size: 18px;
@@ -212,34 +203,34 @@
     }
 
     select optgroup {
-      background: #091226;
-      color: var(--cyan-accent);
+      background: #ffffff;
+      color: #800020;
       font-weight: 700;
     }
 
     select option {
-      background: #0c1630;
-      color: #f8fafc;
+      background: #ffffff;
+      color: #0f172a;
       padding: 8px;
     }
 
     .no-icon input, select, input.no-icon, .input-wrapper.no-icon input { padding-left: 16px; }
-    input::placeholder { color: #475569; }
-    input:focus, select:focus { border-color: var(--input-focus); box-shadow: 0 0 0 3px var(--cyan-glow); }
-    input:disabled { opacity: 0.6; border-color: rgba(16, 185, 129, 0.4); color: #34d399; cursor: not-allowed; }
+    input::placeholder { color: #94a3b8; }
+    input:focus, select:focus { border-color: #800020; box-shadow: 0 0 0 3px rgba(128, 0, 32, 0.1); }
+    input:disabled { opacity: 0.6; border-color: #cbd5e1; color: #64748b; cursor: not-allowed; }
 
     .country-code-box {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       align-self: stretch;
-      background: var(--input-bg);
-      border: 1px solid var(--input-border);
-      border-radius: 14px;
+      background: #f8fafc;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 10px;
       padding: 0 14px;
       font-size: 13.5px;
       font-weight: 700;
-      color: var(--cyan-accent);
+      color: #800020;
       white-space: nowrap;
       user-select: none;
       box-sizing: border-box;
@@ -248,51 +239,53 @@
     }
 
     .toggle-pwd-btn { position: absolute; right: 14px; background: none; border: none; color: #64748b; cursor: pointer; font-size: 16px; }
-    .toggle-pwd-btn:hover { color: var(--cyan-accent); }
+    .toggle-pwd-btn:hover { color: #800020; }
 
     .btn {
       display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-      padding: 12px 20px; border-radius: 14px; font-size: 12.5px; font-weight: 600;
+      padding: 12px 20px; border-radius: 10px; font-size: 13px; font-weight: 600;
       border: none; cursor: pointer; transition: all 0.2s; font-family: inherit; white-space: nowrap;
       box-sizing: border-box; align-self: stretch;
     }
 
     .btn-cyan {
-      background: linear-gradient(135deg, #ffd700 0%, #f59e0b 50%, #d97706 100%);
-      color: #180206; font-weight: 700; box-shadow: none;
+      background: #800020;
+      color: #ffffff; font-weight: 600; box-shadow: 0 4px 12px rgba(128, 0, 32, 0.2);
     }
-    .btn-cyan:hover:not(:disabled) { background: linear-gradient(135deg, #fef08a 0%, #ffd700 50%, #f59e0b 100%); transform: translateY(-1px); }
+    .btn-cyan:hover:not(:disabled) { background: #630517; transform: translateY(-1px); }
     .btn-cyan:disabled { opacity: 0.5; cursor: not-allowed; }
     .btn-success { background: #059669; color: #fff; }
-    .btn-secondary { background: #220308; color: #d6d3d1; border: 1px solid var(--input-border); }
-    .btn-secondary:hover { background: #2d0a17; border-color: rgba(255, 215, 0, 0.5); color: #fff; }
+    .btn-secondary { background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; }
+    .btn-secondary:hover { background: #e2e8f0; border-color: #800020; color: #800020; }
 
     .btn-submit {
-      width: 100%; padding: 15px; font-size: 14.5px; font-weight: 700;
-      background: linear-gradient(135deg, #f59e0b 0%, #f59e0b 50%, #d97706 100%);
-      color: #180206; border-radius: 14px; box-shadow: none;
+      width: 100%; padding: 15px; font-size: 15px; font-weight: 600;
+      background: #800020;
+      color: #ffffff; border-radius: 10px; box-shadow: 0 4px 12px rgba(128, 0, 32, 0.2);
       margin-top: 14px;
+      cursor: pointer;
+      border: none;
     }
-    .btn-submit:hover { transform: translateY(-2px); box-shadow: none; }
+    .btn-submit:hover { background: #630517; transform: translateY(-1px); box-shadow: 0 6px 16px rgba(128, 0, 32, 0.3); }
 
     .otp-card {
       margin-top: 8px; padding: 12px 14px;
-      background: rgba(14, 165, 233, 0.08); border: 1px solid rgba(56, 189, 248, 0.3);
-      border-radius: 12px; display: flex; flex-direction: column; gap: 8px;
+      background: rgba(128, 0, 32, 0.05); border: 1px solid rgba(128, 0, 32, 0.2);
+      border-radius: 10px; display: flex; flex-direction: column; gap: 8px;
     }
     .otp-row { display: flex; gap: 8px; }
     .otp-input { width: 140px !important; text-align: center; font-family: 'JetBrains Mono', monospace !important; font-weight: 700; letter-spacing: 0.2em; }
 
     .status-msg { font-size: 11px; margin-top: 4px; }
-    .status-msg.success { color: #34d399; font-weight: 600; }
-    .status-msg.info { color: #38bdf8; }
-    .status-msg.error { color: #fb7185; }
+    .status-msg.success { color: #059669; font-weight: 600; }
+    .status-msg.info { color: #800020; }
+    .status-msg.error { color: #dc2626; }
 
-    /* DOCUMENT UPLOAD (NATIVE LABEL CLICKABLE) */
+    /* DOCUMENT UPLOAD */
     .ocr-registry-box {
-      background: rgba(35, 3, 8, 0.9);
-      border: 1px solid rgba(245, 158, 11, 0.35);
-      border-radius: 18px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
       padding: 22px;
       margin-top: 8px;
       display: flex;
@@ -302,92 +295,82 @@
 
     .upload-box-dash {
       display: block;
-      border: 2px dashed rgba(255, 215, 0, 0.45);
-      border-radius: 14px;
+      border: 2px dashed rgba(128, 0, 32, 0.3);
+      border-radius: 12px;
       padding: 22px;
       text-align: center;
-      background: rgba(20, 4, 10, 0.7);
+      background: #ffffff;
       cursor: pointer;
       transition: all 0.2s ease;
       user-select: none;
     }
     .upload-box-dash:hover {
-      border-color: var(--cyan-accent);
-      background: rgba(245, 158, 11, 0.12);
+      border-color: #800020;
+      background: rgba(128, 0, 32, 0.04);
       box-shadow: none;
     }
 
-    .cert-badge-hud {
-      background: linear-gradient(135deg, rgba(7, 16, 38, 0.95), rgba(12, 28, 66, 0.85));
-      border: 1px solid rgba(16, 185, 129, 0.45);
-      border-radius: 14px;
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      box-shadow: 0 0 25px rgba(16, 185, 129, 0.15);
-    }
-
     .cloud-flare-box {
-      background: var(--input-bg); border: 1px solid var(--input-border);
-      border-radius: 14px; padding: 14px 16px; display: flex; align-items: center;
+      background: #ffffff; border: 1.5px solid #cbd5e1;
+      border-radius: 12px; padding: 14px 16px; display: flex; align-items: center;
       justify-content: space-between; cursor: pointer; transition: all 0.2s;
     }
-    .cloud-flare-box:hover { border-color: rgba(56, 189, 248, 0.4); }
+    .cloud-flare-box:hover { border-color: #800020; }
     .cf-left { display: flex; align-items: center; gap: 12px; }
     .cf-check {
-      width: 24px; height: 24px; border-radius: 6px; border: 2px solid #334155;
-      background: #071026; display: flex; align-items: center; justify-content: center;
+      width: 24px; height: 24px; border-radius: 6px; border: 2px solid #cbd5e1;
+      background: #f8fafc; display: flex; align-items: center; justify-content: center;
       font-size: 13px; font-weight: bold;
     }
-    .cf-check.active { background: #10b981; border-color: #10b981; color: #fff; }
+    .cf-check.active { background: #059669; border-color: #059669; color: #fff; }
 
     /* Success Card */
     .success-panel { text-align: center; display: flex; flex-direction: column; gap: 20px; }
     .holo-card {
-      background: linear-gradient(135deg, rgba(45, 4, 10, 0.96), rgba(28, 6, 13, 0.8));
-      border: 1px solid rgba(245, 158, 11, 0.38); border-radius: 20px; padding: 24px; text-align: left;
+      background: #ffffff;
+      border: 1px solid #e2e8f0; border-top: 4px solid #800020; border-radius: 16px; padding: 24px; text-align: left;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
     }
     .holo-top { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
     .holo-avatar {
-      width: 58px; height: 58px; border-radius: 14px;
-      background: linear-gradient(135deg, #f59e0b, #c41226);
+      width: 58px; height: 58px; border-radius: 12px;
+      background: #800020;
       display: flex; align-items: center; justify-content: center;
-      font-size: 24px; font-weight: 800; color: #fff; border: 2px solid rgba(255, 215, 0, 0.45);
+      font-size: 24px; font-weight: 800; color: #fff;
     }
-    .holo-info h3 { font-size: 18px; font-weight: 800; color: #fff; }
-    .holo-info .college { font-size: 13px; color: var(--cyan-accent); font-weight: 600; }
+    .holo-info h3 { font-size: 18px; font-weight: 800; color: #0f172a; }
+    .holo-info .college { font-size: 13px; color: #800020; font-weight: 600; }
     .holo-info .degree { font-size: 11px; color: var(--text-muted); }
     .holo-stats-grid {
       display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
-      padding-top: 14px; border-top: 1px solid rgba(30, 58, 110, 0.5); font-size: 11px;
+      padding-top: 14px; border-top: 1px solid #e2e8f0; font-size: 11px;
     }
     .stat-label { color: var(--text-muted); display: block; font-size: 10px; }
-    .stat-val { font-weight: 600; color: #34d399; }
-    .chip-container { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(30, 58, 110, 0.5); }
-    .skill-chip { padding: 3px 8px; border-radius: 6px; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.25); color: #bae6fd; font-size: 11px; }
+    .stat-val { font-weight: 600; color: #059669; }
+    .chip-container { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; padding-top: 12px; border-top: 1px solid #e2e8f0; }
+    .skill-chip { padding: 3px 8px; border-radius: 6px; background: rgba(128, 0, 32, 0.08); border: 1px solid rgba(128, 0, 32, 0.2); color: #800020; font-size: 11px; font-weight: 500; }
 
     .signin-footer {
       text-align: center;
       margin-top: 22px;
-      font-size: 13.5px;
-      color: #94a3b8;
+      font-size: 14px;
+      color: #64748b;
     }
     .signin-footer a {
-      color: #f59e0b;
+      color: #800020;
       font-weight: 600;
       text-decoration: none;
     }
     .signin-footer a:hover {
       text-decoration: underline;
-      color: #7dd3fc;
+      color: #630517;
     }
 
     .hidden { display: none !important; }
     .alert-banner {
-      padding: 12px 16px; border-radius: 12px; font-size: 12px; margin-bottom: 20px;
+      padding: 12px 16px; border-radius: 10px; font-size: 13px; margin-bottom: 20px;
       display: flex; align-items: center; gap: 8px;
-      background: rgba(244, 63, 94, 0.12); border: 1px solid rgba(244, 63, 94, 0.3); color: #fda4af;
+      background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #dc2626;
     }
 
     @keyframes spin {
@@ -411,7 +394,7 @@
           <circle id="trustMeterCircle" class="bar" cx="18" cy="18" r="15.9155" />
         </svg>
       </div>
-      <span id="trustMeterText" style="color: #94a3b8;">Authenticity: 0%</span>
+      <span id="trustMeterText" style="color: #64748b;">Authenticity: 0%</span>
     </div>
   </div>
 
@@ -420,11 +403,11 @@
 
     <!-- SUCCESS VERIFIED DASHBOARD -->
     <div id="successView" class="success-panel hidden">
-      <div style="font-size: 40px;"><i class="fa-solid fa-circle-check" style="color: #34d399;"></i></div>
+      <div style="font-size: 40px;"><i class="fa-solid fa-circle-check" style="color: #059669;"></i></div>
       <div>
-        <h2 style="font-size: 24px; font-weight: 800; color: #fff;">Student Account Created!</h2>
-        <p style="font-size: 13px; color: #94a3b8; margin-top: 4px;">
-          Your student account has been registered with <strong id="successScoreText" style="color: #34d399;">100% Trust Rating</strong>.
+        <h2 style="font-size: 24px; font-weight: 800; color: #0f172a;">Student Account Created!</h2>
+        <p style="font-size: 13px; color: #64748b; margin-top: 4px;">
+          Your student account has been registered with <strong id="successScoreText" style="color: #059669;">100% Trust Rating</strong>.
         </p>
       </div>
 
@@ -434,7 +417,7 @@
           <div class="holo-avatar" id="holoAvatar">S</div>
           <div class="holo-info">
             <h3 id="holoName">Student Name ✓</h3>
-            <div class="college" id="holoGender" style="color: #f59e0b; font-weight: 600;">Gender: Male</div>
+            <div class="college" id="holoGender" style="color: #800020; font-weight: 600;">Gender: Male</div>
             <div class="degree" id="holoEmail">student@gmail.com</div>
           </div>
         </div>
@@ -442,27 +425,27 @@
         <div class="holo-stats-grid">
           <div>
             <span class="stat-label">Mobile:</span>
-            <span class="stat-val" id="holoPhone" style="color: #38bdf8; font-family: 'JetBrains Mono', monospace;">XXXXXXXXXX</span>
+            <span class="stat-val" id="holoPhone" style="color: #800020; font-family: 'JetBrains Mono', monospace;">XXXXXXXXXX</span>
           </div>
           <div>
             <span class="stat-label">Account Status:</span>
-            <span class="stat-val" style="color: #34d399;">ACTIVE_STUDENT</span>
+            <span class="stat-val" style="color: #059669;">ACTIVE_STUDENT</span>
           </div>
           <div>
             <span class="stat-label">Gmail Auth:</span>
-            <span class="stat-val" style="color: #34d399;">✓ SMTP OTP Verified</span>
+            <span class="stat-val" style="color: #059669;">✓ SMTP OTP Verified</span>
           </div>
           <div>
             <span class="stat-label">SMS Auth:</span>
-            <span class="stat-val" style="color: #34d399;">✓ Verified</span>
+            <span class="stat-val" style="color: #059669;">✓ Verified</span>
           </div>
           <div>
             <span class="stat-label">Academic Profile:</span>
-            <span class="stat-val" style="color: #f59e0b;">Add via Profile Settings</span>
+            <span class="stat-val" style="color: #800020;">Add via Profile Settings</span>
           </div>
           <div>
             <span class="stat-label">Security Shield:</span>
-            <span class="stat-val" style="color: #38bdf8;">Cloudflare Protected</span>
+            <span class="stat-val" style="color: #64748b;">Cloudflare Protected</span>
           </div>
         </div>
       </div>
@@ -484,8 +467,8 @@
             <div style="font-size: 8px; font-weight: 800; margin-top: 2px;">IntraWorld</div>
           </div>
         </div>
-        <h1 class="welcome-title">Welcome</h1>
-        <p class="welcome-sub">Sign in to continue to IntraWorld</p>
+        <h1 class="welcome-title">Create Account</h1>
+        <p class="welcome-sub">Join your verified college community on IntraWorld</p>
       </div>
 
       <div id="alertBox" class="alert-banner hidden">
@@ -537,9 +520,9 @@
           </div>
 
           <div id="emailOtpBox" class="otp-card hidden">
-            <div style="display: flex; justify-content: space-between; font-size: 11px; color: #38bdf8;">
+            <div style="display: flex; justify-content: space-between; font-size: 11px; color: #800020; font-weight: 600;">
               <span>Enter 6-digit OTP received in Gmail:</span>
-              <span id="emailGatewayBadge" style="color: #94a3b8;">SMTP Protocol Gateway</span>
+              <span id="emailGatewayBadge" style="color: #64748b; font-weight: 400;">SMTP Protocol Gateway</span>
             </div>
             <div class="otp-row">
               <input type="text" id="enteredEmailOtp" maxlength="6" inputmode="numeric" placeholder="------" class="otp-input">
@@ -565,9 +548,9 @@
           </div>
 
           <div id="smsOtpBox" class="otp-card hidden">
-            <div style="display: flex; justify-content: space-between; font-size: 11px; color: #38bdf8;">
+            <div style="display: flex; justify-content: space-between; font-size: 11px; color: #800020; font-weight: 600;">
               <span>Enter 6-digit SMS OTP:</span>
-              <span style="color: #94a3b8;">2Factor Gateway</span>
+              <span style="color: #64748b; font-weight: 400;">2Factor Gateway</span>
             </div>
             <div class="otp-row">
               <input type="text" id="enteredSmsOtp" maxlength="6" inputmode="numeric" placeholder="------" class="otp-input">
@@ -579,7 +562,7 @@
 
         <!-- 2. COLLEGE & ACADEMIC INFORMATION (MANUAL ENTRY) -->
         <div class="form-section-title">
-          <span>2. College &amp; Academic Information <span style="font-size: 10.5px; color: #94a3b8; font-weight: 400;">(Manual Entry)</span></span>
+          <span>2. College &amp; Academic Information <span style="font-size: 10.5px; color: #64748b; font-weight: 400;">(Manual Entry)</span></span>
         </div>
 
         <div class="form-row">
@@ -625,68 +608,68 @@
 
         <!-- 4. STUDENT COLLEGE ID CARD SCAN (MANDATORY) -->
         <div class="form-section-title">
-          <span>🪪 4. Student College ID Card Scan <span style="font-size: 10.5px; color: #f59e0b; font-weight: 500;">(Mandatory — Auto-Fills Course &amp; Roll No)</span></span>
+          <span>🪪 4. Student College ID Card Scan <span style="font-size: 10.5px; color: #800020; font-weight: 500;">(Mandatory — Auto-Fills Course &amp; Roll No)</span></span>
         </div>
 
-        <div id="receiptUploadArea" style="border: 1.5px dashed rgba(245, 158, 11, 0.35); border-radius: 16px; padding: 22px; background: rgba(24,2,6,0.6); text-align: center; cursor: pointer; transition: all 0.2s;" onclick="document.getElementById('feesReceiptFile').click()" ondragover="event.preventDefault(); this.style.borderColor='#f59e0b';" ondragleave="this.style.borderColor='rgba(245,158,11,0.35)';" ondrop="handleReceiptDrop(event)">
+        <div id="receiptUploadArea" style="border: 1.5px dashed rgba(128, 0, 32, 0.35); border-radius: 14px; padding: 22px; background: #ffffff; text-align: center; cursor: pointer; transition: all 0.2s;" onclick="document.getElementById('feesReceiptFile').click()" ondragover="event.preventDefault(); this.style.borderColor='#800020';" ondragleave="this.style.borderColor='rgba(128, 0, 32, 0.35)';" ondrop="handleReceiptDrop(event)">
           <div style="font-size: 32px; margin-bottom: 6px;">🪪</div>
-          <div style="font-size: 14px; font-weight: 700; color: #f59e0b;">Upload College ID Card (Front Side)</div>
-          <div style="font-size: 11.5px; color: #94a3b8; margin-top: 4px;">PNG, JPG, or PDF &nbsp;•&nbsp; Click to take photo or choose from gallery</div>
+          <div style="font-size: 14px; font-weight: 700; color: #800020;">Upload College ID Card (Front Side)</div>
+          <div style="font-size: 11.5px; color: #64748b; margin-top: 4px;">PNG, JPG, or PDF &nbsp;•&nbsp; Click to take photo or choose from gallery</div>
           <input type="file" id="feesReceiptFile" accept="image/*,application/pdf" style="display: none;" onchange="handleReceiptUpload(event)">
         </div>
-        <p style="font-size: 11px; color: #94a3b8; margin-top: 6px; text-align: center;">Tip: Photograph the front of the ID card laid flat, in good light, with text and QR code clearly visible.</p>
+        <p style="font-size: 11px; color: #64748b; margin-top: 6px; text-align: center;">Tip: Photograph the front of the ID card laid flat, in good light, with text and QR code clearly visible.</p>
 
         <div id="ocrProgressArea" style="display: none; margin-top: 12px;">
-          <div style="display: flex; align-items: center; gap: 10px; font-size: 12.5px; color: #94a3b8; margin-bottom: 8px;">
-            <div id="ocrSpinner" style="width: 16px; height: 16px; border: 2px solid rgba(245,158,11,0.25); border-top-color: #f59e0b; border-radius: 50%; animation: spin 0.8s linear infinite; flex-shrink: 0;"></div>
+          <div style="display: flex; align-items: center; gap: 10px; font-size: 12.5px; color: #64748b; margin-bottom: 8px;">
+            <div id="ocrSpinner" style="width: 16px; height: 16px; border: 2px solid rgba(128, 0, 32, 0.2); border-top-color: #800020; border-radius: 50%; animation: spin 0.8s linear infinite; flex-shrink: 0;"></div>
             <span id="ocrStatusText">Initialising ID Card scanner…</span>
           </div>
-          <div style="height: 4px; background: rgba(245,158,11,0.15); border-radius: 999px; overflow: hidden;">
-            <div id="ocrProgressBar" style="height: 100%; width: 0%; background: #f59e0b; border-radius: 999px; transition: width 0.3s ease;"></div>
+          <div style="height: 4px; background: rgba(128, 0, 32, 0.1); border-radius: 999px; overflow: hidden;">
+            <div id="ocrProgressBar" style="height: 100%; width: 0%; background: #800020; border-radius: 999px; transition: width 0.3s ease;"></div>
           </div>
         </div>
 
-        <div id="ocrResultCard" style="display: none; margin-top: 12px; background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.3); border-radius: 14px; padding: 14px 16px;">
-          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px; background: rgba(0,0,0,0.25); padding: 10px 14px; border-radius: 10px;">
-            <img id="cardThumbPreview" style="display: none; width: 64px; height: 42px; border-radius: 6px; border: 1.5px solid rgba(245,158,11,0.5); object-fit: cover;" alt="ID Card Thumbnail">
+        <div id="ocrResultCard" style="display: none; margin-top: 12px; background: rgba(16,185,129,0.06); border: 1px solid rgba(16,185,129,0.25); border-radius: 14px; padding: 14px 16px;">
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px; background: #ffffff; padding: 10px 14px; border-radius: 10px; border: 1px solid #e2e8f0;">
+            <img id="cardThumbPreview" style="display: none; width: 64px; height: 42px; border-radius: 6px; border: 1.5px solid rgba(128, 0, 32, 0.3); object-fit: cover;" alt="ID Card Thumbnail">
             <div>
-              <div style="font-size: 12.5px; font-weight: 700; color: #10b981;" id="ocrSuccessTitle">✅ ID Card Verified — Course &amp; Roll No Auto-Filled</div>
-              <div style="font-size: 11px; color: #94a3b8;" id="ocrEngineUsedNote">Dual Engine: QR Code &amp; AI Neural OCR</div>
+              <div style="font-size: 12.5px; font-weight: 700; color: #059669;" id="ocrSuccessTitle">✅ ID Card Verified — Course &amp; Roll No Auto-Filled</div>
+              <div style="font-size: 11px; color: #64748b;" id="ocrEngineUsedNote">Dual Engine: QR Code &amp; AI Neural OCR</div>
             </div>
           </div>
           <div id="ocrFieldsGrid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
             <div class="form-group" style="margin: 0;">
-              <label id="ocrCourseLabel" style="font-size: 11px; color: #10b981; margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between; font-weight: 600;">
+              <label id="ocrCourseLabel" style="font-size: 11px; color: #059669; margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between; font-weight: 600;">
                 <span>Course / Degree / Branch <span class="req">*</span></span>
-                <span id="ocrCourseLockBadge" style="font-size: 10px; color: #34d399; font-weight: 700;">🔒 Locked</span>
+                <span id="ocrCourseLockBadge" style="font-size: 10px; color: #059669; font-weight: 700;">🔒 Locked</span>
               </label>
-              <input type="text" id="ocrCourse" readonly placeholder="Auto-detected from ID card" style="width: 100%; background: #130206; border: 1px solid rgba(16,185,129,0.3); border-radius: 10px; padding: 8px 12px; color: #f8fafc; font-size: 12.5px; outline: none; cursor: not-allowed; transition: all 0.2s;">
+              <input type="text" id="ocrCourse" readonly placeholder="Auto-detected from ID card" style="width: 100%; background: #ffffff; border: 1px solid rgba(16,185,129,0.3); border-radius: 8px; padding: 8px 12px; color: #0f172a; font-size: 12.5px; outline: none; cursor: not-allowed; transition: all 0.2s;">
             </div>
             <div class="form-group" style="margin: 0;">
-              <label id="ocrRollLabel" style="font-size: 11px; color: #10b981; margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between; font-weight: 600;">
+              <label id="ocrRollLabel" style="font-size: 11px; color: #059669; margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between; font-weight: 600;">
                 <span>Student Roll No / USN / Reg ID <span class="req">*</span></span>
-                <span id="ocrRollLockBadge" style="font-size: 10px; color: #34d399; font-weight: 700;">🔒 Locked</span>
+                <span id="ocrRollLockBadge" style="font-size: 10px; color: #059669; font-weight: 700;">🔒 Locked</span>
               </label>
-              <input type="text" id="ocrRollNo" readonly placeholder="Auto-detected from ID card" style="width: 100%; background: #130206; border: 1px solid rgba(16,185,129,0.3); border-radius: 10px; padding: 8px 12px; color: #f8fafc; font-size: 12.5px; outline: none; cursor: not-allowed; transition: all 0.2s;">
+              <input type="text" id="ocrRollNo" readonly placeholder="Auto-detected from ID card" style="width: 100%; background: #ffffff; border: 1px solid rgba(16,185,129,0.3); border-radius: 8px; padding: 8px 12px; color: #0f172a; font-size: 12.5px; outline: none; cursor: not-allowed; transition: all 0.2s;">
             </div>
           </div>
 
           <!-- EDITING OPTION FOR UNCLEAR IMAGE TEXT -->
-          <div id="ocrEditActionRow" style="margin-top: 10px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; background: rgba(0,0,0,0.25); padding: 8px 12px; border-radius: 10px; border: 1px dashed rgba(245,158,11,0.25);">
-            <div id="ocrFieldLockNote" style="font-size: 11px; color: #94a3b8; display: flex; align-items: center; gap: 6px;">
+          <div id="ocrEditActionRow" style="margin-top: 10px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; background: #ffffff; padding: 8px 12px; border-radius: 8px; border: 1px dashed rgba(128, 0, 32, 0.25);">
+            <div id="ocrFieldLockNote" style="font-size: 11px; color: #64748b; display: flex; align-items: center; gap: 6px;">
               <span>🔒</span>
               <span>Course &amp; Roll No are locked from verified ID card.</span>
             </div>
-            <button type="button" id="ocrToggleEditBtn" onclick="toggleOcrFieldEditing()" style="background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.4); border-radius: 8px; color: #f59e0b; font-size: 11px; font-weight: 600; padding: 5px 12px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 5px;">
+            <button type="button" id="ocrToggleEditBtn" onclick="toggleOcrFieldEditing()" style="background: rgba(128, 0, 32, 0.08); border: 1px solid rgba(128, 0, 32, 0.3); border-radius: 6px; color: #800020; font-size: 11px; font-weight: 600; padding: 5px 12px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 5px;">
               <span>✏️ Image text unclear? Enable editing</span>
             </button>
           </div>
 
-          <div id="ocrUnclearNotice" style="display: none; margin-top: 10px; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 10px; padding: 10px 14px;">
-            <div style="font-size: 12px; font-weight: 700; color: #f59e0b; display: flex; align-items: center; gap: 6px;">
+          <div id="ocrUnclearNotice" style="display: none; margin-top: 10px; background: rgba(128, 0, 32, 0.06); border: 1px solid rgba(128, 0, 32, 0.25); border-radius: 8px; padding: 10px 14px;">
+            <div style="font-size: 12px; font-weight: 700; color: #800020; display: flex; align-items: center; gap: 6px;">
               <span>⚠️</span> <span>Manual Editing Enabled (Unclear Image Text)</span>
             </div>
-            <div style="font-size: 11px; color: #cbd5e1; margin-top: 3px; line-height: 1.4;">
+            <div style="font-size: 11px; color: #334155; margin-top: 3px; line-height: 1.4;">
               Because card image text was blurry or incomplete, manual editing is enabled for Course &amp; Roll No. Please ensure your details accurately match your physical ID Card (IntraWorld Admins verify this before account approval).
             </div>
           </div>
@@ -694,10 +677,10 @@
           <input type="hidden" id="ocrCollegeName">
           <input type="hidden" id="ocrBatch">
           <div id="ocrAntiCheatBadges" style="margin-top: 10px;"></div>
-          <div id="ocrFooterHelpText" style="margin-top: 10px; font-size: 11px; color: #94a3b8;">Course and Roll No are auto-extracted and locked to prevent tampering. Editing is only permitted if image text is unclear.</div>
+          <div id="ocrFooterHelpText" style="margin-top: 10px; font-size: 11px; color: #64748b;">Course and Roll No are auto-extracted and locked to prevent tampering. Editing is only permitted if image text is unclear.</div>
         </div>
 
-        <div id="ocrErrorMsg" style="display: none; margin-top: 10px; font-size: 12px; color: #ef4444; background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); border-radius: 10px; padding: 10px 14px;"></div>
+        <div id="ocrErrorMsg" style="display: none; margin-top: 10px; font-size: 12px; color: #dc2626; background: rgba(220, 38, 38, 0.08); border: 1px solid rgba(220, 38, 38, 0.25); border-radius: 10px; padding: 10px 14px;"></div>
 
         <!-- 5. ANTI-BOT SECURITY -->
         <div class="form-section-title">
@@ -708,13 +691,13 @@
           <div class="cf-left">
             <div class="cf-check" id="cfCheck"></div>
             <div>
-              <div style="font-size: 12.5px; font-weight: 600; color: #f1f5f9;" id="cfTitle">
+              <div style="font-size: 13px; font-weight: 600; color: #0f172a;" id="cfTitle">
                 Verify you are a Student (Cloudflare)
               </div>
-              <div style="font-size: 10.5px; color: #94a3b8;">Protects against automated bot registrations &amp; farm spam</div>
+              <div style="font-size: 11px; color: #64748b;">Protects against automated bot registrations &amp; farm spam</div>
             </div>
           </div>
-          <div style="font-size: 10px; font-family: 'JetBrains Mono', monospace; color: #64748b;">Cloudflare</div>
+          <div style="font-size: 11px; font-family: 'JetBrains Mono', monospace; color: #64748b;">Cloudflare</div>
         </div>
 
         <!-- 6. PASSWORD -->
@@ -754,11 +737,11 @@
         </div>
 
         <!-- PRIVACY POLICY & TERMS FOOTER -->
-        <div style="margin-top: 24px; text-align: center; font-size: 12px; color: #94a3b8; border-top: 1px solid rgba(245, 158, 11, 0.2); padding-top: 16px;">
-          <a href="javascript:void(0)" onclick="openLegalModal('privacy')" style="color: #f59e0b; text-decoration: none; font-weight: 600;">Privacy Policy</a>
-          <span style="margin: 0 10px; color: rgba(255,255,255,0.3);">•</span>
-          <a href="javascript:void(0)" onclick="openLegalModal('terms')" style="color: #f59e0b; text-decoration: none; font-weight: 600;">Terms &amp; Conditions</a>
-          <p style="margin-top: 8px; font-size: 11px; color: #8fa8bf; line-height: 1.5;">
+        <div style="margin-top: 24px; text-align: center; font-size: 12px; color: #64748b; border-top: 1px solid #e2e8f0; padding-top: 16px;">
+          <a href="javascript:void(0)" onclick="openLegalModal('privacy')" style="color: #800020; text-decoration: none; font-weight: 600;">Privacy Policy</a>
+          <span style="margin: 0 10px; color: #cbd5e1;">•</span>
+          <a href="javascript:void(0)" onclick="openLegalModal('terms')" style="color: #800020; text-decoration: none; font-weight: 600;">Terms &amp; Conditions</a>
+          <p style="margin-top: 8px; font-size: 11px; color: #64748b; line-height: 1.5;">
             College name, degree, and verified academic credentials can be managed anytime inside <strong>View Profile &amp; Settings</strong>.
           </p>
         </div>
@@ -769,16 +752,16 @@
   </div>
 
   <!-- LEGAL MODAL (PRIVACY POLICY & TERMS) -->
-  <div id="legalModal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 5000; align-items: center; justify-content: center; padding: 20px;">
-    <div style="background: #220308; border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 20px; max-width: 580px; width: 100%; max-height: 80vh; display: flex; flex-direction: column; box-shadow: 0 25px 60px rgba(0,0,0,0.85);">
-      <div style="padding: 20px 24px; border-bottom: 1px solid rgba(245, 158, 11, 0.25); display: flex; justify-content: space-between; align-items: center;">
-        <h3 id="legalModalTitle" style="font-size: 17px; font-weight: 700; color: #f59e0b; margin: 0;">Privacy Policy</h3>
-        <button type="button" onclick="closeLegalModal()" style="background: transparent; border: none; color: #94a3b8; font-size: 20px; cursor: pointer;">✕</button>
+  <div id="legalModal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 5000; align-items: center; justify-content: center; padding: 20px;">
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-top: 4px solid #800020; border-radius: 16px; max-width: 580px; width: 100%; max-height: 80vh; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+      <div style="padding: 20px 24px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+        <h3 id="legalModalTitle" style="font-size: 17px; font-weight: 700; color: #800020; margin: 0;">Privacy Policy</h3>
+        <button type="button" onclick="closeLegalModal()" style="background: transparent; border: none; color: #64748b; font-size: 20px; cursor: pointer;">✕</button>
       </div>
-      <div id="legalModalBody" style="padding: 24px; overflow-y: auto; font-size: 13px; line-height: 1.7; color: #e2e8f0;">
+      <div id="legalModalBody" style="padding: 24px; overflow-y: auto; font-size: 13px; line-height: 1.7; color: #334155;">
         <!-- Injected dynamically via JS -->
       </div>
-      <div style="padding: 16px 24px; border-top: 1px solid rgba(245, 158, 11, 0.2); text-align: right;">
+      <div style="padding: 16px 24px; border-top: 1px solid #e2e8f0; text-align: right;">
         <button type="button" class="btn btn-cyan" onclick="closeLegalModal()" style="padding: 8px 20px;">I Understand</button>
       </div>
     </div>

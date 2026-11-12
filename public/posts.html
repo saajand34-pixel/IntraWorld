@@ -46,16 +46,14 @@
 
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
-         body { 
+        body { 
             display: flex; 
             flex-direction: column; 
             min-height: 100vh; 
-            background-color: #36050e;
-            background: #36050e;
-            color: #f8fafc; 
+            background: #f8fafc;
+            color: #0f172a; 
             padding-top: 100px;
-            
-            }
+        }
 
         /* ===== FLOATING NAVBAR CONTAINER ===== */
         .nav-container {
@@ -72,13 +70,13 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: rgba(38, 4, 10, 0.95);
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(18px);
             -webkit-backdrop-filter: blur(18px);
             padding: 8px 14px;
             border-radius: 50px;
-            border: 1px solid rgba(245, 158, 11, 0.35);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(245, 158, 11, 0.18);
+            border: 1px solid rgba(128, 0, 32, 0.18);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
         }
 
         /* Nav Links Group */
@@ -94,7 +92,7 @@
             gap: 8px; 
             padding: 10px 18px; 
             border-radius: 25px; 
-            color: #d6d3d1; 
+            color: #475569; 
             text-decoration: none; 
             font-size: 14px; 
             font-weight: 500; 
@@ -103,21 +101,21 @@
         }
 
         .nav-links a:hover { 
-            color: #f59e0b; 
-            background: rgba(245, 158, 11, 0.12); 
+            color: #800020; 
+            background: rgba(128, 0, 32, 0.08); 
         }
 
         .nav-links a.active { 
-            color: #180206; 
-            background: linear-gradient(135deg, #ffd700 0%, #f59e0b 50%, #d97706 100%); 
+            color: #ffffff; 
+            background: #800020; 
             font-weight: 700;
-            box-shadow: none;
-            border: 1px solid rgba(245, 158, 11, 0.4);
+            box-shadow: 0 4px 12px rgba(128, 0, 32, 0.25);
+            border: none;
         }
 
         .nav-links a.logout { 
             color: #ef4444; 
-            background: rgba(239, 68, 68, 0.1);
+            background: rgba(239, 68, 68, 0.08);
             margin-left: 6px; 
         }
 
@@ -129,127 +127,126 @@
         .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
 
         .content { flex: 1; padding: 35px; width: 100%; max-width: 900px; margin: 0 auto; overflow-y: auto; }
-        .create-post-card { background: #220308; padding: 25px; border-radius: 16px; border: 1px solid rgba(245, 158, 11, 0.3); margin-bottom: 30px; width: 100%; }
+        .create-post-card { background: #ffffff; padding: 25px; border-radius: 16px; border: 1px solid #e2e8f0; border-top: 3px solid #800020; margin-bottom: 30px; width: 100%; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04); }
         .post-input-header { display: flex; align-items: flex-start; gap: 18px; }
-        .user-avatar { width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #f59e0b, #c41226); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; color: white; flex-shrink: 0; border: 2px solid rgba(255, 215, 0, 0.5); }
-        .create-post-card textarea { width: 100%; height: 90px; background: #36050e;
-            border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 12px; padding: 14px; color: white; resize: none; outline: none; font-size: 15px; font-family: Poppins, sans-serif; }
+        .user-avatar { width: 50px; height: 50px; border-radius: 50%; background: #800020; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; color: white; flex-shrink: 0; }
+        .create-post-card textarea { width: 100%; height: 90px; background: #ffffff;
+            border: 1.5px solid #cbd5e1; border-radius: 10px; padding: 14px; color: #0f172a; resize: none; outline: none; font-size: 14px; font-family: Poppins, sans-serif; transition: 0.2s; }
+        .create-post-card textarea:focus { border-color: #800020; box-shadow: 0 0 0 3px rgba(128, 0, 32, 0.1); }
 
-        .github-input-box { display: flex; align-items: center; gap: 10px; background: #36050e;
-            border: 1px solid rgba(245, 158, 11, 0.25); padding: 8px 14px; border-radius: 8px; margin-top: 12px; }
-        .github-input-box input { background: transparent; border: none; color: white; width: 100%; outline: none; font-size: 14px; }
+        .github-input-box { display: flex; align-items: center; gap: 10px; background: #f8fafc;
+            border: 1.5px solid #cbd5e1; padding: 8px 14px; border-radius: 8px; margin-top: 12px; }
+        .github-input-box input { background: transparent; border: none; color: #0f172a; width: 100%; outline: none; font-size: 14px; }
 
         .media-preview-container { margin-top: 14px; display: none; position: relative; width: max-content; max-width: 100%; }
-        .media-preview-container img { max-width: 100%; max-height: 340px; object-fit: contain; border-radius: 12px; border: 1px solid rgba(245, 158, 11, 0.35); background: rgba(0,0,0,0.4); display: block; }
-        .pdf-preview-box { background: #220308; padding: 12px 18px; border-radius: 10px; color: #f59e0b; display: flex; align-items: center; gap: 10px; border: 1px dashed #f59e0b; }
+        .media-preview-container img { max-width: 100%; max-height: 340px; object-fit: contain; border-radius: 12px; border: 1px solid #e2e8f0; background: #f8fafc; display: block; }
+        .pdf-preview-box { background: #ffffff; padding: 12px 18px; border-radius: 10px; color: #800020; display: flex; align-items: center; gap: 10px; border: 1.5px dashed #800020; }
         .remove-media-btn { position: absolute; top: 6px; right: 6px; background: rgba(239, 68, 68, 0.9); color: white; border: none; width: 26px; height: 26px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-        .post-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 18px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.08); flex-wrap: wrap; gap: 10px; }
+        .post-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 18px; padding-top: 15px; border-top: 1px solid #e2e8f0; flex-wrap: wrap; gap: 10px; }
         .media-options { display: flex; gap: 15px; }
-        .upload-btn { background: transparent; color: #f59e0b; border: none; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
-        .upload-btn:hover { color: #fbbf24; }
+        .upload-btn { background: transparent; color: #800020; border: none; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 8px; transition: 0.2s; font-weight: 500; }
+        .upload-btn:hover { color: #630517; }
 
-        .submit-post-btn { background: linear-gradient(135deg, #ffd700 0%, #f59e0b 50%, #d97706 100%); color: #180206; border: none; padding: 12px 32px; border-radius: 10px; font-weight: 700; font-size: 15px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 8px; box-shadow: none;
-            border: 1px solid rgba(245, 158, 11, 0.4); }
-        .submit-post-btn:hover { background: linear-gradient(135deg, #fef08a 0%, #ffd700 50%, #f59e0b 100%); }
+        .submit-post-btn { background: #800020; color: #ffffff; border: none; padding: 11px 28px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(128, 0, 32, 0.2); }
+        .submit-post-btn:hover { background: #630517; transform: translateY(-1px); box-shadow: 0 6px 16px rgba(128, 0, 32, 0.3); }
 
         .ai-shield-status { margin-top: 12px; font-size: 13px; padding: 10px 14px; border-radius: 8px; display: none; }
-        .ai-shield-status.warning { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
-        .ai-shield-status.success { background: rgba(74, 222, 128, 0.2); color: #4ade80; border: 1px solid #22c55e; }
+        .ai-shield-status.warning { background: rgba(239, 68, 68, 0.1); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .ai-shield-status.success { background: rgba(5, 150, 105, 0.1); color: #059669; border: 1px solid rgba(5, 150, 105, 0.3); }
 
-        .post-card { background: #220308; box-shadow: 0 6px 24px rgba(0,0,0,0.55); padding: 25px; border-radius: 16px; border: 1px solid rgba(245, 158, 11, 0.3); margin-bottom: 22px; width: 100%; }
+        .post-card { background: #ffffff; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04); padding: 25px; border-radius: 16px; border: 1px solid #e2e8f0; margin-bottom: 22px; width: 100%; }
         .post-header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; gap: 12px; flex-wrap: wrap; }
         .post-author { display: flex; align-items: center; gap: 14px; margin-bottom: 0; }
         .post-author .user-avatar { width: 45px; height: 45px; font-size: 18px; }
-        .author-info h4 { font-size: 16px; font-weight: 600; margin-bottom: 3px; }
-        .author-info p { font-size: 12px; color: #f59e0b; }
+        .author-info h4 { font-size: 16px; font-weight: 600; margin-bottom: 3px; color: #0f172a; }
+        .author-info p { font-size: 12px; color: #64748b; }
 
         /* Right-End AI Percentage Badge */
-        .ai-percentage-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 30px; font-size: 12px; font-weight: 600; white-space: nowrap; letter-spacing: 0.3px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; }
-        .ai-percentage-badge:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45); }
-        .ai-percentage-badge.tier-human { background: rgba(34, 197, 94, 0.12); border: 1px solid rgba(34, 197, 94, 0.45); color: #4ade80; }
-        .ai-percentage-badge.tier-assisted { background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.45); color: #38bdf8; }
-        .ai-percentage-badge.tier-mixed { background: rgba(245, 158, 11, 0.14); border: 1px solid rgba(245, 158, 11, 0.5); color: #fbbf24; }
-        .ai-percentage-badge.tier-ai { background: rgba(239, 68, 68, 0.16); border: 1px solid rgba(239, 68, 68, 0.55); color: #f87171; }
+        .ai-percentage-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 30px; font-size: 12px; font-weight: 600; white-space: nowrap; letter-spacing: 0.3px; transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; }
+        .ai-percentage-badge:hover { transform: translateY(-1px); }
+        .ai-percentage-badge.tier-human { background: rgba(5, 150, 105, 0.1); border: 1px solid rgba(5, 150, 105, 0.3); color: #059669; }
+        .ai-percentage-badge.tier-assisted { background: rgba(14, 165, 233, 0.1); border: 1px solid rgba(14, 165, 233, 0.3); color: #0284c7; }
+        .ai-percentage-badge.tier-mixed { background: rgba(128, 0, 32, 0.08); border: 1px solid rgba(128, 0, 32, 0.25); color: #800020; }
+        .ai-percentage-badge.tier-ai { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #dc2626; }
 
-        .post-content { font-size: 15px; line-height: 1.6; margin-bottom: 18px; color: #f5f5f4; }
-        .post-media { width: 100%; border-radius: 12px; max-height: 520px; object-fit: contain; background: rgba(16, 2, 5, 0.6); border: 1px solid rgba(245, 158, 11, 0.2); margin-bottom: 18px; display: block; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; }
-        .post-media:hover { transform: scale(1.005); box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
-        .github-card { display: flex; align-items: center; gap: 12px; background: #36050e;
-            padding: 14px; border-radius: 10px; border: 1px solid rgba(245, 158, 11, 0.25); margin-bottom: 18px; text-decoration: none; color: #f59e0b; }
-        .pdf-card { display: flex; align-items: center; gap: 12px; background: #0e1218; padding: 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.15); margin-bottom: 18px; text-decoration: none; color: #f87171; }
+        .post-content { font-size: 15px; line-height: 1.6; margin-bottom: 18px; color: #0f172a; }
+        .post-media { width: 100%; border-radius: 12px; max-height: 520px; object-fit: contain; background: #f8fafc; border: 1px solid #e2e8f0; margin-bottom: 18px; display: block; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .post-media:hover { transform: scale(1.005); box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+        .github-card { display: flex; align-items: center; gap: 12px; background: #f8fafc;
+            padding: 14px; border-radius: 10px; border: 1px solid #cbd5e1; margin-bottom: 18px; text-decoration: none; color: #800020; font-weight: 500; }
+        .pdf-card { display: flex; align-items: center; gap: 12px; background: #f8fafc; padding: 14px; border-radius: 10px; border: 1px solid #cbd5e1; margin-bottom: 18px; text-decoration: none; color: #dc2626; font-weight: 500; }
 
         .post-header-actions { display: flex; align-items: center; gap: 10px; }
-        .btn-delete-post { background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.35); color: #f87171; width: 32px; height: 32px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; font-size: 13px; }
-        .btn-delete-post:hover { background: #ef4444; color: #fff; transform: scale(1.08); }
+        .btn-delete-post { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.25); color: #dc2626; width: 32px; height: 32px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; font-size: 13px; }
+        .btn-delete-post:hover { background: #dc2626; color: #fff; transform: scale(1.08); }
 
         .deepfake-verified-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 20px; font-size: 12px; border: 1px solid; margin-bottom: 14px; }
-        .post-footer { display: flex; gap: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.08); flex-wrap: wrap; }
-        .interaction-btn { background: transparent; border: none; color: #f59e0b; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 8px; transition: color 0.2s, transform 0.15s; }
-        .interaction-btn:hover { color: #fbbf24; }
-        .interaction-btn.liked { color: #ef4444 !important; font-weight: 600; }
-        .interaction-btn.liked i { color: #ef4444; transform: scale(1.15); }
+        .post-footer { display: flex; gap: 20px; padding-top: 15px; border-top: 1px solid #e2e8f0; flex-wrap: wrap; }
+        .interaction-btn { background: transparent; border: none; color: #64748b; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 8px; transition: color 0.2s, transform 0.15s; font-weight: 500; }
+        .interaction-btn:hover { color: #800020; }
+        .interaction-btn.liked { color: #dc2626 !important; font-weight: 600; }
+        .interaction-btn.liked i { color: #dc2626; transform: scale(1.15); }
 
         /* Comments Drawer */
-        .comments-drawer { margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.06); width: 100%; }
+        .comments-drawer { margin-top: 16px; padding-top: 16px; border-top: 1px solid #e2e8f0; width: 100%; }
         .comments-list { max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
-        .comment-item { display: flex; align-items: flex-start; gap: 10px; background: #220308; padding: 9px 12px; border-radius: 10px; font-size: 13px; border: 1px solid rgba(245, 158, 11, 0.15); }
-        .comment-avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, #f59e0b, #c41226); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; color: #fff; flex-shrink: 0; }
+        .comment-item { display: flex; align-items: flex-start; gap: 10px; background: #f8fafc; padding: 9px 12px; border-radius: 10px; font-size: 13px; border: 1px solid #e2e8f0; }
+        .comment-avatar { width: 28px; height: 28px; border-radius: 50%; background: #800020; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; color: #fff; flex-shrink: 0; }
         .comment-body { flex: 1; min-width: 0; }
         .comment-header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2px; }
-        .comment-author { font-weight: 600; color: #f59e0b; font-size: 12px; }
+        .comment-author { font-weight: 600; color: #800020; font-size: 12px; }
         .comment-time { font-size: 10px; color: #64748b; }
-        .comment-text { color: #e2e8f0; font-size: 13px; word-break: break-word; }
+        .comment-text { color: #334155; font-size: 13px; word-break: break-word; }
         .comment-input-row { display: flex; gap: 10px; align-items: center; }
-        .comment-input-row input { flex: 1; background: #36050e;
-            border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 20px; padding: 8px 16px; color: white; font-size: 13px; outline: none; }
-        .comment-input-row input:focus { border-color: #f59e0b; }
-        .comment-submit-btn { background: linear-gradient(135deg, #ffd700 0%, #f59e0b 50%, #d97706 100%); border: none; color: #180206; width: 34px; height: 34px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; flex-shrink: 0; }
-        .comment-submit-btn:hover { background: linear-gradient(135deg, #fef08a 0%, #ffd700 50%, #f59e0b 100%); transform: scale(1.05); }
+        .comment-input-row input { flex: 1; background: #ffffff;
+            border: 1.5px solid #cbd5e1; border-radius: 20px; padding: 8px 16px; color: #0f172a; font-size: 13px; outline: none; }
+        .comment-input-row input:focus { border-color: #800020; }
+        .comment-submit-btn { background: #800020; border: none; color: #ffffff; width: 34px; height: 34px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; flex-shrink: 0; }
+        .comment-submit-btn:hover { background: #630517; transform: scale(1.05); }
 
         /* Share Modal Overlay */
-        .share-modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 2000; padding: 20px; }
-        .share-modal-box { background: #1c0207; border: 1px solid rgba(245, 158, 11, 0.38); border-radius: 16px; max-width: 480px; width: 100%; padding: 24px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75); }
+        .share-modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 2000; padding: 20px; }
+        .share-modal-box { background: #ffffff; border: 1px solid #e2e8f0; border-top: 4px solid #800020; border-radius: 16px; max-width: 480px; width: 100%; padding: 24px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15); }
         .share-modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-        .share-modal-header h3 { font-size: 18px; font-weight: 600; color: #fff; display: flex; align-items: center; gap: 8px; }
-        .share-modal-close { background: transparent; border: none; color: #94a3b8; font-size: 20px; cursor: pointer; transition: color 0.2s; }
-        .share-modal-close:hover { color: #fff; }
+        .share-modal-header h3 { font-size: 18px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 8px; }
+        .share-modal-close { background: transparent; border: none; color: #64748b; font-size: 20px; cursor: pointer; transition: color 0.2s; }
+        .share-modal-close:hover { color: #0f172a; }
         
         .share-peer-list { max-height: 240px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
-        .share-peer-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: rgba(255, 255, 255, 0.04); border-radius: 10px; }
+        .share-peer-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; }
         .share-peer-info { display: flex; align-items: center; gap: 10px; }
-        .share-peer-avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #f59e0b, #c41226); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; }
-        .share-peer-text h5 { font-size: 13px; color: #fff; margin-bottom: 2px; }
-        .share-peer-text p { font-size: 11px; color: #f59e0b; }
-        .share-send-btn { background: linear-gradient(135deg, #ffd700 0%, #f59e0b 50%, #d97706 100%); border: none; color: #180206; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; }
-        .share-send-btn:hover { background: linear-gradient(135deg, #fef08a 0%, #ffd700 50%, #f59e0b 100%); }
-        .share-send-btn.sent { background: #22c55e; cursor: default; }
+        .share-peer-avatar { width: 32px; height: 32px; border-radius: 50%; background: #800020; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; color: #fff; }
+        .share-peer-text h5 { font-size: 13px; color: #0f172a; margin-bottom: 2px; }
+        .share-peer-text p { font-size: 11px; color: #64748b; }
+        .share-send-btn { background: #800020; border: none; color: #ffffff; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .share-send-btn:hover { background: #630517; }
+        .share-send-btn.sent { background: #059669; cursor: default; }
 
-        
         /* Post Audience Selector */
-        .post-audience-bar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; padding: 10px 14px; background: #36050e;
-            border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; }
-        .audience-title { font-size: 12.5px; color: #d6d3d1; font-weight: 500; display: flex; align-items: center; gap: 6px; }
+        .post-audience-bar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; padding: 10px 14px; background: #f8fafc;
+            border: 1px solid #e2e8f0; border-radius: 12px; }
+        .audience-title { font-size: 13px; color: #334155; font-weight: 600; display: flex; align-items: center; gap: 6px; }
         .audience-options { display: flex; gap: 8px; flex-wrap: wrap; }
-        .audience-pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500; cursor: pointer; background: #220308; border: 1px solid rgba(245, 158, 11, 0.3); color: #d6d3d1; transition: all 0.2s; user-select: none; }
-        .audience-pill:hover { color: #fff; background: rgba(255, 255, 255, 0.08); }
-        .audience-pill.active { background: linear-gradient(135deg, #ffd700 0%, #f59e0b 50%, #d97706 100%); color: #180206; font-weight: 700; border-color: #f59e0b; box-shadow: none; }
-        .audience-pill.community.active { background: linear-gradient(135deg, #f59e0b, #d97706); color: #180206; font-weight: 700; border-color: #f59e0b; box-shadow: none; }
+        .audience-pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500; cursor: pointer; background: #ffffff; border: 1px solid #cbd5e1; color: #475569; transition: all 0.2s; user-select: none; }
+        .audience-pill:hover { color: #800020; border-color: #800020; }
+        .audience-pill.active { background: #800020; color: #ffffff; font-weight: 700; border-color: #800020; }
+        .audience-pill.community.active { background: #800020; color: #ffffff; font-weight: 700; border-color: #800020; }
 
         /* Feed Filter Bar */
         .feed-filters-bar { display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 4px; }
-        .feed-filter-btn { background: #220308; border: 1px solid rgba(245, 158, 11, 0.3); color: #d6d3d1; border-radius: 20px; padding: 8px 16px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; white-space: nowrap; display: flex; align-items: center; gap: 6px; }
-        .feed-filter-btn:hover { color: #f59e0b; background: rgba(245, 158, 11, 0.12); }
-        .feed-filter-btn.active { background: linear-gradient(135deg, #ffd700 0%, #f59e0b 50%, #d97706 100%); color: #180206; font-weight: 700; border-color: #f59e0b; box-shadow: none; }
+        .feed-filter-btn { background: #ffffff; border: 1px solid #cbd5e1; color: #475569; border-radius: 20px; padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; white-space: nowrap; display: flex; align-items: center; gap: 6px; }
+        .feed-filter-btn:hover { color: #800020; border-color: #800020; }
+        .feed-filter-btn.active { background: #800020; color: #ffffff; font-weight: 700; border-color: #800020; }
 
         /* Post Type Badges */
         .post-type-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; padding: 3px 10px; border-radius: 12px; font-weight: 600; }
-        .badge-public { background: rgba(245, 158, 11, 0.18); color: #f59e0b; border: 1px solid rgba(255, 215, 0, 0.45); }
-        .badge-community { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
+        .badge-public { background: rgba(5, 150, 105, 0.1); color: #059669; border: 1px solid rgba(5, 150, 105, 0.3); }
+        .badge-community { background: rgba(128, 0, 32, 0.08); color: #800020; border: 1px solid rgba(128, 0, 32, 0.2); }
 
         /* Enhanced Share Preview */
-        .share-preview-box { background: #102b45; padding: 12px; border-radius: 10px; margin-bottom: 16px; font-size: 13px; color: #cbd5e1; border-left: 3px solid #0066ff; display: flex; gap: 12px; align-items: center; }
-        .share-preview-thumb { width: 48px; height: 48px; border-radius: 8px; object-fit: cover; flex-shrink: 0; border: 1px solid rgba(255, 255, 255, 0.15); }
+        .share-preview-box { background: #f8fafc; padding: 12px; border-radius: 10px; margin-bottom: 16px; font-size: 13px; color: #334155; border: 1px solid #e2e8f0; border-left: 3px solid #800020; display: flex; gap: 12px; align-items: center; }
+        .share-preview-thumb { width: 48px; height: 48px; border-radius: 8px; object-fit: cover; flex-shrink: 0; border: 1px solid #cbd5e1; }
         .share-preview-details { flex: 1; min-width: 0; }
         .share-preview-text { max-height: 50px; overflow: hidden; text-overflow: ellipsis; line-height: 1.4; }
 
@@ -267,35 +264,35 @@
     <div class="nav-container">
         <header class="floating-navbar">
             <nav class="nav-links">
-    <a href="dashboard.html">
-        <i class="fa-solid fa-house"></i>
-        <span>Home</span>
-    </a>
-    <a href="connect.html">
-        <i class="fa-solid fa-user-group"></i>
-        <span>Student Connect</span>
-    </a>
-    <a href="posts.html" class="active">
-        <i class="fa-solid fa-newspaper"></i>
-        <span>Posts</span>
-    </a>
-    <a href="community.html">
-        <i class="fa-solid fa-location-dot"></i>
-        <span>Community</span>
-    </a>
-    <a href="messages.html">
-        <i class="fa-solid fa-comments"></i>
-        <span>Messages</span>
-    </a>
-    <a href="settings.html">
-        <i class="fa-solid fa-gear"></i>
-        <span>Settings</span>
-    </a>
-    <a class="logout" id="logoutBtn" href="javascript:void(0);">
-        <i class="fa-solid fa-right-from-bracket"></i>
-        <span>Logout</span>
-    </a>
-</nav>
+                <a href="dashboard.html">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Home</span>
+                </a>
+                <a href="connect.html">
+                    <i class="fa-solid fa-user-group"></i>
+                    <span>Student Connect</span>
+                </a>
+                <a href="posts.html" class="active">
+                    <i class="fa-solid fa-newspaper"></i>
+                    <span>Posts</span>
+                </a>
+                <a href="community.html">
+                    <i class="fa-solid fa-location-dot"></i>
+                    <span>Community</span>
+                </a>
+                <a href="messages.html">
+                    <i class="fa-solid fa-comments"></i>
+                    <span>Messages</span>
+                </a>
+                <a href="settings.html">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Settings</span>
+                </a>
+                <a class="logout" id="logoutBtn" href="javascript:void(0);">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Logout</span>
+                </a>
+            </nav>
         </header>
     </div>
 
@@ -308,7 +305,7 @@
                 </div>
 
                 <div class="github-input-box" id="githubBox" style="display: none;">
-                    <i class="fa-brands fa-github" style="color: #fff; font-size: 18px;"></i>
+                    <i class="fa-brands fa-github" style="color: #0f172a; font-size: 18px;"></i>
                     <input type="url" id="githubLinkInput" placeholder="Paste GitHub repository or project link (e.g. https://github.com/user/repo)...">
                 </div>
 
@@ -321,7 +318,7 @@
 
                 <!-- Post Audience Selector (Public vs. College Community) -->
                 <div class="post-audience-bar">
-                    <div class="audience-title"><i class="fa-solid fa-bullseye" style="color: #38bdf8;"></i> Target Audience:</div>
+                    <div class="audience-title"><i class="fa-solid fa-bullseye" style="color: #800020;"></i> Target Audience:</div>
                     <div class="audience-options">
                         <label class="audience-pill active" id="audiencePillPublic">
                             <input type="radio" name="postAudience" value="public" checked style="display: none;">
@@ -333,7 +330,6 @@
                         </label>
                     </div>
                 </div>
-
 
                 <div class="post-actions">
                     <div class="media-options">
@@ -356,7 +352,6 @@
                 </div>
             </div>
 
-            
             <!-- Feed Category Filters -->
             <div class="feed-filters-bar">
                 <button class="feed-filter-btn active" data-filter="all"><i class="fa-solid fa-border-all"></i> All Posts</button>
@@ -365,7 +360,7 @@
             </div>
 
             <div id="postsFeed">
-                <div style="color: #7db7ff; text-align: center; padding: 40px;">Loading posts...</div>
+                <div style="color: #800020; text-align: center; padding: 40px;"><i class="fa-solid fa-spinner fa-spin"></i> Loading posts...</div>
             </div>
         </section>
     </main>
@@ -374,7 +369,7 @@
     <div class="share-modal-overlay" id="shareModal">
         <div class="share-modal-box">
             <div class="share-modal-header">
-                <h3><i class="fa-solid fa-share-nodes" style="color: #38bdf8;"></i> Share Post</h3>
+                <h3><i class="fa-solid fa-share-nodes" style="color: #800020;"></i> Share Post</h3>
                 <button class="share-modal-close" id="closeShareModalBtn"><i class="fa-solid fa-xmark"></i></button>
             </div>
             
@@ -384,27 +379,27 @@
                     <div class="share-preview-text" id="sharePreviewText">Loading post preview...</div>
                 </div>
             </div>
-            <div style="font-size: 13px; color: #94a3b8; margin-bottom: 10px; font-weight: 500;">
-                <i class="fa-solid fa-paper-plane" style="color: #0066ff;"></i> Send directly to classmates:
+            <div style="font-size: 13px; color: #64748b; margin-bottom: 10px; font-weight: 500;">
+                <i class="fa-solid fa-paper-plane" style="color: #800020;"></i> Send directly to classmates:
             </div>
             <div class="share-peer-list" id="sharePeerList">
-                <div style="text-align: center; color: #7db7ff; padding: 20px;">Loading classmates...</div>
+                <div style="text-align: center; color: #800020; padding: 20px;">Loading classmates...</div>
             </div>
-            <button id="copyPostLinkBtn" style="width: 100%; padding: 10px; background: #102b45; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #38bdf8; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <button id="copyPostLinkBtn" style="width: 100%; padding: 10px; background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 10px; color: #800020; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
                 <i class="fa-regular fa-copy"></i> Copy Post Snippet to Clipboard
             </button>
         </div>
     </div>
 
     <!-- WhatsApp-Style Full Image Lightbox Modal -->
-    <div id="imageLightboxModal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.92); backdrop-filter: blur(8px); z-index: 3000; align-items: center; justify-content: center; padding: 20px;">
-        <button id="closeLightboxBtn" type="button" style="position: absolute; top: 20px; right: 24px; background: rgba(255,255,255,0.15); border: none; color: #fff; width: 44px; height: 44px; border-radius: 50%; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 3010; transition: background 0.2s;" title="Close">
+    <div id="imageLightboxModal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px); z-index: 3000; align-items: center; justify-content: center; padding: 20px;">
+        <button id="closeLightboxBtn" type="button" style="position: absolute; top: 20px; right: 24px; background: rgba(255,255,255,0.25); border: none; color: #fff; width: 44px; height: 44px; border-radius: 50%; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 3010; transition: background 0.2s;" title="Close">
             <i class="fa-solid fa-xmark"></i>
         </button>
-        <a id="downloadLightboxBtn" href="#" download="post-photo.jpg" target="_blank" rel="noopener noreferrer" style="position: absolute; top: 20px; right: 80px; background: rgba(245,158,11,0.25); border: 1px solid rgba(245,158,11,0.4); color: #f59e0b; width: 44px; height: 44px; border-radius: 50%; font-size: 18px; display: flex; align-items: center; justify-content: center; z-index: 3010; text-decoration: none; transition: background 0.2s;" title="Download photo">
+        <a id="downloadLightboxBtn" href="#" download="post-photo.jpg" target="_blank" rel="noopener noreferrer" style="position: absolute; top: 20px; right: 80px; background: rgba(128, 0, 32, 0.2); border: 1px solid rgba(128, 0, 32, 0.4); color: #800020; width: 44px; height: 44px; border-radius: 50%; font-size: 18px; display: flex; align-items: center; justify-content: center; z-index: 3010; text-decoration: none; transition: background 0.2s;" title="Download photo">
             <i class="fa-solid fa-download"></i>
         </a>
-        <img id="lightboxImg" src="" style="max-width: 90vw; max-height: 85vh; object-fit: contain; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.85); border: 1px solid rgba(245, 158, 11, 0.35); cursor: zoom-out;" alt="Full Preview">
+        <img id="lightboxImg" src="" style="max-width: 90vw; max-height: 85vh; object-fit: contain; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); border: 2px solid #800020; cursor: zoom-out;" alt="Full Preview">
     </div>
 
     <script type="module" src="js/firebase-config.js"></script>

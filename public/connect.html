@@ -46,16 +46,14 @@
 
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
-         body { 
+        body { 
             display: flex; 
             flex-direction: column; 
             min-height: 100vh; 
-            background-color: #36050e;
-            background: #36050e;
-            color: #f8fafc; 
+            background: #f8fafc;
+            color: #0f172a; 
             padding-top: 100px;
-            
-            }
+        }
 
         /* ===== FLOATING NAVBAR CONTAINER ===== */
         .nav-container {
@@ -72,13 +70,13 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: rgba(38, 4, 10, 0.95);
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(18px);
             -webkit-backdrop-filter: blur(18px);
             padding: 8px 14px;
             border-radius: 50px;
-            border: 1px solid rgba(245, 158, 11, 0.35);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(245, 158, 11, 0.18);
+            border: 1px solid rgba(128, 0, 32, 0.18);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
         }
 
         /* Nav Links Group */
@@ -94,7 +92,7 @@
             gap: 8px; 
             padding: 10px 18px; 
             border-radius: 25px; 
-            color: #d6d3d1; 
+            color: #475569; 
             text-decoration: none; 
             font-size: 14px; 
             font-weight: 500; 
@@ -103,21 +101,21 @@
         }
 
         .nav-links a:hover { 
-            color: #f59e0b; 
-            background: rgba(245, 158, 11, 0.12); 
+            color: #800020; 
+            background: rgba(128, 0, 32, 0.08); 
         }
 
         .nav-links a.active { 
-            color: #180206; 
-            background: linear-gradient(135deg, #ffd700 0%, #f59e0b 50%, #d97706 100%); 
+            color: #ffffff; 
+            background: #800020; 
             font-weight: 700;
-            box-shadow: none;
-            border: 1px solid rgba(245, 158, 11, 0.4);
+            box-shadow: 0 4px 12px rgba(128, 0, 32, 0.25);
+            border: none;
         }
 
         .nav-links a.logout { 
             color: #ef4444; 
-            background: rgba(239, 68, 68, 0.1);
+            background: rgba(239, 68, 68, 0.08);
             margin-left: 6px; 
         }
 
@@ -129,44 +127,43 @@
         .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
         .content { padding: 30px; flex: 1; overflow-y: auto; max-width: 1200px; margin: 0 auto; width: 100%; }
 
-        .header-title { font-size: 28px; margin-bottom: 10px; }
-        .header-desc { color: #f59e0b; margin-bottom: 30px; }
-        .contact-box { background: #220308; border: 1px solid rgba(245, 158, 11, 0.3); padding: 25px; border-radius: 18px; margin-bottom: 30px; display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
-        .contact-box input { flex: 1; min-width: 250px; padding: 14px 18px; background: #36050e;
-            border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 12px; color: white; font-size: 14px; outline: none; }
-        .contact-box input:focus { border-color: #f59e0b; }
-        .contact-box button { padding: 14px 25px; background: linear-gradient(135deg, #ffd700 0%, #f59e0b 50%, #d97706 100%); color: #180206; border: none; border-radius: 12px; cursor: pointer; font-weight: 700; transition: 0.2s; white-space: nowrap; box-shadow: none;
-            border: 1px solid rgba(245, 158, 11, 0.4); }
-        .contact-box button:hover { background: linear-gradient(135deg, #fef08a 0%, #ffd700 50%, #f59e0b 100%); }
+        .header-title { font-size: 28px; margin-bottom: 10px; font-weight: 700; color: #0f172a; }
+        .header-desc { color: #64748b; margin-bottom: 30px; font-size: 14px; }
+        .contact-box { background: #ffffff; border: 1px solid #e2e8f0; border-top: 3px solid #800020; padding: 25px; border-radius: 16px; margin-bottom: 30px; display: flex; gap: 15px; align-items: center; flex-wrap: wrap; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04); }
+        .contact-box input { flex: 1; min-width: 250px; padding: 13px 18px; background: #ffffff;
+            border: 1.5px solid #cbd5e1; border-radius: 10px; color: #0f172a; font-size: 14px; outline: none; }
+        .contact-box input:focus { border-color: #800020; box-shadow: 0 0 0 3px rgba(128, 0, 32, 0.1); }
+        .contact-box button { padding: 13px 25px; background: #800020; color: #ffffff; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; transition: 0.2s; white-space: nowrap; box-shadow: 0 4px 12px rgba(128, 0, 32, 0.2); }
+        .contact-box button:hover { background: #630517; box-shadow: 0 6px 16px rgba(128, 0, 32, 0.3); }
 
         /* Incoming Connection Requests Section */
-        .requests-section { background: #220308; border: 1px solid rgba(245, 158, 11, 0.38); border-radius: 18px; padding: 24px; margin-bottom: 30px; }
+        .requests-section { background: #ffffff; border: 1px solid #e2e8f0; border-top: 3px solid #800020; border-radius: 16px; padding: 24px; margin-bottom: 30px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04); }
         .requests-section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-        .requests-section-title { font-size: 18px; font-weight: 600; color: #f59e0b; display: flex; align-items: center; gap: 10px; }
-        .badge-count { background: linear-gradient(135deg, #ffd700 0%, #f59e0b 50%, #d97706 100%); color: #180206; font-size: 12px; padding: 3px 10px; border-radius: 20px; font-weight: 700; }
+        .requests-section-title { font-size: 18px; font-weight: 700; color: #800020; display: flex; align-items: center; gap: 10px; }
+        .badge-count { background: #800020; color: #ffffff; font-size: 12px; padding: 3px 10px; border-radius: 20px; font-weight: 700; }
         .requests-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
-        .request-card { background: #220308; border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; align-items: center; text-align: center; }
-        .request-card .req-avatar { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #f59e0b, #c41226); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; color: white; margin-bottom: 10px; border: 2px solid rgba(255, 215, 0, 0.45); }
-        .request-card h4 { font-size: 16px; margin-bottom: 4px; color: #fff; }
-        .request-card .regid-text { font-size: 12px; color: #f59e0b; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); padding: 3px 10px; border-radius: 20px; margin-bottom: 14px; }
+        .request-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 18px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .request-card .req-avatar { width: 52px; height: 52px; border-radius: 50%; background: #800020; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; color: white; margin-bottom: 10px; }
+        .request-card h4 { font-size: 16px; margin-bottom: 4px; color: #0f172a; }
+        .request-card .regid-text { font-size: 12px; color: #800020; background: rgba(128, 0, 32, 0.08); border: 1px solid rgba(128, 0, 32, 0.2); padding: 3px 10px; border-radius: 20px; margin-bottom: 14px; font-weight: 600; }
         .req-btn-group { display: flex; gap: 10px; width: 100%; }
-        .btn-accept { flex: 1; padding: 9px; background: #16a34a; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 500; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; }
-        .btn-accept:hover { background: #15803d; }
-        .btn-decline { flex: 1; padding: 9px; background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 500; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; }
-        .btn-decline:hover { background: #ef4444; color: #fff; }
+        .btn-accept { flex: 1; padding: 9px; background: #059669; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn-accept:hover { background: #047857; }
+        .btn-decline { flex: 1; padding: 9px; background: rgba(239, 68, 68, 0.1); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn-decline:hover { background: #dc2626; color: #fff; }
 
         /* Student Grid & Cards */
         .student-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        .student-card { background: #220308; padding: 25px; border-radius: 18px; border: 1px solid rgba(245, 158, 11, 0.3); display: flex; flex-direction: column; align-items: center; text-align: center; transition: all 0.3s; }
-        .student-card:hover { border-color: rgba(212, 175, 55, 0.45); transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
-        .student-avatar { width: 70px; height: 70px; border-radius: 50%; background: linear-gradient(135deg, #f59e0b, #c41226); display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: bold; color: white; margin-bottom: 15px; border: 2px solid rgba(255, 215, 0, 0.45); }
-        .student-card h3 { font-size: 18px; margin-bottom: 5px; }
-        .student-card p { color: #f59e0b; font-size: 13px; margin-bottom: 8px; }
-        .student-regid-tag { font-size: 12px; color: #f59e0b; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); padding: 4px 12px; border-radius: 20px; margin-bottom: 14px; display: inline-flex; align-items: center; gap: 6px; }
-        .connect-btn { width: 100%; padding: 10px; background: linear-gradient(135deg, #ffd700 0%, #f59e0b 50%, #d97706 100%); color: #180206; font-weight: 700; border: none; border-radius: 10px; cursor: pointer; font-size: 14px; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: none; }
-        .connect-btn:hover { background: linear-gradient(135deg, #fef08a 0%, #ffd700 50%, #f59e0b 100%); }
-        .connect-btn.connected { background: #16a34a !important; cursor: default; }
-        .connect-btn.pending { background: #f59e0b !important; color: #fff; cursor: default; }
+        .student-card { background: #ffffff; padding: 25px; border-radius: 16px; border: 1px solid #e2e8f0; border-top: 3px solid #800020; display: flex; flex-direction: column; align-items: center; text-align: center; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04); }
+        .student-card:hover { border-color: #800020; transform: translateY(-3px); box-shadow: 0 8px 25px rgba(128, 0, 32, 0.1); }
+        .student-avatar { width: 70px; height: 70px; border-radius: 50%; background: #800020; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: bold; color: white; margin-bottom: 15px; }
+        .student-card h3 { font-size: 18px; margin-bottom: 5px; color: #0f172a; font-weight: 700; }
+        .student-card p { color: #64748b; font-size: 13px; margin-bottom: 8px; }
+        .student-regid-tag { font-size: 12px; color: #800020; background: rgba(128, 0, 32, 0.08); border: 1px solid rgba(128, 0, 32, 0.2); padding: 4px 12px; border-radius: 20px; margin-bottom: 14px; display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
+        .connect-btn { width: 100%; padding: 10px; background: #800020; color: #ffffff; font-weight: 600; border: none; border-radius: 10px; cursor: pointer; font-size: 14px; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(128, 0, 32, 0.2); }
+        .connect-btn:hover { background: #630517; }
+        .connect-btn.connected { background: #059669 !important; cursor: default; }
+        .connect-btn.pending { background: #64748b !important; color: #fff; cursor: default; }
 
         @media (max-width: 768px) {
             .nav-container { width: 95%; top: 10px; }
@@ -180,9 +177,9 @@
             width: 100%;
             margin-top: 8px;
             padding: 8px 12px;
-            background: rgba(245, 158, 11, 0.12);
-            border: 1px solid rgba(245, 158, 11, 0.35);
-            color: #ffd700;
+            background: #ffffff;
+            border: 1.5px solid #800020;
+            color: #800020;
             border-radius: 10px;
             cursor: pointer;
             font-size: 13px;
@@ -194,9 +191,8 @@
             transition: all 0.2s ease;
         }
         .view-posts-btn:hover {
-            background: rgba(245, 158, 11, 0.25);
-            border-color: #ffd700;
-            color: #fff;
+            background: #800020;
+            color: #ffffff;
         }
 
         /* User Profile & Posts Modal */
@@ -206,8 +202,8 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(6px);
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
             z-index: 2600;
             display: flex;
             align-items: center;
@@ -215,24 +211,25 @@
             padding: 20px;
         }
         .profile-modal-box {
-            background: #1c0207;
-            border: 1px solid rgba(245, 158, 11, 0.45);
-            border-radius: 20px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-top: 4px solid #800020;
+            border-radius: 16px;
             width: 100%;
             max-width: 680px;
             max-height: 88vh;
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
         }
         .profile-modal-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 18px 24px;
-            background: #250309;
-            border-bottom: 1px solid rgba(245, 158, 11, 0.25);
+            background: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
         }
         .profile-header-user {
             display: flex;
@@ -243,14 +240,13 @@
             width: 58px;
             height: 58px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #f59e0b, #c41226);
+            background: #800020;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 22px;
             font-weight: bold;
             color: #fff;
-            border: 2px solid rgba(255, 215, 0, 0.5);
             overflow: hidden;
             flex-shrink: 0;
         }
@@ -262,12 +258,12 @@
         .profile-modal-name {
             font-size: 18px;
             font-weight: 700;
-            color: #ffffff;
+            color: #0f172a;
             margin-bottom: 2px;
         }
         .profile-modal-college {
             font-size: 13px;
-            color: #f59e0b;
+            color: #64748b;
             display: flex;
             align-items: center;
             gap: 6px;
@@ -277,18 +273,18 @@
             display: inline-flex;
             align-items: center;
             gap: 5px;
-            background: rgba(245, 158, 11, 0.15);
-            border: 1px solid rgba(245, 158, 11, 0.35);
+            background: rgba(128, 0, 32, 0.08);
+            border: 1px solid rgba(128, 0, 32, 0.2);
             padding: 2px 8px;
             border-radius: 12px;
             font-size: 11px;
-            color: #ffd700;
+            color: #800020;
             font-weight: 600;
         }
         .modal-close-btn {
-            background: rgba(255, 255, 255, 0.1);
+            background: #f1f5f9;
             border: none;
-            color: #cbd5e1;
+            color: #64748b;
             width: 36px;
             height: 36px;
             border-radius: 50%;
@@ -307,17 +303,17 @@
             display: flex;
             gap: 8px;
             padding: 12px 24px;
-            background: #180206;
-            border-bottom: 1px solid rgba(245, 158, 11, 0.18);
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
         }
         .profile-tab-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(245, 158, 11, 0.25);
-            color: #cbd5e1;
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            color: #475569;
             padding: 6px 14px;
             border-radius: 20px;
             font-size: 12px;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
             display: flex;
@@ -325,14 +321,14 @@
             gap: 6px;
         }
         .profile-tab-btn:hover {
-            color: #f59e0b;
-            border-color: #f59e0b;
+            color: #800020;
+            border-color: #800020;
         }
         .profile-tab-btn.active {
-            background: linear-gradient(135deg, #ffd700 0%, #f59e0b 50%, #d97706 100%);
-            color: #180206;
+            background: #800020;
+            color: #ffffff;
             font-weight: 700;
-            border-color: #ffd700;
+            border-color: #800020;
         }
         .profile-posts-container {
             flex: 1;
@@ -341,16 +337,17 @@
             display: flex;
             flex-direction: column;
             gap: 16px;
-            background: #1c0207;
+            background: #f8fafc;
         }
         .profile-post-card {
-            background: #250309;
-            border: 1px solid rgba(245, 158, 11, 0.3);
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
             border-radius: 14px;
             padding: 16px;
             display: flex;
             flex-direction: column;
             gap: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
         }
         .profile-post-header {
             display: flex;
@@ -367,18 +364,18 @@
             gap: 5px;
         }
         .badge-public {
-            background: rgba(16, 185, 129, 0.15);
-            border: 1px solid rgba(16, 185, 129, 0.35);
-            color: #34d399;
+            background: rgba(5, 150, 105, 0.1);
+            border: 1px solid rgba(5, 150, 105, 0.3);
+            color: #059669;
         }
         .badge-community {
-            background: rgba(245, 158, 11, 0.15);
-            border: 1px solid rgba(245, 158, 11, 0.35);
-            color: #fbbf24;
+            background: rgba(128, 0, 32, 0.08);
+            border: 1px solid rgba(128, 0, 32, 0.2);
+            color: #800020;
         }
         .profile-post-content {
             font-size: 14px;
-            color: #f8fafc;
+            color: #0f172a;
             line-height: 1.5;
             word-break: break-word;
         }
@@ -388,7 +385,7 @@
             object-fit: cover;
             border-radius: 10px;
             cursor: pointer;
-            border: 1px solid rgba(245, 158, 11, 0.2);
+            border: 1px solid #e2e8f0;
             transition: transform 0.2s ease;
         }
         .profile-post-media:hover {
@@ -399,9 +396,9 @@
             align-items: center;
             gap: 16px;
             font-size: 12px;
-            color: #94a3b8;
+            color: #64748b;
             padding-top: 8px;
-            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            border-top: 1px solid #e2e8f0;
         }
 
     </style>
@@ -412,35 +409,35 @@
     <div class="nav-container">
         <header class="floating-navbar">
             <nav class="nav-links">
-    <a href="dashboard.html">
-        <i class="fa-solid fa-house"></i>
-        <span>Home</span>
-    </a>
-    <a href="connect.html" class="active">
-        <i class="fa-solid fa-user-group"></i>
-        <span>Student Connect</span>
-    </a>
-    <a href="posts.html">
-        <i class="fa-solid fa-newspaper"></i>
-        <span>Posts</span>
-    </a>
-    <a href="community.html">
-        <i class="fa-solid fa-location-dot"></i>
-        <span>Community</span>
-    </a>
-    <a href="messages.html">
-        <i class="fa-solid fa-comments"></i>
-        <span>Messages</span>
-    </a>
-    <a href="settings.html">
-        <i class="fa-solid fa-gear"></i>
-        <span>Settings</span>
-    </a>
-    <a class="logout" id="logoutBtn" href="javascript:void(0);">
-        <i class="fa-solid fa-right-from-bracket"></i>
-        <span>Logout</span>
-    </a>
-</nav>
+                <a href="dashboard.html">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Home</span>
+                </a>
+                <a href="connect.html" class="active">
+                    <i class="fa-solid fa-user-group"></i>
+                    <span>Student Connect</span>
+                </a>
+                <a href="posts.html">
+                    <i class="fa-solid fa-newspaper"></i>
+                    <span>Posts</span>
+                </a>
+                <a href="community.html">
+                    <i class="fa-solid fa-location-dot"></i>
+                    <span>Community</span>
+                </a>
+                <a href="messages.html">
+                    <i class="fa-solid fa-comments"></i>
+                    <span>Messages</span>
+                </a>
+                <a href="settings.html">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Settings</span>
+                </a>
+                <a class="logout" id="logoutBtn" href="javascript:void(0);">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Logout</span>
+                </a>
+            </nav>
         </header>
     </div>
 
@@ -450,7 +447,7 @@
             <p class="header-desc">Find and connect with classmates using Registration ID. Connections require mutual approval.</p>
 
             <div class="contact-box">
-                <i class="fa-solid fa-id-card" style="color: #f59e0b; font-size: 20px;"></i>
+                <i class="fa-solid fa-id-card" style="color: #800020; font-size: 20px;"></i>
                 <input type="text" id="regIdSearchInput" placeholder="Search by Student Registration ID (e.g. 24CA018)...">
                 <button id="searchRegIdBtn"><i class="fa-solid fa-magnifying-glass"></i> Search Reg ID</button>
             </div>
@@ -468,7 +465,7 @@
             </div>
 
             <div class="student-grid" id="studentGrid">
-                <div style="color: #f59e0b;">Loading registered students...</div>
+                <div style="color: #800020;">Loading registered students...</div>
             </div>
         </section>
     </main>
@@ -482,7 +479,7 @@
                     <div class="profile-modal-avatar" id="profileModalAvatar">U</div>
                     <div>
                         <h3 class="profile-modal-name" id="profileModalName">Student Name</h3>
-                        <p class="profile-modal-college" id="profileModalCollege"><i class="fa-solid fa-building-columns"></i> College Name</p>
+                        <p class="profile-modal-college" id="profileModalCollege"><i class="fa-solid fa-building-columns" style="color: #800020;"></i> College Name</p>
                         <span id="profileModalRegId" class="profile-regid-badge"><i class="fa-solid fa-id-card"></i> Reg ID</span>
                     </div>
                 </div>
@@ -494,17 +491,17 @@
                 <button type="button" class="profile-tab-btn" data-tab="community"><i class="fa-solid fa-building-columns"></i> College (<span id="countCommPosts">0</span>)</button>
             </div>
             <div class="profile-posts-container" id="profilePostsContainer">
-                <div style="text-align:center; padding:30px; color:#f59e0b;"><i class="fa-solid fa-spinner fa-spin"></i> Loading student posts...</div>
+                <div style="text-align:center; padding:30px; color:#800020;"><i class="fa-solid fa-spinner fa-spin"></i> Loading student posts...</div>
             </div>
         </div>
     </div>
 
     <!-- Full Image Lightbox Modal -->
-    <div id="imageLightboxModal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(8px); z-index: 3000; align-items: center; justify-content: center; padding: 20px;">
-        <button id="closeLightboxBtn" type="button" style="position: absolute; top: 20px; right: 24px; background: rgba(255,255,255,0.15); border: none; color: #fff; width: 44px; height: 44px; border-radius: 50%; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 3010; transition: background 0.2s;" title="Close">
+    <div id="imageLightboxModal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px); z-index: 3000; align-items: center; justify-content: center; padding: 20px;">
+        <button id="closeLightboxBtn" type="button" style="position: absolute; top: 20px; right: 24px; background: rgba(255,255,255,0.25); border: none; color: #fff; width: 44px; height: 44px; border-radius: 50%; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 3010; transition: background 0.2s;" title="Close">
             <i class="fa-solid fa-xmark"></i>
         </button>
-        <img id="lightboxImg" src="" style="max-width: 90vw; max-height: 85vh; object-fit: contain; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.8); border: 1px solid rgba(245, 158, 11, 0.3);" alt="Full Preview">
+        <img id="lightboxImg" src="" style="max-width: 90vw; max-height: 85vh; object-fit: contain; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); border: 2px solid #800020;" alt="Full Preview">
     </div>
 
     <script type="module" src="js/firebase-config.js"></script>

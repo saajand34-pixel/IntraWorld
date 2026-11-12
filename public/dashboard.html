@@ -47,7 +47,7 @@
     <link rel="icon" type="image/png" href="favicon.png">
 
     <!-- Google Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
@@ -59,12 +59,10 @@
             display: flex; 
             flex-direction: column; 
             min-height: 100vh; 
-            background-color: #36050e;
-            background: #36050e;
-            color: #f8fafc; 
+            background: #f8fafc;
+            color: #0f172a; 
             padding-top: 100px;
-            
-            }
+        }
 
         /* ===== FLOATING NAVBAR CONTAINER ===== */
         .nav-container {
@@ -81,17 +79,17 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: rgba(38, 4, 10, 0.95);
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(18px);
             -webkit-backdrop-filter: blur(18px);
             padding: 8px 14px;
             border-radius: 50px;
-            border: 1px solid rgba(245, 158, 11, 0.35);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(245, 158, 11, 0.18);
+            border: 1px solid rgba(128, 0, 32, 0.18);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
             box-sizing: border-box;
         }
 
-        /* Cleaned & Proportionate Logo */
+        /* Proportionate Logo */
         .floating-navbar .logo-img { 
             width: 52px; 
             height: 52px; 
@@ -101,7 +99,7 @@
             background: transparent; 
             padding: 0;
             display: block;
-            filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.4));
+            filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.1));
         }
 
         /* Nav Links Group */
@@ -117,7 +115,7 @@
             gap: 8px; 
             padding: 10px 16px; 
             border-radius: 25px; 
-            color: #d6d3d1; 
+            color: #475569; 
             text-decoration: none; 
             font-size: 14px; 
             font-weight: 500; 
@@ -126,21 +124,21 @@
         }
 
         .nav-links a:hover { 
-            color: #f59e0b; 
-            background: rgba(245, 158, 11, 0.12); 
+            color: #800020; 
+            background: rgba(128, 0, 32, 0.08); 
         }
 
         .nav-links a.active { 
-            color: #180206; 
-            background: linear-gradient(135deg, #ffd700 0%, #f59e0b 50%, #d97706 100%); 
+            color: #ffffff; 
+            background: #800020; 
             font-weight: 700;
-            box-shadow: none;
-            border: 1px solid rgba(245, 158, 11, 0.4);
+            box-shadow: 0 4px 12px rgba(128, 0, 32, 0.25);
+            border: none;
         }
 
         .nav-links a.logout { 
             color: #ef4444; 
-            background: rgba(239, 68, 68, 0.1);
+            background: rgba(239, 68, 68, 0.08);
             margin-left: 4px; 
         }
 
@@ -154,15 +152,27 @@
         .content { padding: 30px; overflow-y: auto; flex: 1; max-width: 1200px; margin: 0 auto; width: 100%; }
         
         .banner { margin-bottom: 45px; }
-        .banner h1 { font-size: 32px; font-weight: 700; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
-        .banner p { font-size: 14px; color: #8fa8bf; font-weight: 500; letter-spacing: 0.5px; }
+        .banner h1 { font-size: 32px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.5px; }
+        .banner p { font-size: 14px; color: #64748b; font-weight: 500; letter-spacing: 0.2px; }
 
         .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
-        .card { background: #220308; border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 16px; padding: 28px; transition: all 0.3s ease; }
-        .card:hover { border-color: rgba(212, 175, 55, 0.45); box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6); transform: translateY(-2px); }
-        .card h3 { font-size: 12px; color: #d6d3d1; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; margin-bottom: 12px; }
-        .card h2 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
-        .card p { font-size: 13px; color: #a8a29e; line-height: 1.6; }
+        .card { 
+            background: #ffffff; 
+            border: 1px solid #e2e8f0; 
+            border-top: 3px solid #800020; 
+            border-radius: 16px; 
+            padding: 28px; 
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+            transition: all 0.3s ease; 
+        }
+        .card:hover { 
+            border-color: #800020; 
+            box-shadow: 0 8px 24px rgba(128, 0, 32, 0.1); 
+            transform: translateY(-2px); 
+        }
+        .card h3 { font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; margin-bottom: 12px; }
+        .card h2 { font-size: 32px; font-weight: 800; color: #0f172a; margin-bottom: 8px; }
+        .card p { font-size: 13px; color: #64748b; line-height: 1.6; }
 
         /* Mobile Responsive Adjustments */
         @media (max-width: 768px) {
@@ -183,35 +193,35 @@
     <div class="nav-container">
         <header class="floating-navbar">
             <nav class="nav-links">
-    <a href="dashboard.html" class="active">
-        <i class="fa-solid fa-house"></i>
-        <span>Home</span>
-    </a>
-    <a href="connect.html">
-        <i class="fa-solid fa-user-group"></i>
-        <span>Student Connect</span>
-    </a>
-    <a href="posts.html">
-        <i class="fa-solid fa-newspaper"></i>
-        <span>Posts</span>
-    </a>
-    <a href="community.html">
-        <i class="fa-solid fa-location-dot"></i>
-        <span>Community</span>
-    </a>
-    <a href="messages.html">
-        <i class="fa-solid fa-comments"></i>
-        <span>Messages</span>
-    </a>
-    <a href="settings.html">
-        <i class="fa-solid fa-gear"></i>
-        <span>Settings</span>
-    </a>
-    <a class="logout" id="logoutBtn" href="javascript:void(0);">
-        <i class="fa-solid fa-right-from-bracket"></i>
-        <span>Logout</span>
-    </a>
-</nav>
+                <a href="dashboard.html" class="active">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Home</span>
+                </a>
+                <a href="connect.html">
+                    <i class="fa-solid fa-user-group"></i>
+                    <span>Student Connect</span>
+                </a>
+                <a href="posts.html">
+                    <i class="fa-solid fa-newspaper"></i>
+                    <span>Posts</span>
+                </a>
+                <a href="community.html">
+                    <i class="fa-solid fa-location-dot"></i>
+                    <span>Community</span>
+                </a>
+                <a href="messages.html">
+                    <i class="fa-solid fa-comments"></i>
+                    <span>Messages</span>
+                </a>
+                <a href="settings.html">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Settings</span>
+                </a>
+                <a class="logout" id="logoutBtn" href="javascript:void(0);">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Logout</span>
+                </a>
+            </nav>
         </header>
     </div>
 
@@ -219,26 +229,25 @@
     <main class="main">
         <section class="content">
             <!-- MODERN HERO DASHBOARD BANNER -->
-            <div class="banner" style="background: linear-gradient(135deg, #24030a, #220308); border: 1px solid rgba(245, 158, 11, 0.35); border-radius: 20px; padding: 32px 28px; box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4); margin-bottom: 35px;">
+            <div class="banner" style="background: #ffffff; border: 1px solid #e2e8f0; border-left: 5px solid #800020; border-radius: 16px; padding: 32px 28px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); margin-bottom: 35px;">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px;">
                     <div>
-                        <div style="display: inline-flex; align-items: center; gap: 8px; font-size: 12px; background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(255, 215, 0, 0.45); padding: 4px 12px; border-radius: 20px; font-weight: 700; margin-bottom: 12px;">
+                        <div style="display: inline-flex; align-items: center; gap: 8px; font-size: 12px; background: rgba(128, 0, 32, 0.08); color: #800020; border: 1px solid rgba(128, 0, 32, 0.2); padding: 4px 12px; border-radius: 20px; font-weight: 700; margin-bottom: 12px;">
                             <i class="fa-solid fa-circle-check"></i> Verified Genuine Student
                         </div>
-                        <h1 style="font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 800; color: #fff; margin-bottom: 6px; letter-spacing: -0.5px;">
-                            Welcome back, <span id="welcomeStudentName" style="background: linear-gradient(135deg, #ffffff 40%, #f59e0b 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Student</span> 👋
+                        <h1 style="font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 800; color: #0f172a; margin-bottom: 6px; letter-spacing: -0.5px;">
+                            Welcome back, <span id="welcomeStudentName" style="color: #800020;">Student</span> 👋
                         </h1>
-                        <p id="studentCollegeBadge" style="font-size: 14px; color: #f59e0b; display: flex; align-items: center; gap: 8px; margin-top: 4px;">
-                            <i class="fa-solid fa-building-columns" style="color: #f59e0b;"></i> <span id="studentCollegeText">Campus Community Enrolled</span>
+                        <p id="studentCollegeBadge" style="font-size: 14px; color: #64748b; display: flex; align-items: center; gap: 8px; margin-top: 4px;">
+                            <i class="fa-solid fa-building-columns" style="color: #800020;"></i> <span id="studentCollegeText">Campus Community Enrolled</span>
                         </p>
                     </div>
                     
                     <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                        <a href="posts.html" class="btn" style="background: linear-gradient(135deg, #ffd700 0%, #f59e0b 50%, #d97706 100%); color: #180206; text-decoration: none; padding: 10px 18px; border-radius: 12px; font-size: 13.5px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; box-shadow: none;
-            border: 1px solid rgba(245, 158, 11, 0.4);">
+                        <a href="posts.html" class="btn" style="background: #800020; color: #ffffff; text-decoration: none; padding: 10px 18px; border-radius: 10px; font-size: 13.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(128, 0, 32, 0.2); transition: 0.2s;">
                             <i class="fa-solid fa-newspaper"></i> Social Feed
                         </a>
-                        <a href="community.html" class="btn" style="background: rgba(245, 158, 11, 0.1); color: #fff; border: 1px solid rgba(245, 158, 11, 0.3); text-decoration: none; padding: 10px 18px; border-radius: 12px; font-size: 13.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
+                        <a href="community.html" class="btn" style="background: #ffffff; color: #800020; border: 1.5px solid #800020; text-decoration: none; padding: 10px 18px; border-radius: 10px; font-size: 13.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s;">
                             <i class="fa-solid fa-building-columns"></i> My Campus Hub
                         </a>
                     </div>
@@ -250,44 +259,44 @@
                 <div class="card" style="border-radius: 16px; position: relative; overflow: hidden;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                         <h3>Student Connections</h3>
-                        <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(245, 158, 11, 0.15); color: #f59e0b; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                        <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(128, 0, 32, 0.08); color: #800020; display: flex; align-items: center; justify-content: center; font-size: 16px;">
                             <i class="fa-solid fa-user-group"></i>
                         </div>
                     </div>
-                    <h2 id="connections" style="color: #fff; font-size: 32px; font-weight: 800;">0</h2>
+                    <h2 id="connections">0</h2>
                     <p>Verified classmates & cross-campus peers.</p>
                 </div>
 
                 <div class="card" style="border-radius: 16px; position: relative; overflow: hidden;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                         <h3>Projects & Repos</h3>
-                        <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(245, 158, 11, 0.15); color: #f59e0b; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                        <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(128, 0, 32, 0.08); color: #800020; display: flex; align-items: center; justify-content: center; font-size: 16px;">
                             <i class="fa-solid fa-diagram-project"></i>
                         </div>
                     </div>
-                    <h2 id="projects" style="color: #fff; font-size: 32px; font-weight: 800;">0</h2>
+                    <h2 id="projects">0</h2>
                     <p>Academic capstone & group collaborations.</p>
                 </div>
 
                 <div class="card" style="border-radius: 16px; position: relative; overflow: hidden;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                         <h3>Research & Publications</h3>
-                        <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(245, 158, 11, 0.15); color: #f59e0b; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                        <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(128, 0, 32, 0.08); color: #800020; display: flex; align-items: center; justify-content: center; font-size: 16px;">
                             <i class="fa-solid fa-book-bookmark"></i>
                         </div>
                     </div>
-                    <h2 id="research" style="color: #fff; font-size: 32px; font-weight: 800;">0</h2>
+                    <h2 id="research">0</h2>
                     <p>Technical papers & innovation articles.</p>
                 </div>
 
                 <div class="card" style="border-radius: 16px; position: relative; overflow: hidden;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                         <h3>Direct Messages</h3>
-                        <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(245, 158, 11, 0.15); color: #f59e0b; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                        <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(128, 0, 32, 0.08); color: #800020; display: flex; align-items: center; justify-content: center; font-size: 16px;">
                             <i class="fa-solid fa-comment-dots"></i>
                         </div>
                     </div>
-                    <h2 id="notifications" style="color: #fff; font-size: 32px; font-weight: 800;">0</h2>
+                    <h2 id="notifications">0</h2>
                     <p>Real-time chat with attachment support.</p>
                 </div>
             </div>

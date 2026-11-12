@@ -54,9 +54,8 @@
             display: flex; 
             flex-direction: column; 
             min-height: 100vh; 
-            background-color: #36050e;
-            background: #36050e;
-            color: #ffffff; 
+            background: #f8fafc;
+            color: #0f172a; 
             padding-top: 100px;
         }
 
@@ -75,13 +74,13 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: rgba(38, 4, 10, 0.95);
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(18px);
             -webkit-backdrop-filter: blur(18px);
-            border: 1px solid rgba(245, 158, 11, 0.35);
+            border: 1px solid rgba(128, 0, 32, 0.18);
             padding: 8px 12px;
             border-radius: 50px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.75), inset 0 0 0 1px rgba(245, 158, 11, 0.18);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
         }
 
         .nav-links { display: flex; align-items: center; gap: 6px; }
@@ -92,7 +91,7 @@
             gap: 8px; 
             padding: 10px 18px; 
             border-radius: 25px; 
-            color: #d6d3d1; 
+            color: #475569; 
             text-decoration: none; 
             font-size: 14px; 
             font-weight: 500; 
@@ -100,19 +99,19 @@
             transition: all 0.2s ease; 
         }
 
-        .nav-links a:hover { color: #f59e0b; background: rgba(245, 158, 11, 0.12); }
+        .nav-links a:hover { color: #800020; background: rgba(128, 0, 32, 0.08); }
 
         .nav-links a.active { 
-            color: #180206; 
-            background: linear-gradient(135deg, #ffd700 0%, #f59e0b 50%, #d97706 100%); 
+            color: #ffffff; 
+            background: #800020; 
             font-weight: 700;
-            box-shadow: none;
-            border: 1px solid rgba(245, 158, 11, 0.4);
+            box-shadow: 0 4px 12px rgba(128, 0, 32, 0.25);
+            border: none;
         }
 
         .nav-links a.logout { 
             color: #ef4444; 
-            background: rgba(239, 68, 68, 0.1);
+            background: rgba(239, 68, 68, 0.08);
             margin-left: 6px; 
         }
 
@@ -129,7 +128,7 @@
         .settings-header h2 {
             font-size: 1.6rem;
             font-weight: 700;
-            color: #ffffff;
+            color: #0f172a;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -137,23 +136,25 @@
 
         .settings-header p {
             font-size: 14px;
-            color: #8fa8bf;
+            color: #64748b;
             margin-top: 4px;
         }
 
         .card { 
-            background: #220308; 
-            border: 1px solid rgba(245, 158, 11, 0.3); 
+            background: #ffffff; 
+            border: 1px solid #e2e8f0; 
+            border-top: 3px solid #800020;
             padding: 26px; 
             border-radius: 16px; 
             margin-bottom: 24px; 
             width: 100%; 
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
         }
 
         .card-title {
             font-size: 1.15rem;
-            font-weight: 600;
-            color: #ffffff;
+            font-weight: 700;
+            color: #0f172a;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -162,11 +163,11 @@
 
         .card-subtitle {
             font-size: 13px;
-            color: #8fa8bf;
+            color: #64748b;
             margin-bottom: 20px;
         }
 
-        /* Profile DP WhatsApp-Style Container */
+        /* Profile DP Container */
         .profile-dp-section {
             display: flex;
             align-items: center;
@@ -179,9 +180,8 @@
             width: 105px;
             height: 105px;
             border-radius: 50%;
-            border: 3px solid #f59e0b;
-            box-shadow: none;
-            background: #36050e;
+            border: 3px solid #800020;
+            background: #f8fafc;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -203,12 +203,12 @@
         }
 
         .btn {
-            background: linear-gradient(135deg, #ffd700 0%, #f59e0b 50%, #d97706 100%);
-            color: #180206;
+            background: #800020;
+            color: #ffffff;
             border: none;
             padding: 10px 20px;
-            border-radius: 10px;
-            font-weight: 700;
+            border-radius: 8px;
+            font-weight: 600;
             font-size: 14px;
             cursor: pointer;
             display: inline-flex;
@@ -216,25 +216,26 @@
             gap: 8px;
             transition: 0.2s ease;
             width: fit-content;
-            box-shadow: none;
-            border: 1px solid rgba(245, 158, 11, 0.4);
+            box-shadow: 0 4px 12px rgba(128, 0, 32, 0.2);
         }
 
-        .btn:hover { background: linear-gradient(135deg, #fef08a 0%, #ffd700 50%, #f59e0b 100%); }
+        .btn:hover { background: #630517; box-shadow: 0 6px 16px rgba(128, 0, 32, 0.3); }
         .btn-outline {
-            background: rgba(245, 158, 11, 0.15);
-            color: #f59e0b;
-            border: 1px solid rgba(255, 215, 0, 0.45);
+            background: #ffffff;
+            color: #800020;
+            border: 1.5px solid #800020;
+            box-shadow: none;
         }
         .btn-outline:hover {
-            background: rgba(245, 158, 11, 0.35);
+            background: #800020;
             color: #ffffff;
         }
         .btn-save {
-            background: #22c55e;
+            background: #059669;
             color: #ffffff;
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);
         }
-        .btn-save:hover { background: #16a34a; }
+        .btn-save:hover { background: #047857; }
 
         /* Registration Data Grid */
         .info-grid {
@@ -252,30 +253,32 @@
 
         .info-field label {
             font-size: 12px;
-            color: #f59e0b;
+            color: #800020;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             font-weight: 600;
         }
 
         .info-field input {
-            background: #36050e;
-            border: 1px solid rgba(245, 158, 11, 0.25);
-            color: #ffffff;
+            background: #ffffff;
+            border: 1.5px solid #cbd5e1;
+            color: #0f172a;
             padding: 12px 14px;
-            border-radius: 10px;
+            border-radius: 8px;
             font-size: 14px;
             outline: none;
             transition: border-color 0.2s;
         }
         .info-field input:focus {
-            border-color: #f59e0b;
+            border-color: #800020;
+            box-shadow: 0 0 0 3px rgba(128, 0, 32, 0.1);
         }
 
         .info-field input:disabled {
-            background: #100103;
-            color: #d6d3d1;
-            border-color: rgba(245, 158, 11, 0.12);
+            background: #f8fafc;
+            color: #64748b;
+            border-color: #e2e8f0;
+            cursor: not-allowed;
         }
 
         .status-badge {
@@ -289,20 +292,20 @@
             width: fit-content;
         }
         .status-verified {
-            background: rgba(34, 197, 94, 0.15);
-            color: #4ade80;
-            border: 1px solid rgba(34, 197, 94, 0.35);
+            background: rgba(5, 150, 105, 0.1);
+            color: #059669;
+            border: 1px solid rgba(5, 150, 105, 0.3);
         }
         .status-pending {
-            background: rgba(234, 179, 8, 0.15);
-            color: #facc15;
-            border: 1px solid rgba(234, 179, 8, 0.35);
+            background: rgba(128, 0, 32, 0.08);
+            color: #800020;
+            border: 1px solid rgba(128, 0, 32, 0.25);
         }
 
         .toast-msg {
             display: none;
             padding: 12px 18px;
-            border-radius: 10px;
+            border-radius: 8px;
             font-size: 14px;
             margin-top: 14px;
             align-items: center;
@@ -340,14 +343,14 @@
         <section class="content">
 
             <div class="settings-header">
-                <h2><i class="fa-solid fa-sliders" style="color: #0066ff;"></i> Account Settings</h2>
+                <h2><i class="fa-solid fa-sliders" style="color: #800020;"></i> Account Settings</h2>
                 <p>Manage your Data, View your profile, or Manage your account.</p>
             </div>
 
             <!-- PROFILE PHOTO (DP) CARD -->
             <div class="card">
                 <div class="card-title">
-                    <i class="fa-solid fa-camera-retro" style="color: #38bdf8;"></i> Profile Picture (DP)
+                    <i class="fa-solid fa-camera-retro" style="color: #800020;"></i> Profile Picture (DP)
                 </div>
                 <div class="card-subtitle">
                     Upload a permanent profile photo. Stored securely and synced across all your devices.
@@ -355,7 +358,7 @@
 
                 <div class="profile-dp-section">
                     <div class="dp-wrapper" onclick="document.getElementById('dpFileInput').click();" title="Click to choose photo">
-                        <img id="avatarPreview" class="dp-image" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2338bdf8'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-3.8-.85-5.05-2.2.03-1.68 3.37-2.6 5.05-2.6s5.02.92 5.05 2.6C15.8 19.15 14.03 20 12 20z'/></svg>" alt="Student DP">
+                        <img id="avatarPreview" class="dp-image" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23800020'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-3.8-.85-5.05-2.2.03-1.68 3.37-2.6 5.05-2.6s5.02.92 5.05 2.6C15.8 19.15 14.03 20 12 20z'/></svg>" alt="Student DP">
                     </div>
 
                     <div class="dp-actions">
@@ -374,19 +377,19 @@
             </div>
 
             <!-- PERSONAL REGISTRATION DATABASE VIEW -->
-            <div class="card" style="border: 1px solid rgba(56, 189, 248, 0.2); box-shadow: 0 10px 30px rgba(0,0,0,0.35);">
+            <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
                     <div class="card-title" style="margin-bottom: 0;">
-                        <i class="fa-solid fa-id-card-clip" style="color: #38bdf8;"></i> Personal User Record
+                        <i class="fa-solid fa-id-card-clip" style="color: #800020;"></i> Personal User Record
                     </div>
                     <div style="display: flex; gap: 8px; align-items: center;">
-                        <button type="button" id="btnEditCredentials" class="btn" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.35); padding: 7px 16px; border-radius: 8px; font-size: 12.5px; font-weight: 600; cursor: pointer;">
+                        <button type="button" id="btnEditCredentials" class="btn btn-outline" style="padding: 7px 16px; border-radius: 8px; font-size: 12.5px;">
                             <i class="fa-solid fa-pen-to-square"></i> Edit Credentials
                         </button>
-                        <button type="button" id="btnSaveCredentials" class="btn" style="display: none; background: linear-gradient(135deg, #ffd700 0%, #f59e0b 100%); color: #180206; border: none; padding: 7px 16px; border-radius: 8px; font-size: 12.5px; font-weight: 700; cursor: pointer;">
+                        <button type="button" id="btnSaveCredentials" class="btn" style="display: none; padding: 7px 16px; border-radius: 8px; font-size: 12.5px;">
                             <i class="fa-solid fa-floppy-disk"></i> Save Changes
                         </button>
-                        <button type="button" id="btnCancelEdit" class="btn" style="display: none; background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.35); padding: 7px 14px; border-radius: 8px; font-size: 12.5px; font-weight: 600; cursor: pointer;">
+                        <button type="button" id="btnCancelEdit" class="btn" style="display: none; background: rgba(239, 68, 68, 0.1); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.3); padding: 7px 14px; border-radius: 8px; font-size: 12.5px;">
                             Cancel
                         </button>
                     </div>
@@ -394,13 +397,13 @@
 
                 <div class="info-grid">
                     <div class="info-field">
-                        <label><i class="fa-solid fa-user" style="color: #8fa8bf; margin-right: 4px;"></i> Full Name</label>
+                        <label><i class="fa-solid fa-user" style="color: #64748b; margin-right: 4px;"></i> Full Name</label>
                         <input type="text" id="dbFullName" placeholder="Student Name" disabled>
                     </div>
 
                     <div class="info-field">
-                        <label><i class="fa-solid fa-venus-mars" style="color: #8fa8bf; margin-right: 4px;"></i> Gender</label>
-                        <select id="dbGender" disabled style="background: #100103; border: 1px solid rgba(245, 158, 11, 0.2); color: #e2e8f0; font-size: 14px; font-weight: 500; padding: 10px 14px; border-radius: 8px; width: 100%;">
+                        <label><i class="fa-solid fa-venus-mars" style="color: #64748b; margin-right: 4px;"></i> Gender</label>
+                        <select id="dbGender" disabled style="background: #f8fafc; border: 1px solid #e2e8f0; color: #64748b; font-size: 14px; font-weight: 500; padding: 10px 14px; border-radius: 8px; width: 100%;">
                             <option value="">Not Specified</option>
                             <option value="Male">Male</option>
                             <option value="Female">Female</option>
@@ -410,41 +413,41 @@
                     </div>
 
                     <div class="info-field">
-                        <label><i class="fa-solid fa-envelope" style="color: #8fa8bf; margin-right: 4px;"></i> Email Address</label>
+                        <label><i class="fa-solid fa-envelope" style="color: #64748b; margin-right: 4px;"></i> Email Address</label>
                         <input type="email" id="dbEmail" placeholder="student@example.com" disabled readonly>
                     </div>
 
                     <div class="info-field">
-                        <label><i class="fa-solid fa-phone" style="color: #8fa8bf; margin-right: 4px;"></i> Mobile Number</label>
+                        <label><i class="fa-solid fa-phone" style="color: #64748b; margin-right: 4px;"></i> Mobile Number</label>
                         <input type="text" id="dbMobile" placeholder="Contact number" disabled readonly>
                     </div>
 
                     <div class="info-field">
-                        <label><i class="fa-solid fa-id-badge" style="color: #8fa8bf; margin-right: 4px;"></i> Student Roll No / Reg ID</label>
+                        <label><i class="fa-solid fa-id-badge" style="color: #64748b; margin-right: 4px;"></i> Student Roll No / Reg ID</label>
                         <input type="text" id="dbRegId" placeholder="Reg ID (e.g. 24CA018)" disabled>
                     </div>
 
                     <div class="info-field">
-                        <label><i class="fa-solid fa-graduation-cap" style="color: #8fa8bf; margin-right: 4px;"></i> Enrolled Qualification</label>
+                        <label><i class="fa-solid fa-graduation-cap" style="color: #64748b; margin-right: 4px;"></i> Enrolled Qualification</label>
                         <input type="text" id="dbQualification" placeholder="Degree / Course (e.g. BCA, MCA)" disabled>
                     </div>
 
                     <div class="info-field">
-                        <label><i class="fa-solid fa-calendar-days" style="color: #8fa8bf; margin-right: 4px;"></i> Passout Year / Batch</label>
+                        <label><i class="fa-solid fa-calendar-days" style="color: #64748b; margin-right: 4px;"></i> Passout Year / Batch</label>
                         <input type="text" id="dbPassout" placeholder="e.g. 2024-2027" disabled>
                     </div>
 
                     <!-- Verified College Record Field -->
-                    <div class="info-field" style="grid-column: 1 / -1; background: rgba(245, 158, 11, 0.05); padding: 18px; border-radius: 14px; border: 1px solid rgba(245, 158, 11, 0.25);">
+                    <div class="info-field" style="grid-column: 1 / -1; background: rgba(128, 0, 32, 0.04); padding: 18px; border-radius: 14px; border: 1px solid rgba(128, 0, 32, 0.2);">
                         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-                            <label style="color: #f59e0b; font-weight: 600; display: flex; align-items: center; gap: 8px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">
+                            <label style="color: #800020; font-weight: 600; display: flex; align-items: center; gap: 8px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">
                                 <i class="fa-solid fa-building-columns" style="font-size: 15px;"></i> College / University Name
                             </label>
-                            <span id="collegeLockBadge" style="font-size: 11px; background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.35); padding: 3px 9px; border-radius: 12px; font-weight: 600;">
+                            <span id="collegeLockBadge" style="font-size: 11px; background: rgba(128, 0, 32, 0.08); color: #800020; border: 1px solid rgba(128, 0, 32, 0.25); padding: 3px 9px; border-radius: 12px; font-weight: 600;">
                                 <i class="fa-solid fa-id-badge"></i> Campus Affiliation
                             </span>
                         </div>
-                        <input type="text" id="dbCollege" placeholder="Enter College Name (e.g. SFGC, BMSIT)" disabled style="background: #100103; border-color: rgba(245, 158, 11, 0.2); color: #e2e8f0; font-size: 15px; font-weight: 500; margin-top: 8px;">
+                        <input type="text" id="dbCollege" placeholder="Enter College Name (e.g. SFGC, BMSIT)" disabled style="background: #f8fafc; border: 1px solid #e2e8f0; color: #0f172a; font-size: 15px; font-weight: 500; margin-top: 8px;">
                     </div>
 
                     <div class="info-field" style="grid-column: 1 / -1;">
@@ -457,11 +460,11 @@
                     </div>
                 </div>
 
-                <div style="margin-top: 22px; display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; border-top: 1px solid rgba(245,158,11,0.15); padding-top: 18px;">
-                    <div id="receiptSuccessAlert" style="font-size: 13px; color: #4ade80; display: none; align-items: center; gap: 8px;">
+                <div style="margin-top: 22px; display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; border-top: 1px solid #e2e8f0; padding-top: 18px;">
+                    <div id="receiptSuccessAlert" style="font-size: 13px; color: #059669; display: none; align-items: center; gap: 8px;">
                         <i class="fa-solid fa-circle-check"></i> <span id="receiptSuccessText">Academic record updated successfully!</span>
                     </div>
-                    <button type="button" id="btnOpenReceiptModal" class="btn" style="background: linear-gradient(135deg, #ffd700 0%, #f59e0b 50%, #d97706 100%); color: #180206; padding: 11px 22px; border-radius: 10px; font-weight: 700; font-size: 14px; border: 1px solid rgba(245, 158, 11, 0.4); cursor: pointer; box-shadow: none;">
+                    <button type="button" id="btnOpenReceiptModal" class="btn" style="padding: 11px 22px; border-radius: 10px; font-weight: 600; font-size: 14px; cursor: pointer;">
                         <i class="fa-solid fa-file-invoice-dollar"></i> Add Degree / Update College via Fee Receipt
                     </button>
                 </div>
@@ -469,15 +472,15 @@
 
             <!-- DANGER ZONE / ACCOUNT DEACTIVATION CARD -->
             <div class="card" style="border-color: rgba(239, 68, 68, 0.25); background: rgba(239, 68, 68, 0.04);">
-                <div class="card-title" style="color: #ef4444;">
-                    <i class="fa-solid fa-triangle-exclamation" style="color: #ef4444;"></i> Account Deactivation
+                <div class="card-title" style="color: #dc2626;">
+                    <i class="fa-solid fa-triangle-exclamation" style="color: #dc2626;"></i> Account Deactivation
                 </div>
                 <div class="card-subtitle">
                     Permanently delete your verified student registration and remove your profile from the IntraWorld database.
                 </div>
 
                 <div>
-                    <button id="deactivateAccountBtn" class="btn" style="background: rgba(239, 68, 68, 0.18); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.45); padding: 11px 22px;">
+                    <button id="deactivateAccountBtn" class="btn" style="background: rgba(239, 68, 68, 0.1); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.3); padding: 11px 22px;">
                         <i class="fa-solid fa-trash-can"></i> Deactivate & Delete Account
                     </button>
                 </div>
@@ -487,58 +490,58 @@
     </main>
 
     <!-- ADD DEGREE & COLLEGE VIA FEE RECEIPT MODAL -->
-    <div id="receiptModal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(8px); z-index: 2000; align-items: center; justify-content: center; padding: 20px; overflow-y: auto;">
-        <div style="background: #180206; border: 1px solid rgba(245, 158, 11, 0.35); border-radius: 20px; max-width: 540px; width: 100%; padding: 28px; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85);">
+    <div id="receiptModal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px); z-index: 2000; align-items: center; justify-content: center; padding: 20px; overflow-y: auto;">
+        <div style="background: #ffffff; border: 1px solid #e2e8f0; border-top: 4px solid #800020; border-radius: 16px; max-width: 540px; width: 100%; padding: 28px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
                 <div>
-                    <h3 style="color: #ffffff; font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: 10px;">
-                        <i class="fa-solid fa-graduation-cap" style="color: #f59e0b;"></i> Add Verified Degree / College
+                    <h3 style="color: #0f172a; font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: 10px;">
+                        <i class="fa-solid fa-graduation-cap" style="color: #800020;"></i> Add Verified Degree / College
                     </h3>
-                    <p style="color: #8fa8bf; font-size: 13px; margin-top: 4px;">
+                    <p style="color: #64748b; font-size: 13px; margin-top: 4px;">
                         Submit your new college fee receipt. IntraWorld will automatically append the course to your registration record (e.g. <code>BCA(SFGC), MCA(BMSIT)</code>).
                     </p>
                 </div>
-                <button type="button" id="btnCloseReceiptModal" style="background: transparent; border: none; color: #8fa8bf; font-size: 20px; cursor: pointer; padding: 4px 8px;" title="Close">
+                <button type="button" id="btnCloseReceiptModal" style="background: transparent; border: none; color: #64748b; font-size: 20px; cursor: pointer; padding: 4px 8px;" title="Close">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
 
             <form id="receiptUploadForm" style="display: flex; flex-direction: column; gap: 16px;">
                 <div class="info-field">
-                    <label for="newCourseName" style="color: #f59e0b; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                    <label for="newCourseName" style="color: #800020; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
                         <i class="fa-solid fa-book-bookmark" style="margin-right: 4px;"></i> New Course / Degree
                     </label>
-                    <input type="text" id="newCourseName" placeholder="e.g. MCA, M.Tech, MBA, M.Sc" required style="background: #220308; border: 1px solid rgba(245, 158, 11, 0.3); color: #fff; padding: 12px 14px; border-radius: 10px; font-size: 14px; outline: none;">
+                    <input type="text" id="newCourseName" placeholder="e.g. MCA, M.Tech, MBA, M.Sc" required style="background: #ffffff; border: 1.5px solid #cbd5e1; color: #0f172a; padding: 12px 14px; border-radius: 8px; font-size: 14px; outline: none;">
                 </div>
 
                 <div class="info-field">
-                    <label for="newCollegeName" style="color: #f59e0b; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                    <label for="newCollegeName" style="color: #800020; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
                         <i class="fa-solid fa-building-columns" style="margin-right: 4px;"></i> New College / University Name
                     </label>
-                    <input type="text" id="newCollegeName" placeholder="e.g. BMS Institute of Technology (BMSIT)" required style="background: #220308; border: 1px solid rgba(245, 158, 11, 0.3); color: #fff; padding: 12px 14px; border-radius: 10px; font-size: 14px; outline: none;">
+                    <input type="text" id="newCollegeName" placeholder="e.g. BMS Institute of Technology (BMSIT)" required style="background: #ffffff; border: 1.5px solid #cbd5e1; color: #0f172a; padding: 12px 14px; border-radius: 8px; font-size: 14px; outline: none;">
                 </div>
 
                 <div class="info-field">
-                    <label for="newPassoutYear" style="color: #f59e0b; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                    <label for="newPassoutYear" style="color: #800020; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
                         <i class="fa-solid fa-calendar-check" style="margin-right: 4px;"></i> Expected Passout Batch / Year (Optional)
                     </label>
-                    <input type="text" id="newPassoutYear" placeholder="e.g. 2026 or 2027" style="background: #220308; border: 1px solid rgba(245, 158, 11, 0.3); color: #fff; padding: 12px 14px; border-radius: 10px; font-size: 14px; outline: none;">
+                    <input type="text" id="newPassoutYear" placeholder="e.g. 2026 or 2027" style="background: #ffffff; border: 1.5px solid #cbd5e1; color: #0f172a; padding: 12px 14px; border-radius: 8px; font-size: 14px; outline: none;">
                 </div>
 
                 <div class="info-field">
-                    <label style="color: #f59e0b; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                    <label style="color: #800020; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
                         <i class="fa-solid fa-file-invoice" style="margin-right: 4px;"></i> Official College Fee Receipt (PDF or Image)
                     </label>
                     <input type="file" id="receiptFileInput" accept="application/pdf,image/png,image/jpeg,image/webp" style="display: none;">
                     <label for="receiptFileInput" class="btn btn-outline" style="cursor: pointer; width: 100%; justify-content: center; padding: 12px; border-style: dashed; border-width: 2px;">
                         <i class="fa-solid fa-cloud-arrow-up"></i> Select Fee Receipt (Max 5MB)
                     </label>
-                    <div id="receiptFileDetails" style="display: none; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.3); padding: 10px 14px; border-radius: 8px; border: 1px solid rgba(245, 158, 11, 0.2); font-size: 13px; margin-top: 6px;">
+                    <div id="receiptFileDetails" style="display: none; align-items: center; justify-content: space-between; background: #f8fafc; padding: 10px 14px; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 13px; margin-top: 6px;">
                         <div style="display: flex; align-items: center; gap: 8px; overflow: hidden;">
-                            <i class="fa-solid fa-file-circle-check" style="color: #4ade80;"></i>
-                            <span id="receiptFileName" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff;"></span>
+                            <i class="fa-solid fa-file-circle-check" style="color: #059669;"></i>
+                            <span id="receiptFileName" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #0f172a;"></span>
                         </div>
-                        <button type="button" id="btnRemoveReceiptFile" style="background: transparent; border: none; color: #ef4444; cursor: pointer; padding: 2px 6px;">
+                        <button type="button" id="btnRemoveReceiptFile" style="background: transparent; border: none; color: #dc2626; cursor: pointer; padding: 2px 6px;">
                             <i class="fa-solid fa-trash-can"></i>
                         </button>
                     </div>
@@ -547,10 +550,10 @@
                 <div id="receiptStatusMsg" style="display: none; padding: 10px 14px; border-radius: 8px; font-size: 13px; align-items: center; gap: 8px;"></div>
 
                 <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 10px;">
-                    <button type="button" id="btnCancelReceiptModal" class="btn" style="background: rgba(255, 255, 255, 0.08); color: #cbd5e1; border: 1px solid rgba(255, 255, 255, 0.15); padding: 10px 18px;">
+                    <button type="button" id="btnCancelReceiptModal" class="btn" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 10px 18px;">
                         Cancel
                     </button>
-                    <button type="submit" id="btnSubmitReceipt" class="btn" style="background: linear-gradient(135deg, #ffd700 0%, #f59e0b 50%, #d97706 100%); color: #180206; padding: 10px 22px; font-weight: 700;">
+                    <button type="submit" id="btnSubmitReceipt" class="btn" style="padding: 10px 22px; font-weight: 600;">
                         <i class="fa-solid fa-shield-check"></i> Verify & Append Degree
                     </button>
                 </div>
@@ -559,28 +562,25 @@
     </div>
 
     <!-- CONFIRMATION MODAL -->
-    <div id="deactivateModal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(6px); z-index: 2000; align-items: center; justify-content: center; padding: 20px;">
-        <div style="background: #11151c; border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 18px; max-width: 480px; width: 100%; padding: 28px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8); text-align: center;">
-            <div style="width: 60px; height: 60px; border-radius: 50%; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto; font-size: 26px; color: #ef4444;">
+    <div id="deactivateModal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px); z-index: 2000; align-items: center; justify-content: center; padding: 20px;">
+        <div style="background: #ffffff; border: 1px solid #e2e8f0; border-top: 4px solid #dc2626; border-radius: 16px; max-width: 480px; width: 100%; padding: 28px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15); text-align: center;">
+            <div style="width: 60px; height: 60px; border-radius: 50%; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto; font-size: 26px; color: #dc2626;">
                 <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
-            <h3 style="color: #ffffff; font-size: 1.3rem; margin-bottom: 8px; font-weight: 700;">Are you sure you want to delete?</h3>
-            <p style="color: #cbd5e1; font-size: 0.92rem; line-height: 1.6; margin-bottom: 24px;">
+            <h3 style="color: #0f172a; font-size: 1.3rem; margin-bottom: 8px; font-weight: 700;">Are you sure you want to delete?</h3>
+            <p style="color: #64748b; font-size: 0.92rem; line-height: 1.6; margin-bottom: 24px;">
                 This will permanently delete your student registration records, verified credentials, and avatar from the database. This action <strong>cannot be undone</strong>.
             </p>
             <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
-                <button id="cancelDeactivateBtn" class="btn" style="background: rgba(255, 255, 255, 0.08); color: #cbd5e1; border: 1px solid rgba(255, 255, 255, 0.15); padding: 10px 20px;">
+                <button id="cancelDeactivateBtn" class="btn" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 10px 20px;">
                     <i class="fa-solid fa-xmark"></i> No, Cancel
                 </button>
-                <button id="confirmDeactivateBtn" class="btn" style="background: #ef4444; color: #ffffff; padding: 10px 22px;">
+                <button id="confirmDeactivateBtn" class="btn" style="background: #dc2626; color: #ffffff; padding: 10px 22px;">
                     <i class="fa-solid fa-trash-can"></i> Yes, Delete My Account
                 </button>
             </div>
         </div>
     </div>
-
-    
-    
 
     <script type="module" src="js/firebase-config.js"></script>
     <script type="module" src="js/auth-check.js"></script>
