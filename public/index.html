@@ -726,30 +726,28 @@
         .site-footer {
             border-top: 2px solid var(--maroon-primary);
             background: #ffffff;
-            padding: 60px 0 28px;
+            padding: 48px 0 24px;
             margin-top: auto;
             position: relative;
             box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.03);
         }
 
-        .footer-grid {
-            display: grid;
-            grid-template-columns: 2fr 1.25fr 1fr 1.35fr;
-            gap: 40px;
-            padding-bottom: 35px;
-            border-bottom: 1px solid var(--border-light);
-        }
-
-        .footer-col-about {
+        .footer-content {
             display: flex;
             flex-direction: column;
-            gap: 14px;
+            align-items: center;
+            text-align: center;
+            width: 100%;
+            max-width: 960px;
+            margin: 0 auto;
         }
 
         .footer-brand {
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 12px;
+            margin-bottom: 16px;
         }
 
         .footer-logo {
@@ -761,183 +759,56 @@
 
         .footer-brand-title {
             font-family: 'Space Grotesk', sans-serif;
-            font-size: 1.35rem;
+            font-size: 1.45rem;
             font-weight: 800;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
             color: var(--maroon-primary);
         }
 
         .footer-desc {
-            font-size: 13.5px;
+            font-size: 14.5px;
             color: var(--text-muted);
-            line-height: 1.65;
-            margin: 0;
+            line-height: 1.8;
+            margin: 0 auto 16px;
+            text-align: center;
+            width: 100%;
+            max-width: 900px;
         }
 
         .footer-capstone-badge {
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
             background: var(--maroon-subtle);
             border: 1px solid var(--maroon-border);
             color: var(--maroon-primary);
             font-size: 12px;
             font-weight: 700;
-            padding: 6px 14px;
+            padding: 6px 16px;
             border-radius: 20px;
-            width: fit-content;
-            margin-top: 4px;
-        }
-
-        .footer-col h4 {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 15px;
-            font-weight: 700;
-            color: var(--text-heading);
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            letter-spacing: 0.3px;
-        }
-
-        .footer-col h4 i {
-            color: var(--maroon-primary);
-            font-size: 13px;
-        }
-
-        .footer-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .footer-list li {
-            font-size: 13px;
-            color: var(--text-body);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .footer-list li i {
-            font-size: 11px;
-            color: var(--maroon-primary);
-            opacity: 0.9;
-        }
-
-        .footer-list a {
-            color: var(--text-muted);
-            text-decoration: none;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .footer-list a:hover {
-            color: var(--maroon-primary);
-            transform: translateX(3px);
-        }
-
-        .footer-dev-card {
-            background: #f8fafc;
-            border: 1px solid var(--border-light);
-            border-radius: 12px;
-            padding: 12px 14px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .footer-dev-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-size: 12.5px;
-            color: var(--text-heading);
-            padding-bottom: 6px;
-            border-bottom: 1px dashed var(--border-light);
-        }
-
-        .footer-dev-item:last-child {
-            padding-bottom: 0;
-            border-bottom: none;
-        }
-
-        .footer-dev-name {
-            font-weight: 700;
-            color: var(--maroon-primary);
-        }
-
-        .footer-dev-role {
-            font-size: 11px;
-            color: var(--text-muted);
-        }
-
-        .footer-academic-note {
-            font-size: 11.5px;
-            color: var(--text-muted);
-            line-height: 1.5;
-            margin-top: 10px;
+            margin-bottom: 24px;
         }
 
         /* Sub-footer bottom bar */
         .footer-bottom-bar {
+            width: 100%;
+            border-top: 1px solid var(--border-light);
+            padding-top: 20px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 16px;
-            padding-top: 24px;
+            justify-content: center;
             font-size: 12.5px;
             color: var(--text-muted);
         }
 
+        .footer-copyright {
+            text-align: center;
+            width: 100%;
+        }
+
         .footer-bottom-bar strong {
             color: var(--maroon-primary);
-        }
-
-        .footer-tech-tags {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .footer-tech-tag {
-            font-size: 11px;
-            background: var(--maroon-subtle);
-            border: 1px solid var(--maroon-border);
-            color: var(--maroon-primary);
-            padding: 3px 8px;
-            border-radius: 6px;
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        @media (max-width: 960px) {
-            .footer-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 32px;
-            }
-        }
-
-        @media (max-width: 600px) {
-            .footer-grid {
-                grid-template-columns: 1fr;
-                gap: 26px;
-            }
-            .footer-bottom-bar {
-                flex-direction: column;
-                text-align: center;
-                gap: 12px;
-            }
-            .footer-tech-tags {
-                justify-content: center;
-            }
         }
 
         /* ===== RESPONSIVE BREAKPOINTS ===== */
@@ -1465,26 +1336,27 @@
     <!-- FOOTER (COLLEGE FINAL YEAR MAJOR PROJECT) -->
     <footer class="site-footer">
         <div class="container">
-            <div class="footer-grid">
-
-                <!-- Column 1: Project Identity & Synopsis -->
-                <div class="footer-col footer-col-about">
-                    <div class="footer-brand">
-                        <img src="logo.png" alt="IntraWorld Emblem" class="footer-logo">
-                        <span class="footer-brand-title">INTRAWORLD</span>
-                    </div>
-                    <p class="footer-desc">
-                        A secure intra-college social networking platform with AI-powered student credential verification. Engineered to eliminate synthetic profiles and provide authentic, tamper-proof academic collaboration across institutions.
-                    </p>
-                    <div class="footer-capstone-badge">
-                        <i class="fa-solid fa-award"></i> Final Year Major Project (2025–2026)
-                    </div>
+            <div class="footer-content">
+                <!-- Header of Footer: Logo & INTRAWORLD text centered -->
+                <div class="footer-brand">
+                    <img src="logo.png" alt="IntraWorld Emblem" class="footer-logo">
+                    <span class="footer-brand-title">INTRAWORLD</span>
                 </div>
 
-            <!-- Bottom Sub-Footer Bar -->
-            <div class="footer-bottom-bar">
-                <div class="footer-copyright">
-                    &copy; 2026 <strong>INTRAWORLD</strong> • College Final Year Project Capstone. All Rights Reserved.
+                <!-- Paragraph type, aligned and full -->
+                <p class="footer-desc">
+                    A secure intra-college social networking platform with AI-powered student credential verification. Engineered to eliminate synthetic profiles and provide authentic, tamper-proof academic collaboration across institutions.
+                </p>
+
+                <div class="footer-capstone-badge">
+                    <i class="fa-solid fa-award"></i> Final Year Major Project (2025–2026)
+                </div>
+
+                <!-- Bottom Sub-Footer Bar -->
+                <div class="footer-bottom-bar">
+                    <div class="footer-copyright">
+                        &copy; 2026 <strong>INTRAWORLD</strong> • College Final Year Project Capstone. All Rights Reserved.
+                    </div>
                 </div>
             </div>
         </div>
